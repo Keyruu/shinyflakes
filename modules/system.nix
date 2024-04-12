@@ -51,6 +51,41 @@
     helpLine = "";
   };
 
+  services = {
+    gnome.gnome-keyring.enable = true;
+
+    # compositor
+    # picom.enable = true;
+
+    # use X11
+    xserver = {
+      enable = true;
+
+      # keyboard settings
+      xkb.layout = "us";
+      autoRepeatDelay = 300;
+      autoRepeatInterval = 25;
+
+      windowManager.xmonad = {
+        enable = true;
+        enableContribAndExtras = true;
+      };
+
+      # use startx as a display manager
+      displayManager = {
+        defaultSession = "none+xmonad";
+        lightdm = {
+          greeters.enso.enable = true;
+        };
+      };
+
+      libinput = {
+        enable = true;
+        mouse.accelProfile = "flat";
+      };
+    };
+  };
+
   # use X11 keyboard settings in tty
   console.useXkbConfig = true;
 

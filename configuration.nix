@@ -42,49 +42,6 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
-  # Configure keymap in X11
-  services.xserver = {
-    enable = true;
-
-    layout = "us";
-    xkbVariant = "";
-
-    windowManager.xmonad = {
-      enable = true;
-      enableContribAndExtras = true;
-    };
-
-    displayManager = {
-      defaultSession = "none+xmonad";
-      lightdm = {
-        greeters.enso = {
-          enable = true;
-        };
-      };
-    };
-  };
-
-  programs.zsh.enable = true;
-
-  environment = {
-    pathsToLink = ["/share/zsh"];
-    shells = [pkgs.zsh];
-  };
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users = {
-    defaultUserShell = pkgs.zsh;
-
-    users.lucas = {
-      isNormalUser = true;
-      description = "Lucas";
-      extraGroups = [ "audio" "networkmanager" "wheel" ];
-      packages = with pkgs; [];
-    };
-  };
-
-  hardware.parallels.enable = true; 
-
   sound.enable = true;
   services.pipewire = {
     enable = true;

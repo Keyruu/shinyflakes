@@ -23,6 +23,7 @@
 
     # gui apps
     gimp
+    _1password
 
     # cli apps
     glow # render markdown on the cli

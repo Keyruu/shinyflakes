@@ -65,6 +65,8 @@ mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
 mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing' i = spacingRaw True (Border i i i i) True (Border i i i i) True
 
+myWorkspaces = map show [1 .. 9]
+
 -- Layouts definition
 
 tall = renamed [Replace "tall"]
@@ -103,9 +105,7 @@ myLayoutHook = avoidStruts
         ||| grid
 
 myStartupHook = do
-    spawn "$HOME/.config/polybar/launch.sh"
-    spawn "greenclip daemon"
-    spawn "feh --bg-fill /etc/nixos/background.jpg"
+  spawn "[[ -f ~/.fehbg ]] && ~/.fehbg"
 
 myKeys :: [(String, X ())]
 myKeys = 
@@ -195,13 +195,14 @@ myKeys =
     ("<XF86MonBrightnessUp>", spawn "brightnessctl set +10%"),
     ("<XF86MonBrightnessDown>", spawn "brightnessctl set 10%-")
     ]
+    ++ [ ("M-C-" ++ i, (windows $ W.greedyView wsp . W.shift wsp)) | (i, wsp) <- zip (map show [1..9]) myWorkspaces]
 
 main :: IO ()
 main = do
     -- Xmonad
     xmonad 
       . ewmh
-      . withEasySB (statusBarProp "polybar -c ~/.config/polybar/config.ini" (pure def)) defToggleStrutsKey
+      . withEasySB (statusBarProp "$HOME/.config/polybar/launch.sh" (pure def)) defToggleStrutsKey
       $ def {
         manageHook = (isFullscreen --> doFullFloat) <+> manageDocks <+> insertPosition Below Newer,
         startupHook = myStartupHook,

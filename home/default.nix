@@ -5,7 +5,7 @@
     ./common.nix
     ./dark-mode.nix
     ./dunst.nix
- #   ./picom.nix
+#    ./picom.nix
     ./polybar
     ./xmonad
     ./shell
