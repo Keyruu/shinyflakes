@@ -31,6 +31,7 @@
     glow # render markdown on the cli
 
     # utils
+    xcolor
     _1password
     neofetch
     yadm

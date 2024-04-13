@@ -4,7 +4,7 @@
     plugins = with pkgs; [rofi-calc rofi-emoji];
     font = "monospace 13";
     extraConfig = {
-      modi = "window,drun,run,emoji,calc";
+      modi = "window,drun,run,emoji,calc,filebrowser,combi";
       show-icons = true;
       show-match = true;
       icon-theme = "Qogir";
@@ -29,6 +29,7 @@
       window = {
         location = mkLiteral "center";
         width = 480;
+        border-radius = mkLiteral "8px";
         border = mkLiteral "2px";
         border-color = mkLiteral "@fg";
       };

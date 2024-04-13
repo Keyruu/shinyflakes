@@ -11,7 +11,7 @@ import XMonad.Actions.WithAll (sinkAll)
 import XMonad.Actions.UpdatePointer
 
 -- Hooks
-import XMonad.Hooks.DynamicLog (PP (..), dynamicLogWithPP, shorten, wrap, xmobarColor, xmobarPP)
+import XMonad.Hooks.DynamicLog (PP (..), dynamicLogWithPP, shorten, wrap, xmobarPP)
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks (ToggleStruts (..), avoidStruts, docksEventHook, manageDocks)
@@ -51,9 +51,9 @@ myTerminal = "kitty" :: String
 
 myBorderWidth = 1 :: Dimension
 
-myNormColor = "#292d3e" :: String
+myNormColor = "#eeeeee" :: String
 
-myFocusColor = "#c792ea" :: String
+myFocusColor = "#2c8c9f" :: String
 
 windowCount :: X (Maybe String)
 windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
@@ -187,9 +187,11 @@ myKeys =
     -- Menu
     ("M-m", spawn "rofi -show drun"),
     -- Window nav
-    ("M-S-m", spawn "rofi -show"),
+    ("M-S-m", spawn "rofi -show combi"),
     -- Clipboard
     ("M-C-m", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
+    -- Calc
+    ("M-C-c", spawn "rofi -show calc"),
     -- Browser
     ("M-x", spawn "firefox"),
     -- File explorer
@@ -216,14 +218,14 @@ myKeys =
     ("<XF86MonBrightnessUp>", spawn "brightnessctl set +10%"),
     ("<XF86MonBrightnessDown>", spawn "brightnessctl set 10%-")
     ]
-    ++ [ ("M-C-" ++ i, windows $ W.greedyView wsp . W.shift wsp) | (i, wsp) <- zip (map show [1..9]) myWorkspaces]
+    ++ [ ("M-C-" ++ i, windows $ W.greedyView i . W.shift i) | i <- map show [1..9]]
 
 main :: IO ()
 main = do
     -- Xmonad
     xmonad 
-      . ewmh
-      . withEasySB (statusBarProp "$HOME/.config/polybar/launch.sh" (pure def)) defToggleStrutsKey
+      $ ewmh
+      $ withEasySB (statusBarProp "$HOME/.config/polybar/launch.sh" (pure def)) defToggleStrutsKey
       $ def {
         manageHook = (isFullscreen --> doFullFloat) <+> manageDocks <+> insertPosition Below Newer <+> myManageHook,
         startupHook = myStartupHook,
