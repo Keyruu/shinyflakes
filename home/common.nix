@@ -16,19 +16,23 @@
     actionlint
     gitmoji-cli
     pre-commit
-    neovim
     git
     gcc
     zig
+    jetbrains.idea-ultimate
+    vscode
 
     # gui apps
     gimp
-    _1password
+    _1password-gui
+    obsidian
 
     # cli apps
     glow # render markdown on the cli
 
     # utils
+    _1password
+    neofetch
     yadm
     rsync
     rclone

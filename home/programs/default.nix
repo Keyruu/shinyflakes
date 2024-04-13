@@ -5,5 +5,6 @@
     ./imv.nix
     ./zathura.nix
     ./spotify.nix
+    ./flameshot.nix
   ];
 }

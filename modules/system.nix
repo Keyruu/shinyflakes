@@ -57,6 +57,8 @@
     # compositor
     # picom.enable = true;
 
+    displayManager.defaultSession = "none+xmonad";
+
     # use X11
     xserver = {
       enable = true;
@@ -73,7 +75,6 @@
 
       # use startx as a display manager
       displayManager = {
-        defaultSession = "none+xmonad";
         lightdm = {
           greeters.enso.enable = true;
         };

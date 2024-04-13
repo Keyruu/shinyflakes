@@ -1,10 +1,13 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
+    inputs.nixvim.homeManagerModules.nixvim
+
     ./common.nix
     ./dark-mode.nix
     ./dunst.nix
+    ./neovim.nix
 #    ./picom.nix
     ./polybar
     ./xmonad

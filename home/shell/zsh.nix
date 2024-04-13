@@ -8,7 +8,7 @@
     enable = true;
 
     dotDir = ".config/zsh";
-    enableAutosuggestions = true;
+    autosuggestion.enable = true;
     enableCompletion = true;
 
     syntaxHighlighting.enable = true;
@@ -35,6 +35,8 @@
       copy = "xclip -selection clipboard";
       dev = "nix develop --impure -c $SHELL";
       git-branch-cleanup = "git branch -vv | grep gone | awk '{print $1}' | xargs git branch -D";
+      vi = "nvim";
+      vim = "nvim";
     };
 
     history = {

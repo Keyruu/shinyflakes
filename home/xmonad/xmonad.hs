@@ -65,7 +65,28 @@ mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
 mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing' i = spacingRaw True (Border i i i i) True (Border i i i i) True
 
-myWorkspaces = map show [1 .. 9]
+myWorkspaces = ["1 | cmd","2 | web","3 | dev","4 | media","5 | notes"] ++ map show [5..9]
+
+------------------------------------------------------------------------
+-- Window rules
+-- Execute arbitrary actions and WindowSet manipulations when managing
+-- a new window. You can use this to, for example, always float a
+-- particular program, or have a client always appear on a particular
+-- workspace.
+--
+-- To find the property name associated with a program, use
+-- > xprop | grep WM_CLASS
+-- and click on the client you're interested in.
+--
+-- To match on the WM_NAME, you can use 'title' in the same way that
+-- 'className' and 'resource' are used below.
+--
+myManageHook = composeAll
+    [
+      className =? "firefox" --> doShift "2 | web"
+      className =? "jetbrains-idea" --> doShift "3 | dev"
+    -- , isFullscreen                             --> doFullFloat
+    ]
 
 -- Layouts definition
 
@@ -168,7 +189,7 @@ myKeys =
     -- Window nav
     ("M-S-m", spawn "rofi -show"),
     -- Clipboard
-    ("M-c", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
+    ("M-C-m", spawn "rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"),
     -- Browser
     ("M-x", spawn "firefox"),
     -- File explorer
@@ -204,7 +225,7 @@ main = do
       . ewmh
       . withEasySB (statusBarProp "$HOME/.config/polybar/launch.sh" (pure def)) defToggleStrutsKey
       $ def {
-        manageHook = (isFullscreen --> doFullFloat) <+> manageDocks <+> insertPosition Below Newer,
+        manageHook = (isFullscreen --> doFullFloat) <+> manageDocks <+> insertPosition Below Newer <+> myManageHook,
         startupHook = myStartupHook,
         modMask = myModMask,
         terminal = myTerminal,
