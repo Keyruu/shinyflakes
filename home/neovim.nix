@@ -16,6 +16,10 @@
       autoindent = true;
       number = true;
       relativenumber = true;
+      ignorecase = true;
+      smartcase = true;
+      splitright = true;
+      splitbelow = true;
       shiftwidth = 2;
       tabstop = 2;
       softtabstop = 2;
@@ -23,7 +27,7 @@
       expandtab = true;
       smartindent = true;
       wrap = false;
-      hlsearch = false;
+      hlsearch = true;
       incsearch = true;
       termguicolors = true;
       cursorline = true;
@@ -80,12 +84,30 @@
     keymaps = [
       {
         action = ":CHADopen<CR>";
-        key = "t";
+        key = "<leader>ef";
         mode = "n";
       }
       {
-        action = "<cmd>TroubleToggle<cr>";
+        action = "<cmd>ToggleTerm<cr>";
         key = "<leader>t";
+        mode = "n";
+      }
+      {
+        action = "<C-\\><C-n>";
+        key = "<Esc><Esc>";
+        mode = "t";
+      }
+      {
+        action = ":q<CR>";
+        key = "<leader>q";
+        mode = "n";
+        options = {
+          desc = "Quit";
+        };
+      }
+      {
+        action = ":w<CR>";
+        key = "<leader>w";
         mode = "n";
       }
       {
@@ -105,7 +127,28 @@
         # copy to system clipboard
         action = ''"+y'';
         key = "<leader>y";
-        mode = ["n" "x"];
+        mode = ["n" "x" "v"];
+        options = {
+          desc = "Copy to system clipboard";
+        };
+      }
+      {
+        # delete to system clipboard
+        action = ''"+d'';
+        key = "<leader>d";
+        mode = ["n" "x" "v"];
+        options = {
+          desc = "Delete to system clipboard";
+        };
+      }
+      {
+        # delete to system clipboard
+        action = ''"+p'';
+        key = "<leader>p";
+        mode = ["n" "x" "v"];
+        options = {
+          desc = "Paste from system clipboard";
+        };
       }
       {
         # no macro menu
@@ -162,7 +205,6 @@
       fidget.enable = true;
       lightline.enable = true;
       indent-blankline = {
-        settings.indent.char = "|";
         enable = true;
       };
       gitgutter.enable = true;
@@ -177,6 +219,12 @@
       which-key.enable = true;
       sleuth.enable = true;
       todo-comments.enable = true;
+      copilot-vim.enable = true;
+      treesitter-context = {
+        enable = true;
+        separator = "—";
+      };
+      toggleterm.enable = true;
 
       cmp-treesitter.enable = true;
       cmp-nvim-lsp.enable = true;
@@ -278,7 +326,7 @@
         keymaps = {
           diagnostic = {
             # vim.diagnostic.#
-            "<leader>vd" = "open_float";
+            "<leader>e" = "open_float";
             "<leader>k" = "goto_prev";
             "<leader>j" = "goto_next";
           };
