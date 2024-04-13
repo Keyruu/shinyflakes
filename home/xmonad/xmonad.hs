@@ -83,8 +83,8 @@ myWorkspaces = ["1 | cmd","2 | web","3 | dev","4 | media","5 | notes"] ++ map sh
 --
 myManageHook = composeAll
     [
-      className =? "firefox" --> doShift "2 | web"
-      className =? "jetbrains-idea" --> doShift "3 | dev"
+      className =? "firefox"                --> doShift "2 | web",
+      className =? "jetbrains-idea"         --> doShift "3 | dev"
     -- , isFullscreen                             --> doFullFloat
     ]
 
@@ -216,7 +216,7 @@ myKeys =
     ("<XF86MonBrightnessUp>", spawn "brightnessctl set +10%"),
     ("<XF86MonBrightnessDown>", spawn "brightnessctl set 10%-")
     ]
-    ++ [ ("M-C-" ++ i, (windows $ W.greedyView wsp . W.shift wsp)) | (i, wsp) <- zip (map show [1..9]) myWorkspaces]
+    ++ [ ("M-C-" ++ i, windows $ W.greedyView wsp . W.shift wsp) | (i, wsp) <- zip (map show [1..9]) myWorkspaces]
 
 main :: IO ()
 main = do

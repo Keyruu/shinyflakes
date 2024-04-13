@@ -6,6 +6,7 @@ in {
   imports = [
     ./zsh.nix
     ./yazi.nix
+    ./k9s.nix
   ];
 
   # add environment variables
