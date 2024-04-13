@@ -4,7 +4,7 @@
     enable = true;
     package = pkgs.picom-next;
     backend = "glx";
-    vSync = true;
+#    vSync = true;
     fade = false;
     fadeDelta = 5;
     shadow = true;
@@ -21,6 +21,7 @@
     # this also makes AMD freesync work with picom
     settings = {
       unredir-if-possible = true;
+      corner-radius = 10;
     };
     # # and notifications that may draw over them
     # wintypes = {

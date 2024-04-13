@@ -8,7 +8,7 @@
     ./dark-mode.nix
     ./dunst.nix
     ./neovim.nix
-#    ./picom.nix
+    ./picom.nix
     ./polybar
     ./xmonad
     ./shell

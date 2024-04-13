@@ -6,5 +6,6 @@
     ./zathura.nix
     ./spotify.nix
     ./flameshot.nix
+    ./kitty.nix
   ];
 }

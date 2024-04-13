@@ -55,7 +55,7 @@
     gnome.gnome-keyring.enable = true;
 
     # compositor
-    # picom.enable = true;
+    picom.enable = true;
 
     displayManager.defaultSession = "none+xmonad";
 
