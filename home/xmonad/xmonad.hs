@@ -210,9 +210,9 @@ myKeys =
     --------------------- Hardware ---------------------
 
     -- Volume
-    ("<XF86AudioLowerVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ -5%"),
-    ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +5%"),
-    ("<XF86AudioMute>", spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle" ),
+    ("M-C-v", spawn "pamixer -d 5"),
+    ("M-C-S-v", spawn "pamixer -i 5"),
+    ("M-v", spawn "pamixer -m" ),
 
     -- Brightness
     ("<XF86MonBrightnessUp>", spawn "brightnessctl set +10%"),

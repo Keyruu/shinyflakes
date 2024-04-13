@@ -5,7 +5,7 @@
     settings = {
       global = {
         width = "(0, 500)";
-        offset = "8x43";
+        offset = "8x48";
         font = "monospace 11";
         gap_size = 8;
         icon_position = "right";

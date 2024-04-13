@@ -32,6 +32,7 @@
 
     # utils
     xcolor
+    pamixer
     _1password
     neofetch
     yadm
