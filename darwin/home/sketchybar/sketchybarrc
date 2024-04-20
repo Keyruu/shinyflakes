@@ -1,0 +1,167 @@
+#!/usr/bin/env zsh
+
+FONT_FACE="JetBrainsMono Nerd Font"
+
+SKETCHYBAR_CONFIG="$HOME/.config/sketchybar"
+ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are configured
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
+
+SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
+
+source "$SKETCHYBAR_CONFIG/colors.sh"
+
+sketchybar --add event window_focused
+sketchybar --add event window_title_changed
+sketchybar --add event yabai_change
+
+sketchybar --bar \
+    height=32 \
+    color=0x00000000 \
+    margin=0 \
+    sticky=on \
+    padding_left=23 \
+    padding_right=23 \
+    notch_width=188 \
+    display=all
+
+# Alternatiive background colors
+# label.color=0xffffffff
+# background.color=0x9924273a
+sketchybar --default \
+    background.color=0x66494d64 \
+    background.corner_radius=5 \
+    background.padding_right=5 \
+    background.height=26 \
+    icon.font="$FONT_FACE:Medium:15.0" \
+    icon.padding_left=5 \
+    icon.padding_right=5 \
+    label.font="$FONT_FACE:Medium:12.0" \
+    label.color=0xffcad3f5 \
+    label.y_offset=0 \
+    label.padding_left=0 \
+    label.padding_right=5
+
+sketchybar --add event spotify_change $SPOTIFY_EVENT \
+    --add item spotify e \
+    --set spotify \
+    icon= \
+    icon.y_offset=1 \
+    icon.font="$FONT_FACE:Bold:20.0" \
+    label.drawing=off \
+    label.padding_left=3 \
+    script="$PLUGIN_DIR/spotify.sh" \
+    --subscribe spotify spotify_change mouse.clicked
+
+sketchybar --add item current_space left \
+    --set current_space \
+    background.color=0xfff5a97f \
+    icon.color=0xff24273a \
+    label.drawing=off \
+    script="$PLUGIN_SHARED_DIR/current_space.sh" \
+    --subscribe current_space front_app_switched space_change mouse.clicked
+
+sketchybar --add item front_app left \
+    --set front_app \
+    background.color=0xffa6da95 \
+    background.padding_left=0 \
+    background.padding_right=0 \
+    icon.y_offset=1 \
+    icon.color=0xff24273a \
+    label.drawing=no \
+    script="$PLUGIN_SHARED_DIR/front_app.sh" \
+    --add item front_app.separator left \
+    --set front_app.separator \
+    background.color=0x00000000 \
+    background.padding_left=-3 \
+    icon= \
+    icon.color=0xffa6da95 \
+    icon.font="$FONT_FACE:Bold:20.0" \
+    icon.padding_left=0 \
+    icon.padding_right=0 \
+    icon.y_offset=1 \
+    label.drawing=no \
+    --add item front_app.name left \
+    --set front_app.name \
+    background.color=0x00000000 \
+    background.padding_right=0 \
+    icon.drawing=off \
+    label.font="$FONT_FACE:Bold:14.0" \
+    label.drawing=yes
+
+sketchybar --add bracket front_app_bracket \
+    front_app \
+    front_app.separator \
+    front_app.name \
+    --subscribe front_app window_focused window_title_changed
+
+sketchybar -m --add item yabai_mode q \
+              --set yabai_mode update_freq=3 \
+              --set yabai_mode script="$PLUGIN_SHARED_DIR/yabai_mode.sh" \
+              --set yabai_mode click_script="$PLUGIN_SHARED_DIR/yabai_mode_click.sh" \
+              label.padding_right=10 \
+              label.font="$FONT_FACE:Bold:15.0" \
+              --subscribe yabai_mode yabai_change space_change window_focus front_app_switched window_title_changed
+
+# S T A C K  I N D I C A T O R 
+sketchybar -m --add item stack q \
+              --set stack script="$PLUGIN_SHARED_DIR/stack.sh" \
+              label.padding_right=10 \
+              label.font="$FONT_FACE:Bold:15.0" \
+              --subscribe stack window_focused yabai_change front_app_switched space_change window_title_changed \
+              --set stack drawing=off \
+              --set stack update_freq=0
+
+sketchybar --add item clock right \
+    --set clock \
+    icon=󰃰 \
+    icon.color=0xffed8796 \
+    update_freq=10 \
+    script="$PLUGIN_SHARED_DIR/clock.sh"
+
+sketchybar --add item battery right \
+    --set battery \
+    update_freq=20 \
+    script="$PLUGIN_DIR/battery.sh"
+
+sketchybar --add item volume right \
+    --set volume \
+    icon.color=0xff8aadf4 \
+    label.drawing=true \
+    script="$PLUGIN_SHARED_DIR/volume.sh" \
+    --subscribe volume volume_change
+
+# sketchybar -m --add item vpn right \
+#               --set vpn icon= \
+#                         update_freq=5 \
+#                         script="$PLUGIN_SHARED_DIR/vpn.sh"
+#
+
+source "$ITEM_DIR/brew.sh"
+
+sketchybar  --add   item slack right \
+            --set   slack \
+                    update_freq=180 \
+                    script="$PLUGIN_SHARED_DIR/app-notif.sh Slack 󰒱" \
+                    icon.font.size=18 \
+           --subscribe slack system_woke
+
+sketchybar  --add   item outlook right \
+            --set   outlook \
+                    update_freq=180 \
+                    script="$PLUGIN_SHARED_DIR/app-notif.sh 'Microsoft Outlook' 󰴢" \
+                    icon.font.size=18 \
+           --subscribe outlook system_woke
+
+sketchybar -m --add item meeting right \
+              --set meeting script="$PLUGIN_SHARED_DIR/meeting.sh" \
+                    icon= \
+                    icon.color=$GREEN \
+                    update_freq=60
+
+# osascript -e 'quit app "Rectangle"'
+# open -a Rectangle
+
+##### Finalizing Setup #####
+sketchybar --update
+sketchybar --trigger space_change
