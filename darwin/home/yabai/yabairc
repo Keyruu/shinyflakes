@@ -59,14 +59,17 @@ yabai -m rule --add label="IntelliJ" app="^IntelliJ IDEA.*" space=^8
 yabai -m rule --add label="Warp" app="^Warp$" space=^9
 yabai -m rule --add label="Kitty" app="^kitty$" space=^9
 yabai -m rule --add label="Alacritty" app="^Alacritty$" space=^9
+yabai -m rule --add label="WezTerm" app="^WezTerm$" space=^9
 yabai -m rule --add label="Outlook" app="^Microsoft Outlook$" space=^1
 yabai -m rule --add label="Teams" app="^Microsoft Teams (work or school)$" space=^2
 yabai -m rule --add label="Slack" app="^Slack$" space=^2
 yabai -m rule --add label="Obsidian" app="^Obsidian$" space=^3
-yabai -m rule --add label="Heynote" app="^Heynote$" space=^3
+# yabai -m rule --add label="Heynote" app="^Heynote$" space=^3
 yabai -m rule --add label="Spotify" app="^Spotify$" space=^4
 yabai -m rule --add label="Path Finder" app="^Path Finder$" space=^5
 yabai -m rule --add label="Messages" app="^Messages$" space=^6
+
+yabai -m rule --add label="Heynote" app="^Heynote$" scratchpad=heynote grid=11:11:1:1:9:9
 
 yabai -m signal --add label="Change Space after launch" event=window_created action="$HOME/.config/yabai/changeSpaceAfterCreation.sh"
 

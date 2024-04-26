@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 yabai_mode=$(yabai -m query --spaces --space | jq -r .type)
 

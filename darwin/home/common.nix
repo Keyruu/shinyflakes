@@ -21,6 +21,7 @@
     pyenv
     quarkus
     yarn
+    helm-ls
 
     # gui apps
     gimp

@@ -4,9 +4,16 @@
   programs.zsh = {
     enable = true;
 
-    initExtra = ''
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-    '';
+    initExtra =
+      /*
+      bash
+      */
+      ''
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+
+        bindkey -M viins "^[[A" history-substring-search-up
+        bindkey -M viins "^[[B" history-substring-search-down
+      '';
 
     dotDir = ".config/zsh";
     enableAutosuggestions = true;
@@ -15,8 +22,8 @@
     syntaxHighlighting.enable = false;
     historySubstringSearch = {
       enable = true;
-      searchUpKey = ["^[j" "^[[A" "$terminfo[kcuu1]" "\eOA"];
-      searchDownKey = ["^[k" "^[[B" "$terminfo[kcud1]" "\eOB"];
+      searchUpKey = ["j" "^[[A"];
+      searchDownKey = ["k" "^[[B"];
     };
 
     shellAliases = {
@@ -71,12 +78,25 @@
     };
   };
 
-  programs.starship.enable = true;
-  programs.fzf.enable = true;
-  programs.zoxide.enable = true;
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
   programs.lsd = {
     enable = true;
     enableAliases = true;
   };
   programs.bat.enable = true;
+  programs.thefuck = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Format for 'eventsFrom:START to:END' command
 date_format="%Y-%m-%d %H:%M"

@@ -14,6 +14,7 @@ source "$SKETCHYBAR_CONFIG/colors.sh"
 sketchybar --add event window_focused
 sketchybar --add event window_title_changed
 sketchybar --add event yabai_change
+sketchybar --add event fullscreen
 
 sketchybar --bar \
     height=32 \
@@ -112,6 +113,14 @@ sketchybar -m --add item stack q \
               --set stack drawing=off \
               --set stack update_freq=0
 
+sketchybar -m --add item yabai_fullscreen q \
+              --set yabai_mode update_freq=10 \
+              --set yabai_mode script="$PLUGIN_SHARED_DIR/yabai_fullscreen.sh" \
+              label.font="$FONT_FACE:Bold:15.0" \
+              --subscribe yabai_fullscreen fullscreen \
+              --set yabai_fullscreen drawing=off
+
+
 sketchybar --add item clock right \
     --set clock \
     icon=󰃰 \
@@ -136,8 +145,6 @@ sketchybar --add item volume right \
 #                         update_freq=5 \
 #                         script="$PLUGIN_SHARED_DIR/vpn.sh"
 #
-
-source "$ITEM_DIR/brew.sh"
 
 sketchybar  --add   item slack right \
             --set   slack \

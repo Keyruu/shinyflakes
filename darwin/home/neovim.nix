@@ -110,6 +110,14 @@
         mode = "n";
       }
       {
+        action = "<cmd>LazyGit<CR>";
+        key = "<leader>lg";
+        mode = "n";
+        options = {
+          desc = "LazyGit";
+        };
+      }
+      {
         # this is here because it needs insert mode
         action = "vim.lsp.buf.signature_help";
         lua = true;
@@ -224,6 +232,21 @@
         separator = "—";
       };
       toggleterm.enable = true;
+      helm.enable = true;
+
+      # stuff that isnt in nixvim needs to be installed with lazy
+      # lazy = {
+      #   enable = true;
+      #   plugins = {
+      #     "kdheepak/lazygit.nvim" = {
+      #       enable = true;
+      #       cmd = "LazyGit";
+      #       keys = [
+      #         ''{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }''
+      #       ];
+      #     };
+      #   };
+      # };
 
       cmp-treesitter.enable = true;
       cmp-nvim-lsp.enable = true;
@@ -247,7 +270,7 @@
           preselect = "None";
           snippet.expand = "luasnip";
           mapping = {
-            __raw = ''
+            __raw = /* lua */ ''
               cmp.mapping.preset.insert {
                 -- Select the [n]ext item
                 ['<C-n>'] = cmp.mapping.select_next_item(),
@@ -342,7 +365,7 @@
         };
         servers = {
           nil_ls = {
-            enable = true;
+            enable = false;
             settings.formatting.command = [ "alejandra" ];
           };
           lua-ls.enable = true;
@@ -353,7 +376,23 @@
           jsonls.enable = true;
           clangd.enable = true;
           #          terraformls.enable = true;
-          helm-ls.enable = true;
+          helm-ls = {
+            enable = true;
+            # onAttach.function = ''
+            #   if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].filetype == "helm" then
+            #     vim.diagnostic.disable() 
+            #   end
+            # '';
+            extraOptions = {
+              settings = {
+                "helm-ls" = {
+                  yamlls = {
+                    path = "yaml-language-server";
+                  };
+                };
+              };
+            };
+          };
           gopls.enable = true;
           kotlin-language-server.enable = true;
           ruff-lsp = {
@@ -361,27 +400,27 @@
           };
           yamlls = {
             enable = true;
-            extraOptions = {
-              settings = {
-                yaml = {
-                  schemas = {
-                    kubernetes = "*.yaml";
-                    "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
-                    "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
-                    "http://json.schemastore.org/ansible-stable-2.9" = "roles/tasks/*.{yml,yaml}";
-                    "http://json.schemastore.org/prettierrc" = ".prettierrc.{yml,yaml}";
-                    "http://json.schemastore.org/kustomization" = "kustomization.{yml,yaml}";
-                    "http://json.schemastore.org/ansible-playbook" = "*play*.{yml,yaml}";
-                    "http://json.schemastore.org/chart" = "Chart.{yml,yaml}";
-                    "https://json.schemastore.org/dependabot-v2" = ".github/dependabot.{yml,yaml}";
-                    "https://json.schemastore.org/gitlab-ci" = "*gitlab-ci*.{yml,yaml}";
-                    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json" = "*api*.{yml,yaml}";
-                    "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = "*docker-compose*.{yml,yaml}";
-                    "https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json" = "*flow*.{yml,yaml}";
-                  };
-                };
-              };
-            };
+            # extraOptions = {
+            #   settings = {
+            #     yaml = {
+            #       schemas = {
+            #         kubernetes = "*.yaml";
+            #         "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
+            #         "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
+            #         "http://json.schemastore.org/ansible-stable-2.9" = "roles/tasks/*.{yml,yaml}";
+            #         "http://json.schemastore.org/prettierrc" = ".prettierrc.{yml,yaml}";
+            #         "http://json.schemastore.org/kustomization" = "kustomization.{yml,yaml}";
+            #         "http://json.schemastore.org/ansible-playbook" = "*play*.{yml,yaml}";
+            #         "http://json.schemastore.org/chart" = "Chart.{yml,yaml}";
+            #         "https://json.schemastore.org/dependabot-v2" = ".github/dependabot.{yml,yaml}";
+            #         "https://json.schemastore.org/gitlab-ci" = "*gitlab-ci*.{yml,yaml}";
+            #         "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json" = "*api*.{yml,yaml}";
+            #         "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = "*docker-compose*.{yml,yaml}";
+            #         "https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json" = "*flow*.{yml,yaml}";
+            #       };
+            #     };
+            #   };
+            # };
           };
         };
       };
@@ -389,9 +428,10 @@
 
     extraPlugins = with pkgs.vimPlugins; [
       smartcolumn-nvim
+      lazygit-nvim
     ];
 
-    extraConfigLua = ''
+    extraConfigLua = /* lua */ ''
       vim.api.nvim_create_autocmd('TextYankPost', {
         desc = 'Highlight when yanking (copying) text',
         group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),

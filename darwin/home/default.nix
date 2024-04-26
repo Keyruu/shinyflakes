@@ -7,6 +7,7 @@
     ./common.nix
     ./firefox.nix
     ./neovim.nix
+    ./borders.nix
     ./yabai.nix
     ./skhd.nix
     ./sketchybar.nix

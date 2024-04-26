@@ -8,6 +8,8 @@ in {
     ./yazi.nix
     ./k9s.nix
     ./alacritty.nix
+    ./lazygit.nix
+    ./wezterm.nix
   ];
 
   # add environment variables

@@ -21,6 +21,7 @@
     neovim
     git
     just # use Justfile to simplify nix-darwin's commands 
+    jq
   ];
   environment.variables.EDITOR = "nvim";
 
@@ -78,6 +79,7 @@
       "ical-buddy" # calendar events
 
       "jenv" # Java environment manager
+      "jq"
 
       "nvm" # Node Version Manager
 
@@ -87,6 +89,7 @@
       "python@3.11"
       "python@3.12"
 
+      "borders"
       "sketchybar" # status bar
       "skhd" # hotkey daemon
       "svim" # make every text field a vim editor
@@ -292,6 +295,8 @@
       "temurin17"
       "temurin21"
       "vlc"
+      "obs"
+      "kdenlive"
     ];
   };
 }
