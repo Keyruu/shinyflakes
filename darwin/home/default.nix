@@ -12,6 +12,7 @@
     ./skhd.nix
     ./sketchybar.nix
     ./ideavim.nix
+    ./kubie.nix
     ./shell
     ./programs
   ];

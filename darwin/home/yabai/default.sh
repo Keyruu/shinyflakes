@@ -11,6 +11,7 @@ eval "$sendAppToSpace 'IntelliJ IDEA' 8"
 # send kitty to 9
 eval "$sendAppToSpace 'kitty' 9"
 eval "$sendAppToSpace 'Alacritty' 9"
+eval "$sendAppToSpace 'WezTerm' 9"
 
 # send outlook to 1
 eval "$sendAppToSpace 'Microsoft Outlook' 1"

@@ -1,7 +1,4 @@
-{ pkgs
-, username
-, ...
-}: {
+{ pkgs, username, ... }: {
   home.packages = with pkgs; [
     alejandra
   ];
@@ -119,8 +116,7 @@
       }
       {
         # this is here because it needs insert mode
-        action = "vim.lsp.buf.signature_help";
-        lua = true;
+        action.__raw = "vim.lsp.buf.signature_help";
         key = "<C-h>";
         mode = "i";
       }
@@ -229,7 +225,7 @@
       copilot-vim.enable = true;
       treesitter-context = {
         enable = true;
-        separator = "—";
+        settings.separator = "—";
       };
       toggleterm.enable = true;
       helm.enable = true;

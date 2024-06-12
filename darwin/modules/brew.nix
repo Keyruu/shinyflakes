@@ -297,6 +297,7 @@
       "vlc"
       "obs"
       "kdenlive"
+      "bambu-studio"
     ];
   };
 }

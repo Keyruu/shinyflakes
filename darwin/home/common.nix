@@ -22,6 +22,12 @@
     quarkus
     yarn
     helm-ls
+    air
+    templ
+    golangci-lint
+    delve
+    kubie
+    certbot-full
 
     # gui apps
     gimp
