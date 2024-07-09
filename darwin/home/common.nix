@@ -11,7 +11,6 @@
     gitmoji-cli
     pre-commit
     git
-    gcc
     zig
     go # go lang
     go-task # task runner
@@ -28,6 +27,9 @@
     delve
     kubie
     certbot-full
+    nixpacks
+    bun
+
 
     # gui apps
     gimp
@@ -57,6 +59,9 @@
     kubectl
     krew
     dive # docker image explorer
+    stern
+    cilium-cli
+    hubble
     eksctl # aws
     kubectx
     hcloud # hetzner cloud

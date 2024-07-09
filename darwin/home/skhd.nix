@@ -48,11 +48,11 @@
       # Focus apps
       alt - c : open -a Arc
       alt - e : open -a WezTerm
-      alt - d : open -a "Path Finder"
+      alt - d : open -a Finder
       alt - a : open -a "Slack"
       alt - m : open -a "Spotify.app"
-      alt - t : open -a "Microsoft Teams (work or school)"
-      alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
+      alt - t : open -a "Microsoft Teams"
+      # alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
       alt - w : open -a "Obsidian"
       alt - o : open -a "Microsoft Outlook"
       alt - v : open -a "IntelliJ IDEA Ultimate"

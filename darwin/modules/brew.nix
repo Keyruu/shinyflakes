@@ -126,7 +126,7 @@
       # "freetype" # font library
       # "frei0r" # video effects
       # "fribidi" # bidirectional text
-      # "gcc" # C compiler
+      "gcc" # C compiler
       # "gdbm" # database
       # "giflib" # GIF library
       # "glib" # general-purpose utility library
@@ -159,7 +159,7 @@
       # "libgcrypt" # cryptography library
       # "libgit2" # Git library
       # "libgpg-error" # GnuPG error library
-      # "libiconv" # character set conversion library
+      "libiconv" # character set conversion library
       # "libidn2" # internationalized domain names
       # "libimagequant" # image quantization
       # "libksba" # X.509 library

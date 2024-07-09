@@ -1,4 +1,4 @@
-{ pkgs, username, ... }: {
+{ pkgs, username, fetchFromGitHub, buildVimPlugin, ... }: {
   home.packages = with pkgs; [
     alejandra
   ];
@@ -222,7 +222,7 @@
       which-key.enable = true;
       sleuth.enable = true;
       todo-comments.enable = true;
-      copilot-vim.enable = true;
+      # copilot-vim.enable = true;
       treesitter-context = {
         enable = true;
         settings.separator = "—";
@@ -233,15 +233,11 @@
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {
       #   enable = true;
-      #   plugins = {
-      #     "kdheepak/lazygit.nvim" = {
-      #       enable = true;
-      #       cmd = "LazyGit";
-      #       keys = [
-      #         ''{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }''
-      #       ];
-      #     };
-      #   };
+      #   plugins = [
+      #     {
+      #       name = "supermaven-inc/supermaven-nvim";
+      #     }
+      #   ];
       # };
 
       cmp-treesitter.enable = true;
@@ -360,8 +356,8 @@
           };
         };
         servers = {
-          nil_ls = {
-            enable = false;
+          nil-ls = {
+            enable = true;
             settings.formatting.command = [ "alejandra" ];
           };
           lua-ls.enable = true;
@@ -422,10 +418,23 @@
       };
     };
 
-    extraPlugins = with pkgs.vimPlugins; [
-      smartcolumn-nvim
-      lazygit-nvim
-    ];
+    extraPlugins = 
+    let
+      supermaven-nvim = pkgs.vimUtils.buildVimPlugin {
+        name = "supermaven-nvim";
+        src = pkgs.fetchFromGitHub {
+          owner = "supermaven-inc";
+          repo = "supermaven-nvim";
+          rev = "c7ab94a6bcde96c79ff51afd6a1494606bb6f10b";
+          hash = "sha256-TeRWReHeEqP5I3tgfJdMDmHvL83NDCENRMcQrKbPiqg=";
+        };
+      };
+    in
+      with pkgs.vimPlugins; [
+        smartcolumn-nvim
+        lazygit-nvim
+        supermaven-nvim
+      ];
 
     extraConfigLua = /* lua */ ''
       vim.api.nvim_create_autocmd('TextYankPost', {
@@ -444,6 +453,13 @@
       )
 
       require("smartcolumn").setup()
+      require("supermaven-nvim").setup({
+        keymaps = {
+          accept_suggestion = "<Tab>",
+          clear_suggestion = "<C-]>",
+          accept_word = "<C-j>",
+        }
+      })
     '';
   };
 }

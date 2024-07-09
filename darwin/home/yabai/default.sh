@@ -20,7 +20,7 @@ eval "$sendAppToSpace 'Microsoft Outlook' 1"
 eval "$sendAppToSpace 'Slack' 2"
 
 # send teams to 2
-eval "$sendAppToSpace 'Microsoft Teams (work or school)' 2"
+eval "$sendAppToSpace 'Microsoft Teams' 2"
 
 # send obsidian to 3
 eval "$sendAppToSpace 'Obsidian' 3"
@@ -32,7 +32,7 @@ eval "$sendAppToSpace 'Heynote' 3"
 eval "$sendAppToSpace 'Spotify' 4"
 
 # send path finder to 5
-eval "$sendAppToSpace 'Path Finder' 5"
+eval "$sendAppToSpace 'Finder' 5"
 
 # send messages to 6
 eval "$sendAppToSpace 'Messages' 6"
