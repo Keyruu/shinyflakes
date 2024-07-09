@@ -85,6 +85,8 @@ yabai -m rule --add label="Dictionary" app="^Dictionary$" manage=off
 yabai -m rule --add label="Software Update" title="Software Update" manage=off
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
 yabai -m rule --add label="Raycast" app="^Raycast$" title=".*" manage=off
+yabai -m rule --add label="PastePal" app="^PastePal$" title=".*" manage=off
+yabai -m rule --add label="Preferences" app=".*" title="Preferences" manage=off
 
 # float settings windows
 yabai -m rule --add title='Settings$' manage=off

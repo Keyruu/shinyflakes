@@ -46,6 +46,8 @@
       # TODO Feel free to add your favorite apps here.
 
       Xcode = 497799835;
+      PastePal = 1503446680;
+      Keymapp = 6472865291;
     };
 
     taps = [
@@ -277,6 +279,8 @@
       "iina" # video player
       "raycast" # (HotKey: alt/option + space)search, caculate and run scripts(with many plugins)
       "stats" # beautiful system monitor
+      "shottr"
+      "jordanbaird-ice"
 
       # Development
       "insomnia" # REST client
