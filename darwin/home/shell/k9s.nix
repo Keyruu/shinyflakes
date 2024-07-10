@@ -69,8 +69,8 @@
 
         shift-9 = {
           shortCut = "Shift-9";
-          description = "View nodes";
-          command = "no";
+          description = "View namespaces";
+          command = "ns";
         };
 
         f1 = {
@@ -89,6 +89,12 @@
           shortCut = "F3";
           description = "caas-shared-prod-2";
           command = "ctx caas-shared-prod-2";
+        };
+
+        f4 = {
+          shortCut = "F4";
+          description = "View nodes";
+          command = "no";
         };
       };
     };

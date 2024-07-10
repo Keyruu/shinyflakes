@@ -29,6 +29,7 @@
     certbot-full
     nixpacks
     bun
+    nixos-rebuild
 
 
     # gui apps
