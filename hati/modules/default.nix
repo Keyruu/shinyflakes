@@ -7,5 +7,7 @@
     ./locale.nix
     ./docker.nix
     ./stacks
+    ./monitoring.nix
+    ./nginx.nix
   ];
 }

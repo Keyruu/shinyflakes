@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hostname, ... }:
+{ config, lib, pkgs, hostname, sops, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -18,6 +18,9 @@
     # use predictable network interface names (eth0)
     kernelParams = ["net.ifnames=0"];
   };
+
+  sops.defaultSopsFile = ../secrets.yaml;
+  sops.secrets.cloudflare = {};
 
   networking.hostName = "${hostname}"; # Define your hostname.
   # Pick only one of the below networking options.

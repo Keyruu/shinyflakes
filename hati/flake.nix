@@ -6,12 +6,15 @@
 
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
+
+    sops-nix.url = "github:Mic92/sops-nix";
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
     disko,
+    sops-nix,
     ...
   }: let
     inherit (self) outputs;
@@ -27,6 +30,7 @@
       system = "x86_64-linux";
       modules = [
         disko.nixosModules.disko
+        sops-nix.nixosModules.sops
         ./modules
       ];
     };
