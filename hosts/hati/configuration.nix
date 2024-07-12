@@ -1,10 +1,19 @@
-{ config, lib, pkgs, hostname, sops, ... }:
+{ modules, pkgs, hostname, sops, lib, ... }:
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./disk-config.nix
-      ./hardware-configuration.nix
-    ];
+  imports = lib.flatten [
+    (with modules; [
+      docker
+      locale
+      lvm-disk
+      nginx
+      ssh-access
+    ])
+    ./hardware-configuration.nix
+    ./network.nix
+    ./cert.nix
+    ./stacks
+    ./monitoring.nix
+  ];
 
   # Use the GRUB 2 boot loader.
   boot = {
@@ -19,7 +28,7 @@
     kernelParams = ["net.ifnames=0"];
   };
 
-  sops.defaultSopsFile = ../secrets.yaml;
+  sops.defaultSopsFile = ../../secrets.yaml;
   sops.secrets.cloudflare = {};
 
   networking.hostName = "${hostname}"; # Define your hostname.

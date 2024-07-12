@@ -26,11 +26,9 @@
     golangci-lint
     delve
     kubie
-    certbot-full
     nixpacks
     bun
     nixos-rebuild
-
 
     # gui apps
     gimp
@@ -54,7 +52,7 @@
     ripgrep
     sqlite
     starship
-    youtube-dl
+    yt-dlp
 
     # devops
     kubectl
@@ -86,7 +84,7 @@
     cmatrix
     fortune
     lolcat
-    
+
     # utils
     gnused
     watch

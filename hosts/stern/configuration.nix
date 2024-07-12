@@ -1,4 +1,10 @@
-{ outputs, pkgs, lib, ... }: {
+{ outputs, pkgs, lib, modules, ... }: {
+  imports = lib.flatten [
+    (with modules; [
+      brew
+      darwin
+    ])
+  ];
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages =
