@@ -1,9 +1,5 @@
 {
-  description = "Keyruu's Flakes";
-
-  inputs = {
-  };
-
+  description = "Keyruu's shinyflakes";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
