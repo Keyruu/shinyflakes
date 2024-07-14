@@ -13,6 +13,7 @@
     ./cert.nix
     ./stacks
     ./monitoring.nix
+    ./blocky.nix
   ];
 
   # Use the GRUB 2 boot loader.
@@ -28,8 +29,15 @@
     kernelParams = ["net.ifnames=0"];
   };
 
-  sops.defaultSopsFile = ../../secrets.yaml;
-  sops.secrets.cloudflare = {};
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    secrets.cloudflare = {};
+  };
+
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "both";
+  };
 
   networking.hostName = "${hostname}"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -44,6 +52,7 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
+    busybox
   ];
 
   system.stateVersion = "24.11"; # Did you read the comment?

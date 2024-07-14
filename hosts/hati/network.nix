@@ -6,6 +6,10 @@
     };
 
     nameservers = ["192.168.187.10" "1.1.1.1"];
+    defaultGateway = {
+      address = "192.168.187.1";
+      interface = "eth0";
+    };
 
     useDHCP = lib.mkDefault true;
     interfaces.eth0 = {

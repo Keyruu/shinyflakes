@@ -60,6 +60,16 @@
         ];
       };
 
+    nixosConfigurations.sleipnir = nixpkgs.lib.nixosSystem {
+      inherit specialArgs;
+      modules = [
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+        ./hosts/sleipnir/configuration.nix
+      ];
+    };
+
+
     darwinConfigurations.stern = let
       args =
         specialArgs

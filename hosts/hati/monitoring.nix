@@ -21,7 +21,7 @@
 
     scrapeConfigs = [
       {
-        job_name = "nodes";
+        job_name = "node_exporter";
         static_configs = [
           {
             targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
@@ -33,6 +33,14 @@
         static_configs = [
           {
             targets = ["127.0.0.1:${toString config.services.cadvisor.port}"];
+          }
+        ];
+      }
+      {
+        job_name = "blocky";
+        static_configs = [
+          {
+            targets = ["127.0.0.1:${toString config.services.blocky.settings.ports.http}"];
           }
         ];
       }
@@ -132,6 +140,17 @@
           type = "loki";
           access = "proxy";
           url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}";
+        }
+        {
+          name = "postgresql-blocky";
+          type = "postgres";
+          url = "/run/postgresql";
+          user = "grafana";
+          jsonData = {
+            password = "grafana";
+            database = "blocky";
+            sslmode = "disable";
+          };
         }
       ];
     };

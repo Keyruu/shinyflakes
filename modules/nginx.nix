@@ -19,5 +19,7 @@
     sslDhparam = config.security.dhparams.params.nginx.path;
   };
 
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+
   users.users.nginx.extraGroups = [ "acme" ];
 }
