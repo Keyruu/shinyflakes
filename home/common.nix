@@ -53,6 +53,7 @@
     sqlite
     starship
     yt-dlp
+    oh-my-posh
 
     # devops
     kubectl
@@ -66,7 +67,7 @@
     hcloud # hetzner cloud
     rclone
     packer # image builder
-    terraform
+    opentofu # terraform sucks
     terragrunt
 
     # tui

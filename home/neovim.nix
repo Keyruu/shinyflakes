@@ -191,6 +191,7 @@
       treesitter = {
         enable = true;
         indent = true;
+        settings.highlight.enable = true;
       };
 
       chadtree = {
@@ -358,7 +359,10 @@
         servers = {
           nil-ls = {
             enable = true;
-            settings.formatting.command = [ "alejandra" ];
+            settings = {
+              formatting.command = [ "alejandra" ];
+              flake.autoEvalInputs = true;
+            };
           };
           lua-ls.enable = true;
           bashls.enable = true;
@@ -367,23 +371,9 @@
           hls.enable = true;
           jsonls.enable = true;
           clangd.enable = true;
-          #          terraformls.enable = true;
+          terraformls.enable = true;
           helm-ls = {
             enable = true;
-            # onAttach.function = ''
-            #   if vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].filetype == "helm" then
-            #     vim.diagnostic.disable() 
-            #   end
-            # '';
-            extraOptions = {
-              settings = {
-                "helm-ls" = {
-                  yamlls = {
-                    path = "yaml-language-server";
-                  };
-                };
-              };
-            };
           };
           gopls.enable = true;
           kotlin-language-server.enable = true;
@@ -392,6 +382,13 @@
           };
           yamlls = {
             enable = true;
+            # onAttach.function = /* lua */ ''
+            #   if vim.bo[bufnr].filetype == "helm" then
+            #     vim.schedule(function()
+            #       vim.cmd("LspStop ++force yamlls")
+            #     end)
+            #   end
+            # '';
             # extraOptions = {
             #   settings = {
             #     yaml = {

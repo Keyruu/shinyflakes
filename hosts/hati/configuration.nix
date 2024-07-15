@@ -1,5 +1,11 @@
-{ modules, pkgs, hostname, sops, lib, ... }:
 {
+  modules,
+  pkgs,
+  hostname,
+  sops,
+  lib,
+  ...
+}: {
   imports = lib.flatten [
     (with modules; [
       docker
@@ -12,7 +18,7 @@
     ./network.nix
     ./cert.nix
     ./stacks
-    ./monitoring.nix
+    ./monitoring
     ./blocky.nix
   ];
 
@@ -29,9 +35,18 @@
     kernelParams = ["net.ifnames=0"];
   };
 
+  users.groups.smtp.members = ["root"];
+
   sops = {
     defaultSopsFile = ../../secrets.yaml;
-    secrets.cloudflare = {};
+    secrets = {
+      cloudflare.owner = "root";
+      resendApiKey = {
+        owner = "root";
+        group = "smtp";
+        mode = "0440";
+      };
+    };
   };
 
   services.tailscale = {
