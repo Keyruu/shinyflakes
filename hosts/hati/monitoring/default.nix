@@ -1,8 +1,9 @@
 {config, ...}: {
   imports = [
     ./prometheus.nix
+    ./alertmanager.nix
     ./loki.nix
-    ./grafana
+    ./grafana.nix
   ];
 
   services.nginx.virtualHosts."monitoring.lab.keyruu.de" = {
@@ -18,4 +19,3 @@
     };
   };
 }
-

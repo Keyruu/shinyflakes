@@ -1,13 +1,23 @@
-{config, ...}: {
+{
+  config,
+  environment,
+  ...
+}: {
+  environment.etc."grafana/dashboards" = {
+    source = ./dashboards;
+    user = "grafana";
+    group = "grafana";
+  };
+
   services.grafana = {
     enable = true;
 
     settings = {
       server = {
-        http_addr = "0.0.0.0";
+        http_addr = "127.0.0.1";
         http_port = 3010;
       };
-      
+
       analytics = {
         reporting_enabled = false;
         feedback_links_enabled = false;
@@ -15,9 +25,13 @@
       panels.disable_sanitize_html = true;
     };
 
-
     provision = {
       enable = true;
+      dashboards.settings.providers = [
+        {
+          options.path = "/etc/grafana/dashboards";
+        }
+      ];
       datasources.settings.datasources = [
         {
           name = "Prometheus";
