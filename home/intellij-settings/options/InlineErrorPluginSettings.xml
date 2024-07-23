@@ -1,0 +1,10 @@
+<application>
+  <component name="com.daniel_espinoza.inline_errors.InlineErrorsState">
+    <option name="highlightErrorColor" value="-11914444" />
+    <option name="errorTextColor" value="-39579" />
+    <option name="highlightWarnColor" value="-7974624" />
+    <option name="warnTextColor" value="-27601" />
+    <option name="highlightInfoColor" value="-16552054" />
+    <option name="infoTextColor" value="-16730140" />
+  </component>
+</application>

@@ -1,0 +1,12 @@
+<application>
+  <component name="GitToolBoxBranchesAppConfig">
+    <option name="outdated">
+      <OutdatedBranchesConfig>
+        <option name="branchesExclusionGlobs">
+          <list />
+        </option>
+      </OutdatedBranchesConfig>
+    </option>
+    <option name="version" value="2" />
+  </component>
+</application>

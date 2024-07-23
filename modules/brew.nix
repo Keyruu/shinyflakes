@@ -94,7 +94,7 @@
       "borders"
       "sketchybar" # status bar
       "skhd" # hotkey daemon
-      "svim" # make every text field a vim editor
+      # "svim" # make every text field a vim editor
 
       "x86_64-unknown-linux-gnu" # cross-compilation
       "x86_64-unknown-linux-musl" # cross-compilation
@@ -281,6 +281,7 @@
       "stats" # beautiful system monitor
       "shottr"
       "jordanbaird-ice"
+      "lulu"
 
       # Development
       "insomnia" # REST client
@@ -295,9 +296,9 @@
       "rar"
       "sf-symbols"
       "shortcat"
-      "temurin11"
-      "temurin17"
-      "temurin21"
+      "temurin@11"
+      "temurin@17"
+      "temurin@21"
       "vlc"
       "obs"
       "kdenlive"

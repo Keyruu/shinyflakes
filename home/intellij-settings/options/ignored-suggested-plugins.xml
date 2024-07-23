@@ -1,0 +1,14 @@
+<application>
+  <component name="IgnoredPluginSuggestions">
+    <option name="pluginIds">
+      <list>
+        <option value="aws.toolkit" />
+        <option value="com.intellij.javaee.ejb" />
+        <option value="com.haulmont.jpab" />
+        <option value="com.microsoft.tooling.msservices.intellij.azure" />
+        <option value="com.intellij.bigdatatools" />
+        <option value="com.intellij.quarkus" />
+      </list>
+    </option>
+  </component>
+</application>

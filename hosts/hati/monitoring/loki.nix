@@ -1,4 +1,8 @@
-{hostname, config, ...}: {
+{
+  hostname,
+  config,
+  ...
+}: {
   services.loki = {
     enable = true;
     configuration = {
@@ -15,22 +19,32 @@
       };
 
       schema_config = {
-        configs = [{
-          from = "2020-05-15";
-          store = "tsdb";
-          object_store = "filesystem";
-          schema = "v13";
-          index = {
-            prefix = "index_";
-            period = "24h";
-          };
-        }];
+        configs = [
+          {
+            from = "2020-05-15";
+            store = "tsdb";
+            object_store = "filesystem";
+            schema = "v13";
+            index = {
+              prefix = "index_";
+              period = "24h";
+            };
+          }
+        ];
       };
 
       storage_config.filesystem.directory = "/tmp/loki/chunks";
 
       analytics.reporting_enabled = false;
     };
+  };
+
+  users.groups.promtail = {};
+  users.groups.nginx = {};
+  users.users.promtail = {
+    isSystemUser = true;
+    group = "promtail";
+    extraGroups = ["nginx"];
   };
 
   services.promtail = {
@@ -43,9 +57,11 @@
       positions = {
         filename = "/tmp/positions.yaml";
       };
-      clients = [{
-        url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push";
-      }];
+      clients = [
+        {
+          url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push";
+        }
+      ];
       scrape_configs = [
         {
           job_name = "journal";
@@ -54,19 +70,26 @@
             labels = {
               job = "systemd-journal";
               host = hostname;
+              instance = "127.0.0.1";
             };
           };
-          relabel_configs = [{
-            source_labels = [ "__journal__systemd_unit" ];
-            target_label = "unit";
-          }];
+          relabel_configs = [
+            {
+              source_labels = ["__journal__systemd_unit"];
+              target_label = "unit";
+            }
+          ];
         }
         {
           job_name = "nginx";
           static_configs = [
             {
+              targets = ["localhost"];
               labels = {
+                job = "nginx";
                 __path__ = "/var/log/nginx/*.log";
+                host = hostname;
+                instance = "127.0.0.1";
               };
             }
           ];
@@ -75,4 +98,4 @@
     };
     # extraFlags
   };
-} 
+}

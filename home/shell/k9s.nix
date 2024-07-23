@@ -165,7 +165,7 @@
           ];
         };
         dive = {
-          shortCut = "Ctrl-I";
+          shortCut = "Shift-I";
           confirm = false;
           description = "Dive image";
           scopes = ["containers"];

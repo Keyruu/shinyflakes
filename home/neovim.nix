@@ -32,6 +32,7 @@
       swapfile = false;
       undofile = true;
       undodir = "/Users/${username}/.vim/undodir";
+      conceallevel = 1;
     };
 
     files = {
@@ -79,8 +80,13 @@
     globals.mapleader = " ";
     keymaps = [
       {
-        action = ":CHADopen<CR>";
+        action = ":Oil<CR>";
         key = "<leader>ef";
+        mode = "n";
+      }
+      {
+        action = ":Oil<CR>";
+        key = "-";
         mode = "n";
       }
       {
@@ -180,6 +186,26 @@
         key = "<C-l>";
         mode = "n";
       }
+      {
+        action = "<cmd>Telescope find_files<cr>";
+        key = "<leader>ff";
+        mode = "n";
+      }
+      {
+        action = "<cmd>Telescope live_grep<cr>";
+        key = "<leader>fg";
+        mode = "n";
+      }
+      {
+        action = "<cmd>Telescope buffers<cr>";
+        key = "<leader>fb";
+        mode = "n";
+      }
+      {
+        action = "<cmd>Telescope help_tags<cr>";
+        key = "<leader>fh";
+        mode = "n";
+      }
     ];
 
     plugins = {
@@ -190,12 +216,34 @@
 
       treesitter = {
         enable = true;
-        indent = true;
-        settings.highlight.enable = true;
+        settings = {
+          indent.enable = true;
+          highlight.enable = true;
+        };
+      };
+
+      obsidian = {
+        enable = true;
+        settings = {
+          workspaces = [
+            {
+              path = "~/git/private/obsidian/";
+              name = "obsidian";
+            }
+            {
+              path = "~/git/private/oblivion/content/";
+              name = "oblivion";
+            }
+          ];
+        };
+      };
+
+      oil = {
+        enable = true;
       };
 
       chadtree = {
-        enable = true;
+        enable = false;
         keymap = {
           windowManagement.quit = [ "q" "t" ];
           fileOperations.trash = [ "D" ];

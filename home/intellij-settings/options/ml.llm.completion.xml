@@ -1,0 +1,8 @@
+<application>
+  <component name="LLM Completion Third Parties">
+    <thirdParties>
+      <entry id="com.github.copilot" is-enabled="true" />
+      <entry id="aws.toolkit" is-enabled="true" />
+    </thirdParties>
+  </component>
+</application>

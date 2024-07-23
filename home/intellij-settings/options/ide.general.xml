@@ -1,0 +1,22 @@
+<application>
+  <component name="GeneralSettings">
+    <option name="showTipsOnStartup" value="false" />
+    <option name="confirmExit" value="false" />
+    <option name="confirmOpenNewProject2" value="0" />
+    <option name="processCloseConfirmation" value="TERMINATE" />
+  </component>
+  <component name="Registry">
+    <entry key="ide.experimental.ui" value="true" />
+    <entry key="eslint.additional.file.extensions" value="svelte" />
+    <entry key="debugger.new.tool.window.layout" value="true" />
+    <entry key="ide.balloon.shadow.size" value="0" />
+    <entry key="org.toml.json.schema" value="false" />
+  </component>
+  <component name="StatusBar">
+    <option name="widgets">
+      <map>
+        <entry key="aws.codewhisperer" value="false" />
+      </map>
+    </option>
+  </component>
+</application>

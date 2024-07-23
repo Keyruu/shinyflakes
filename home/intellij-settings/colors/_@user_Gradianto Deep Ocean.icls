@@ -1,0 +1,15 @@
+<scheme name="_@user_Gradianto Deep Ocean" version="142" parent_scheme="Darcula">
+  <option name="FONT_SCALE" value="1.0" />
+  <metaInfo>
+    <property name="created">2024-03-13T14:56:55</property>
+    <property name="ide">idea</property>
+    <property name="ideVersion">2023.3.4.0.0</property>
+    <property name="modified">2024-04-10T13:29:23</property>
+    <property name="originalScheme">Gradianto Deep Ocean</property>
+    <property name="partialSave">true</property>
+    <property name="pluginId">com.thvardhan.gradianto</property>
+  </metaInfo>
+  <option name="LINE_SPACING" value="1.2" />
+  <option name="EDITOR_FONT_SIZE" value="15" />
+  <option name="EDITOR_FONT_NAME" value="JetBrainsMonoNL Nerd Font" />
+</scheme>

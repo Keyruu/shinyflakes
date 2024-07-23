@@ -2,7 +2,7 @@
   imports = [
     ./prometheus.nix
     ./loki.nix
-    ./grafana.nix
+    ./grafana
   ];
 
   services.nginx.virtualHosts."monitoring.lab.keyruu.de" = {

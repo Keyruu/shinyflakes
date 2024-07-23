@@ -1,0 +1,16 @@
+<application>
+  <component name="EclipseCodeFormatterSettings">
+    <option name="settingsList">
+      <list>
+        <Settings>
+          <option name="backupToProjectConfigFile" value="false" />
+          <option name="formatter" value="ECLIPSE" />
+          <option name="id" value="1707403165459" />
+          <option name="name" value="exentra" />
+          <option name="pathToConfigFileJava" value="$USER_HOME$/Documents/exentra-format.xml" />
+          <option name="selectedJavaProfile" value="exentra" />
+        </Settings>
+      </list>
+    </option>
+  </component>
+</application>

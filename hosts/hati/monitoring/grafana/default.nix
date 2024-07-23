@@ -12,6 +12,7 @@
         reporting_enabled = false;
         feedback_links_enabled = false;
       };
+      panels.disable_sanitize_html = true;
     };
 
 

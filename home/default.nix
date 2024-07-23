@@ -11,7 +11,7 @@
     ./yabai.nix
     ./skhd.nix
     ./sketchybar.nix
-    ./ideavim.nix
+    ./intellij.nix
     ./kubie.nix
     ./shell
     ./programs
