@@ -1,5 +1,6 @@
 {
   imports = [
     ./mealie.nix
+    ./immich
   ];
 }
