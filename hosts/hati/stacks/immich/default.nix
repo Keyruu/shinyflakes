@@ -1,9 +1,13 @@
-{config, pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   environment.etc."stacks/immich/compose.yaml".source = ./compose.yaml;
   environment.etc."stacks/immich/hwaccel.yml".source = ./hwaccel.yml;
   environment.etc."stacks/immich/.env".text = ''
     UPLOAD_LOCATION=/mnt/immich
-    IMMICH_VERSION=v1.105.1
+    IMMICH_VERSION=v1.110.0
     DB_PASSWORD=postgres
 
     DB_HOSTNAME=immich_postgres
