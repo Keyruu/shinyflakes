@@ -5,7 +5,7 @@
       extraDomainNames = [ "*.lab.keyruu.de" ];
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
-      credentialsFile = config.sops.secrets.cloudflare.path;
+      environmentFile = config.sops.secrets.cloudflare.path;
     };
   };
 }

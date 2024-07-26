@@ -54,6 +54,7 @@
     starship
     yt-dlp
     oh-my-posh
+    btop
 
     # devops
     kubectl
