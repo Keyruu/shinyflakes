@@ -10,6 +10,7 @@ in {
     ./alacritty.nix
     ./lazygit.nix
     ./wezterm.nix
+    ./zellij.nix
   ];
 
   # add environment variables

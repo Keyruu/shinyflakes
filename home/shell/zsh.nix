@@ -43,6 +43,7 @@
       copy = "xclip -selection clipboard";
       dev = "nix develop --impure -c $SHELL";
       git-branch-cleanup = "git branch -vv | grep gone | awk '{print $1}' | xargs git branch -D";
+      ztab = "zellij action new-tab";
     };
 
     history = {
@@ -97,6 +98,11 @@
   };
   programs.bat.enable = true;
   programs.thefuck = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+  programs.direnv = {
     enable = true;
     enableZshIntegration = true;
   };

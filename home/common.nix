@@ -32,7 +32,6 @@
 
     # gui apps
     gimp
-    _1password-gui
     obsidian
 
     # cli apps
@@ -52,9 +51,9 @@
     ripgrep
     sqlite
     starship
-    yt-dlp
     oh-my-posh
     btop
+    devenv
 
     # devops
     kubectl

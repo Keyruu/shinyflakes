@@ -1,4 +1,8 @@
-{ pkgs, username, fetchFromGitHub, buildVimPlugin, ... }: {
+{
+  pkgs,
+  username,
+  ...
+}: {
   home.packages = with pkgs; [
     alejandra
   ];
@@ -32,7 +36,7 @@
       swapfile = false;
       undofile = true;
       undodir = "/Users/${username}/.vim/undodir";
-      conceallevel = 1;
+      conceallevel = 0;
     };
 
     files = {
@@ -136,7 +140,7 @@
         # copy to system clipboard
         action = ''"+y'';
         key = "<leader>y";
-        mode = [ "n" "x" "v" ];
+        mode = ["n" "x" "v"];
         options = {
           desc = "Copy to system clipboard";
         };
@@ -145,7 +149,7 @@
         # delete to system clipboard
         action = ''"+d'';
         key = "<leader>d";
-        mode = [ "n" "x" "v" ];
+        mode = ["n" "x" "v"];
         options = {
           desc = "Delete to system clipboard";
         };
@@ -154,7 +158,7 @@
         # delete to system clipboard
         action = ''"+p'';
         key = "<leader>p";
-        mode = [ "n" "x" "v" ];
+        mode = ["n" "x" "v"];
         options = {
           desc = "Paste from system clipboard";
         };
@@ -223,7 +227,7 @@
       };
 
       obsidian = {
-        enable = true;
+        enable = false;
         settings = {
           workspaces = [
             {
@@ -245,8 +249,8 @@
       chadtree = {
         enable = false;
         keymap = {
-          windowManagement.quit = [ "q" "t" ];
-          fileOperations.trash = [ "D" ];
+          windowManagement.quit = ["q" "t"];
+          fileOperations.trash = ["D"];
         };
       };
 
@@ -311,43 +315,47 @@
           preselect = "None";
           snippet.expand = "luasnip";
           mapping = {
-            __raw = /* lua */ ''
-              cmp.mapping.preset.insert {
-                -- Select the [n]ext item
-                ['<C-n>'] = cmp.mapping.select_next_item(),
-                -- Select the [p]revious item
-                ['<C-p>'] = cmp.mapping.select_prev_item(),
-      
-                -- Accept ([y]es) the completion.
-                --  This will auto-import if your LSP supports it.
-                --  This will expand snippets if the LSP sent a snippet.
-                ['<C-y>'] = cmp.mapping.confirm { select = true },
-      
-                -- Manually trigger a completion from nvim-cmp.
-                --  Generally you don't need this, because nvim-cmp will display
-                --  completions whenever it has completion options available.
-                ['<C-Space>'] = cmp.mapping.complete {},
-      
-                -- Think of <c-l> as moving to the right of your snippet expansion.
-                --  So if you have a snippet that's like:
-                --  function $name($args)
-                --    $body
-                --  end
-                --
-                -- <c-l> will move you to the right of each of the expansion locations.
-                -- <c-h> is similar, except moving you backwards.
-                ['<C-l>'] = cmp.mapping(function()
-                  if luasnip.expand_or_locally_jumpable() then
-                    luasnip.expand_or_jump()
-                  end
-                end, { 'i', 's' }),
-                ['<C-h>'] = cmp.mapping(function()
-                  if luasnip.locally_jumpable(-1) then
-                    luasnip.jump(-1)
-                  end
-                end, { 'i', 's' }),
-              }
-            '';
+            __raw =
+              /*
+              lua
+              */
+              ''
+                cmp.mapping.preset.insert {
+                  -- Select the [n]ext item
+                  ['<C-n>'] = cmp.mapping.select_next_item(),
+                  -- Select the [p]revious item
+                  ['<C-p>'] = cmp.mapping.select_prev_item(),
+
+                  -- Accept ([y]es) the completion.
+                  --  This will auto-import if your LSP supports it.
+                  --  This will expand snippets if the LSP sent a snippet.
+                  ['<C-y>'] = cmp.mapping.confirm { select = true },
+
+                  -- Manually trigger a completion from nvim-cmp.
+                  --  Generally you don't need this, because nvim-cmp will display
+                  --  completions whenever it has completion options available.
+                  ['<C-Space>'] = cmp.mapping.complete {},
+
+                  -- Think of <c-l> as moving to the right of your snippet expansion.
+                  --  So if you have a snippet that's like:
+                  --  function $name($args)
+                  --    $body
+                  --  end
+                  --
+                  -- <c-l> will move you to the right of each of the expansion locations.
+                  -- <c-h> is similar, except moving you backwards.
+                  ['<C-l>'] = cmp.mapping(function()
+                    if luasnip.expand_or_locally_jumpable() then
+                      luasnip.expand_or_jump()
+                    end
+                  end, { 'i', 's' }),
+                  ['<C-h>'] = cmp.mapping(function()
+                    if luasnip.locally_jumpable(-1) then
+                      luasnip.jump(-1)
+                    end
+                  end, { 'i', 's' }),
+                }
+              '';
           };
         };
       };
@@ -372,14 +380,16 @@
             sqlfluff.enable = true;
             shfmt = {
               enable = true;
-              withArgs = ''
-                { extra_args = {
-                  '-i', '4', '-ci'
-                } }
-              '';
+              settings = {
+                extra_args = [
+                  "-i"
+                  "4"
+                  "-ci"
+                ];
+              };
             };
             stylua.enable = true;
-            terraform_fmt.enable = true;
+            terraform_fmt.enable = false;
           };
         };
       };
@@ -405,10 +415,11 @@
           };
         };
         servers = {
+          nixd.enable = false;
           nil-ls = {
             enable = true;
             settings = {
-              formatting.command = [ "alejandra" ];
+              formatting.command = ["alejandra"];
               flake.autoEvalInputs = true;
             };
           };
@@ -419,7 +430,7 @@
           hls.enable = true;
           jsonls.enable = true;
           clangd.enable = true;
-          terraformls.enable = true;
+          terraformls.enable = false;
           helm-ls = {
             enable = true;
           };
@@ -437,74 +448,66 @@
             #     end)
             #   end
             # '';
-            # extraOptions = {
-            #   settings = {
-            #     yaml = {
-            #       schemas = {
-            #         kubernetes = "*.yaml";
-            #         "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
-            #         "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
-            #         "http://json.schemastore.org/ansible-stable-2.9" = "roles/tasks/*.{yml,yaml}";
-            #         "http://json.schemastore.org/prettierrc" = ".prettierrc.{yml,yaml}";
-            #         "http://json.schemastore.org/kustomization" = "kustomization.{yml,yaml}";
-            #         "http://json.schemastore.org/ansible-playbook" = "*play*.{yml,yaml}";
-            #         "http://json.schemastore.org/chart" = "Chart.{yml,yaml}";
-            #         "https://json.schemastore.org/dependabot-v2" = ".github/dependabot.{yml,yaml}";
-            #         "https://json.schemastore.org/gitlab-ci" = "*gitlab-ci*.{yml,yaml}";
-            #         "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json" = "*api*.{yml,yaml}";
-            #         "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = "*docker-compose*.{yml,yaml}";
-            #         "https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json" = "*flow*.{yml,yaml}";
-            #       };
-            #     };
-            #   };
-            # };
+            extraOptions = {
+              settings = {
+                yaml = {
+                  schemas = {
+                    kubernetes = "*.yaml";
+                    "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
+                    "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
+                    "http://json.schemastore.org/ansible-stable-2.9" = "roles/tasks/*.{yml,yaml}";
+                    "http://json.schemastore.org/prettierrc" = ".prettierrc.{yml,yaml}";
+                    "http://json.schemastore.org/kustomization" = "kustomization.{yml,yaml}";
+                    "http://json.schemastore.org/ansible-playbook" = "*play*.{yml,yaml}";
+                    "http://json.schemastore.org/chart" = "Chart.{yml,yaml}";
+                    "https://json.schemastore.org/dependabot-v2" = ".github/dependabot.{yml,yaml}";
+                    "https://json.schemastore.org/gitlab-ci" = "*gitlab-ci*.{yml,yaml}";
+                    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json" = "*api*.{yml,yaml}";
+                    "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = "*docker-compose*.{yml,yaml}";
+                    "https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json" = "*flow*.{yml,yaml}";
+                  };
+                };
+              };
+            };
           };
         };
       };
     };
 
-    extraPlugins = 
-    let
-      supermaven-nvim = pkgs.vimUtils.buildVimPlugin {
-        name = "supermaven-nvim";
-        src = pkgs.fetchFromGitHub {
-          owner = "supermaven-inc";
-          repo = "supermaven-nvim";
-          rev = "c7ab94a6bcde96c79ff51afd6a1494606bb6f10b";
-          hash = "sha256-TeRWReHeEqP5I3tgfJdMDmHvL83NDCENRMcQrKbPiqg=";
-        };
-      };
-    in
-      with pkgs.vimPlugins; [
-        smartcolumn-nvim
-        lazygit-nvim
-        supermaven-nvim
-      ];
+    extraPlugins = with pkgs.vimPlugins; [
+      smartcolumn-nvim
+      lazygit-nvim
+      supermaven-nvim
+    ];
 
-    extraConfigLua = /* lua */ ''
-      vim.api.nvim_create_autocmd('TextYankPost', {
-        desc = 'Highlight when yanking (copying) text',
-        group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-        callback = function()
-          vim.highlight.on_yank()
-        end,
-      })
+    extraConfigLua =
+      /*
+      lua
+      */
+      ''
+        vim.api.nvim_create_autocmd('TextYankPost', {
+          desc = 'Highlight when yanking (copying) text',
+          group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+          callback = function()
+            vim.highlight.on_yank()
+          end,
+        })
 
-      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-      local cmp = require('cmp')
-      cmp.event:on(
-        'confirm_done',
-        cmp_autopairs.on_confirm_done()
-      )
+        local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+        local cmp = require('cmp')
+        cmp.event:on(
+          'confirm_done',
+          cmp_autopairs.on_confirm_done()
+        )
 
-      require("smartcolumn").setup()
-      require("supermaven-nvim").setup({
-        keymaps = {
-          accept_suggestion = "<Tab>",
-          clear_suggestion = "<C-]>",
-          accept_word = "<C-j>",
-        }
-      })
-    '';
+        require("smartcolumn").setup()
+        require("supermaven-nvim").setup({
+          keymaps = {
+            accept_suggestion = "<Tab>",
+            clear_suggestion = "<C-]>",
+            accept_word = "<C-j>",
+          }
+        })
+      '';
   };
 }

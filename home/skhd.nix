@@ -4,8 +4,8 @@
     bash
     */
     ''
-      ctrl - e : yabai -m space --layout bsp; sketchybar --trigger yabai_change
-      ctrl - s : yabai -m space --layout stack; sketchybar --trigger yabai_change
+      ctrl + alt - e : yabai -m space --layout bsp; sketchybar --trigger yabai_change
+      ctrl + alt - s : yabai -m space --layout stack; sketchybar --trigger yabai_change
 
       # Navigation
       alt - h : yabai -m window --focus west

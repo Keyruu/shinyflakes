@@ -21,7 +21,7 @@ yabai -m signal --add event=window_focused action="sketchybar --trigger window_f
 yabai -m signal --add event=window_title_changed action="sketchybar --trigger window_title_changed"
 
 # bar settings
-yabai -m config external_bar                 all:40:10
+yabai -m config external_bar                 all:35:10
 
 # global settings
 yabai -m config mouse_follows_focus          on
@@ -101,3 +101,4 @@ defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
 echo "yabai configuration loaded.."
+osascript -e 'tell application id "tracesOf.Uebersicht" to refresh'
