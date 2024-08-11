@@ -1,4 +1,8 @@
-{config, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   d = config.xdg.dataHome;
   c = config.xdg.configHome;
   cache = config.xdg.cacheHome;
@@ -11,6 +15,7 @@ in {
     ./lazygit.nix
     ./wezterm.nix
     ./zellij.nix
+    ./fish.nix
   ];
 
   # add environment variables

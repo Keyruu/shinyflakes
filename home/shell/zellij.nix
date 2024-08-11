@@ -1,4 +1,24 @@
-{...}: {
+{pkgs, ...}: {
+  home.packages = with pkgs; [
+    zellij
+  ];
+
+  home.file.".config/zellij/config.kdl".text =
+    /*
+    kdl
+    */
+    ''
+      keybinds {
+        pane {
+          bind "g" {
+            Run "zellij" "run" "-f" "-c" "--" "lazygit" {
+              close_on_exit true
+            };
+          }
+        }
+      }
+    '';
+
   home.file.".config/zellij/layouts/nix.kdl".text =
     /*
     kdl
@@ -18,10 +38,11 @@
         pane size=2 borderless=true {
           plugin location="zellij:status-bar"
         }
+        floating_panes {
+          pane command="lazygit" {
+            cwd "~/shinyflakes"
+          }
+        }
       }
     '';
-
-  programs.zellij = {
-    enable = true;
-  };
 }

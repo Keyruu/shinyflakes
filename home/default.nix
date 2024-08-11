@@ -1,6 +1,8 @@
-{ inputs, username, ... }:
-
 {
+  inputs,
+  username,
+  ...
+}: {
   imports = [
     inputs.nixvim.homeManagerModules.nixvim
 
@@ -15,6 +17,7 @@
     ./kubie.nix
     ./shell
     ./programs
+    ./aerospace.nix
   ];
 
   # Home Manager needs a bit of information about you and the

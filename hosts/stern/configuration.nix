@@ -1,4 +1,10 @@
-{ outputs, pkgs, lib, modules, ... }: {
+{
+  outputs,
+  pkgs,
+  lib,
+  modules,
+  ...
+}: {
   imports = lib.flatten [
     (with modules; [
       brew
@@ -7,11 +13,17 @@
   ];
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages =
-    [
-      pkgs.vim
-      pkgs.nixd
-    ];
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.nixd
+    pkgs.fish
+  ];
+
+  users.knownUsers = ["lro"];
+  users.users.lro = {
+    shell = pkgs.fish;
+    uid = 501;
+  };
 
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
@@ -40,4 +52,3 @@
   # The platform the configuration will be used on.
   nixpkgs.hostPlatform = "aarch64-darwin";
 }
-

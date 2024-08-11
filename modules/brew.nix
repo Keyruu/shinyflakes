@@ -282,7 +282,8 @@
       "jordanbaird-ice"
       "lulu"
       "doll"
-      "ubersicht" 
+      "ubersicht"
+      "nikitabobko/tap/aerospace"
 
       # Development
       "insomnia" # REST client
