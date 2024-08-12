@@ -46,7 +46,7 @@
         expose-group-by-app = true;
       };
 
-      spaces.spans-displays = true;
+      spaces.spans-displays = false;
 
       # customize finder
       finder = {

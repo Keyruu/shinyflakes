@@ -150,15 +150,15 @@
       alt-shift-l = ['join-with right', 'mode main']
 
       [workspace-to-monitor-force-assignment]
-      1 = 'main'
-      2 = 'main'
-      3 = 'main'
-      4 = 'secondary'
-      5 = 'secondary'
-      6 = 'secondary'
-      7 = 'secondary'
-      8 = 'secondary'
-      9 = 'secondary'
+      1 = 'secondary'
+      2 = 'secondary'
+      3 = 'secondary'
+      4 = 'main'
+      5 = 'main'
+      6 = 'main'
+      7 = 'main'
+      8 = 'main'
+      9 = 'main'
 
       [[on-window-detected]]
       if.app-id = 'company.thebrowser.Browser'
@@ -195,5 +195,9 @@
       [[on-window-detected]]
       if.app-id = 'com.microsoft.VSCode'
       run = ["move-node-to-workspace 2"]
+
+      [[on-window-detected]]
+      if.app-id = 'com.github.wez.wezterm'
+      run = ["move-node-to-workspace 3"]
     '';
 }
