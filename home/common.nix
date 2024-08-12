@@ -29,6 +29,7 @@
     nixpacks
     bun
     nixos-rebuild
+    deploy-rs
 
     # gui apps
     gimp

@@ -16,6 +16,7 @@ in {
     ./wezterm.nix
     ./zellij.nix
     ./fish.nix
+    ./atuin.nix
   ];
 
   # add environment variables

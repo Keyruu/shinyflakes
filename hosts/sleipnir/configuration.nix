@@ -1,4 +1,8 @@
-{lib, modules, ...}: {
+{
+  lib,
+  modules,
+  ...
+}: {
   imports = lib.flatten [
     (with modules; [
       docker
@@ -8,6 +12,8 @@
       ssh-access
     ])
     ./headscale.nix
+    ./postgres.nix
+    ./atuin.nix
   ];
 
   networking.hostName = "sleipnir";
