@@ -281,8 +281,6 @@
       "shottr"
       "jordanbaird-ice"
       "lulu"
-      "doll"
-      "ubersicht"
       "nikitabobko/tap/aerospace"
 
       # Development
