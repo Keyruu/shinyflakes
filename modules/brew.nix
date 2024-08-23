@@ -55,8 +55,7 @@
       "homebrew/cask-versions"
       "osx-cross/avr"
       "osx-cross/arm"
-      "derailed/k9s"
-      "felixkratz/formulae"
+      "FelixKratz/formulae"
       "filosottile/musl-cross"
       "graalvm/tap"
       "helm/tap"
@@ -69,6 +68,7 @@
       "osx-cross/arm"
       "osx-cross/avr"
       "quarkusio/tap"
+      "keyruu/tap"
     ];
 
     # `brew install`
@@ -280,8 +280,8 @@
       "stats" # beautiful system monitor
       "shottr"
       "jordanbaird-ice"
-      "lulu"
       "nikitabobko/tap/aerospace"
+      "keyruu/tap/keyruu-tabula"
 
       # Development
       "insomnia" # REST client

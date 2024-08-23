@@ -7,7 +7,7 @@
   environment.etc."stacks/immich/hwaccel.yml".source = ./hwaccel.yml;
   environment.etc."stacks/immich/.env".text = ''
     UPLOAD_LOCATION=/mnt/immich
-    IMMICH_VERSION=v1.110.0
+    IMMICH_VERSION=v1.112.1
     DB_PASSWORD=postgres
 
     DB_HOSTNAME=immich_postgres
@@ -32,7 +32,7 @@
     restartTriggers = [
       config.environment.etc."stacks/immich/compose.yaml".source
       config.environment.etc."stacks/immich/hwaccel.yml".source
-      config.environment.etc."stacks/immich/.env".text
+      config.environment.etc."stacks/immich/.env".source
     ];
   };
 

@@ -20,6 +20,7 @@
     ./stacks
     ./monitoring
     ./blocky.nix
+    ./nginx.nix
   ];
 
   # Use the GRUB 2 boot loader.

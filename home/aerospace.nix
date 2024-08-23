@@ -165,6 +165,18 @@
       run = ["move-node-to-workspace 1"]
 
       [[on-window-detected]]
+      if.app-id = 'org.mozilla.nightly'
+      run = ["move-node-to-workspace 1"]
+
+      [[on-window-detected]]
+      if.app-id = 'org.mozilla.firefox'
+      run = ["move-node-to-workspace 1"]
+
+      [[on-window-detected]]
+      if.window-title-regex-substring = '^Picture-in-Picture$'
+      run = ["layout floating"]
+
+      [[on-window-detected]]
       if.app-id = 'com.apple.finder'
       run = ["move-node-to-workspace 7"]
 

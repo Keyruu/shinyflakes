@@ -1,3 +1,6 @@
 {...}: {
-  home.file.".config/bin".source = ./bin;
+  home.file.".config/bin" = {
+    source = ./bin;
+    recursive = true;
+  };
 }

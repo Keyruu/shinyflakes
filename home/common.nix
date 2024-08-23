@@ -30,6 +30,8 @@
     bun
     nixos-rebuild
     deploy-rs
+    sshs
+    termshark
 
     # gui apps
     gimp
