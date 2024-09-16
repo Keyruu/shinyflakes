@@ -32,6 +32,7 @@
     deploy-rs
     sshs
     termshark
+    symfony-cli
 
     # gui apps
     gimp
@@ -72,6 +73,8 @@
     packer # image builder
     opentofu # terraform sucks
     terragrunt
+    awscli2
+    devspace
 
     # tui
     spotify-player

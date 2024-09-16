@@ -12,12 +12,16 @@
 
         fish_add_path $HOME/.krew
         fish_add_path $HOME/.cargo/bin
-        fish_add_path $HOME/Library/Application Support/JetBrains/Toolbox/scripts/
+        fish_add_path $HOME/Library/Application\ Support/JetBrains/Toolbox/scripts/
 
         set -x KUBECONFIG $HOME/.kube/config
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/galaxy.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/traversetown.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/pdarobe.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/jq-production-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/kl-production-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/kl-staging-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-staging-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-production-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-shared-services-sysops.yaml
+        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/ph-production-sysops.yaml
       '';
 
     shellInitLast =

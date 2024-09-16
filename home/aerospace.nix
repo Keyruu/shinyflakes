@@ -165,6 +165,10 @@
       run = ["move-node-to-workspace 1"]
 
       [[on-window-detected]]
+      if.app-id = 'org.mozilla.com.zen.browser'
+      run = ["move-node-to-workspace 1"]
+
+      [[on-window-detected]]
       if.app-id = 'org.mozilla.nightly'
       run = ["move-node-to-workspace 1"]
 

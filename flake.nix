@@ -120,8 +120,8 @@
       args =
         specialArgs
         // {
-          username = "lro";
-          hostname = "stern";
+          username = "lucas.rott";
+          hostname = "PCL2023110901";
         };
     in
       nix-darwin.lib.darwinSystem {

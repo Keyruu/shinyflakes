@@ -389,7 +389,7 @@
               };
             };
             stylua.enable = true;
-            terraform_fmt.enable = false;
+            terraform_fmt.enable = true;
           };
         };
       };
@@ -430,12 +430,13 @@
           hls.enable = true;
           jsonls.enable = true;
           clangd.enable = true;
-          terraformls.enable = false;
+          terraformls.enable = true;
           helm-ls = {
             enable = true;
           };
           gopls.enable = true;
           kotlin-language-server.enable = true;
+          intelephense.enable = true;
           ruff-lsp = {
             enable = true;
           };
@@ -477,7 +478,7 @@
     extraPlugins = with pkgs.vimPlugins; [
       smartcolumn-nvim
       lazygit-nvim
-      supermaven-nvim
+      #supermaven-nvim
     ];
 
     extraConfigLua =
@@ -501,13 +502,13 @@
         )
 
         require("smartcolumn").setup()
-        require("supermaven-nvim").setup({
-          keymaps = {
-            accept_suggestion = "<Tab>",
-            clear_suggestion = "<C-]>",
-            accept_word = "<C-j>",
-          }
-        })
+        -- require("supermaven-nvim").setup({
+        --   keymaps = {
+        --     accept_suggestion = "<Tab>",
+        --     clear_suggestion = "<C-]>",
+        --     accept_word = "<C-j>",
+        --   }
+        -- })
       '';
   };
 }

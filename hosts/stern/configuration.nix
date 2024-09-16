@@ -3,6 +3,7 @@
   pkgs,
   lib,
   modules,
+  username,
   ...
 }: {
   imports = lib.flatten [
@@ -19,10 +20,10 @@
     pkgs.fish
   ];
 
-  users.knownUsers = ["lro"];
-  users.users.lro = {
+  users.knownUsers = [username];
+  users.users."${username}" = {
     shell = pkgs.fish;
-    uid = 501;
+    uid = 880220207;
   };
 
   # Auto upgrade nix package and the daemon service.
@@ -40,7 +41,7 @@
   };
 
   # Create /etc/zshrc that loads the nix-darwin environment.
-  # programs.fish.enable = true;
+  programs.fish.enable = true;
 
   # Set Git commit hash for darwin-version.
   system.configurationRevision = outputs.rev or outputs.dirtyRev or null;

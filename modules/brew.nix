@@ -50,9 +50,7 @@
     };
 
     taps = [
-      "homebrew/cask-fonts"
       "homebrew/services"
-      "homebrew/cask-versions"
       "osx-cross/avr"
       "osx-cross/arm"
       "FelixKratz/formulae"
@@ -266,9 +264,7 @@
     # `brew install --cask`
     # TODO Feel free to add your favorite apps here.
     casks = [
-      "google-chrome"
       "arc"
-      "visual-studio-code"
 
       # IM & audio & remote desktop & meeting
       "telegram"
@@ -276,12 +272,14 @@
 
       "anki" # flashcard
       "iina" # video player
-      "raycast" # (HotKey: alt/option + space)search, caculate and run scripts(with many plugins)
       "stats" # beautiful system monitor
       "shottr"
       "jordanbaird-ice"
       "nikitabobko/tap/aerospace"
       "keyruu/tap/keyruu-tabula"
+      "protonmail-bridge"
+      "superproductivity"
+      "betterdisplay"
 
       # Development
       "insomnia" # REST client
@@ -299,7 +297,6 @@
       "temurin@11"
       "temurin@17"
       "temurin@21"
-      "vlc"
       "obs"
       "kdenlive"
       "bambu-studio"

@@ -1,8 +1,12 @@
 {
-  home.file.".kube/kubie.yaml".text = /* yaml */ ''
-    shell: zsh
+  home.file.".kube/kubie.yaml".text =
+    /*
+    yaml
+    */
+    ''
+      shell: fish
 
-    prompt:
-        disable: true
-  '';
+      prompt:
+          disable: false
+    '';
 }

@@ -69,7 +69,7 @@
       # shift + alt - 9 : $HOME/.config/yabai/sendToSpace.sh 9
 
       # Focus apps
-      alt - c : open -a "Firefox Nightly"
+      alt - c : open -a "Zen Browser"
       alt - e : open -a WezTerm
       alt - d : open -a Finder
       alt - a : open -a "Slack"

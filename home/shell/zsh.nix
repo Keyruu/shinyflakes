@@ -84,6 +84,12 @@
     enable = true;
     enableZshIntegration = true;
     enableFishIntegration = true;
+    enableTransience = true;
+    settings = {
+      kubernetes = {
+        disabled = false;
+      };
+    };
   };
   programs.fzf = {
     enable = true;
