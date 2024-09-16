@@ -88,6 +88,11 @@
       "python@3.11"
       "python@3.12"
 
+      "php@8.1"
+      "php@8.2"
+      "php@8.3"
+      "composer"
+
       "borders"
       "sketchybar" # status bar
       "skhd" # hotkey daemon

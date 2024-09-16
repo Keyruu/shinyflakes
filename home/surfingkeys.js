@@ -2,28 +2,28 @@
 
 // Compatibility Prefix
 const {
-    Clipboard,
-    Front,
-    Hints,
-    Normal,
-    RUNTIME,
-    Visual,
-    aceVimMap,
-    addSearchAlias,
-    cmap,
-    getClickableElements,
-    imap,
-    imapkey,
-    iunmap,
-    map,
-    mapkey,
-    readText,
-    removeSearchAlias,
-    tabOpenLink,
-    unmap,
-    unmapAllExcept,
-    vmapkey,
-    vunmap
+  Clipboard,
+  Front,
+  Hints,
+  Normal,
+  RUNTIME,
+  Visual,
+  aceVimMap,
+  addSearchAlias,
+  cmap,
+  getClickableElements,
+  imap,
+  imapkey,
+  iunmap,
+  map,
+  mapkey,
+  readText,
+  removeSearchAlias,
+  tabOpenLink,
+  unmap,
+  unmapAllExcept,
+  vmapkey,
+  vunmap
 } = api;
 
 // ---- Settings ----
@@ -107,29 +107,29 @@ map('gf', 'w');
 
 // ---- Unmap -----
 // Proxy Stuff
-unmap('spa');
-unmap('spb');
-unmap('spc');
-unmap('spd');
-unmap('sps');
-unmap('cp');
-unmap(';cp');
-unmap(';ap');
+// unmap('spa');
+// unmap('spb');
+// unmap('spc');
+// unmap('spd');
+// unmap('sps');
+// unmap('cp');
+// unmap(';cp');
+// unmap(';ap');
 
 // Emoji
-iunmap(":");
+// iunmap(":");
 
 // Misc
-unmap(';t');
-unmap('si');
-unmap('ga');
-unmap('gc');
-unmap('gn');
-unmap('gr');
-unmap('ob');
-unmap('og');
-unmap('od');
-unmap('oy');
+// unmap(';t');
+// unmap('si');
+// unmap('ga');
+// unmap('gc');
+// unmap('gn');
+// unmap('gr');
+// unmap('ob');
+// unmap('og');
+// unmap('od');
+// unmap('oy');
 
 // ---- Search Engines -----
 removeSearchAlias('b', 's');
@@ -140,19 +140,13 @@ removeSearchAlias('w', 's');
 removeSearchAlias('y', 's');
 removeSearchAlias('s', 's');
 
-addSearchAlias('ama', 'amazon', 'https://www.amazon.com/s?k=', 's');
-addSearchAlias('ap', 'arch pkg', 'https://www.archlinux.org/packages/?sort=&q=', 's');
-addSearchAlias('aur', 'aur', 'https://aur.archlinux.org/packages/?O=0&SeB=nd&K=', 's');
-addSearchAlias('aw', 'arch wiki', 'https://wiki.archlinux.org/index.php?title=Special:Search&search=', 's');
-addSearchAlias('d',  'ddg', 'https://duckduckgo.com/?q=', 's');
+addSearchAlias('d', 'ddg', 'https://duckduckgo.com/?q=', 's');
 addSearchAlias('dh', 'docker', 'https://hub.docker.com/search?type=image&q=', 's');
-addSearchAlias('fh', 'flathub', 'https://flathub.org/apps/search/', 's');
 addSearchAlias('gh', 'github', 'https://github.com/search?q=', 's');
-addSearchAlias('pdb', 'proton', 'https://www.protondb.com/search?q=', 's');
-addSearchAlias('r', 'reddit', 'https://libreddit.spike.codes/r/', 's');
-addSearchAlias('st', 'steam', 'https://store.steampowered.com/search/?term=', 's');
-addSearchAlias('wiki', 'wikipedia', 'https://en.wikipedia.org/wiki/Special:Search/', 's');
-addSearchAlias('y', 'yt', 'https://invidious.snopyta.org/search?q=', 's');
+addSearchAlias('s', 'startpage', 'https://www.startpage.com/sp/search?q=', 's')
+addSearchAlias('np', 'nixos packages', 'https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=', 's')
+addSearchAlias('no', 'nixos options', 'https://search.nixos.org/options?channel=unstable&size=50&sort=relevance&type=packages&query=', 's')
+addSearchAlias('nh', 'nix home-manager', 'https://home-manager-options.extranix.com/?release=master&query=', 's')
 
 // ---- Hints ----
 // Hints have to be defined separately
