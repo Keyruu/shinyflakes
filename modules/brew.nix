@@ -94,13 +94,13 @@
       "composer"
 
       "borders"
-      "sketchybar" # status bar
-      "skhd" # hotkey daemon
+      # "sketchybar" # status bar
+      # "skhd" # hotkey daemon
       # "svim" # make every text field a vim editor
 
       "x86_64-unknown-linux-gnu" # cross-compilation
       "x86_64-unknown-linux-musl" # cross-compilation
-      "yabai" # window manager
+      # "yabai" # window manager
 
       # libraries, codecs and stuff i have no idea what they are
       # "aom" # AV1 video codec
@@ -239,6 +239,7 @@
       # "pugixml" # XML parser
       # "pycparser" # C parser
       # "pillow" # image processing
+      "pcre2" # something for php/apcu
       # "rav1e" # AV1 encoder
       # "rubberband" # audio time-stretching
       # "screenresolution" # screen resolution
@@ -275,25 +276,25 @@
       "telegram"
       "discord"
 
-      "anki" # flashcard
-      "iina" # video player
-      "stats" # beautiful system monitor
+      # "anki" # flashcard
+      # "iina" # video player
+      # "stats" # beautiful system monitor
       "shottr"
       "jordanbaird-ice"
       "nikitabobko/tap/aerospace"
       "keyruu/tap/keyruu-tabula"
       "protonmail-bridge"
-      "superproductivity"
-      "betterdisplay"
+      # "superproductivity"
+      # "betterdisplay"
 
       # Development
-      "insomnia" # REST client
+      # "insomnia" # REST client
       "wireshark" # network analyzer
 
       "1password-cli"
       "bruno"
       "font-hack-nerd-font"
-      "macgesture"
+      # "macgesture"
       "notion"
       "postman"
       "rar"

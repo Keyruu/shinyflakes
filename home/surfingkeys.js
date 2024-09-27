@@ -143,7 +143,7 @@ removeSearchAlias('s', 's');
 addSearchAlias('d', 'ddg', 'https://duckduckgo.com/?q=', 's');
 addSearchAlias('dh', 'docker', 'https://hub.docker.com/search?type=image&q=', 's');
 addSearchAlias('gh', 'github', 'https://github.com/search?q=', 's');
-addSearchAlias('s', 'startpage', 'https://www.startpage.com/sp/search?q=', 's')
+addSearchAlias('s', 'qwant', 'https://www.qwant.com/?l=en&q=', 's')
 addSearchAlias('np', 'nixos packages', 'https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=', 's')
 addSearchAlias('no', 'nixos options', 'https://search.nixos.org/options?channel=unstable&size=50&sort=relevance&type=packages&query=', 's')
 addSearchAlias('nh', 'nix home-manager', 'https://home-manager-options.extranix.com/?release=master&query=', 's')

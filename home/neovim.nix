@@ -94,8 +94,13 @@
         mode = "n";
       }
       {
-        action = "<cmd>ToggleTerm<cr>";
-        key = "<leader>t";
+        action = "<cmd>ToggleTerm direction=horizontal<cr>";
+        key = "<leader>tt";
+        mode = "n";
+      }
+      {
+        action = "<cmd>ToggleTerm direction=float<cr>";
+        key = "<leader>tf";
         mode = "n";
       }
       {
@@ -163,12 +168,12 @@
           desc = "Paste from system clipboard";
         };
       }
-      {
-        # no macro menu
-        action = "<nop>";
-        key = "q";
-        mode = "n";
-      }
+      # {
+      #   # no macro menu
+      #   action = "<nop>";
+      #   key = "q";
+      #   mode = "n";
+      # }
       # move between windows with ctrl hjkl
       {
         action = "<C-w>h";
@@ -282,6 +287,15 @@
       };
       toggleterm.enable = true;
       helm.enable = true;
+      arrow = {
+        enable = true;
+        settings = {
+          show_icons = true;
+          leader_key = ";";
+          buffer_leader_key = "m";
+        };
+      };
+      noice.enable = true;
 
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {

@@ -4,6 +4,7 @@
     bash
     */
     ''
+      #!/bin/bash
       # ctrl + alt - e : yabai -m space --layout bsp; sketchybar --trigger yabai_change
       # ctrl + alt - s : yabai -m space --layout stack; sketchybar --trigger yabai_change
 
@@ -12,23 +13,28 @@
       # alt-k = 'focus up'
       # alt-l = 'focus right'
 
+      # alt - h : aerospace focus left
+      # alt - j : aerospace focus down
+      # alt - k : aerospace focus up
+      # alt - l : aerospace focus right
+
       # Navigation
-      alt - h [
-        * : aerospace focus left
-        "wezterm" ~
-      ]
-      alt - j [
-        * : aerospace focus down
-        "wezterm" ~
-      ]
-      alt - k [
-        * : aerospace focus up
-        "wezterm" ~
-      ]
-      alt - l [
-        * : aerospace focus right
-        "wezterm" ~
-      ]
+      # alt - h [
+      #   * : aerospace focus left
+      #   "wezterm" ~
+      # ]
+      # alt - j [
+      #   * : aerospace focus down
+      #   "wezterm" ~
+      # ]
+      # alt - k [
+      #   * : aerospace focus up
+      #   "wezterm" ~
+      # ]
+      # alt - l [
+      #   * : aerospace focus right
+      #   "wezterm" ~
+      # ]
       # alt - n [
       #   * : yabai -m window --focus stack.next || yabai -m window --focus stack.first
       #   "wezterm" ~
@@ -69,17 +75,17 @@
       # shift + alt - 9 : $HOME/.config/yabai/sendToSpace.sh 9
 
       # Focus apps
-      alt - c : open -a "Zen Browser"
-      alt - e : open -a WezTerm
-      alt - d : open -a Finder
-      alt - a : open -a "Slack"
-      alt - m : open -a "Spotify.app"
-      alt - t : open -a "Microsoft Teams"
+      # alt - c : open -a "Zen Browser"
+      # alt - e : open -a WezTerm
+      # alt - d : open -a Finder
+      # alt - a : open -a "Slack"
+      # alt - m : open -a "Spotify.app"
+      # alt - t : open -a "Microsoft Teams"
       # alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
-      alt - w : open -a "Obsidian"
-      alt - o : open -a "Microsoft Outlook"
-      alt - v : open -a "IntelliJ IDEA Ultimate"
-      alt - g : open raycast://extensions/ricoberger/gitmoji/gitmoji
+      # alt - w : open -a "Obsidian"
+      # alt - o : open -a "Microsoft Outlook"
+      # alt - v : open -a "IntelliJ IDEA Ultimate"
+      # alt - g : open raycast://extensions/ricoberger/gitmoji/gitmoji
 
 
       # Resize windows

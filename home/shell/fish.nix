@@ -9,6 +9,7 @@
       ''
         eval "$(/opt/homebrew/bin/brew shellenv)"
         fish_vi_key_bindings
+        bind --mode insert --sets-mode default \;\; repaint
 
         fish_add_path $HOME/.krew
         fish_add_path $HOME/.cargo/bin

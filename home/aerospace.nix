@@ -94,6 +94,10 @@
       alt-comma = 'layout accordion horizontal vertical'
 
       # See: https://nikitabobko.github.io/AeroSpace/commands#focus
+      alt-h = 'focus left'
+      alt-j = 'focus down'
+      alt-k = 'focus up'
+      alt-l = 'focus right'
 
       # See: https://nikitabobko.github.io/AeroSpace/commands#move
       alt-shift-h = 'move left'
@@ -134,6 +138,41 @@
 
       # See: https://nikitabobko.github.io/AeroSpace/commands#mode
       alt-shift-semicolon = 'mode service'
+
+      # focus apps
+      alt-c = 'exec-and-forget open -a "Zen Browser"'
+      alt-e = 'exec-and-forget open -a WezTerm'
+      alt-d = 'exec-and-forget open -a Finder'
+      alt-a = 'exec-and-forget open -a "Slack"'
+      alt-m = 'exec-and-forget open -a "Spotify.app"'
+      alt-t = 'exec-and-forget open -a "Microsoft Teams"'
+      # alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
+      alt-w = 'exec-and-forget open -a "Obsidian"'
+      alt-o = 'exec-and-forget open -a "Microsoft Outlook"'
+      alt-v = 'exec-and-forget open -a "IntelliJ IDEA Ultimate"'
+      alt-g = 'exec-and-forget open raycast://extensions/moored/git-repos/list'
+      alt-shift-v = 'exec-and-forget open raycast://extensions/raycast/clipboard-history/clipboard-history'
+      alt-period = 'exec-and-forget open raycast://extensions/raycast/floating-notes/toggle-floating-notes-window'
+
+      # disable hide app
+      cmd-h = [] # Disable "hide application"
+      cmd-alt-h = [] # Disable "hide others"
+
+      alt-f = 'fullscreen'
+
+      alt-shift-space = 'layout floating tiling' # 'floating toggle' in i3
+
+      alt-shift-c = 'reload-config'
+
+      alt-r = 'mode resize'
+
+      [mode.resize.binding]
+      h = 'resize width -50'
+      j = 'resize height +50'
+      k = 'resize height -50'
+      l = 'resize width +50'
+      enter = 'mode main'
+      esc = 'mode main'
 
       # 'service' binding mode declaration.
       # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -177,7 +216,7 @@
       run = ["move-node-to-workspace 1"]
 
       [[on-window-detected]]
-      if.window-title-regex-substring = '^Picture-in-Picture$'
+      if.window-title-regex-substring = 'Picture-in-Picture'
       run = ["layout floating"]
 
       [[on-window-detected]]

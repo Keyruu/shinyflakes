@@ -21,6 +21,7 @@
     quarkus
     yarn
     helm-ls
+    kubernetes-helm
     air
     templ
     golangci-lint
@@ -33,6 +34,7 @@
     sshs
     termshark
     symfony-cli
+    k6
 
     # gui apps
     gimp
