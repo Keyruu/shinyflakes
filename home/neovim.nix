@@ -84,67 +84,88 @@
     globals.mapleader = " ";
     keymaps = [
       {
-        action = ":Oil<CR>";
         key = "<leader>ef";
-        mode = "n";
-      }
-      {
         action = ":Oil<CR>";
-        key = "-";
-        mode = "n";
-      }
-      {
-        action = "<cmd>ToggleTerm direction=horizontal<cr>";
-        key = "<leader>tt";
-        mode = "n";
-      }
-      {
-        action = "<cmd>ToggleTerm direction=float<cr>";
-        key = "<leader>tf";
-        mode = "n";
-      }
-      {
-        action = "<C-\\><C-n>";
-        key = "<Esc><Esc>";
-        mode = "t";
-      }
-      {
-        action = ":q<CR>";
-        key = "<leader>q";
         mode = "n";
         options = {
-          desc = "Quit";
+          desc = "Oil - File Browser";
         };
       }
       {
-        action = ":w<CR>";
-        key = "<leader>w";
+        key = "-";
+        action = ":Oil<CR>";
         mode = "n";
+        options = {
+          desc = "Oil - File Browser";
+        };
       }
       {
-        action = "<cmd>LazyGit<CR>";
+        key = "<leader>t";
+        action = "<cmd>ToggleTerm direction=horizontal<cr>";
+        mode = "n";
+        options = {
+          desc = "ToggleTerm";
+        };
+      }
+      {
         key = "<leader>lg";
+        action = "<cmd>LazyGit<cr>";
         mode = "n";
         options = {
           desc = "LazyGit";
         };
       }
       {
+        key = ";;";
+        action = "<C-\\><C-n>";
+        mode = "t";
+        options = {
+          desc = "Exit terminal mode";
+        };
+      }
+      {
+        key = "<leader>q";
+        action = ":q<CR>";
+        mode = "n";
+        options = {
+          desc = "Quit";
+        };
+      }
+      {
+        key = "<leader>Q";
+        action = ":qa<CR>";
+        mode = "n";
+        options = {
+          desc = "Quit all";
+        };
+      }
+      {
+        key = "<leader>w";
+        action = ":w<CR>";
+        mode = "n";
+        options = {
+          desc = "Write";
+        };
+      }
+      {
         # this is here because it needs insert mode
-        action.__raw = "vim.lsp.buf.signature_help";
         key = "<C-h>";
+        action.__raw = "vim.lsp.buf.signature_help";
         mode = "i";
       }
       {
         # don't override buffer when pasting
-        action = ''"_dP'';
         key = "p";
+        action = ''"_dP'';
         mode = "x";
+        options = {
+          desc = "Paste - no buffer override";
+        };
       }
       {
         # copy to system clipboard
-        action = ''"+y'';
         key = "<leader>y";
+        action = ''"+y'';
         mode = ["n" "x" "v"];
         options = {
           desc = "Copy to system clipboard";
@@ -152,8 +173,8 @@
       }
       {
         # delete to system clipboard
-        action = ''"+d'';
         key = "<leader>d";
+        action = ''"+d'';
         mode = ["n" "x" "v"];
         options = {
           desc = "Delete to system clipboard";
@@ -161,8 +182,8 @@
       }
       {
         # delete to system clipboard
-        action = ''"+p'';
         key = "<leader>p";
+        action = ''"+p'';
         mode = ["n" "x" "v"];
         options = {
           desc = "Paste from system clipboard";
@@ -176,44 +197,87 @@
       # }
       # move between windows with ctrl hjkl
       {
-        action = "<C-w>h";
         key = "<C-h>";
+        action = "<C-w>h";
         mode = "n";
+        options = {
+          desc = "Focus window to west";
+        };
       }
       {
-        action = "<C-w>j";
         key = "<C-j>";
+        action = "<C-w>j";
         mode = "n";
+        options = {
+          desc = "Focus window to south";
+        };
       }
       {
-        action = "<C-w>k";
         key = "<C-k>";
+        action = "<C-w>k";
         mode = "n";
+        options = {
+          desc = "Focus window to north";
+        };
       }
       {
-        action = "<C-w>l";
         key = "<C-l>";
+        action = "<C-w>l";
         mode = "n";
+        options = {
+          desc = "Focus window to east";
+        };
       }
       {
-        action = "<cmd>Telescope find_files<cr>";
         key = "<leader>ff";
+        action = "<cmd>Telescope find_files<cr>";
         mode = "n";
+        options = {
+          desc = "Telescope find files";
+        };
       }
       {
-        action = "<cmd>Telescope live_grep<cr>";
         key = "<leader>fg";
+        action = "<cmd>Telescope live_grep<cr>";
         mode = "n";
+        options = {
+          desc = "Telescope live grep";
+        };
       }
       {
-        action = "<cmd>Telescope buffers<cr>";
         key = "<leader>fb";
+        action = "<cmd>Telescope buffers<cr>";
         mode = "n";
+        options = {
+          desc = "Telescope buffers";
+        };
       }
       {
-        action = "<cmd>Telescope help_tags<cr>";
         key = "<leader>fh";
+        action = "<cmd>Telescope help_tags<cr>";
         mode = "n";
+        options = {
+          desc = "Telescope help tags";
+        };
+      }
+      {
+        key = "<leader>?";
+        action = ''
+          function()
+            require("which-key").show({ global = false })
+          end'';
+        mode = "n";
+        options = {
+          desc = "Buffer Local Keymaps (which-key)";
+        };
+      }
+      {
+        key = "<leader>z";
+        action = ''<cmd>lua require("yazi").yazi()<cr>'';
+        mode = "n";
+        options = {
+          desc = "Yazi in cwd";
+        };
       }
     ];
 
@@ -296,6 +360,8 @@
         };
       };
       noice.enable = true;
+      lazygit.enable = true;
+      mini.enable = true;
 
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {
@@ -489,11 +555,24 @@
       };
     };
 
-    extraPlugins = with pkgs.vimPlugins; [
-      smartcolumn-nvim
-      lazygit-nvim
-      #supermaven-nvim
-    ];
+    extraPlugins = let
+      xcodebuild-nvim = pkgs.vimUtils.buildVimPlugin {
+        name = "xcodebuild-nvim";
+        src = pkgs.fetchFromGitHub {
+          owner = "wojciech-kulik";
+          repo = "xcodebuild.nvim";
+          rev = "41a4ec97ba8258acb1b13e634cc1e0446336ae0b";
+          hash = "sha256-SD6D3OGbssLlkmU5XHvUuoJtZVZHTwEqRnMR2N5Sa9Y=";
+        };
+      };
+    in
+      with pkgs.vimPlugins; [
+        smartcolumn-nvim
+        lazygit-nvim
+        yazi-nvim
+        #xcodebuild-nvim
+        #supermaven-nvim
+      ];
 
     extraConfigLua =
       /*
@@ -523,6 +602,7 @@
         --     accept_word = "<C-j>",
         --   }
         -- })
+        require("yazi").setup()
       '';
   };
 }

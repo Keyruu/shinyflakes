@@ -77,6 +77,8 @@
       "helm"
       "ical-buddy" # calendar events
 
+      "coreutils"
+
       "jenv" # Java environment manager
       "jq"
 
