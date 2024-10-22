@@ -5,7 +5,7 @@
     extraConfig = /* lua */ ''
       local theme = "Breeze"
       local scheme = wezterm.color.get_builtin_schemes()[theme]
-      scheme.background = "#011627"
+      scheme.background = "#0A0E14"
 
       return {
         hide_tab_bar_if_only_one_tab = true,

@@ -10,6 +10,7 @@
     (with modules; [
       brew
       darwin
+      build-machines
     ])
   ];
   # List packages installed in system profile. To search by name, run:

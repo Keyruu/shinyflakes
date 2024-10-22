@@ -83,6 +83,7 @@
       "jq"
 
       "nvm" # Node Version Manager
+      "fisher"
 
       "pnpm" # package manager
 
@@ -308,6 +309,10 @@
       "obs"
       "kdenlive"
       "bambu-studio"
+
+      "balenaetcher"
+      "raspberry-pi-imager"
+      "qutebrowser"
     ];
   };
 }

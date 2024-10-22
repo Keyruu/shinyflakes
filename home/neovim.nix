@@ -262,10 +262,7 @@
       }
       {
         key = "<leader>?";
-        action = ''
-          function()
-            require("which-key").show({ global = false })
-          end'';
+        action = ''<cmd>lua require("which-key").show({ global = false })<cr>'';
         mode = "n";
         options = {
           desc = "Buffer Local Keymaps (which-key)";
@@ -277,6 +274,22 @@
         mode = "n";
         options = {
           desc = "Yazi in cwd";
+        };
+      }
+      {
+        key = "<leader>s";
+        action = ''<cmd>noh<cr>'';
+        mode = "n";
+        options = {
+          desc = "Turn off highlight until next search";
+        };
+      }
+      {
+        key = "<leader>K";
+        action = ''<cmd>lua require("kubectl").toggle()<cr>'';
+        mode = "n";
+        options = {
+          desc = "Toggle kubectl.nvim";
         };
       }
     ];
@@ -362,6 +375,11 @@
       noice.enable = true;
       lazygit.enable = true;
       mini.enable = true;
+      fugitive.enable = true;
+      autoclose.enable = true;
+      dap.enable = true;
+      leap.enable = true;
+      floaterm.enable = true;
 
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {
@@ -533,7 +551,7 @@
               settings = {
                 yaml = {
                   schemas = {
-                    kubernetes = "*.yaml";
+                    kubernetes = "/*.yaml";
                     "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
                     "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
                     "http://json.schemastore.org/ansible-stable-2.9" = "roles/tasks/*.{yml,yaml}";
@@ -556,13 +574,13 @@
     };
 
     extraPlugins = let
-      xcodebuild-nvim = pkgs.vimUtils.buildVimPlugin {
-        name = "xcodebuild-nvim";
+      kubectl-nvim = pkgs.vimUtils.buildVimPlugin {
+        name = "kubectl-nvim";
         src = pkgs.fetchFromGitHub {
-          owner = "wojciech-kulik";
-          repo = "xcodebuild.nvim";
-          rev = "41a4ec97ba8258acb1b13e634cc1e0446336ae0b";
-          hash = "sha256-SD6D3OGbssLlkmU5XHvUuoJtZVZHTwEqRnMR2N5Sa9Y=";
+          owner = "Ramilito";
+          repo = "kubectl.nvim";
+          rev = "d216502e7926a4341c96d847f223df6957f652f2";
+          hash = "sha256-xLcUcnYyly1qrHVCIk4FbRV70IaYGV8c5f9TRMouGwY=";
         };
       };
     in
@@ -570,6 +588,7 @@
         smartcolumn-nvim
         lazygit-nvim
         yazi-nvim
+        kubectl-nvim
         #xcodebuild-nvim
         #supermaven-nvim
       ];
@@ -585,6 +604,13 @@
           callback = function()
             vim.highlight.on_yank()
           end,
+        })
+
+        vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'} , {
+          pattern = '*/templates/*.yaml,*/templates/**/*.yaml,values.yaml',
+          callback = function()
+            vim.opt_local.filetype = 'helm'
+          end
         })
 
         local cmp_autopairs = require('nvim-autopairs.completion.cmp')
@@ -603,6 +629,7 @@
         --   }
         -- })
         require("yazi").setup()
+        require("kubectl").setup()
       '';
   };
 }

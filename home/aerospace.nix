@@ -60,10 +60,10 @@
       [gaps]
       inner.horizontal = 10
       inner.vertical =   10
-      outer.left =       10
+      outer.left =       [{ monitor."C34H89x" = 100 }, 10]
       outer.bottom =     10
       outer.top =        10
-      outer.right =      10
+      outer.right =      [{ monitor."C34H89x" = 100 }, 10]
 
       # 'main' binding mode declaration
       # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -205,6 +205,7 @@
 
       [[on-window-detected]]
       if.app-id = 'org.mozilla.com.zen.browser'
+      check-further-callbacks = true
       run = ["move-node-to-workspace 1"]
 
       [[on-window-detected]]
@@ -216,7 +217,13 @@
       run = ["move-node-to-workspace 1"]
 
       [[on-window-detected]]
+      if.app-id = 'org.mozilla.com.zen.browser'
       if.window-title-regex-substring = 'Picture-in-Picture'
+      run = ["layout floating", "move-node-to-workspace 6"]
+
+      [[on-window-detected]]
+      if.app-id = 'com.raycast.macos'
+      if.window-title-regex-substring = 'AI Chat'
       run = ["layout floating"]
 
       [[on-window-detected]]

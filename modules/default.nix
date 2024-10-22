@@ -8,4 +8,5 @@
   lvm-disk = import ./lvm-disk.nix;
   nginx = import ./nginx.nix;
   ssh-access = import ./ssh-access.nix;
+  build-machines = import ./build-machines.nix;
 }

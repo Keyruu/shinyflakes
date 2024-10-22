@@ -3,9 +3,11 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://attic.joinemm.dev/cache?priority=41"
       "https://deploy-rs.cachix.org?priority=44"
     ];
     extra-trusted-public-keys = [
+      "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
       "deploy-rs.cachix.org-1:xfNobmiwF/vzvK1gpfediPwpdIP0rpDV2rYqx40zdSI="
     ];
   };
@@ -20,6 +22,8 @@
     };
 
     sops-nix.url = "github:Mic92/sops-nix";
+
+    nixos-hardware.url = "github:nixos/nixos-hardware";
 
     deploy-rs = {
       url = "github:serokell/deploy-rs";
@@ -73,7 +77,7 @@
         };
       };
       hati = {
-        hostname = "192.168.187.18";
+        hostname = "192.168.100.18";
         profiles.system = {
           sshUser = "root";
           user = "root";
@@ -83,10 +87,24 @@
         };
       };
     };
+
+    aarch64 = {
+      garm = {
+        hostname = "192.168.100.74";
+        profiles.system = {
+          sshUser = "root";
+          user = "root";
+          path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.garm;
+          fastConnection = true;
+          remoteBuild = false;
+        };
+      };
+    };
   in {
-    deploy.nodes = x86;
+    deploy.nodes = x86 // aarch64;
     checks = {
       x86_64-linux = deploy-rs.lib.x86_64-linux.deployChecks {nodes = x86;};
+      aarch64-linux = deploy-rs.lib.aarch64-linux.deployChecks {nodes = aarch64;};
     };
 
     nixosConfigurations.hati = let
@@ -113,6 +131,15 @@
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
         ./hosts/sleipnir/configuration.nix
+      ];
+    };
+
+    nixosConfigurations.garm = nixpkgs.lib.nixosSystem {
+      inherit specialArgs;
+      system = "aarch64-linux";
+      modules = [
+        disko.nixosModules.disko
+        ./hosts/garm/configuration.nix
       ];
     };
 
