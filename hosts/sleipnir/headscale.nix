@@ -1,32 +1,33 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{config, ...}: {
   services.headscale = {
     enable = true;
     port = 8085;
     settings = {
-      server_url = "https://door.keyruu.de:443";
+      server_url = "https://headscale.peeraten.net:443";
       metrics_listen_addr = "127.0.0.1:8095";
-      ip_prefixes = [
-        "100.64.0.0/10"
-        "fd7a:115c:a1e0::/48"
-      ];
-      db_type = "sqlite3";
-      db_path = "/var/lib/headscale/db.sqlite";
-      dns_config = {
-        override_local_dns = true;
-        base_domain = "door.keyruu.de";
-        magic_dns = true;
-        nameservers = ["100.64.0.2"];
+      prefixes = {
+        v4 = "100.64.0.0/10";
+        v6 = "fd7a:115c:a1e0::/48";
       };
-      unix_socket_permission = "0770";
-      disable_check_updates = true;
+      database = {
+        type = "sqlite3";
+        sqlite.path = "/var/lib/headscale/db.sqlite";
+      };
+      dns = {
+        override_local_dns = true;
+        base_domain = "hafen.peeraten.net";
+        magic_dns = true;
+        nameservers.global = ["100.64.0.2"];
+      };
     };
   };
 
-  services.nginx.virtualHosts."door.keyruu.de" = {
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
+  };
+
+  services.nginx.virtualHosts."headscale.peeraten.net" = {
     enableACME = true;
     forceSSL = true;
 

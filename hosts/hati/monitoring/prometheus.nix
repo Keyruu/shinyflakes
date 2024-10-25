@@ -12,6 +12,9 @@
     webExternalUrl = "/prometheus/";
     checkConfig = true;
 
+    # thanks join
+    globalConfig.scrape_interval = "15s";
+
     exporters = {
       node = {
         enable = true;

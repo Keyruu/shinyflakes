@@ -40,4 +40,27 @@ in {
   home.shellAliases = {
     k = "kubectl";
   };
+
+  programs.starship = {
+    enable = true;
+    enableTransience = true;
+    settings = {
+      right_format = "$time";
+      kubernetes = {
+        disabled = false;
+      };
+      time = {
+        disabled = false;
+      };
+    };
+  };
+  programs.fzf.enable = true;
+  programs.zoxide.enable = true;
+  programs.lsd = {
+    enable = true;
+    enableAliases = true;
+  };
+  programs.bat.enable = true;
+  programs.thefuck.enable = true;
+  programs.direnv.enable = true;
 }

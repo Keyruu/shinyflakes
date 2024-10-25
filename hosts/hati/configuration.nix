@@ -55,6 +55,18 @@
     useRoutingFeatures = "both";
   };
 
+  services = {
+    networkd-dispatcher = {
+      enable = true;
+      rules."50-tailscale" = {
+        onState = ["routable"];
+        script = ''
+          ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
+        '';
+      };
+    };
+  };
+
   networking.hostName = "${hostname}"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -69,6 +81,7 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     busybox
+    ethtool
   ];
 
   system.stateVersion = "24.11"; # Did you read the comment?

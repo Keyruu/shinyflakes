@@ -1,6 +1,7 @@
 {
   lib,
   modules,
+  pkgs,
   ...
 }: {
   imports = lib.flatten [
@@ -12,9 +13,16 @@
       ssh-access
     ])
     ./headscale.nix
-    ./postgres.nix
-    ./atuin.nix
+    ./proxy-keyruu.nix
+    ./nginx.nix
   ];
+
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    secrets = {
+      cloudflare.owner = "root";
+    };
+  };
 
   networking.hostName = "sleipnir";
   nixpkgs.hostPlatform = "x86_64-linux";

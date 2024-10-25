@@ -1,4 +1,4 @@
-{lib, ...}: {
+{pkgs, ...}: {
   networking = {
     firewall = {
       enable = true;
@@ -11,7 +11,6 @@
       interface = "eth0";
     };
 
-    useDHCP = lib.mkDefault true;
     interfaces.eth0 = {
       useDHCP = false;
       ipv4.addresses = [
@@ -20,6 +19,21 @@
           prefixLength = 24;
         }
       ];
+    };
+  };
+
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "both";
+  };
+
+  services.networkd-dispatcher = {
+    enable = true;
+    rules."50-tailscale" = {
+      onState = ["routable"];
+      script = ''
+        ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
+      '';
     };
   };
 }

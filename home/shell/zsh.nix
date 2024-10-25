@@ -1,4 +1,4 @@
-{pkgs, ...}:
+{...}:
 # nix tooling
 {
   programs.zsh = {
@@ -78,42 +78,5 @@
         "ahmetb/kubectx path:completion kind:fpath"
       ];
     };
-  };
-
-  programs.starship = {
-    enable = true;
-    enableZshIntegration = true;
-    enableFishIntegration = true;
-    enableTransience = true;
-    settings = {
-      kubernetes = {
-        disabled = false;
-      };
-    };
-  };
-  programs.fzf = {
-    enable = true;
-    enableZshIntegration = true;
-    enableFishIntegration = true;
-  };
-  programs.zoxide = {
-    enable = true;
-    enableZshIntegration = true;
-    enableFishIntegration = true;
-  };
-  programs.lsd = {
-    enable = true;
-    enableAliases = true;
-  };
-  programs.bat.enable = true;
-  programs.thefuck = {
-    enable = true;
-    enableZshIntegration = true;
-    enableFishIntegration = true;
-  };
-
-  programs.direnv = {
-    enable = true;
-    enableZshIntegration = true;
   };
 }

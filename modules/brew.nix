@@ -47,6 +47,8 @@
       Xcode = 497799835;
       PastePal = 1503446680;
       Keymapp = 6472865291;
+      Tailscale = 1475387142;
+      WireGuard = 1451685025;
     };
 
     taps = [
@@ -296,7 +298,6 @@
 
       "1password-cli"
       "bruno"
-      "font-hack-nerd-font"
       # "macgesture"
       "notion"
       "postman"
@@ -310,9 +311,12 @@
       "kdenlive"
       "bambu-studio"
 
+      "raycast"
+
       "balenaetcher"
       "raspberry-pi-imager"
       "qutebrowser"
+      "zen-browser"
     ];
   };
 }

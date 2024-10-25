@@ -35,6 +35,7 @@
     termshark
     symfony-cli
     k6
+    sops
 
     # gui apps
     gimp

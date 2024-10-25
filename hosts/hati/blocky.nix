@@ -63,9 +63,8 @@
 
       customDNS = {
         mapping = {
-          "paf.keyruu.casa" = "192.168.187.14";
-          "ts.keyruu.casa" = "100.64.0.2";
-          "lab.keyruu.de" = "192.168.187.18";
+          "lab.keyruu.de" = "192.168.100.18";
+          "immich.keyruu.de" = "192.168.100.18";
         };
       };
 
@@ -84,19 +83,17 @@
         loading.refreshPeriod = "12h";
 
         clientGroupsBlock = {
-          default = ["ads" "security" "porn"];
+          default = ["ads" "security"];
         };
 
         denylists = {
           ads = [
             "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro.txt"
+            "https://blocklistproject.github.io/Lists/ads.txt"
           ];
           security = [
             "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.medium.txt"
             "https://blocklistproject.github.io/Lists/smart-tv.txt"
-          ];
-          porn = [
-            "https://blocklistproject.github.io/Lists/porn.txt"
           ];
         };
 

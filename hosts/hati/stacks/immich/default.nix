@@ -18,7 +18,7 @@
   '';
 
   fileSystems."/mnt/immich" = {
-    device = "192.168.187.16:/mnt/main/immich";
+    device = "192.168.100.16:/mnt/main/immich";
     fsType = "nfs";
   };
 
@@ -36,8 +36,17 @@
     ];
   };
 
-  services.nginx.virtualHosts."immich.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
+  security.acme = {
+    certs."immich.keyruu.de" = {
+      domain = "immich.keyruu.de";
+      dnsProvider = "cloudflare";
+      dnsPropagationCheck = true;
+      environmentFile = config.sops.secrets.cloudflare.path;
+    };
+  };
+
+  services.nginx.virtualHosts."immich.keyruu.de" = {
+    useACMEHost = "immich.keyruu.de";
     forceSSL = true;
 
     locations."/" = {

@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 11,
   "links": [],
   "panels": [
     {
@@ -110,7 +109,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "datasource": {
@@ -254,7 +253,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "datasource": {
@@ -359,7 +358,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.2.2+security-01",
       "targets": [
         {
           "datasource": {
@@ -547,6 +546,7 @@
     },
     {
       "datasource": {
+        "default": false,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -562,6 +562,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -635,7 +636,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$instance.*\",id=\"/system.slice/$service\"}[5m])) by (name) *100",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$instance.*\",id=\"/system.slice/$service\"}[5m])) by (name) * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{name}}",
@@ -663,6 +664,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -764,6 +766,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 1,
+            "barWidthFactor": 0.6,
             "drawStyle": "bars",
             "fillOpacity": 60,
             "gradientMode": "opacity",
@@ -959,8 +962,8 @@
       {
         "current": {
           "selected": false,
-          "text": "acme-fixperms.service",
-          "value": "acme-fixperms.service"
+          "text": "",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -994,6 +997,6 @@
   "timezone": "browser",
   "title": "Systemd Service",
   "uid": "ddrxcrolarxfka",
-  "version": 26,
+  "version": 1,
   "weekStart": ""
 }

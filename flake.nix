@@ -14,7 +14,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs?rev=12cd5bd532f46b1c39a70a3a3a8336f16b6be010";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs";
 
     disko = {
       url = "github:nix-community/disko";
@@ -148,7 +148,7 @@
         specialArgs
         // {
           username = "lucas.rott";
-          hostname = "PCL2023110901";
+          hostname = "PCL2022020701";
         };
     in
       nix-darwin.lib.darwinSystem {

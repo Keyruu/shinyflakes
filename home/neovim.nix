@@ -380,6 +380,7 @@
       dap.enable = true;
       leap.enable = true;
       floaterm.enable = true;
+      web-devicons.enable = true;
 
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {
@@ -514,28 +515,34 @@
         };
         servers = {
           nixd.enable = false;
-          nil-ls = {
+          nil_ls = {
             enable = true;
             settings = {
               formatting.command = ["alejandra"];
               flake.autoEvalInputs = true;
             };
           };
-          lua-ls.enable = true;
+          lua_ls.enable = true;
           bashls.enable = true;
           tailwindcss.enable = true;
-          tsserver.enable = true;
-          hls.enable = true;
+          ts_ls.enable = true;
+          hls = {
+            enable = true;
+            installGhc = true;
+          };
           jsonls.enable = true;
           clangd.enable = true;
           terraformls.enable = true;
-          helm-ls = {
+          helm_ls = {
             enable = true;
           };
           gopls.enable = true;
-          kotlin-language-server.enable = true;
-          intelephense.enable = true;
-          ruff-lsp = {
+          kotlin_language_server.enable = true;
+          intelephense = {
+            enable = true;
+            package = pkgs.intelephense;
+          };
+          ruff_lsp = {
             enable = true;
           };
           yamlls = {

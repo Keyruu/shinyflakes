@@ -2,6 +2,10 @@
   programs.fish = {
     enable = true;
 
+    functions = {
+      starship_transient_rprompt_func = "starship module time";
+    };
+
     shellInit =
       /*
       fish
@@ -29,6 +33,11 @@
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-production-sysops.yaml
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-shared-services-sysops.yaml
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/ph-production-sysops.yaml
+
+        # starship transience
+        function starship_transient_rprompt_func
+          starship module time
+        end
       '';
 
     shellInitLast =
@@ -36,14 +45,10 @@
       fish
       */
       ''
-        # starship transience
-        function starship_transient_rprompt_func
-          starship module time
-        end
         function is_inside_neovim
           # Check if NVIM environment variable is set
           if test -n "$NVIM"
-              return 0  # Inside Neovim
+            return 0  # Inside Neovim
           end
           return 1  # Not inside Neovim
         end
