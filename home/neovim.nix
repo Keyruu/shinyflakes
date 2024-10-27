@@ -514,9 +514,9 @@
           };
         };
         servers = {
-          nixd.enable = false;
+          nixd.enable = true;
           nil_ls = {
-            enable = true;
+            enable = false;
             settings = {
               formatting.command = ["alejandra"];
               flake.autoEvalInputs = true;

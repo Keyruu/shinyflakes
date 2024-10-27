@@ -15,12 +15,25 @@
     ./headscale.nix
     ./proxy-keyruu.nix
     ./nginx.nix
+    ../../services/monitoring.nix
   ];
 
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
+    };
+  };
+
+  services.monitoring = {
+    metrics = {
+      enable = true;
+      interface = "tailscale0";
+    };
+    logs = {
+      enable = true;
+      nginx = true;
+      lokiAddress = "hati";
     };
   };
 

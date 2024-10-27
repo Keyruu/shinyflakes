@@ -3,6 +3,11 @@
   config,
   ...
 }: {
+  networking.firewall.interfaces = {
+    "eth0".allowedTCPPorts = [config.services.loki.configuration.server.http_listen_port];
+    "tailscale0".allowedTCPPorts = [config.services.loki.configuration.server.http_listen_port];
+  };
+
   services.loki = {
     enable = true;
     configuration = {

@@ -1,4 +1,5 @@
 {
+  inputs,
   outputs,
   pkgs,
   lib,
@@ -11,6 +12,7 @@
       brew
       darwin
       build-machines
+      kanata
     ])
   ];
   # List packages installed in system profile. To search by name, run:
@@ -34,6 +36,7 @@
 
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
+  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
 
   # do garbage collection weekly to keep disk usage low
   nix.gc = {

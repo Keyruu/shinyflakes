@@ -15,6 +15,7 @@
     (modulesPath + "/installer/sd-card/sd-image-aarch64.nix")
     ./sdcard.nix
     ./printing.nix
+    ./blocky.nix
   ];
 
   nixpkgs.hostPlatform = "aarch64-linux";
@@ -24,6 +25,11 @@
     hostName = "garm";
 
     networkmanager.enable = true;
+  };
+
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "both";
   };
 
   environment.systemPackages = with pkgs; [

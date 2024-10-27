@@ -33,11 +33,6 @@
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-production-sysops.yaml
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-shared-services-sysops.yaml
         set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/ph-production-sysops.yaml
-
-        # starship transience
-        function starship_transient_rprompt_func
-          starship module time
-        end
       '';
 
     shellInitLast =
@@ -57,20 +52,5 @@
           enable_transience
         end
       '';
-
-    shellAbbrs = {
-      mv = "mv -iv";
-      rm = "rm -I";
-      cp = "cp -iv";
-      ln = "ln -iv";
-      lf = "lfub";
-      gs = "git status";
-      gd = "git diff";
-      ga = "git add";
-      gc = "git clone";
-      ssh = "TERM=xterm-256color ssh";
-      ztab = "zellij action new-tab";
-      vi = "nvim";
-    };
   };
 }

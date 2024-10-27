@@ -317,6 +317,8 @@
       "raspberry-pi-imager"
       "qutebrowser"
       "zen-browser"
+      "docker"
+      "element"
     ];
   };
 }

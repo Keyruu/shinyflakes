@@ -32,6 +32,11 @@
       };
     };
 
+    kanata = {
+      url = "github:alexandru0-dev/kanata-flake";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
@@ -58,6 +63,7 @@
     nixpkgs,
     home-manager,
     deploy-rs,
+    kanata,
     ...
   }: let
     specialArgs = {

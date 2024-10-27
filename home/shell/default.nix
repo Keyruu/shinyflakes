@@ -39,6 +39,19 @@ in {
 
   home.shellAliases = {
     k = "kubectl";
+    mv = "mv -iv";
+    rm = "rm -I";
+    cp = "cp -iv";
+    ln = "ln -iv";
+    lf = "lfub";
+    gs = "git status";
+    gd = "git diff";
+    ga = "git add";
+    gc = "git clone";
+    ztab = "zellij action new-tab";
+    vi = "nvim";
+    ".." = "cd ..";
+    "..." = "cd ../..";
   };
 
   programs.starship = {

@@ -51,6 +51,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
+              "sleipnir:3021"
             ];
           }
         ];
@@ -61,6 +62,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.cadvisor.port}"
+              "sleipnir:3022"
             ];
           }
         ];
@@ -70,7 +72,7 @@
         static_configs = [
           {
             targets = [
-              "127.0.0.1:${toString config.services.blocky.settings.ports.http}"
+              "garm:4000"
             ];
           }
         ];
@@ -101,6 +103,16 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.prometheus.exporters.nginxlog.port}"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "headscale";
+        static_configs = [
+          {
+            targets = [
+              "100.64.0.6:8095"
             ];
           }
         ];

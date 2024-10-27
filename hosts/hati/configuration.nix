@@ -19,7 +19,6 @@
     ./cert.nix
     ./stacks
     ./monitoring
-    ./blocky.nix
     ./nginx.nix
   ];
 
@@ -46,23 +45,6 @@
         owner = "root";
         group = "smtp";
         mode = "0440";
-      };
-    };
-  };
-
-  services.tailscale = {
-    enable = true;
-    useRoutingFeatures = "both";
-  };
-
-  services = {
-    networkd-dispatcher = {
-      enable = true;
-      rules."50-tailscale" = {
-        onState = ["routable"];
-        script = ''
-          ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
-        '';
       };
     };
   };
