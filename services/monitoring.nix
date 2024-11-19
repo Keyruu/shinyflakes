@@ -29,6 +29,7 @@ in
   config = {
     services.cadvisor = {
       enable = true;
+      listenAddress = "0.0.0.0";
       port = 3022;
       extraOptions = ["--docker_only=false"];
     };
@@ -36,7 +37,7 @@ in
     services.prometheus.exporters = lib.mkIf cfg.metrics.enable {
       node = {
         enable = true;
-        enabledCollectors = [ "systemd" ];
+        enabledCollectors = [ "systemd" "cgroups" "processes" ];
         port = 3021;
       };
     };

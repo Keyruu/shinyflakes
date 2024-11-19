@@ -110,5 +110,7 @@
     ffmpeg-full
     nix-diff
     p7zip
+    nixd
+    compose2nix
   ];
 }

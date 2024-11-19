@@ -6,7 +6,8 @@
   modules,
   username,
   ...
-}: {
+}:
+{
   imports = lib.flatten [
     (with modules; [
       brew
@@ -23,7 +24,7 @@
     pkgs.fish
   ];
 
-  users.knownUsers = [username];
+  users.knownUsers = [ username ];
   users.users."${username}" = {
     shell = pkgs.fish;
     uid = 880220207;
@@ -35,13 +36,20 @@
   nixpkgs.config.allowUnfree = true;
 
   # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
-  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+  nix = {
+    nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+    gc = {
+      automatic = lib.mkDefault true;
+      options = lib.mkDefault "--delete-older-than 7d";
+    };
 
-  # do garbage collection weekly to keep disk usage low
-  nix.gc = {
-    automatic = lib.mkDefault true;
-    options = lib.mkDefault "--delete-older-than 7d";
+    settings = {
+      experimental-features = "nix-command flakes";
+      trusted-users = [
+        "lucas.rott"
+        "@admin"
+      ];
+    };
   };
 
   # Create /etc/zshrc that loads the nix-darwin environment.

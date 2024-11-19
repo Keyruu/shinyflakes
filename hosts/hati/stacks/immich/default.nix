@@ -7,7 +7,7 @@
   environment.etc."stacks/immich/hwaccel.yml".source = ./hwaccel.yml;
   environment.etc."stacks/immich/.env".text = ''
     UPLOAD_LOCATION=/mnt/immich
-    IMMICH_VERSION=v1.112.1
+    IMMICH_VERSION=v1.119.1
     DB_PASSWORD=postgres
 
     DB_HOSTNAME=immich_postgres

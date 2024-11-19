@@ -1,6 +1,6 @@
 {config, ...}: {
   security.acme = {
-      certs."lab.keyruu.de" = {
+    certs."lab.keyruu.de" = {
       domain = "lab.keyruu.de";
       extraDomainNames = [ "*.lab.keyruu.de" ];
       dnsProvider = "cloudflare";

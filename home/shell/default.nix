@@ -2,11 +2,13 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   d = config.xdg.dataHome;
   c = config.xdg.configHome;
   cache = config.xdg.cacheHome;
-in {
+in
+{
   imports = [
     ./zsh.nix
     ./yazi.nix
@@ -60,7 +62,7 @@ in {
     settings = {
       right_format = "$time";
       kubernetes = {
-        disabled = false;
+        disabled = true;
       };
       time = {
         disabled = false;

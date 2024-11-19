@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   ##########################################################################
   #
   #  Install all apps and packages here.
@@ -69,6 +70,7 @@
       "osx-cross/avr"
       "quarkusio/tap"
       "keyruu/tap"
+      "kanidm/kanidm"
     ];
 
     # `brew install`
@@ -97,6 +99,8 @@
       "php@8.2"
       "php@8.3"
       "composer"
+
+      "kanidm"
 
       "borders"
       # "sketchybar" # status bar
@@ -319,6 +323,11 @@
       "zen-browser"
       "docker"
       "element"
+      "signal"
+      "chromium"
+      "chromedriver"
+      "android-platform-tools"
+      "threema"
     ];
   };
 }

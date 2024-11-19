@@ -1,6 +1,7 @@
 {
   pkgs,
   username,
+  lib,
   ...
 }: {
   home.packages = with pkgs; [
@@ -37,6 +38,7 @@
       undofile = true;
       undodir = "/Users/${username}/.vim/undodir";
       conceallevel = 0;
+      exrc = false;
     };
 
     files = {
@@ -514,7 +516,22 @@
           };
         };
         servers = {
-          nixd.enable = true;
+          nixd = {
+            enable = true;
+            settings =
+              let
+                localFlake = ''(builtins.getFlake "/Users/${username}/shinyflakes")'';
+              in
+              {
+                nixpkgs.expr = "import <nixpkgs> {}";
+                formatting.command = [ (lib.getExe pkgs.nixfmt-rfc-style) ];
+                options = {
+                  nixos.expr = "${localFlake}.nixosConfigurations.sleipnir.options";
+                  home-manager.expr = ''${localFlake}.homeConfigurations."${username}@stern".options'';
+                  nix-darwin.expr = "${localFlake}.darwinConfigurations.stern.options";
+                };
+              };
+          };
           nil_ls = {
             enable = false;
             settings = {
@@ -637,6 +654,6 @@
         -- })
         require("yazi").setup()
         require("kubectl").setup()
-      '';
-  };
-}
+        '';
+    };
+  }

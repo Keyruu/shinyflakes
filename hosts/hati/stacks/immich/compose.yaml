@@ -9,8 +9,8 @@ services:
       - ${UPLOAD_LOCATION}:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - 127.0.0.1:2283:3001
-      - 100.64.0.2:2283:3001
+      - 127.0.0.1:2283:2283
+      - 100.64.0.2:2283:2283
     env_file:
       - .env
     depends_on:

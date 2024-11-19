@@ -1,27 +1,32 @@
 {
   lib,
   modules,
-  pkgs,
   ...
-}: {
+}:
+{
   imports = lib.flatten [
     (with modules; [
-      docker
       hetzner
       locale
       nginx
       ssh-access
     ])
-    ./headscale.nix
-    ./proxy-keyruu.nix
-    ./nginx.nix
     ../../services/monitoring.nix
+    ./headscale.nix
+    ./proxy.nix
+    ./nginx.nix
+    ./kanidm.nix
   ];
 
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
+      headscaleOidc = {
+        owner = "headscale";
+        mode = "0440";
+      };
+      kanidmAdminPassword.owner = "kanidm";
     };
   };
 
@@ -33,7 +38,17 @@
     logs = {
       enable = true;
       nginx = true;
-      lokiAddress = "hati";
+      lokiAddress = "http://hati:3030";
+    };
+  };
+
+  virtualisation.podman = {
+    enable = true;
+    autoPrune.enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings = {
+      # Required for container networking to be able to use names.
+      dns_enabled = true;
     };
   };
 
