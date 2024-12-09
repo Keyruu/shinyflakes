@@ -3,9 +3,9 @@
     enable = true;
     enableZshIntegration = true;
     extraConfig = /* lua */ ''
-      local theme = "Breeze"
+      local theme = "Night Owl (Gogh)"
       local scheme = wezterm.color.get_builtin_schemes()[theme]
-      scheme.background = "#0A0E14"
+      -- scheme.background = "#100F0F"
 
       return {
         hide_tab_bar_if_only_one_tab = true,

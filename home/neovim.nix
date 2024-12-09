@@ -8,8 +8,11 @@
     alejandra
   ];
 
+  home.file.".config/nvim/init.lua".source = ./nvim/init.lua;
+  home.file.".config/nvim/lua".source = ./nvim/lua;
+
   programs.nixvim = {
-    enable = true;
+    enable = false;
     viAlias = true;
     vimAlias = true;
 
@@ -383,6 +386,11 @@
       leap.enable = true;
       floaterm.enable = true;
       web-devicons.enable = true;
+
+      avante = {
+        enable = true;
+        settings.provider = "claude";
+      };
 
       # stuff that isnt in nixvim needs to be installed with lazy
       # lazy = {

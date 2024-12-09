@@ -36,6 +36,14 @@
     symfony-cli
     k6
     sops
+    yaml-language-server
+    zig
+    gleam
+    coursier
+    metals
+    hyperfine
+    tmux
+    upterm
 
     # gui apps
     gimp

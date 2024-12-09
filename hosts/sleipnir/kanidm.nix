@@ -41,7 +41,7 @@
             "headscale_users"
           ];
           mailAddresses = [
-            "me@keyruu.de"
+            "lucas@keyruu.de"
           ];
         };
         nadine = {
@@ -57,22 +57,22 @@
       groups = {
         headscale_users = {};
       };
-      systems.oauth2 = {
-        headscale = {
-          displayName = "Headscale";
-          allowInsecureClientDisablePkce = true;
-          basicSecretFile = config.sops.secrets.headscaleOidc.path;
-          originUrl = "https://headscale.peeraten.net/";
-          originLanding = "https://headscale.peeraten.net/";
-          scopeMaps = {
-            headscale_users = [
-              "openid"
-              "email"
-              "profile"
-            ];
-          };
-        };
-      };
+      # systems.oauth2 = {
+      #   headscale = {
+      #     displayName = "Headscale";
+      #     allowInsecureClientDisablePkce = true;
+      #     basicSecretFile = config.sops.secrets.headscaleOidc.path;
+      #     originUrl = "https://headscale.peeraten.net/";
+      #     originLanding = "https://headscale.peeraten.net/";
+      #     scopeMaps = {
+      #       headscale_users = [
+      #         "openid"
+      #         "email"
+      #         "profile"
+      #       ];
+      #     };
+      #   };
+      # };
     };
   };
 

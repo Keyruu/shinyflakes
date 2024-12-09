@@ -3,7 +3,7 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://attic.joinemm.dev/cache?priority=41"
+      # "https://attic.joinemm.dev/cache?priority=41"
       "https://deploy-rs.cachix.org?priority=44"
     ];
     extra-trusted-public-keys = [

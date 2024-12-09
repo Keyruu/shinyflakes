@@ -1,6 +1,7 @@
 {
   lib,
   modules,
+  pkgs,
   ...
 }:
 {
@@ -51,6 +52,13 @@
       dns_enabled = true;
     };
   };
+
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    wget
+    busybox
+    ethtool
+  ];
 
   networking.hostName = "sleipnir";
   nixpkgs.hostPlatform = "x86_64-linux";
