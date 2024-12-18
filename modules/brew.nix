@@ -77,6 +77,7 @@
     # TODO Feel free to add your favorite apps here.
     brews = [
       "nnn" # terminal file manager
+      "kanata" # keyboard remapper
 
       "helm"
       "ical-buddy" # calendar events

@@ -43,7 +43,7 @@
         autohide = true;
         show-recents = false; # disable recent apps
         mru-spaces = false; # disable recent spaces
-        expose-group-by-app = true;
+        expose-group-apps = true;
       };
 
       spaces.spans-displays = false;

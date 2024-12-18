@@ -9,5 +9,4 @@
   nginx = import ./nginx.nix;
   ssh-access = import ./ssh-access.nix;
   build-machines = import ./build-machines.nix;
-  kanata = import ./kanata.nix;
 }

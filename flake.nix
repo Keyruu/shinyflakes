@@ -27,19 +27,11 @@
 
     deploy-rs = {
       url = "github:serokell/deploy-rs";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
     };
 
     quadlet-nix = {
       url = "github:SEIAROTg/quadlet-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    kanata = {
-      url = "github:alexandru0-dev/kanata-flake";
-      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     home-manager = {

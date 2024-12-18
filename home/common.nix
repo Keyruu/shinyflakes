@@ -44,6 +44,9 @@
     hyperfine
     tmux
     upterm
+    youplot
+    ripgrep
+    fd
 
     # gui apps
     gimp

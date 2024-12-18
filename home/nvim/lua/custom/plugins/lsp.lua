@@ -10,8 +10,6 @@ return {
     -- Useful status updates for LSP.
     -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     { 'j-hui/fidget.nvim', opts = {} },
-
-    -- Allows extra capabilities provided by nvim-cmp
     'hrsh7th/cmp-nvim-lsp',
   },
   config = function()
@@ -23,17 +21,13 @@ return {
           vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
 
-        map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        map('gd', require('fzf-lua').lsp_definitions, '[G]oto [D]efinition')
 
-        map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+        map('gr', require('fzf-lua').lsp_references, '[G]oto [R]eferences')
 
-        map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+        map('gI', require('fzf-lua').lsp_implementations, '[G]oto [I]mplementation')
 
-        map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
-        map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
-        map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+        map('<leader>D', require('fzf-lua').lsp_typedefs, 'Type [D]efinition')
 
         map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 
@@ -100,6 +94,7 @@ return {
         --
         -- This may be unwanted, since they displace some of your code
         if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
           map('<leader>th', function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
           end, '[T]oggle Inlay [H]ints')
@@ -172,9 +167,12 @@ return {
       },
     }
 
-    require('lspconfig').gleam.setup {}
+    require('lspconfig').gleam.setup {
+      capabilities = capabilities,
+    }
 
     require('lspconfig').nixd.setup {
+      capabilities = capabilities,
       settings = {
         nixpkgs = {
           expr = 'import <nixpkgs> {}',
@@ -216,6 +214,7 @@ return {
       handlers = {
         function(server_name)
           local server = servers[server_name] or {}
+
           -- This handles overriding only values explicitly passed
           -- by the server configuration above. Useful when disabling
           -- certain features of an LSP (for example, turning off formatting for ts_ls)

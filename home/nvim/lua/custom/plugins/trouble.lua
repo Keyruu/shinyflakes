@@ -16,7 +16,7 @@ return {
     {
       '<leader>cs',
       '<cmd>Trouble symbols toggle focus=false<cr>',
-      desc = 'Symbols (Trouble)',
+      desc = '[S]ymbols (Trouble)',
     },
     {
       '<leader>cl',
@@ -26,12 +26,12 @@ return {
     {
       '<leader>xL',
       '<cmd>Trouble loclist toggle<cr>',
-      desc = 'Location List (Trouble)',
+      desc = '[L]ocation List (Trouble)',
     },
     {
       '<leader>xQ',
       '<cmd>Trouble qflist toggle<cr>',
-      desc = 'Quickfix List (Trouble)',
+      desc = '[Q]uickfix List (Trouble)',
     },
   },
 }
