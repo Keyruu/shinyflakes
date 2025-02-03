@@ -9,4 +9,6 @@
   nginx = import ./nginx.nix;
   ssh-access = import ./ssh-access.nix;
   build-machines = import ./build-machines.nix;
+  podman = import ./podman.nix;
+  beszel-agent = import ./beszel-agent.nix;
 }

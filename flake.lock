@@ -340,6 +340,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-ovmf": {
+      "locked": {
+        "lastModified": 1708984720,
+        "narHash": "sha256-gJctErLbXx4QZBBbGp78PxtOOzsDaQ+yw1ylNQBuSUY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1733940404,
@@ -400,6 +416,26 @@
         "type": "github"
       }
     },
+    "nixvirt": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-ovmf": "nixpkgs-ovmf"
+      },
+      "locked": {
+        "lastModified": 1712439808,
+        "narHash": "sha256-QoONoZPBpNTw5cia05QSvDlaxXo3moKAJQOw7c5hMXA=",
+        "rev": "9f1cdca730d92461075709e867c1e9ad93d58a8d",
+        "revCount": 284,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/AshleyYakeley/NixVirt/0.5.0/018eb55e-7beb-75c5-919f-5b5b26136e06/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/AshleyYakeley/NixVirt/%2A.tar.gz"
+      }
+    },
     "nuschtosSearch": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -430,11 +466,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1733881928,
-        "narHash": "sha256-hiZ1ioviveM/jCnjLRO+3aG5Xb7dDTp/121IRd8wRWU=",
+        "lastModified": 1737257281,
+        "narHash": "sha256-3k595j2wUcL3MyVSbP5oAWAVx4f9yul5oU5tgpnAJd8=",
         "owner": "SEIAROTg",
         "repo": "quadlet-nix",
-        "rev": "e977174c1bb33a093217aa19415428d593bd719e",
+        "rev": "dc233fc9714fbaa0c2b3bacf9c44f95ad8607148",
         "type": "github"
       },
       "original": {
@@ -453,6 +489,7 @@
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-darwin": "nixpkgs-darwin",
         "nixvim": "nixvim",
+        "nixvirt": "nixvirt",
         "quadlet-nix": "quadlet-nix",
         "sops-nix": "sops-nix"
       }

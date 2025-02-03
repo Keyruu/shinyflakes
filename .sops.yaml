@@ -8,7 +8,8 @@ keys:
   - hosts:
     - &hati age1kjsaqhx9naqf9maazhlcgermrmj0q00zd7x7a9kv3h9e4kg65qeqyrskqc
     - &sleipnir age14vx75e6r7k707d0ylnf9ytezvhe6ldjrszldwtetn3ud53utushswv7pgu
-    - &garm age1696243ua2pgu3sagrxzd9zdygfjmus0xmahn30je40sdpr8qx3tqsp682w
+    - &garm age1r53n46s6g0ychx9p367k7c9jw6cevwrdeeqt4de92dekzt7m6eeqw5dh3r
+    - &highwind age12wmzxga97evh3z5uc85xaaypzkp3hy36qcnvm9dh8du2y6hjfq2s09z0h3
 creation_rules:
   - path_regex: secrets.yaml$
     key_groups:
@@ -17,4 +18,5 @@ creation_rules:
         - *hati
         - *sleipnir
         - *garm
+        - *highwind
 

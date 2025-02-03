@@ -23,6 +23,7 @@
         fish_add_path $HOME/.cargo/bin
         fish_add_path $HOME/Library/Application\ Support/JetBrains/Toolbox/scripts/
         fish_add_path $HOME/Library/Application\ Support/Coursier/bin
+        fish_add_path $HOME/.orbstack/bin
 
         set -U fish_greeting
 

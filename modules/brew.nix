@@ -293,7 +293,7 @@
       "jordanbaird-ice"
       "nikitabobko/tap/aerospace"
       "keyruu/tap/keyruu-tabula"
-      "protonmail-bridge"
+      "proton-mail-bridge"
       # "superproductivity"
       # "betterdisplay"
 
@@ -322,13 +322,13 @@
       "raspberry-pi-imager"
       "qutebrowser"
       "zen-browser"
-      "docker"
       "element"
       "signal"
       "chromium"
       "chromedriver"
       "android-platform-tools"
       "threema"
+      "orbstack"
     ];
   };
 }

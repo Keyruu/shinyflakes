@@ -5,7 +5,17 @@
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://homeassistant:8123";
+      proxyPass = "http://100.64.0.1:8123";
+      proxyWebsockets = true;
+    };
+  };
+
+  services.nginx.virtualHosts."traccar.peeraten.net" = {
+    enableACME = true;
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://100.64.0.1:5785";
       proxyWebsockets = true;
     };
   };

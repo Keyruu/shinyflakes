@@ -34,20 +34,24 @@
       filtering = {
         rewrites = [
           {
-            domain = "immich.keyruu.de";
-            answer = "192.168.100.18";
-          }
-          {
             domain = "adguard.port.peeraten.net";
             answer = "192.168.100.5";
           }
           {
             domain = "monitoring.lab.keyruu.de";
-            answer = "192.168.100.18";
+            answer = "192.168.100.7";
+          }
+          {
+            domain = "*.lab.keyruu.de";
+            answer = "192.168.100.7";
           }
           {
             domain = "hass.peeraten.net";
-            answer = "192.168.100.86";
+            answer = "192.168.100.7";
+          }
+          {
+            domain = "traccar.peeraten.net";
+            answer = "192.168.100.7";
           }
           {
             domain = "*.home.zimtix.de";
@@ -89,7 +93,7 @@
           id = 2;
         }
         {
-          enabled = true;
+          enabled = false;
           url = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/tif.medium.txt";
           name = "security/hagezi";
           id = 3;

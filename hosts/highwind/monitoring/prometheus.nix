@@ -21,6 +21,27 @@
         port = 3021;
         enabledCollectors = ["systemd"];
       };
+      zfs = {
+        enable = true;
+        listenAddress = "127.0.0.1";
+        port = 9134;
+        pools = ["main"];
+      };
+      process = {
+        enable = true;
+        listenAddress = "127.0.0.1";
+        port = 9256;
+      };
+      systemd = {
+        enable = true;
+        port = 9558;
+        listenAddress = "127.0.0.1";
+      };
+      smartctl = {
+        enable = true;
+        port = 9633;
+        listenAddress = "127.0.0.1";
+      };
       nginxlog = {
         enable = true;
         port = 3024;
@@ -105,6 +126,46 @@
           {
             targets = [
               "100.64.0.6:8095"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "systemd";
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.systemd.port}"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "smartctl";
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "zfs";
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.zfs.port}"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "process";
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.process.port}"
             ];
           }
         ];

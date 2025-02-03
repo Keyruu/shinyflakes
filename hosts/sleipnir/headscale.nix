@@ -18,9 +18,17 @@
         override_local_dns = true;
         base_domain = "hafen.peeraten.net";
         magic_dns = true;
-        nameservers.global = [
-          "100.64.0.1"
-        ];
+        nameservers.split = {
+          "lab.keyruu.de" = [
+            "100.64.0.13"
+          ];
+          "home.zimtix.de" = [
+            "100.64.0.13"
+          ];
+          "port.peeraten.net" = [
+            "100.64.0.13"
+          ];
+        };
       };
       oidc = {
         only_start_if_oidc_is_available = false;
@@ -36,18 +44,42 @@
     };
   };
 
+  virtualisation.quadlet.containers.headplane = {
+    containerConfig = {
+      image = "ghcr.io/tale/headplane:0.3.9";
+      publishPorts = [ "127.0.0.1:3000:3000" ];
+      environments = {
+        HEADSCALE_URL = "https://headscale.peeraten.net";
+      };
+      environmentFiles = [
+        config.sops.secrets.headplaneEnv.path
+      ];
+    };
+  };
+
   services.tailscale = {
     enable = true;
-    useRoutingFeatures = "server";
+    useRoutingFeatures = "client";
+    authKeyFile = config.sops.secrets.headscaleAuthKey.path;
+    extraUpFlags = [
+      "--login-server=https://headscale.peeraten.net"
+      "--accept-routes=true"
+    ];
   };
 
   services.nginx.virtualHosts."headscale.peeraten.net" = {
     enableACME = true;
     forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
-      proxyWebsockets = true;
+    locations = {
+      "/" = {
+        proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
+        proxyWebsockets = true;
+      };
+      "/admin" = {
+        proxyPass = "http://127.0.0.1:3000";
+        proxyWebsockets = true;
+      };
     };
   };
 }

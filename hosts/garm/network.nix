@@ -1,4 +1,4 @@
-{pkgs, lib, ...}: {
+{pkgs, lib, config, ...}: {
   networking = {
     usePredictableInterfaceNames = true;
     nameservers = ["192.168.100.1"];
@@ -21,6 +21,14 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "both";
+    authKeyFile = config.sops.secrets.headscaleAuthKey.path;
+    extraUpFlags = [
+      "--login-server=https://headscale.peeraten.net"
+      "--advertise-exit-node"
+      "--advertise-routes=192.168.100.0/24"
+      "--accept-dns=false"
+      "--accept-routes=false"
+    ];
   };
 
   services.networkd-dispatcher = {

@@ -8,6 +8,8 @@
         sshUser = "root";
         sshKey = "/Users/${username}/.ssh/id_rsa";
         system = "aarch64-linux";
+        maxJobs = 40;
+        speedFactor = 2;
         supportedFeatures = [
           "aarch64-linux"
           "kvm"

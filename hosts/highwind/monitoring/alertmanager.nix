@@ -97,7 +97,7 @@
                   description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
               - alert: HostSystemdServiceCrashed
                 expr: (node_systemd_unit_state{state="failed"} == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
-                for: 0m
+                for: 1m
                 labels:
                   severity: warning
                 annotations:

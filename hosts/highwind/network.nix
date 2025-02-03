@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, config, ...}: {
   networking = {
     firewall = {
       enable = true;
@@ -15,7 +15,7 @@
       useDHCP = false;
       ipv4.addresses = [
         {
-          address = "192.168.100.18";
+          address = "192.168.100.7";
           prefixLength = 24;
         }
       ];
@@ -25,6 +25,14 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "both";
+    authKeyFile = config.sops.secrets.headscaleAuthKey.path;
+    extraUpFlags = [
+      "--login-server=https://headscale.peeraten.net"
+      "--advertise-exit-node"
+      "--advertise-routes=192.168.100.0/24"
+      "--accept-dns=true"
+      "--accept-routes=false"
+    ];
   };
 
   services.networkd-dispatcher = {

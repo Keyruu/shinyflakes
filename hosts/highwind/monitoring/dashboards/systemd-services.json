@@ -18,6 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -109,7 +110,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -253,7 +254,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -358,7 +359,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.2+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -497,7 +498,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -628,7 +629,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -730,7 +731,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "7.4.5",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -869,7 +870,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -892,6 +893,10 @@
         "type": "loki",
         "uid": "P8E80F9AEF21F6940"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 11,
         "w": 24,
@@ -909,6 +914,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -925,8 +931,9 @@
       "type": "logs"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 39,
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 40,
   "tags": [
     "systemd"
   ],
@@ -934,7 +941,6 @@
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "127.0.0.1",
           "value": "127.0.0.1"
         },
@@ -943,9 +949,7 @@
           "uid": "PBFA97CFB590B2093"
         },
         "definition": "label_values(node_systemd_unit_state,instance)",
-        "hide": 0,
         "includeAll": false,
-        "multi": false,
         "name": "instance",
         "options": [],
         "query": {
@@ -955,13 +959,10 @@
         },
         "refresh": 1,
         "regex": "/(?<value>.*):/",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "",
           "value": ""
         },
@@ -970,10 +971,8 @@
           "uid": "PBFA97CFB590B2093"
         },
         "definition": "label_values(node_systemd_unit_state{type!=\"\",instance=~\"$instance.*\"}, name)",
-        "hide": 0,
         "includeAll": false,
         "label": "Service",
-        "multi": false,
         "name": "service",
         "options": [],
         "query": {
@@ -983,8 +982,6 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]

@@ -12,6 +12,7 @@
         font = wezterm.font_with_fallback({
           "JetBrainsMono Nerd Font",
         }),
+        harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
         front_end = "WebGpu",
         visual_bell = {
           fade_in_duration_ms = 75,

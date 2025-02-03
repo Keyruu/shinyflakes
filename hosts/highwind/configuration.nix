@@ -1,25 +1,22 @@
-{
-  modules,
-  pkgs,
-  hostname,
-  sops,
-  lib,
-  ...
-}: {
+{lib, modules, pkgs, hostname, ...}: {
   imports = lib.flatten [
     (with modules; [
-      docker
       locale
-      lvm-disk
-      nginx
       ssh-access
+      nginx
+      podman
+      beszel-agent
     ])
+    ./disk-config.nix
     ./hardware-configuration.nix
     ./network.nix
-    ./cert.nix
-    ./stacks
-    ./monitoring
     ./nginx.nix
+    ./cert.nix
+    ./cockpit.nix
+    ./nas.nix
+    ./monitoring
+    ./stacks
+    ./homepage.nix
   ];
 
   # Use the GRUB 2 boot loader.
@@ -46,24 +43,28 @@
         group = "smtp";
         mode = "0440";
       };
+      headscaleAuthKey.owner = "root";
+      immichEnv.owner = "root";
+      gluetunEnv.owner = "root";
     };
   };
 
   networking.hostName = "${hostname}"; # Define your hostname.
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
 
-  # Set your time zone.
-  # time.timeZone = "Europe/Amsterdam";
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     busybox
     ethtool
+    podman-tui
+    smartmontools
+    pv
+    tmux
+    slirp4netns
+    amdgpu_top
+    lazydocker
+    usbutils
+    beets
   ];
 
   system.stateVersion = "24.11"; # Did you read the comment?

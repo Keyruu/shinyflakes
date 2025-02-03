@@ -72,6 +72,10 @@
     oh-my-posh
     btop
     devenv
+    minikube
+    tilt
+    yt-dlp
+    colmena
 
     # devops
     kubectl

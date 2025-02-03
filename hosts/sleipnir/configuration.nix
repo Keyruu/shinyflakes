@@ -11,6 +11,8 @@
       locale
       nginx
       ssh-access
+      podman
+      beszel-agent
     ])
     ../../services/monitoring.nix
     ./headscale.nix
@@ -28,6 +30,8 @@
         mode = "0440";
       };
       kanidmAdminPassword.owner = "kanidm";
+      headplaneEnv.owner = "root";
+      headscaleAuthKey.owner = "root";
     };
   };
 
@@ -40,16 +44,6 @@
       enable = true;
       nginx = true;
       lokiAddress = "http://hati:3030";
-    };
-  };
-
-  virtualisation.podman = {
-    enable = true;
-    autoPrune.enable = true;
-    dockerCompat = true;
-    defaultNetwork.settings = {
-      # Required for container networking to be able to use names.
-      dns_enabled = true;
     };
   };
 

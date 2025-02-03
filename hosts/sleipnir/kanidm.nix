@@ -39,6 +39,7 @@
           displayName = "Lucas";
           groups = [
             "headscale_users"
+            "traccar_users"
           ];
           mailAddresses = [
             "lucas@keyruu.de"
@@ -48,6 +49,7 @@
           displayName = "Nadine";
           groups = [
             "headscale_users"
+            "traccar_users"
           ];
           mailAddresses = [
             "nadine.october664@slmail.me"
@@ -56,6 +58,7 @@
       };
       groups = {
         headscale_users = {};
+        traccar_users = {};
       };
       # systems.oauth2 = {
       #   headscale = {
