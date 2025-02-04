@@ -11,5 +11,7 @@
     ./slskd.nix
     ./navidrome.nix
     ./beets.nix
+    ./recyclarr.nix
+    ./lidarr.nix
   ];
 }

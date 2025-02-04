@@ -32,13 +32,12 @@ let
 
     import = {
       write = true;
-      copy = true;
+      copy = false;
       move = false;
+      hardlink = true;
       autotag = true;
       bell = true;
       log = "/dev/null";
-      quiet = true;
-      quiet_fallback = "asis";
     };
 
     original_date = true;

@@ -48,8 +48,16 @@
         "lucas.rott"
         "@admin"
       ];
+      sandbox = false;
     };
   };
+
+  environment.variables.NIX_IGNORE_SYMLINK_STORE = "1";
+
+  system.activationScripts.extraActivation.text = ''
+    # Fix slow .git/objects permissions
+    find /nix/store -wholename '*.git/objects' -exec chmod -R u+w {} +
+  '';
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   programs.fish.enable = true;

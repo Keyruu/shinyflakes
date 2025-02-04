@@ -77,7 +77,7 @@
             POSTGRES_INITDB_ARGS = "--data-checksums";
           };
           volumes = [
-            "${STACK_PATH}/pgdata:/var/lib/postgresql/data:Z"
+            "${STACK_PATH}/pgdata:/var/lib/postgresql/data:z"
           ];
           exec = "postgres -c shared_preload_libraries=vectors.so -c 'search_path=\"$user\", public, vectors' -c logging_collector=on -c max_wal_size=2GB -c shared_buffers=512MB -c wal_compression=on";
           healthCmd = ''pg_isready --dbname='${DB_NAME}' --username='${DB_USER}' || exit 1; Chksum="$(psql --dbname='${DB_NAME}' --username='${DB_USER}' --tuples-only --no-align --command='SELECT COALESCE(SUM(checksum_failures), 0) FROM pg_stat_database')"; echo "checksum failure count is $Chksum"; [ "$Chksum" = '0' ] || exit 1'';

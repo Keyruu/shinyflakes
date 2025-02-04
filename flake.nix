@@ -4,17 +4,19 @@
   nixConfig = {
     extra-substituters = [
       # "https://attic.joinemm.dev/cache?priority=41"
-      "https://deploy-rs.cachix.org?priority=44"
+      "https://nixpkgs.cachix.org"
+      "https://nix-community.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
-      "deploy-rs.cachix.org-1:xfNobmiwF/vzvK1gpfediPwpdIP0rpDV2rYqx40zdSI="
+      "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     ];
   };
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/8809585e6937d0b07fc066792c8c9abf9c3fe5c4";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     disko = {
       url = "github:nix-community/disko";
@@ -30,10 +32,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    deploy-rs = {
-      url = "github:serokell/deploy-rs";
-    };
-
     quadlet-nix = {
       url = "github:SEIAROTg/quadlet-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -45,7 +43,7 @@
     };
 
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
+      url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
@@ -65,7 +63,6 @@
       sops-nix,
       nixpkgs,
       home-manager,
-      deploy-rs,
       quadlet-nix,
       nixvirt,
       ...
@@ -76,82 +73,8 @@
         inherit (self) outputs;
         modules = import ./modules;
       };
-
-      # x86
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-      deployPkgs = import nixpkgs {
-        inherit system;
-        overlays = [
-          deploy-rs.overlay # or deploy-rs.overlays.default
-          (self: super: { deploy-rs = { inherit (pkgs) deploy-rs; lib = super.deploy-rs.lib; }; })
-        ];
-      };
-      x86 = {
-        sleipnir = {
-          hostname = "sleipnir";
-          profiles.system = {
-            sshUser = "root";
-            user = "root";
-            path = deployPkgs.deploy-rs.lib.activate.nixos self.nixosConfigurations.sleipnir;
-            fastConnection = true;
-            remoteBuild = true;
-            magicRollback = false;
-            autoRollback = false;
-          };
-        };
-        highwind = {
-          hostname = "192.168.100.7";
-          profiles.system = {
-            sshUser = "root";
-            user = "root";
-            path = deployPkgs.deploy-rs.lib.activate.nixos self.nixosConfigurations.highwind;
-            fastConnection = true;
-            remoteBuild = true;
-            magicRollback = false;
-            autoRollback = false;
-          };
-        };
-      };
-
-      # aarch64
-      system-aarch = "aarch64-linux";
-      pkgs-aarch = import nixpkgs { system = system-aarch; };
-      deployPkgs-aarch = import nixpkgs {
-        system = system-aarch;
-        overlays = [
-          deploy-rs.overlay # or deploy-rs.overlays.default
-          (self: super: {
-            deploy-rs = { 
-              pkgs = pkgs-aarch;
-              inherit (pkgs-aarch) deploy-rs; 
-              lib = super.deploy-rs.lib; 
-            }; 
-          })
-        ];
-      };
-      aarch64 = {
-        garm = {
-          hostname = "192.168.100.5";
-          profiles.system = {
-            sshUser = "root";
-            user = "root";
-            path = deployPkgs-aarch.deploy-rs.lib.activate.nixos self.nixosConfigurations.garm;
-            fastConnection = true;
-            remoteBuild = false;
-            magicRollback = false;
-            autoRollback = false;
-          };
-        };
-      };
     in
     {
-      deploy.nodes = x86 // aarch64;
-      checks = {
-        x86_64-linux = deploy-rs.lib.x86_64-linux.deployChecks { nodes = x86; };
-        aarch64-linux = deploy-rs.lib.aarch64-linux.deployChecks { nodes = aarch64; };
-      };
-
       nixosConfigurations.highwind =
         let
           args = specialArgs // {

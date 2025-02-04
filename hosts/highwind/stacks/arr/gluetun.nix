@@ -17,6 +17,7 @@
         "127.0.0.1:9696:9696"
         "127.0.0.1:7373:3000"
         "127.0.0.1:5030:5030"
+        "127.0.0.1:8686:8686"
       ];
     };
     serviceConfig = {
@@ -100,6 +101,16 @@
 
     locations."/" = {
       proxyPass = "http://127.0.0.1:5030";
+      proxyWebsockets = true;
+    };
+  };
+
+  services.nginx.virtualHosts."lidarr.lab.keyruu.de" = {
+    useACMEHost = "lab.keyruu.de";
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:8686";
       proxyWebsockets = true;
     };
   };
