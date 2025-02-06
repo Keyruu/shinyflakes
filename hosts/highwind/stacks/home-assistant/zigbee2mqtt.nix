@@ -28,6 +28,8 @@ in {
       enabled: true
     homeassistant:
       enabled: true
+    devices: devices.yaml
+    groups: groups.yaml
   '';
 
   virtualisation.quadlet = let
@@ -84,8 +86,8 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."mqtt.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
+  services.nginx.virtualHosts."mqtt.port.peeraten.net" = {
+    useACMEHost = "port.peeraten.net";
     forceSSL = true;
 
     locations."/" = {
@@ -94,8 +96,8 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."z2m.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
+  services.nginx.virtualHosts."z2m.port.peeraten.net" = {
+    useACMEHost = "port.peeraten.net";
     forceSSL = true;
 
     locations."/" = {

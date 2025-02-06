@@ -1,6 +1,6 @@
 {config, ...}: 
 let
-  slskdPath = "/etc/stacks/radarr/app";
+  slskdPath = "/etc/stacks/slskd/app";
   musicPath = "/main/media/Music";
 in {
   systemd.tmpfiles.rules = [
@@ -11,6 +11,19 @@ in {
   ];
 
   sops.secrets.slskdEnv.owner = "root";
+
+    sops.secrets = {
+    slskdKey.owner = "root";
+    lidarrKey.owner = "root";
+  };
+
+  sops.templates."slskdConfig.yaml".content = /* yaml */ ''
+    web:
+      authentication:
+        api_keys:
+          soularr_key:
+            key: ${config.sops.placeholder.slskdKey}
+  '';
 
   virtualisation.quadlet.containers.torrent-slskd = {
     containerConfig = {
@@ -28,18 +41,19 @@ in {
       ];
       volumes = [
         "${slskdPath}:/app"
+        "${config.sops.templates."slskdConfig.yaml".path}:/app/slskd.yml:ro"
         "/main/media/Music:/data/Music"
       ];
       networks = [
-        "torrent--gluetun.container"
+        "torrent-gluetun.container"
       ];
     };
     serviceConfig = {
       Restart = "always";
     };
     unitConfig = {
-      After = [ "torrent--gluetun.service" ];
-      Requires = [ "torrent--gluetun.service" ];
+      After = [ "torrent-gluetun.service" ];
+      Requires = [ "torrent-gluetun.service" ];
     };
   };
 }

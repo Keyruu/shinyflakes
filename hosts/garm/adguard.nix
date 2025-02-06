@@ -15,6 +15,7 @@
     enable = true;
     host = "127.0.0.1";
     port = 3000;
+
     settings = {
       dns = {
         bind_hosts = [
@@ -43,6 +44,10 @@
           }
           {
             domain = "*.lab.keyruu.de";
+            answer = "192.168.100.7";
+          }
+          {
+            domain = "*.port.peeraten.net";
             answer = "192.168.100.7";
           }
           {

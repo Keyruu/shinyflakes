@@ -1,5 +1,5 @@
 {config, ...}: {
-  virtualisation.quadlet.containers.torrent--gluetun = {
+  virtualisation.quadlet.containers.torrent-gluetun = {
     containerConfig = {
       image = "ghcr.io/qdm12/gluetun:v3.40.0";
       addCapabilities = ["NET_ADMIN"];

@@ -86,6 +86,20 @@
             };
           }
           {
+            lidarr = {
+              icon = "lidarr.png";
+              href = "https://lidarr.lab.keyruu.de";
+              server = "highwind";
+              container = "torrent-lidarr";
+              siteMonitor = "http://127.0.0.1:8686";
+              widget = {
+                type = "lidarr";
+                url = "http://127.0.0.1:8686";
+                key = "{{HOMEPAGE_VAR_LIDARR_KEY}}";
+              };
+            };
+          }
+          {
             bazarr = {
               icon = "bazarr.png";
               href = "https://bazarr.lab.keyruu.de";

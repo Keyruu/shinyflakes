@@ -51,6 +51,22 @@
 
   networking.hostName = "${hostname}"; # Define your hostname.
 
+  virtualisation.podman = let
+    podman-rc = pkgs.podman.overrideAttrs (old: {
+      patches = [];
+      buildInputs = old.buildInputs ++ [ pkgs.conmon ];
+      src = pkgs.fetchFromGitHub {
+        owner = "containers";
+        repo = "podman";
+        rev = "v5.4.0-rc2";  # Replace with desired RC tag
+        hash = "sha256-yOsemRpYhzwqhhum6LKfmUhNGh4jCg+1sqb19/r15qQ=";
+      };
+      version = "5.4.0-rc2";  # Match the rev
+    });
+  in {
+    package = podman-rc;
+  };
+
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
@@ -65,6 +81,8 @@
     lazydocker
     usbutils
     beets
+    conmon
+    runc
   ];
 
   system.stateVersion = "24.11"; # Did you read the comment?

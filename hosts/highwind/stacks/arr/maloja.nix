@@ -6,7 +6,7 @@
     "d ${malojaPath} 0755 root root"
   ];
 
-  virtualisation.quadlet.containers.navidrome = {
+  virtualisation.quadlet.containers.maloja = {
     containerConfig = {
       image = "krateng/maloja:3.2.3";
       environments = {

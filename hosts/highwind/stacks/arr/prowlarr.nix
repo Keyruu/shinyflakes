@@ -18,15 +18,15 @@
         "${prowlarrPath}/config:/config"
       ];
       networks = [
-        "torrent--gluetun.container"
+        "torrent-gluetun.container"
       ];
     };
     serviceConfig = {
       Restart = "always";
     };
     unitConfig = {
-      After = [ "torrent--gluetun.service" ];
-      Requires = [ "torrent--gluetun.service" ];
+      After = [ "torrent-gluetun.service" ];
+      Requires = [ "torrent-gluetun.service" ];
     };
   };
 }

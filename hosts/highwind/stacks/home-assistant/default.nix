@@ -3,6 +3,7 @@
 in {
   imports = [
     ./zigbee2mqtt.nix
+    ./matter-hub.nix
   ];
 
   systemd.tmpfiles.rules = [

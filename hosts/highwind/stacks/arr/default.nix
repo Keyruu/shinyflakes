@@ -13,5 +13,6 @@
     ./beets.nix
     ./recyclarr.nix
     ./lidarr.nix
+    ./soularr.nix
   ];
 }

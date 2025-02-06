@@ -1,6 +1,6 @@
 {config, ...}: {
   systemd.tmpfiles.rules = [
-    "d /etc/stacks/immich/pgdata 0770 root root"
+    "d /etc/stacks/immich/pgdata 0770 999 999"
     "d /etc/stacks/immich/model-cache 0770 root root"
   ];
 
@@ -76,6 +76,7 @@
           environments = {
             POSTGRES_INITDB_ARGS = "--data-checksums";
           };
+          securityLabelDisable = true;
           volumes = [
             "${STACK_PATH}/pgdata:/var/lib/postgresql/data:z"
           ];

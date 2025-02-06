@@ -19,7 +19,7 @@ in {
     inherit (config.virtualisation.quadlet) containers;
   in { 
     containers = {
-      "1-gluetun" = {
+      "searxng-gluetun" = {
         containerConfig = {
           image = "ghcr.io/qdm12/gluetun:v3.40.0";
           addCapabilities = ["NET_ADMIN"];
@@ -41,14 +41,14 @@ in {
           volumes = [
             "${searxngPath}/valkey:/data:z"
           ];
-          networks = [ containers."1-gluetun".ref ];
+          networks = [ containers."searxng-gluetun".ref ];
         };
         serviceConfig = {
           Restart = "always";
         };
         unitConfig = {
-          After = "1-gluetun.service";
-          Requires = "1-gluetun.service";
+          After = "searxng-gluetun.service";
+          Requires = "searxng-gluetun.service";
         };
       };
 
@@ -65,7 +65,7 @@ in {
           volumes = [
             "${searxngPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
           ];
-          networks = [ containers."1-gluetun".ref ];
+          networks = [ containers."searxng-gluetun".ref ];
         };
         serviceConfig = {
           Restart = "always";
