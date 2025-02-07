@@ -6,10 +6,7 @@
     "d ${soularrPath} 0755 root root"
   ];
 
-  sops.secrets = {
-    slskdKey.owner = "root";
-    lidarrKey.owner = "root";
-  };
+  sops.secrets.slskdKey.owner = "root";
 
   sops.templates."soularrConfig.toml".content = /* toml */ ''
     [Lidarr]

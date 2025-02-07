@@ -1,7 +1,6 @@
 {...}: {
   programs.ssh = {
     enable = true;
-    controlPath = "~/.ssh/%C";
     matchBlocks = {
       "sleipnir" = {
         hostname = "168.119.225.165";
@@ -14,6 +13,11 @@
       "traversetown" = {
         hostname = "78.47.122.5";
         user = "root";
+      };
+      "github.com" = {
+        hostname = "ssh.github.com";
+        port = 443;
+        user = "git";
       };
     };
   };

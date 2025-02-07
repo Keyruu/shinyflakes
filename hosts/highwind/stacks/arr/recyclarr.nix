@@ -6,11 +6,6 @@ in {
     "d ${recyclarrPath} 0755 root root"
   ];
 
-  sops.secrets = {
-    sonarrKey.owner = "root";
-    radarrKey.owner = "root";
-  };
-
   sops.templates."recyclarrConfig.yaml".content = /* yaml */ ''
     # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
 

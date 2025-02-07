@@ -1,6 +1,17 @@
 { config, ... }:
 {
-  sops.secrets.homepageEnv.owner = "root";
+  sops.templates."homepage.env".content = /* env */ ''
+    HOMEPAGE_VAR_RADARR_KEY=${config.sops.placeholder.radarrKey}
+    HOMEPAGE_VAR_SONARR_KEY=${config.sops.placeholder.sonarrKey}
+    HOMEPAGE_VAR_LIDARR_KEY=${config.sops.placeholder.lidarrKey}
+    HOMEPAGE_VAR_BAZARR_KEY=${config.sops.placeholder.bazarrKey}
+    HOMEPAGE_VAR_PROWLARR_KEY=${config.sops.placeholder.prowlarrKey}
+    HOMEPAGE_VAR_QBITTORRENT_USERNAME=${config.sops.placeholder.qbittorrentUsername}
+    HOMEPAGE_VAR_QBITTORRENT_PASSWORD=${config.sops.placeholder.qbittorrentPassword}
+    HOMEPAGE_VAR_JELLYFIN_KEY=${config.sops.placeholder.jellyfinKey}
+    HOMEPAGE_VAR_BESZEL_USERNAME=${config.sops.placeholder.beszelUsername}
+    HOMEPAGE_VAR_BESZEL_PASSWORD=${config.sops.placeholder.beszelPassword}
+  '';
 
   systemd.services.homepage-dashboard = {
     serviceConfig = {
@@ -10,7 +21,7 @@
 
   services.homepage-dashboard = {
     enable = true;
-    environmentFile = config.sops.secrets.homepageEnv.path;
+    environmentFile = config.sops.templates."homepage.env".path;
     listenPort = 7122;
     docker = {
       highwind = {
@@ -30,7 +41,7 @@
         search = {
           provider = "custom";
           url = "https://search.lab.keyruu.de/search?q=";
-          target= "_blank";
+          target = "_blank";
           showSearchSuggestions = false;
         };
       }

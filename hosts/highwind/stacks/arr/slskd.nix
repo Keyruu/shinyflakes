@@ -12,7 +12,7 @@ in {
 
   sops.secrets.slskdEnv.owner = "root";
 
-    sops.secrets = {
+  sops.secrets = {
     slskdKey.owner = "root";
     lidarrKey.owner = "root";
   };

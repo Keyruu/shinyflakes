@@ -46,6 +46,16 @@
       headscaleAuthKey.owner = "root";
       immichEnv.owner = "root";
       gluetunEnv.owner = "root";
+      lidarrKey.owner = "root";
+      sonarrKey.owner = "root";
+      radarrKey.owner = "root";
+      bazarrKey.owner = "root";
+      prowlarrKey.owner = "root";
+      qbittorrentUsername.owner = "root";
+      qbittorrentPassword.owner = "root";
+      beszelUsername.owner = "root";
+      beszelPassword.owner = "root";
+      jellyfinKey.owner = "root";
     };
   };
 

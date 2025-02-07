@@ -2,7 +2,7 @@
   searxngPath = "/etc/stacks/searxng";
 in {
   systemd.tmpfiles.rules = [
-    "d ${searxngPath}/valkey 0775 root root"
+    "d ${searxngPath}/valkey 0775 999 1000"
     "d ${searxngPath}/data 0755 root root"
   ];
 
