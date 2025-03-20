@@ -28,6 +28,7 @@ in {
       enabled: true
     homeassistant:
       enabled: true
+      experimental_event_entities: true
     devices: devices.yaml
     groups: groups.yaml
   '';
@@ -39,7 +40,7 @@ in {
     containers = {
       mqtt = {
         containerConfig = {
-          image = "eclipse-mosquitto:2.0";
+          image = "eclipse-mosquitto:2.0.20";
           publishPorts = [
             "127.0.0.1:1883:1883"
             "192.168.100.7:1883:1883"
@@ -50,6 +51,9 @@ in {
           ];
           exec = "mosquitto -c /mosquitto-no-auth.conf";
           networks = [ networks.mqtt.ref ];
+          labels = [
+            "wud.tag.include=^\d+\.\d+\.\d+$"
+          ];
         };
         serviceConfig = {
           Restart = "always";
@@ -58,7 +62,7 @@ in {
 
       zigbee2mqtt = {
         containerConfig = {
-          image = "koenkk/zigbee2mqtt:2.1.0";
+          image = "koenkk/zigbee2mqtt:2.1.1";
           environments = {
             TZ = "Europe/Berlin";
           };
@@ -71,6 +75,9 @@ in {
             "/run/udev:/run/udev:ro"
           ];
           networks = [ networks.mqtt.ref ];
+          labels = [
+            "wud.tag.include=^\d+\.\d+\.\d+$"
+          ];
           devices = [
             "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyUSB0"
           ];

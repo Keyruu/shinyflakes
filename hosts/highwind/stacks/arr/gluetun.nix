@@ -19,6 +19,9 @@
         "127.0.0.1:5030:5030"
         "127.0.0.1:8686:8686"
       ];
+      labels = [
+        "wud.tag.include=^v\d+\.\d+\.\d+$"
+      ];
     };
     serviceConfig = {
       Restart = "always";

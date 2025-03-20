@@ -15,6 +15,7 @@
       build-machines
     ])
   ];
+
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = [
@@ -29,14 +30,12 @@
     uid = 880220207;
   };
 
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
   # nix.package = pkgs.nix;
   nixpkgs.config.allowUnfree = true;
 
   # Necessary for using flakes on this system.
   nix = {
-    nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+    nixPath = [ "nixpkgs=${inputs.nixpkgs-darwin}" ];
     gc = {
       automatic = lib.mkDefault true;
       options = lib.mkDefault "--delete-older-than 7d";
@@ -51,13 +50,6 @@
       sandbox = false;
     };
   };
-
-  environment.variables.NIX_IGNORE_SYMLINK_STORE = "1";
-
-  system.activationScripts.extraActivation.text = ''
-    # Fix slow .git/objects permissions
-    find /nix/store -wholename '*.git/objects' -exec chmod -R u+w {} +
-  '';
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   programs.fish.enable = true;

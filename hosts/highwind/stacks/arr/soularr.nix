@@ -32,7 +32,7 @@
     maximum_peer_queue = 50
     minimum_peer_upload_speed = 0
     minimum_filename_match_ratio = 0.5
-    allowed_filetypes = flac
+    allowed_filetypes = flac,mp3
     search_for_tracks = True
     album_prepend_artist = False
     track_prepend_artist = True

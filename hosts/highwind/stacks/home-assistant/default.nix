@@ -4,7 +4,12 @@ in {
   imports = [
     ./zigbee2mqtt.nix
     ./matter-hub.nix
+    ./esphome.nix
   ];
+
+  boot.kernel.sysctl = {
+    "net.ipv4.igmp_max_memberships" = 50;
+  };
 
   systemd.tmpfiles.rules = [
     "d ${homeAssistantPath}/config 0755 root root"
@@ -27,18 +32,23 @@ in {
       trusted_proxies: 
         - 127.0.0.1
         - 100.64.0.0/10
+
+    zeroconf:
+      default_interface: true
   '';
 
-  networking.firewall.allowedTCPPorts = [ 8123 ];
+  networking.firewall.allowedTCPPorts = [ 8123 51827 ];
+  networking.firewall.allowedUDPPorts = [ 5353 ];
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
-      image = "ghcr.io/home-assistant/home-assistant:stable";
+      image = "ghcr.io/home-assistant/home-assistant:2025.2.1";
       environments = {
         TZ = "Europe/Berlin";
       };
       exposePorts = [
         "8123"
+        "5353"
       ];
       addCapabilities = [
         "CAP_NET_RAW"
@@ -51,6 +61,9 @@ in {
       ];
       networks = [
         "host"
+      ];
+      labels = [
+        "wud.tag.include=^\d+\.\d+\.\d+$"
       ];
     };
     serviceConfig = {

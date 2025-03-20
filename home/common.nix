@@ -1,6 +1,4 @@
 {pkgs, ...}: {
-  nixpkgs.config.allowUnfree = true;
-
   home.packages = with pkgs; [
     # development
     python3
@@ -38,7 +36,6 @@
     sops
     yaml-language-server
     zig
-    gleam
     coursier
     metals
     hyperfine
@@ -47,6 +44,7 @@
     youplot
     ripgrep
     fd
+    devbox
 
     # gui apps
     gimp

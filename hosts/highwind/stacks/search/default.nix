@@ -28,6 +28,9 @@ in {
           publishPorts = [
             "127.0.0.1:4899:8080"
           ];
+          labels = [
+            "wud.tag.include=^v\d+\.\d+\.\d+$"
+          ];
         };
         serviceConfig = {
           Restart = "always";
@@ -66,6 +69,9 @@ in {
             "${searxngPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
           ];
           networks = [ containers."searxng-gluetun".ref ];
+          labels = [
+            "wud.tag.include=^\d+\.\d+\.\d+-.*$"
+          ];
         };
         serviceConfig = {
           Restart = "always";

@@ -20,6 +20,9 @@
       publishPorts = [
         "127.0.0.1:4533:4533"
       ];
+      labels = [
+        "wud.tag.include=^\d+\.\d+\.\d+$"
+      ];
     };
     serviceConfig = {
       Restart = "always";

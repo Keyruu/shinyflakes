@@ -24,17 +24,15 @@
         fish_add_path $HOME/Library/Application\ Support/JetBrains/Toolbox/scripts/
         fish_add_path $HOME/Library/Application\ Support/Coursier/bin
         fish_add_path $HOME/.orbstack/bin
+        fish_add_path $HOME/.pnpm-bin
 
         set -U fish_greeting
 
         set -x KUBECONFIG $HOME/.kube/config
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/jq-production-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/kl-production-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/kl-staging-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-staging-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-production-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/mp-shared-services-sysops.yaml
-        set -x KUBECONFIG $KUBECONFIG:$HOME/.kube/ph-production-sysops.yaml
+
+        set -x PNPM_HOME $HOME/.pnpm-bin
+
+        source $HOME/.local/bin/env.fish
       '';
 
     shellInitLast =

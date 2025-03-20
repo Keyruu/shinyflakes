@@ -92,6 +92,8 @@
 
       "pnpm" # package manager
 
+      "lima"
+
       "python@3.10"
       "python@3.11"
       "python@3.12"
@@ -329,6 +331,8 @@
       "android-platform-tools"
       "threema"
       "orbstack"
+      "neovide"
+      "utm"
     ];
   };
 }

@@ -25,7 +25,9 @@
             "${UPLOAD_LOCATION}:/usr/src/app/upload"
           ];
           environmentFiles = [ config.sops.secrets.immichEnv.path ];
-          labels = [ "diun.enable=true" ];
+          labels = [
+            "wud.tag.include=^v\d+\.\d+\.\d+$"
+          ];
           networks = [ networks.immich.ref ];
         };
         serviceConfig = {
@@ -44,7 +46,9 @@
             "${STACK_PATH}/model-cache:/cache"
           ];
           environmentFiles = [ config.sops.secrets.immichEnv.path ];
-          labels = [ "diun.enable=true" ];
+          labels = [
+            "wud.tag.include=^v\d+\.\d+\.\d+$"
+          ];
           networks = [ networks.immich.ref ];
         };
         serviceConfig = {

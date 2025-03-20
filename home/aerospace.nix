@@ -229,6 +229,10 @@
       run = ["layout floating"]
 
       [[on-window-detected]]
+      if.app-id = 'com.utmapp.UTM'
+      run = ["layout floating"]
+
+      [[on-window-detected]]
       if.app-id = 'com.apple.finder'
       run = ["move-node-to-workspace 7"]
 

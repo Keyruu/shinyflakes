@@ -11,6 +11,9 @@
       networks = [
         "torrent-gluetun.container"
       ];
+      labels = [
+        "wud.tag.include=^v\d+\.\d+\.\d+$"
+      ];
     };
     serviceConfig = {
       Restart = "always";

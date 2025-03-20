@@ -171,7 +171,7 @@ in {
 
   virtualisation.quadlet.containers.torrent-recyclarr = {
     containerConfig = {
-      image = "ghcr.io/recyclarr/recyclarr:7.4.0";
+      image = "ghcr.io/recyclarr/recyclarr:7.4.1";
       environments = {
         TZ = "Europe/Berlin";
       };
@@ -182,6 +182,9 @@ in {
       ];
       networks = [
         "torrent-gluetun.container"
+      ];
+      labels = [
+        "wud.tag.include=^\d+\.\d+\.\d+$"
       ];
     };
     serviceConfig = {

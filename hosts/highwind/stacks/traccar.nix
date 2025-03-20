@@ -6,7 +6,10 @@ in {
     "d ${traccarPath}/logs 0755 root root"
   ];
 
-  sops.secrets.traccarClientSecret.owner = "root";
+  sops.secrets = {
+    traccarClientSecret.owner = "root";
+    locationIqKey.owner = "root";
+  };
 
   sops.templates."traccar.xml".content = ''
     <?xml version='1.0' encoding='UTF-8'?>
@@ -25,6 +28,13 @@ in {
         <entry key='web.address'>0.0.0.0</entry>
         <entry key='web.port'>5785</entry>
         <entry key='web.url'>https://traccar.peeraten.net</entry>
+        <entry key='geocoder.enable'>true</entry>
+        <entry key='geocoder.type'>nominatim</entry>
+        <entry key='geocoder.url'>https://eu1.locationiq.com/v1/reverse.php</entry>
+        <entry key='geocoder.key'>${config.sops.placeholder.locationIqKey}</entry>
+        <entry key='geocoder.onRequest'>false</entry>
+        <entry key='geocoder.ignorePositions'>false</entry>
+        <entry key='geocoder.reuseDistance'>10</entry>
     </properties>
   '';
 
@@ -39,6 +49,9 @@ in {
       publishPorts = [
         "127.0.0.1:5785:5785"
         "100.64.0.1:5785:5785"
+      ];
+      labels = [
+        "wud.tag.include=^\d+\.\d+-alpine$"
       ];
     };
     serviceConfig = {

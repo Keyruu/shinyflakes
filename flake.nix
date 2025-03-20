@@ -53,6 +53,11 @@
         nixpkgs.follows = "nixpkgs-darwin";
       };
     };
+
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -65,6 +70,7 @@
       home-manager,
       quadlet-nix,
       nixvirt,
+      nur,
       ...
     }:
     let
@@ -89,6 +95,7 @@
             sops-nix.nixosModules.sops
             quadlet-nix.nixosModules.quadlet
             nixvirt.nixosModules.default
+            nur.modules.nixos.default
             ./hosts/highwind/configuration.nix
           ];
         };
