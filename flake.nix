@@ -58,6 +58,12 @@
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+    stylix.url = "github:danth/stylix";
+    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
+    zen-browser.url = "git+https://git.sr.ht/~canasta/zen-browser-flake/";
+    nixcord.url = "github:kaylorben/nixcord";
   };
 
   outputs =
@@ -71,6 +77,8 @@
       quadlet-nix,
       nixvirt,
       nur,
+      stylix,
+      hyprpanel,
       ...
     }:
     let
@@ -131,6 +139,11 @@
       	specialArgs = args;
         system = "x86_64-linux";
         modules = [
+          {
+            nixpkgs.overlays = [ hyprpanel.overlay ];
+            _module.args = { inherit inputs; };
+          }
+          stylix.nixosModules.stylix
           ./hosts/thopter/configuration.nix
 
 	  home-manager.nixosModules.home-manager
