@@ -116,7 +116,6 @@ return {
     capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
     local servers = {
-      clangd = {},
       gopls = {},
       rust_analyzer = {},
       ts_ls = {},
@@ -139,9 +138,7 @@ return {
       bashls = {},
       tailwindcss = {},
       jsonls = {},
-      terraformls = {},
       helm_ls = {},
-      kotlin_language_server = {},
       intelephense = {},
       zls = {},
       yamlls = {
@@ -168,6 +165,18 @@ return {
     }
 
     require('lspconfig').gleam.setup {
+      capabilities = capabilities,
+    }
+    
+    require('lspconfig').kotlin_language_server.setup {
+      capabilities = capabilities,
+    }
+
+    require('lspconfig').terraformls.setup {
+      capabilities = capabilities,
+    }
+
+    require('lspconfig').clangd.setup {
       capabilities = capabilities,
     }
 
@@ -201,14 +210,6 @@ return {
     --
     --  You can press `g?` for help in this menu.
     require('mason').setup()
-
-    -- You can add other tools here that you want Mason to install
-    -- for you, so that they are available from within Neovim.
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, {
-      'stylua', -- Used to format Lua code
-    })
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
     require('mason-lspconfig').setup {
       handlers = {

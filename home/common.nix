@@ -125,5 +125,9 @@
     p7zip
     nixd
     compose2nix
+    clang-tools
+    kotlin-language-server
+    terraform-ls
+    stylua
   ];
 }

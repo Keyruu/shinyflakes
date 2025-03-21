@@ -121,6 +121,28 @@
         ];
       };
 
+      nixosConfigurations.thopter = 
+        let
+          args = specialArgs // {
+            username = "lucas";
+          };
+        in
+      nixpkgs.lib.nixosSystem {
+      	specialArgs = args;
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/thopter/configuration.nix
+
+	  home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = args;
+            home-manager.users.lucas = import ./hosts/thopter/home.nix;
+          }
+        ];
+      };
+
       darwinConfigurations.stern =
         let
           args = specialArgs // {
