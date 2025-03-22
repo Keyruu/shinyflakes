@@ -59,11 +59,24 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     zen-browser.url = "git+https://git.sr.ht/~canasta/zen-browser-flake/";
     nixcord.url = "github:kaylorben/nixcord";
+    hyprswitch.url = "github:h3rmt/hyprswitch/release";
+    iio-hyprland.url = "github:JeanSchoeller/iio-hyprland";
+
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hyprgrass = {
+      url = "github:horriblename/hyprgrass";
+      inputs.hyprland.follows = "hyprland"; # IMPORTANT
+    };
   };
 
   outputs =
@@ -151,7 +164,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = args;
-            home-manager.users.lucas = import ./hosts/thopter/home.nix;
+            home-manager.users.lucas = import ./home/linux;
           }
         ];
       };
@@ -175,7 +188,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = args;
-                users."${args.username}" = import ./home;
+                users."${args.username}" = import ./home/mac;
               };
             }
           ];

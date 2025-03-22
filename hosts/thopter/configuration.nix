@@ -2,12 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
     ];
 
   # Bootloader.
@@ -52,7 +53,7 @@
 	wayland = true;
       };
     };
-    desktopManager.gnome.enable = true;
+    desktopManager.gnome.enable = false;
   };
 
   # Configure keymap in X11
@@ -65,7 +66,8 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  # hardware.pulseaudio.enable = false;
+  # services.pulseaudio.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -91,10 +93,12 @@
     packages = with pkgs; [
     #  thunderbird
     ];
+    shell = pkgs.fish;
   };
 
   # Install firefox.
   programs.firefox.enable = true;
+  programs.fish.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
