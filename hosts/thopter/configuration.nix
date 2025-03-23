@@ -9,13 +9,15 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
+
+      ./1password.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "thopter"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -75,7 +77,8 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+    jack.enable = true;
+    wireplumber.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -90,9 +93,6 @@
     isNormalUser = true;
     description = "Lucas";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
     shell = pkgs.fish;
   };
 
@@ -115,6 +115,7 @@
     wezterm
     git
     kitty
+    evtest
   ];
 
   services.fprintd.enable = true;
@@ -129,36 +130,20 @@
 
   services.kanata = {
     enable = true;
-    keyboards.lenovo.configFile = ./kanata.kbd;
+    keyboards.lenovo.configFile = ../../home/common/kanata.kbd;
   };
 
   programs.hyprland.enable = true;
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  services.upower.enable = true;
+  services.blueman.enable = true;
+  services.libinput.enable = true;
+  services.power-profiles-daemon.enable = true;
 
-  # List services that you want to enable:
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = false;
 
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.tailscale.enable = true;
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.11"; # Did you read the comment?
-
 }

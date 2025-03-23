@@ -6,11 +6,13 @@
       # "https://attic.joinemm.dev/cache?priority=41"
       "https://nixpkgs.cachix.org"
       "https://nix-community.cachix.org"
+      "https://anyrun.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
       "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "anyrun.cachix.org-1:pqBobmOjI7nKlsUMV25u9QHa9btJK65/C8vnO3p346s="
     ];
   };
 
@@ -77,6 +79,11 @@
       url = "github:horriblename/hyprgrass";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT
     };
+
+    anyrun = {
+      url = "github:anyrun-org/anyrun";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -91,7 +98,6 @@
       nixvirt,
       nur,
       stylix,
-      hyprpanel,
       ...
     }:
     let
@@ -152,10 +158,7 @@
       	specialArgs = args;
         system = "x86_64-linux";
         modules = [
-          {
-            nixpkgs.overlays = [ hyprpanel.overlay ];
-            _module.args = { inherit inputs; };
-          }
+          {nixpkgs.overlays = [inputs.hyprpanel.overlay];}
           stylix.nixosModules.stylix
           ./hosts/thopter/configuration.nix
 

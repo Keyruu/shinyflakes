@@ -13,6 +13,7 @@
     ./hypr
     ./wofi.nix
     ./clipman.nix
+    ./clipse.nix
     ./discord.nix
     ./themes/nixy.nix
     ./spicetify.nix
@@ -33,7 +34,6 @@
 
   home.packages = with pkgs; [ 
     squeekboard
-    maliit-keyboard
     nwg-drawer
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default

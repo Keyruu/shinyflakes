@@ -1,6 +1,6 @@
 # Hyprpanel is the bar on top of the screen
 # Display informations like workspaces, battery, wifi, ...
-{ inputs, config, ... }:
+{ inputs, config, pkgs, ... }:
 let
   transparentButtons = config.theme.bar.transparentButtons;
 
@@ -16,7 +16,6 @@ let
   border-size = config.theme.border-size;
 
   gaps-out = config.theme.gaps-out;
-  gaps-in = config.theme.gaps-in;
 
   floating = config.theme.bar.floating;
   transparent = config.theme.bar.transparent;
@@ -24,8 +23,9 @@ let
 
   location = "Munich";
 in {
-
-  imports = [ inputs.hyprpanel.homeManagerModules.hyprpanel ];
+  imports = [
+    inputs.hyprpanel.homeManagerModules.hyprpanel
+  ];
 
   programs.hyprpanel = {
     enable = true;

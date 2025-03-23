@@ -23,8 +23,8 @@
     glib
     direnv
     meson
-    clipse
     hyprshot
+    tofi
   ];
 
   wayland.windowManager.hyprland = let
@@ -58,6 +58,7 @@
         "hyprswitch init --show-title &"
         "iio-hyprland"
         "clipse -listen"
+        "1password --ozone-platform-hint=x11"
       ];
 
       animations = {
@@ -79,11 +80,16 @@
           "$mod, J, movefocus, d"
           "$mod, K, movefocus, u"
           "$mod, L, movefocus, r"
+          "$mod Shift, H, movewindow, l"
+          "$mod Shift, J, movewindow, d"
+          "$mod Shift, K, movewindow, u"
+          "$mod Shift, L, movewindow, r"
           ", Print, exec, grimblast copy area"
-          "$otherMod, Space, exec, wofi -p \"Apps\" --show drun"
+          "$otherMod, Space, exec, fuzzel"
+          "$otherMod Shift, Space, exec, tofi"
           "$mod, X, exec, powermenu"
           "$otherMod Shift, L, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock"
-          "$otherMod Shift, V, exec, $terminal start --class clipse sh -c clipse"
+          "$otherMod Shift, V, exec, foot --app-id clipse sh -c clipse"
           "$otherMod Shift, 4, exec, hyprshot -m region --clipboard-only"
 
           "$mod,Q, killactive," # Close window
@@ -197,6 +203,8 @@
         disable_autoreload = true;
         focus_on_activate = true;
         new_window_takes_over_fullscreen = 2;
+        enable_swallow = true;
+        swallow_regex = "^swallow$";
       };
 
       windowrulev2 = [

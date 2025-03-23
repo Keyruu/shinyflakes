@@ -9,6 +9,12 @@
 (defcfg
   process-unmapped-keys yes
   macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
+  linux-dev-names-include (
+    "AT Translated Set 2 keyboard"
+  )
+)
+(deflocalkeys-linux
+  fn 143
 )
 (defsrc
   fn  a   s   d   f   h   j   k   l   ;

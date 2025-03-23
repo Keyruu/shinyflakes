@@ -1,5 +1,7 @@
 {...}: {
   imports = [
-    ./flameshot.nix
+    ./fuzzel.nix
+    ./foot.nix
+    ./1password.nix
   ];
 }
