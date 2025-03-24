@@ -78,7 +78,29 @@
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
     jack.enable = true;
-    wireplumber.enable = true;
+    wireplumber = {
+      enable = true;
+      extraConfig = {
+        "10-bluez" = {
+          "monitor.bluez.properties" = {
+            "bluez5.enable-sbc-xq" = true;
+            "bluez5.enable-msbc" = true;
+            "bluez5.enable-hw-volume" = true;
+            "bluez5.roles" = [
+              "hsp_hs"
+              "hsp_ag"
+              "hfp_hf"
+              "hfp_ag"
+            ];
+          };
+        };
+        "11-bluetooth-policy" = {
+          "wireplumber.settings" = {
+            "bluetooth.autoswitch-to-headset-profile" = false;
+          };
+        };
+      };
+    };
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -140,8 +162,25 @@
   services.libinput.enable = true;
   services.power-profiles-daemon.enable = true;
 
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = false;
+  hardware.enableAllFirmware = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = false;
+    package = pkgs.bluez5-experimental;
+
+    settings = {
+      # "bluez5.headset-roles" = {};
+      Policy.ReconnectAttempts = 0;
+      General = {
+        # ControllerMode = "bredr";
+        Disable = "Headset";
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+        FastConnectable = true;
+        KernelExperimental = "true";
+      };
+    };
+  };
 
   services.tailscale.enable = true;
 
