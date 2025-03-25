@@ -71,32 +71,33 @@
         ",prefered,auto,1"
       ];
 
-      bind =
-        [
-          "$mod, E, exec, focusOrOpen $terminal org.wezfurlong.wezterm 3"
-          "$mod, C, exec, focusOrOpen zen zen 1"
-          "$mod, M, exec, focusOrOpen spotify spotify 1"
-          "$mod, H, movefocus, l"
-          "$mod, J, movefocus, d"
-          "$mod, K, movefocus, u"
-          "$mod, L, movefocus, r"
-          "$mod Shift, H, movewindow, l"
-          "$mod Shift, J, movewindow, d"
-          "$mod Shift, K, movewindow, u"
-          "$mod Shift, L, movewindow, r"
-          ", Print, exec, grimblast copy area"
-          "$otherMod, Space, exec, fuzzel"
-          "$otherMod Shift, Space, exec, tofi"
-          "$mod, X, exec, powermenu"
-          "$otherMod Shift, L, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock"
-          "$otherMod Shift, V, exec, foot --app-id clipse sh -c clipse"
-          "$otherMod Shift, 4, exec, hyprshot -m region --clipboard-only"
+      bind = [
+        "$mod, E, exec, focusOrOpen $terminal org.wezfurlong.wezterm 3"
+        "$mod, C, exec, focusOrOpen zen zen 1"
+        "$mod, M, exec, focusOrOpen spotify spotify 1"
+        "$mod, H, movefocus, l"
+        "$mod, J, movefocus, d"
+        "$mod, K, movefocus, u"
+        "$mod, L, movefocus, r"
+        "$mod Shift, H, movewindow, l"
+        "$mod Shift, J, movewindow, d"
+        "$mod Shift, K, movewindow, u"
+        "$mod Shift, L, movewindow, r"
+        ", Print, exec, grimblast copy area"
+        "$otherMod, Space, exec, fuzzel"
+        "$otherMod Shift, Space, exec, tofi"
+        "$otherMod, X, exec, powermenu"
+        "$otherMod Shift, L, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock"
+        "$otherMod Shift, V, exec, foot --app-id clipse sh -c clipse"
+        "$otherMod Shift, 4, exec, hyprshot -m region --clipboard-only"
+        "$otherMod, C, exec, wl-copy"
+        "$otherMod, P, exec, wl-paste"
 
-          "$mod,Q, killactive," # Close window
-          "$mod,T, togglefloating," # Toggle Floating
-          "$mod,F, fullscreen"
-          "$mod, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch"
-          "$mod Shift, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch -r"
+        "$otherMod,Q, killactive," # Close window
+        "$mod,T, togglefloating," # Toggle Floating
+        "$mod,F, fullscreen"
+        "$mod, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch"
+        "$mod Shift, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch -r"
         ]
         ++ (
           # workspaces
