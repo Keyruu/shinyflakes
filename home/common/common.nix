@@ -2,7 +2,6 @@
   home.packages = with pkgs; [
     # development
     python3
-    rustup
     lua
     nodejs
     actionlint

@@ -8,18 +8,46 @@
 { pkgs, ... }:
 
 let
-  focusOrOpen = pkgs.writeShellScriptBin "focusOrOpen" 
-    # bash
-    ''
-      #!/bin/sh
+  focusOrOpen = pkgs.writeShellScriptBin "focusOrOpen" /* bash */ ''
+    #!/bin/sh
 
-      execCommand=$1
-      className=$2
+    execCommand=$1
+    className=$2
 
-      pid=$(hyprctl -j clients | jq -r "sort_by(.focusHistoryID) | .[] | select(.class == \"$className\") | .pid" | head -n 1)
+    address=$(hyprctl -j clients | jq -r "sort_by( .focusHistoryID) | .[] | select(.class == \"$className\") | .address" | head -n 1)
 
-      pgrep $1 && hyprctl dispatch focuswindow pid:$pid || $1
-    '';
+    if [ -n "$address" ]; then
+      hyprctl dispatch focuswindow address:$address
+    else
+      $1
+    fi
+  '';
+
+  copyPasteShortcut = pkgs.writeShellScriptBin "copyPasteShortcut" /* bash */ ''
+    #!/bin/sh
+    
+    action=$1
+    terminal_class=$2
+
+    active_class=$(hyprctl activewindow -j | jq -r '.class')
+
+    case "$action" in
+        copy)
+            key="C"
+            ;;
+        paste)
+            key="V"
+            ;;
+    esac
+
+    if [ "$active_class" = "$terminal_class" ]; then
+        shortcut="CTRL_SHIFT,$key,"
+    else
+        shortcut="CTRL,$key,"
+    fi
+
+    hyprctl dispatch sendshortcut "$shortcut"
+  '';
 
   powermenu = pkgs.writeShellScriptBin "powermenu"
     # bash
@@ -95,4 +123,4 @@ let
       ${pkgs.hyprlock}/bin/hyprlock
     '';
 
-in { home.packages = [ focusOrOpen powermenu lock quickmenu ]; }
+in { home.packages = [ focusOrOpen copyPasteShortcut powermenu lock quickmenu ]; }

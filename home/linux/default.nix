@@ -36,6 +36,11 @@
     squeekboard
     nwg-drawer
     pavucontrol
+    rustc
+    cargo
+    clang
+    notion-app-enhanced
+    lsof
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
     inputs.hyprswitch.packages."${system}".default

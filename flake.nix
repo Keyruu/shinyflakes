@@ -84,6 +84,8 @@
       url = "github:anyrun-org/anyrun";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixpkgs-fprintd-fix.url = "github:pineapplehunter/nixpkgs/9f9f51f10007131b1d7c94a2072264b0c1e0f52d";
   };
 
   outputs =

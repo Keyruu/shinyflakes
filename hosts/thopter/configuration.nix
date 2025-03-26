@@ -3,7 +3,12 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, inputs, ... }:
-
+let
+  fprintd-fix = import inputs.nixpkgs-fprintd-fix {
+    system = pkgs.system;
+    config.allowUnfree = true;
+  };
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -68,7 +73,10 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  # hardware.pulseaudio.enable = false;
+  # hardware.pulseaudio = {
+  #   enable = true;
+  #   package = pkgs.pulseaudioFull;
+  # };
   # services.pulseaudio.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -80,26 +88,28 @@
     jack.enable = true;
     wireplumber = {
       enable = true;
-      extraConfig = {
-        "10-bluez" = {
-          "monitor.bluez.properties" = {
-            "bluez5.enable-sbc-xq" = true;
-            "bluez5.enable-msbc" = true;
-            "bluez5.enable-hw-volume" = true;
-            "bluez5.roles" = [
-              "hsp_hs"
-              "hsp_ag"
-              "hfp_hf"
-              "hfp_ag"
-            ];
-          };
-        };
-        "11-bluetooth-policy" = {
-          "wireplumber.settings" = {
-            "bluetooth.autoswitch-to-headset-profile" = false;
-          };
-        };
-      };
+      # extraConfig = {
+      #   "10-bluez" = {
+      #     "monitor.bluez.properties" = {
+      #       "bluez5.enable-sbc-xq" = true;
+      #       "bluez5.enable-msbc" = true;
+      #       "bluez5.enable-hw-volume" = true;
+      #       "bluez5.autoswitch-profile" = false;
+      #       "bluez5.roles" = [
+      #         "a2dp_sink"
+      #         "a2dp_source"
+      #         "hsp_hs"
+      #         "hfp_hf"
+      #         "hfp_ag"
+      #       ];
+      #     };
+      #   };
+      #   "11-bluetooth-policy" = {
+      #     "wireplumber.settings" = {
+      #       "bluetooth.autoswitch-to-headset-profile" = false;
+      #     };
+      #   };
+      # };
     };
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
@@ -114,7 +124,7 @@
   users.users.lucas = {
     isNormalUser = true;
     description = "Lucas";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "ydotool" ];
     shell = pkgs.fish;
   };
 
@@ -138,13 +148,15 @@
     git
     kitty
     evtest
+    wev
   ];
 
   services.fprintd.enable = true;
 
   services.fprintd.tod.enable = true;
 
-  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-vfs0090;
+  services.fprintd.package = fprintd-fix.fprintd;
+  services.fprintd.tod.driver = fprintd-fix.libfprint-2-tod1-goodix;
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
@@ -163,6 +175,8 @@
   services.power-profiles-daemon.enable = true;
 
   hardware.enableAllFirmware = true;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelParams = [ "thinkpad_acpi.disable_bluetooth=1" ];
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
@@ -172,17 +186,20 @@
       # "bluez5.headset-roles" = {};
       Policy.ReconnectAttempts = 0;
       General = {
-        # ControllerMode = "bredr";
-        Disable = "Headset";
-        Enable = "Source,Sink,Media,Socket";
-        Experimental = true;
-        FastConnectable = true;
-        KernelExperimental = "true";
+        ControllerMode = "bredr";
+        # MultiProfile = "multiple";
+        # Disable = "Headset";
+        # Enable = "Source,Sink,Media,Socket";
+        # Experimental = true;
+        # FastConnectable = true;
+        # KernelExperimental = "true";
       };
     };
   };
 
   services.tailscale.enable = true;
+
+  programs.ydotool.enable = true;
 
   system.stateVersion = "24.11"; # Did you read the comment?
 }

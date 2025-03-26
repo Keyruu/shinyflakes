@@ -1,6 +1,8 @@
 {config, pkgs, inputs, ...}: {
   imports = [
     ./polkitagent.nix
+    ./binds.nix
+    ./touch.nix
   ];
 
   home.packages = with pkgs; [
@@ -41,18 +43,7 @@
     systemd.enable = true;
     package = inputs.hyprland.packages."${pkgs.system}".hyprland;
 
-    plugins = [
-      inputs.hyprgrass.packages.${pkgs.system}.default
-      inputs.hyprgrass.packages.${pkgs.system}.hyprgrass-pulse
-    ];
-
     settings = {
-      "$mod" = "Alt";
-      "$otherMod" = "Super";
-      "$terminal" = "wezterm";
-      "$fileManager" = "dolphin";
-      "$menu" = "wofi --show drun";
-
       exec-once = [
         "dbus-update-activation-environment --systemd --all"
         "hyprswitch init --show-title &"
@@ -71,65 +62,24 @@
         ",prefered,auto,1"
       ];
 
-      bind = [
-        "$mod, E, exec, focusOrOpen $terminal org.wezfurlong.wezterm 3"
-        "$mod, C, exec, focusOrOpen zen zen 1"
-        "$mod, M, exec, focusOrOpen spotify spotify 1"
-        "$mod, H, movefocus, l"
-        "$mod, J, movefocus, d"
-        "$mod, K, movefocus, u"
-        "$mod, L, movefocus, r"
-        "$mod Shift, H, movewindow, l"
-        "$mod Shift, J, movewindow, d"
-        "$mod Shift, K, movewindow, u"
-        "$mod Shift, L, movewindow, r"
-        ", Print, exec, grimblast copy area"
-        "$otherMod, Space, exec, fuzzel"
-        "$otherMod Shift, Space, exec, tofi"
-        "$otherMod, X, exec, powermenu"
-        "$otherMod Shift, L, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock"
-        "$otherMod Shift, V, exec, foot --app-id clipse sh -c clipse"
-        "$otherMod Shift, 4, exec, hyprshot -m region --clipboard-only"
-        "$otherMod, C, exec, wl-copy"
-        "$otherMod, P, exec, wl-paste"
-
-        "$otherMod,Q, killactive," # Close window
-        "$mod,T, togglefloating," # Toggle Floating
-        "$mod,F, fullscreen"
-        "$mod, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch"
-        "$mod Shift, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch -r"
-        ]
-        ++ (
-          # workspaces
-          # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
-          builtins.concatLists (builtins.genList (i:
-              let ws = i + 1;
-              in [
-                "$mod, code:1${toString i}, workspace, ${toString ws}"
-                "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
-              ]
-            )
-            9)
-        );
-      
-      bindm = [
-        "$mod,mouse:272, movewindow" # Move Window (mouse)
-        "$mod,R, resizewindow" # Resize Window (mouse)
+      workspace = [
+        "1,monitor:DP-5"
+        "2,monitor:DP-5"
+        "3,monitor:DP-5"
+        "4,monitor:eDP-1"
+        "5,monitor:eDP-1"
       ];
 
-      bindl = [
-        ",XF86AudioMute, exec, sound-toggle" # Toggle Mute
-        ",XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause" # Play/Pause Song
-        ",XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next" # Next Song
-        ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
-        ",switch:Lid Switch, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock" # Lock when closing Lid
-      ];
+      windowrule = [
+        "float, tag:modal"
+        "pin, tag:modal"
+        "center, tag:modal"
+        "float,class:(clipse)"
+        "size 622 652,class:(clipse)"
 
-      bindle = [
-        ",XF86AudioRaiseVolume, exec, sound-up" # Sound Up
-        ",XF86AudioLowerVolume, exec, sound-down" # Sound Down
-        ",XF86MonBrightnessUp, exec, brightness-up" # Brightness Up
-        ",XF86MonBrightnessDown, exec, brightness-down" # Brightness Down
+        "workspace 1, class:(zen)"
+        "workspace 3, class:(org.wezfurlong.wezterm)"
+        "workspace 4, class:(spotify_player)"
       ];
 
       env = [
@@ -208,17 +158,6 @@
         swallow_regex = "^swallow$";
       };
 
-      windowrulev2 = [
-        "float, tag:modal"
-        "pin, tag:modal"
-        "center, tag:modal"
-        "float,class:(clipse)"
-        "size 622 652,class:(clipse)"
-
-        "workspace 1, class:(zen)"
-        "workspace 3, class:(org.wezfurlong.wezterm)"
-      ];
-
       layerrule = [ "noanim, launcher" "noanim, ^ags-.*" ];
 
       input = {
@@ -232,29 +171,6 @@
         touchpad = {
           natural_scroll = false;
           clickfinger_behavior = true;
-        };
-      };
-
-      plugins = {
-        touch_gestures = {
-          hyprgrass-bind = [
-            ", edge:d:u, exec, pkill squeekboard || SQUEEKBOARD_DEBUG=force_show squeekboard"
-            ", edge:u:d, exec, pkill nwg-drawer || nwg-drawer"
-            ", swipe:2:r, workspace, +1"
-            ", swipe:2:l, workspace, -1"
-            ", swipe:4:l, movetoworkspace, +1"
-            ", swipe:4:r, movetoworkspace, -1"
-            ", swipe:4:d, killactive"
-          ];
-
-          hyprgrass-bindm = [
-            ", longpress:2, movewindow"
-            ", longpress:3, resizewindow"
-          ];
-        };
-
-        hyprgrass-pulse = {
-          edge = "r";
         };
       };
     };
