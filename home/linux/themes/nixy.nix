@@ -87,11 +87,7 @@
       };
 
       polarity = "dark";
-      image = pkgs.fetchurl {
-        url =
-          "https://images.unsplash.com/photo-1597773150796-e5c14ebecbf5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-        sha256 = "sha256-fa4CddG8sgXBdkB0VUf+R3SD/ohCa5OEIeWZ+6ZwP3s=";
-      };
+      image = ./blue-bg.jpg;
     };
   };
 }

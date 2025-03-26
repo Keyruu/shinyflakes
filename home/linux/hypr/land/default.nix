@@ -40,13 +40,12 @@
   in {
     enable = true;
     xwayland.enable = true;
-    systemd.enable = true;
+    systemd.enable = false;
     package = inputs.hyprland.packages."${pkgs.system}".hyprland;
 
     settings = {
       exec-once = [
         "dbus-update-activation-environment --systemd --all"
-        "hyprswitch init --show-title &"
         "iio-hyprland"
         "clipse -listen"
         "1password --ozone-platform-hint=x11"
