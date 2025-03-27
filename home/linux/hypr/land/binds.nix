@@ -28,6 +28,9 @@
 
       "$otherMod, C, exec, copyPasteShortcut copy org.wezfurlong.wezterm"
       "$otherMod, V, exec, copyPasteShortcut paste org.wezfurlong.wezterm"
+      "$otherMod, A, sendshortcut, CTRL,A,"
+      "$otherMod, T, sendshortcut, CTRL,T,"
+      "$otherMod, W, sendshortcut, CTRL,W,"
 
       "$otherMod,Q, killactive," # Close window
       "$mod,T, togglefloating," # Toggle Floating

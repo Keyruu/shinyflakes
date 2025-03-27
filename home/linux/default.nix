@@ -32,6 +32,8 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  services.playerctld.enable = true;
+
   home.packages = with pkgs; [ 
     squeekboard
     nwg-drawer

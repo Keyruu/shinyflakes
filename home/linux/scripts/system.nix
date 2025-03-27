@@ -52,69 +52,55 @@ let
   powermenu = pkgs.writeShellScriptBin "powermenu"
     # bash
     ''
-      if pgrep wofi; then
-      	pkill wofi
-      # if pgrep tofi; then
-      #   pkill tofi
-      else
-        options=(
-          "󰌾 Lock"
-          "󰍃 Logout"
-          " Suspend"
-          "󰑐 Reboot"
-          "󰿅 Shutdown"
-        )
+      options=(
+        "󰌾 Lock"
+        "󰍃 Logout"
+        " Suspend"
+        "󰑐 Reboot"
+        "󰿅 Shutdown"
+      )
 
-        selected=$(printf '%s\n' "''${options[@]}" | wofi -p " Powermenu" --dmenu)
-        # selected=$(printf '%s\n' "''${options[@]}" | tofi --prompt-text "> ")
-        selected=''${selected:2}
+      selected=$(printf '%s\n' "''${options[@]}" | fuzzel --dmenu)
+      selected=''${selected:2}
 
-        case $selected in
-          "Lock")
-            ${pkgs.hyprlock}/bin/hyprlock
-            ;;
-          "Logout")
-            hyprctl dispatch exit
-            ;;
-          "Suspend")
-            systemctl suspend
-            ;;
-          "Reboot")
-            systemctl reboot
-            ;;
-          "Shutdown")
-            systemctl poweroff
-            ;;
-        esac
-      fi
+      case $selected in
+        "Lock")
+          ${pkgs.hyprlock}/bin/hyprlock
+          ;;
+        "Logout")
+          hyprctl dispatch exit
+          ;;
+        "Suspend")
+          systemctl suspend
+          ;;
+        "Reboot")
+          systemctl reboot
+          ;;
+        "Shutdown")
+          systemctl poweroff
+          ;;
+      esac
     '';
 
   quickmenu = pkgs.writeShellScriptBin "quickmenu"
     # bash
     ''
-      if pgrep wofi; then
-      	pkill wofi
-      # if pgrep tofi; then
-      #   pkill tofi
-      else
-        options=(
-          "󰅶 Caffeine"
-          "󰈊 Hyprpicker"
-        )
+      options=(
+        "󰅶 Caffeine"
+        "󰈊 Hyprpicker"
+      )
 
-        selected=$(printf '%s\n' "''${options[@]}" | wofi -p " Quickmenu" --dmenu)
-        # selected=$(printf '%s\n' "''${options[@]}" | tofi --prompt-text "> ")
-        selected=''${selected:2}
+      selected=$(printf '%s\n' "''${options[@]}" | fuzzel --dmenu)
+      selected=''${selected:2}
 
-        case $selected in
-          "Caffeine")
-            caffeine
-            ;;
-          "Hyprpicker")
-            sleep 0.2 && ${pkgs.hyprpicker}/bin/hyprpicker -a
-            ;;
-        esac
-      fi
+      case $selected in
+        "Caffeine")
+          caffeine
+          ;;
+        "Hyprpicker")
+          sleep 0.2 && ${pkgs.hyprpicker}/bin/hyprpicker -a
+          ;;
+      esac
     '';
 
   lock = pkgs.writeShellScriptBin "lock"
