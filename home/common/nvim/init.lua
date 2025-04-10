@@ -64,6 +64,9 @@ vim.opt.scrolloff = 10
 
 vim.opt.termguicolors = true
 
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+
 require 'custom.keymap'
 
 -- [[ Basic Autocommands ]]
@@ -148,23 +151,42 @@ require('lazy').setup({
 
   { 'Bilal2453/luvit-meta', lazy = true },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'oxfist/night-owl.nvim',
+  {
+    'rebelot/kanagawa.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'night-owl'
-      -- vim.api.nvim_set_hl(0, 'Normal', { bg = '#100F0F' })
-      -- vim.api.nvim_set_hl(0, 'NonText', { bg = '#100F0F' })
-      -- vim.api.nvim_set_hl(0, 'CursorLine', { bg = '#252323' })
-      -- vim.api.nvim_set_hl(0, 'CursorColumn', { bg = '#252323' })
-      -- vim.api.nvim_set_hl(0, 'ColorColumn', { bg = '#252323' })
+    config = function()
+      require('kanagawa').setup {
+        transparent = true, -- do not set background color
+        terminalColors = false, -- define vim.g.terminal_color_{0,17}
+        colors = { -- add/modify theme and palette colors
+          palette = {
+            sumiInk0 = '#0c0e0f',
+            sumiInk1 = '#0e1011',
+            sumiInk2 = '#101213',
+            sumiInk3 = '#121415',
+            sumiInk4 = '#141617',
+            sumiInk5 = '#161819',
+
+            -- boatYellow1 = '#dae1e6',
+            -- boatYellow2 = '#dae1e6',
+            -- carpYellow = '#dae1e6',
+            -- roninYellow = '#dae1e6',
+            -- fujiWhite = '#dae1e6',
+            oldWhite = '#dae1e6',
+          },
+          theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+        },
+        overrides = function(colors) -- add/modify highlights
+          return {}
+        end,
+        theme = 'wave', -- Load "wave" theme
+        background = { -- map the value of 'background' option to a theme
+          dark = 'wave', -- try "dragon" !
+          light = 'lotus',
+        },
+      }
+
+      vim.cmd.colorscheme 'kanagawa'
     end,
   },
 

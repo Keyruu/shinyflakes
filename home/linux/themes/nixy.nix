@@ -10,8 +10,6 @@
       inactive-opacity = 0.95;
       blur = true;
       border-size = 2;
-      animation-speed = "medium"; # "fast" | "medium" | "slow"
-      fetch = "none"; # "nerdfetch" | "neofetch" | "pfetch" | "none"
 
       bar = { # Hyprpanel
         position = "top"; # "top" | "bottom"
@@ -87,7 +85,7 @@
       };
 
       polarity = "dark";
-      image = ./blue-bg.jpg;
+      image = ./blue-bg-smaller.jpg;
     };
   };
 }

@@ -10,10 +10,9 @@
         hyprgrass-bind = [
           ", edge:d:u, exec, pkill squeekboard || SQUEEKBOARD_DEBUG=force_show squeekboard"
           ", edge:u:d, exec, pkill nwg-drawer || nwg-drawer"
-          ", swipe:2:r, workspace, +1"
-          ", swipe:2:l, workspace, -1"
           ", swipe:4:l, movetoworkspace, +1"
           ", swipe:4:r, movetoworkspace, -1"
+          ", swipe:4:u, fullscreen"
           ", swipe:4:d, killactive"
         ];
 

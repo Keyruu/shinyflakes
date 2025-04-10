@@ -44,6 +44,11 @@
           --   key = "w",
           --   action = wezterm.action.CloseCurrentPane { confirm = false },
           -- },
+          {
+            mods = "CTRL",
+            key = "z",
+            action = wezterm.action.DisableDefaultAssignment,
+          },
         },
       }
     '';

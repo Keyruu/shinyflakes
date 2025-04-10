@@ -1,4 +1,4 @@
-{lib, pkgs, ...}: {
+{config, lib, pkgs, ...}: {
   stylix.targets.waybar.enable = false;
 
   programs.waybar = {
@@ -15,14 +15,14 @@
         gtk-layer-shell = true;
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "mpris" ];
-        modules-right = [ "tray" "network" "cpu" "memory" "battery" "pulseaudio" "pulseaudio#microphone" "clock" ];
+        modules-right = [ "tray" "bluetooth" "network" "cpu" "memory" "battery" "power-profiles-daemon" "pulseaudio" "pulseaudio#microphone" "clock" "custom/dunst" ];
         "hyprland/window" = {
-          format = "{}";
+          icon = true;
         };
 
         "hyprland/workspaces" = {
           disable-scroll = true;
-          format = "{icon} {windows} ";
+          format = "{icon} {windows}";
           format-icons = {
             "1" = "1";
             "2" = "2";
@@ -123,11 +123,13 @@
         cpu = {
           interval = 1;
           format = "  {}%";
+          on-click = "foot btop";
         };
 
         memory = {
           interval = 1;
           format = "  {}%";
+          on-click = "foot btop";
         };
 
         clock = {
@@ -149,17 +151,29 @@
             warning = 30;
             critical = 20;
           };
-          format = "{icon} {capacity}%";
+          format = "{icon}  {capacity}%";
           format-icons = ["" "" "" "" ""];
           format-charging = " {capacity}%";
           format-plugged = " {capacity}%";
-          format-alt = "{time} {icon}";
+          format-alt = "{time} {icon} ";
+        };
+
+        power-profiles-daemon = {
+          format = "{icon}";
+          tooltip-format = "Power profile: {profile}\nDriver: {driver}";
+          tooltip = true;
+          format-icons = {
+            default = " ";
+            performance = " ";
+            balanced = " ";
+            power-saver = " ";
+          };
         };
 
         pulseaudio = {
           format = "{icon} {volume}%";
           tooltip = false;
-          format-muted = " Muted";
+          format-muted = " ";
           on-click = "${lib.getExe pkgs.pamixer} -t";
           on-right-click = "pavucontrol";
           on-scroll-up = "${lib.getExe pkgs.pamixer} -i 5";
@@ -178,8 +192,8 @@
 
         "pulseaudio#microphone" = {
           format = "{format_source}";
-          format-source = "󰍮 {volume}%";
-          format-source-muted = "󰍮 Muted";
+          format-source = "󰍬 {volume}%";
+          format-source-muted = "󰍭 ";
           on-click = "${lib.getExe pkgs.pamixer} --default-source -t";
           on-scroll-up = "${lib.getExe pkgs.pamixer} --default-source -i 5";
           on-scroll-down = "${lib.getExe pkgs.pamixer} --default-source -d 5";
@@ -187,16 +201,18 @@
         };
         
         network = {
-          format-wifi = "  {signalStrength}%";
+          format-wifi = " ";
           format-ethernet = "{ipaddr}/{cidr}";
           tooltip-format = "{essid} - {ifname} via {gwaddr}";
           format-linked = "{ifname} (No IP)";
-          format-disconnected = "Disconnected ⚠";
-          format-alt = "{ifname}:{essid} {ipaddr}/{cidr}";
+          format-disconnected = "󰖪 ";
+          # format-alt = "{ifname}:{essid} {ipaddr}/{cidr}";
+          on-click = "foot nmtui";
         };
 
         bluetooth = {
-          format = " {status}";
+          format = "";
+          format-off = "󰂲";
           format-disabled = "";
           format-connected = " {num_connections}";
           tooltip-format = "{device_alias}";
@@ -205,10 +221,10 @@
         };
         
         mpris = {
-          title-len = 14;
+          title-len = 20;
           interval = 1;
           album-len = 0;
-          max-len = 20;
+          max-len = 30;
           max-empty-time = 60;
           format = "{player_icon} {artist} - {title}";
           format-paused = "{status_icon} {artist} - {title}";
@@ -248,6 +264,18 @@
           tooltip-format = "MPD (connected)";
           tooltip-format-disconnected = "MPD (disconnected)";
         };
+
+         "custom/dunst" = {
+          exec = "waybar-dunst-monitor";
+          return-type = "json";
+          exec-if = "which dunstctl && which dbus-monitor && which waybar-dunst-monitor";
+          # Tooltip is handled by the JSON output, disable Waybar's default
+          tooltip = false;
+          # Click actions
+          on-click = "dunstctl set-paused toggle";   # Left click: Toggle pause
+          on-click-middle = "dunstctl history-pop";  # Middle click: Show history
+          on-click-right = "dunstctl close-all";    # Right click: Close all
+        };
       };
     };
     style = /* css */ ''
@@ -275,7 +303,7 @@
 
       #workspaces button {
         padding: 5px;
-        color: #313244;
+        padding-right: 10px;
         margin-right: 5px;
         /* margin-left: 10px; */
       }
@@ -283,33 +311,19 @@
       #workspaces button.active {
         color: #89b4fa;
         background: #1a1b26;
-      }
-
-      #workspaces button.focused {
-        color: #707880;
-        background: #eba0ac;
         border-radius: 7px;
-      }
-
-      #workspaces button.urgent {
-        color: #11111b;
-        background: #f28fad;
-        border-radius: 7px;
-        opacity: 0.5;
       }
 
       #workspaces button:hover {
         background: #11111b;
         color: #c0caf5;
-        border-radius: 17px;
+        border-radius: 7px;
       }
-
-      /* #custom-power_profile, */
-      /* #custom-weather, */
 
       #window,
       #clock,
       #battery,
+      #power-profiles-daemon,
       #mpris,
       #pulseaudio,
       #custom-pacman,
@@ -323,8 +337,9 @@
       #cpu,
       #memory,
       #custom-spotify,
+      #custom-dunst,
       #modbackground {
-        background: #1a1b26;
+        background: #${config.stylix.base16Scheme.base01};
         opacity: 1.0;
         padding: 0px 7px;
         margin-top: 5px;
@@ -374,7 +389,6 @@
       }
 
       #workspaces {
-        background: #1a1b26;
         border-radius: 7px;
         margin-left: 5px;
         padding-right: 5px;
@@ -392,6 +406,7 @@
         border-radius: 7px;
         margin-left: 10px;
         opacity: 1.0;
+        margin-right: 10px;
       }
 
       #clock {
@@ -424,9 +439,13 @@
 
       #battery {
         color: #a6e3a1;
-        border-radius: 7px;
+        border-radius: 7px 0px 0px 7px;
+      }
+
+      #power-profiles-daemon {
+        color: #a6e3a1;
         margin-right: 5px;
-        border-left: 0px;
+        border-radius: 0px 7px 7px 0px;
       }
 
       #custom-spotify {
@@ -458,6 +477,14 @@
       #mpd.paused {
         color: #c0caf5;
         border-bottom: 2px solid @yellow;
+      }
+
+      #custom-dunst {
+        color: #FF746C;
+        border-radius: 7px;
+        margin-right: 5px;
+        padding-right: 10px;
+        border-right: 0px;
       }
     '';
   };

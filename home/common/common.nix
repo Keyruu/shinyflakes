@@ -44,6 +44,8 @@
     ripgrep
     fd
     devbox
+    pnpm
+    just
 
     # gui apps
     gimp

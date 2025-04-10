@@ -78,7 +78,7 @@ in
   users.users.lucas = {
     isNormalUser = true;
     description = "Lucas";
-    extraGroups = [ "networkmanager" "wheel" "ydotool" ];
+    extraGroups = [ "networkmanager" "wheel" "ydotool" "docker" ];
     shell = pkgs.fish;
   };
 
@@ -103,6 +103,8 @@ in
   services.power-profiles-daemon.enable = true;
 
   services.tailscale.enable = true;
+
+  virtualisation.docker.enable = true;
 
   system.stateVersion = "24.11"; # Did you read the comment?
 }

@@ -2,6 +2,7 @@
   imports = [
     ./audio.nix
     ./1password.nix
+    ./mpv.nix
   ];
 
   programs = {
@@ -23,10 +24,15 @@
     kitty
     evtest
     wev
+    vlc
+    cifs-utils
+    nautilus
   ];
 
   services.kanata = {
     enable = true;
     keyboards.lenovo.configFile = ../../../home/common/kanata.kbd;
   };
+
+  services.gvfs.enable = true; # Mount, trash, and other functionalities
 }

@@ -5,5 +5,7 @@
     ./1password.nix
     ./vscode
     ./waybar.nix
+    ./walker
+    ./squeekboard
   ];
 }

@@ -19,7 +19,7 @@
       "$mod Shift, K, movewindow, u"
       "$mod Shift, L, movewindow, r"
       ", Print, exec, grimblast copy area"
-      "$otherMod, Space, exec, fuzzel"
+      "$otherMod, Space, exec, walker"
       "$otherMod Shift, Space, exec, tofi"
       "$otherMod, X, exec, powermenu"
       "$otherMod Shift, L, exec, pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock"
@@ -32,9 +32,9 @@
       "$otherMod, T, sendshortcut, CTRL,T,"
       "$otherMod, W, sendshortcut, CTRL,W,"
 
-      "$otherMod,Q, killactive," # Close window
-      "$mod,T, togglefloating," # Toggle Floating
-      "$mod,F, fullscreen"
+      "$otherMod, Q, killactive," # Close window
+      "$mod, T, togglefloating," # Toggle Floating
+      "$mod, F, fullscreenstate, 1"
       # "$mod, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch"
       # "$mod Shift, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch -r"
       "$mod, Tab, workspace, previous"

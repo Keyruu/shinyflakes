@@ -62,7 +62,6 @@
     };
 
     hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     zen-browser.url = "git+https://git.sr.ht/~canasta/zen-browser-flake/";
@@ -160,7 +159,6 @@
       	specialArgs = args;
         system = "x86_64-linux";
         modules = [
-          {nixpkgs.overlays = [inputs.hyprpanel.overlay];}
           stylix.nixosModules.stylix
           ./hosts/thopter/configuration.nix
 

@@ -60,7 +60,7 @@ let
         "󰿅 Shutdown"
       )
 
-      selected=$(printf '%s\n' "''${options[@]}" | fuzzel --dmenu)
+      selected=$(printf '%s\n' "''${options[@]}" | walker --dmenu)
       selected=''${selected:2}
 
       case $selected in

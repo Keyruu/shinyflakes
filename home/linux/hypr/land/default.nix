@@ -40,7 +40,7 @@
   in {
     enable = true;
     xwayland.enable = true;
-    systemd.enable = false;
+    systemd.enable = true;
     package = inputs.hyprland.packages."${pkgs.system}".hyprland;
 
     settings = {
@@ -48,6 +48,7 @@
         "dbus-update-activation-environment --systemd --all"
         "iio-hyprland"
         "clipse -listen"
+        "walker --gapplication-service"
         "1password --ozone-platform-hint=x11"
       ];
 
