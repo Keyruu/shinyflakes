@@ -6,33 +6,29 @@
       # "https://attic.joinemm.dev/cache?priority=41"
       "https://nixpkgs.cachix.org"
       "https://nix-community.cachix.org"
-      "https://anyrun.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
       "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "anyrun.cachix.org-1:pqBobmOjI7nKlsUMV25u9QHa9btJK65/C8vnO3p346s="
     ];
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
+    nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
 
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix.url = "github:Mic92/sops-nix";
-
-    nixos-hardware.url = "github:nixos/nixos-hardware";
-
-    nixvirt = {
-      url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-hardware.url = "github:nixos/nixos-hardware";
 
     quadlet-nix = {
       url = "github:SEIAROTg/quadlet-nix";
@@ -40,25 +36,13 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/master";
+      url = "git+https://github.com/nix-community/home-manager?shallow=1&ref=master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
-    };
-
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs = {
-        nixpkgs.follows = "nixpkgs-darwin";
-      };
-    };
-
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
@@ -78,13 +62,6 @@
       url = "github:horriblename/hyprgrass";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT
     };
-
-    anyrun = {
-      url = "github:anyrun-org/anyrun";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nixpkgs-fprintd-fix.url = "github:pineapplehunter/nixpkgs/9f9f51f10007131b1d7c94a2072264b0c1e0f52d";
   };
 
   outputs =

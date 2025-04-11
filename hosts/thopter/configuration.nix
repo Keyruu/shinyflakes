@@ -2,14 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
-let
-  fprintd-fix = import inputs.nixpkgs-fprintd-fix {
-    system = pkgs.system;
-    config.allowUnfree = true;
-  };
-in
-{
+{ config, pkgs, inputs, ... }: {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -90,8 +83,8 @@ in
 
   services.fprintd.tod.enable = true;
 
-  services.fprintd.package = fprintd-fix.fprintd;
-  services.fprintd.tod.driver = fprintd-fix.libfprint-2-tod1-goodix;
+  services.fprintd.package = pkgs.fprintd;
+  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
