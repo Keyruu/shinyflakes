@@ -156,7 +156,7 @@ require('lazy').setup({
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       require('kanagawa').setup {
-        transparent = true, -- do not set background color
+        transparent = false, -- do not set background color
         terminalColors = false, -- define vim.g.terminal_color_{0,17}
         colors = { -- add/modify theme and palette colors
           palette = {
