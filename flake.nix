@@ -19,7 +19,7 @@
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
 
     disko = {
-      url = "github:nix-community/disko";
+      url = "git+https://github.com/nix-community/disko?shallow=1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -36,22 +36,41 @@
     };
 
     home-manager = {
-      url = "git+https://github.com/nix-community/home-manager?shallow=1&ref=master";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     nix-darwin = {
-      url = "github:LnL7/nix-darwin/master";
+      url = "git+https://github.com/LnL7/nix-darwin?shallow=1&ref=master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
-    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-    stylix.url = "github:danth/stylix";
-    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
-    zen-browser.url = "git+https://git.sr.ht/~canasta/zen-browser-flake/";
-    nixcord.url = "github:kaylorben/nixcord";
-    hyprswitch.url = "github:h3rmt/hyprswitch/release";
-    iio-hyprland.url = "github:JeanSchoeller/iio-hyprland";
+    hyprland.url = "github:hyprwm/Hyprland";
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    apple-fonts = {
+      url = "github:Lyndeno/apple-fonts.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    zen-browser = {
+      url = "git+https://git.sr.ht/~canasta/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixcord = {
+      url = "github:kaylorben/nixcord";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    iio-hyprland = {
+      url = "github:JeanSchoeller/iio-hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
@@ -59,7 +78,7 @@
     };
 
     hyprgrass = {
-      url = "github:horriblename/hyprgrass";
+      url = "git+https://github.com/horriblename/hyprgrass?shallow=1&ref=main";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT
     };
   };
@@ -73,7 +92,6 @@
       nixpkgs,
       home-manager,
       quadlet-nix,
-      nixvirt,
       nur,
       stylix,
       ...
@@ -99,7 +117,6 @@
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
             quadlet-nix.nixosModules.quadlet
-            nixvirt.nixosModules.default
             nur.modules.nixos.default
             ./hosts/highwind/configuration.nix
           ];

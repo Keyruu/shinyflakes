@@ -71,6 +71,7 @@
       "quarkusio/tap"
       "keyruu/tap"
       "kanidm/kanidm"
+      "dimentium/autoraise"
     ];
 
     # `brew install`
@@ -333,6 +334,7 @@
       "orbstack"
       "neovide"
       "utm"
+      "autoraiseapp"
     ];
   };
 }

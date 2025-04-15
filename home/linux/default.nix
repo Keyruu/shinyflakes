@@ -49,6 +49,5 @@
     calibre
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
-    inputs.hyprswitch.packages."${system}".default
   ];
 }

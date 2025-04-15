@@ -24,6 +24,8 @@
     pkgs.fish
   ];
 
+  nix.package = pkgs.nixVersions.latest;
+
   users.knownUsers = [ username ];
   users.users."${username}" = {
     shell = pkgs.fish;
