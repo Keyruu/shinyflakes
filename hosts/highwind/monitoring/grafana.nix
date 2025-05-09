@@ -1,8 +1,12 @@
 {
   config,
-  environment,
+  inputs,
+  pkgs,
   ...
-}: {
+}:let
+  smallPkgs = import inputs.nixpkgs-small { inherit (pkgs) system; };
+in
+{
   environment.etc."grafana/dashboards" = {
     source = ./dashboards;
     user = "grafana";
@@ -11,6 +15,7 @@
 
   services.grafana = {
     enable = true;
+    package = smallPkgs.grafana;
 
     settings = {
       server = {
@@ -23,6 +28,11 @@
         feedback_links_enabled = false;
       };
       panels.disable_sanitize_html = true;
+
+      feature_toggles = {
+        provisioning = true;
+        kubernetesDashboards = true;
+      };
     };
 
     provision = {
