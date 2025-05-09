@@ -19,7 +19,7 @@
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
 
     disko = {
-      url = "git+https://github.com/nix-community/disko?shallow=1";
+      url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

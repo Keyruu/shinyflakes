@@ -31,7 +31,7 @@ in {
         "/run/podman/podman.sock:/var/run/docker.sock"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

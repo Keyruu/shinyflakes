@@ -36,6 +36,15 @@
   services.playerctld.enable = true;
 
   home.packages = with pkgs; [ 
+    jq
+    yq
+    awscli2
+    gh # github cli
+    kubernetes-helm
+    kubectx
+    kubectl
+    devspace
+
     squeekboard
     nwg-drawer
     pavucontrol

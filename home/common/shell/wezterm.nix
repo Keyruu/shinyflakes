@@ -5,7 +5,7 @@
     extraConfig = /* lua */ ''
       local theme = "Night Owl (Gogh)"
       local scheme = wezterm.color.get_builtin_schemes()[theme]
-      -- scheme.background = "#100F0F"
+      scheme.background = "#100F0F"
       local is_darwin = function()
         return wezterm.target_triple:find("darwin") ~= nil
       end

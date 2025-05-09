@@ -26,7 +26,7 @@
           ];
           environmentFiles = [ config.sops.secrets.immichEnv.path ];
           labels = [
-            "wud.tag.include=^v\d+\.\d+\.\d+$"
+            "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
           ];
           networks = [ networks.immich.ref ];
         };
@@ -47,7 +47,7 @@
           ];
           environmentFiles = [ config.sops.secrets.immichEnv.path ];
           labels = [
-            "wud.tag.include=^v\d+\.\d+\.\d+$"
+            "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
           ];
           networks = [ networks.immich.ref ];
         };

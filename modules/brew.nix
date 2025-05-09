@@ -21,7 +21,6 @@
     neovim
     git
     just # use Justfile to simplify nix-darwin's commands
-    jq
   ];
   environment.variables.EDITOR = "nvim";
 
@@ -86,7 +85,6 @@
       "coreutils"
 
       "jenv" # Java environment manager
-      "jq"
 
       "nvm" # Node Version Manager
       "fisher"
@@ -335,6 +333,7 @@
       "neovide"
       "utm"
       "autoraiseapp"
+      "font-monaspace"
     ];
   };
 }

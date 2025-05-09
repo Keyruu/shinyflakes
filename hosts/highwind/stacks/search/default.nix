@@ -17,7 +17,7 @@ in {
 
   virtualisation.quadlet = let
     inherit (config.virtualisation.quadlet) containers;
-  in { 
+  in {
     containers = {
       "searxng-gluetun" = {
         containerConfig = {
@@ -29,7 +29,7 @@ in {
             "127.0.0.1:4899:8080"
           ];
           labels = [
-            "wud.tag.include=^v\d+\.\d+\.\d+$"
+            "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
           ];
         };
         serviceConfig = {
@@ -70,7 +70,7 @@ in {
           ];
           networks = [ containers."searxng-gluetun".ref ];
           labels = [
-            "wud.tag.include=^\d+\.\d+\.\d+-.*$"
+            "wud.tag.include=^\\d+\\.\\d+\\.\\d+-.*$"
           ];
         };
         serviceConfig = {

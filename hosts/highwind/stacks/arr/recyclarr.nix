@@ -184,7 +184,7 @@ in {
         "torrent-gluetun.container"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

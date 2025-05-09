@@ -20,7 +20,7 @@
         "127.0.0.1:8686:8686"
       ];
       labels = [
-        "wud.tag.include=^v\d+\.\d+\.\d+$"
+        "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

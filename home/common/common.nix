@@ -17,8 +17,6 @@
     pyenv
     quarkus
     yarn
-    helm-ls
-    kubernetes-helm
     air
     templ
     golangci-lint
@@ -46,6 +44,7 @@
     devbox
     pnpm
     just
+    goreleaser
 
     # gui apps
     gimp
@@ -58,7 +57,6 @@
     ansible # automation
     aws-iam-authenticator # aws
     dua # disk usage analyzer
-    gh # github cli
     gitui # git ui
     htop
     killport # kill port
@@ -77,21 +75,17 @@
     colmena
 
     # devops
-    kubectl
     krew
     dive # docker image explorer
     stern
     cilium-cli
     hubble
     eksctl # aws
-    kubectx
     hcloud # hetzner cloud
     rclone
     packer # image builder
     opentofu # terraform sucks
     terragrunt
-    awscli2
-    devspace
 
     # tui
     spotify-player
@@ -117,8 +111,6 @@
     aria2
     neofetch
     yadm
-    jq
-    yq
     rsync
     rclone
     ffmpeg-full

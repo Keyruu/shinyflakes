@@ -16,6 +16,7 @@
     ../common/bin.nix
     ../common/ssh.nix
     ./kanata.nix
+    ../common/programs/helix.nix
   ];
 
   # Home Manager needs a bit of information about you and the

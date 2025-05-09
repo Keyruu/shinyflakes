@@ -1,7 +1,8 @@
-{...}: 
-  let
-    malojaPath = "/etc/stacks/maloja/data";
-  in {
+{ ... }:
+let
+  malojaPath = "/etc/stacks/maloja/data";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${malojaPath} 0755 root root"
   ];
@@ -19,7 +20,7 @@
         "127.0.0.1:42010:42010"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

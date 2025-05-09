@@ -1,4 +1,4 @@
-{...}: 
+{...}:
   let
     navidromePath = "/etc/stacks/navidrome/data";
   in {
@@ -21,7 +21,7 @@
         "127.0.0.1:4533:4533"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

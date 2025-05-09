@@ -1,4 +1,4 @@
-{config, ...}: let 
+{config, ...}: let
   mqttPath = "/etc/stacks/mqtt/data";
   z2mPath = "/etc/stacks/z2m/data";
 in {
@@ -52,7 +52,7 @@ in {
           exec = "mosquitto -c /mosquitto-no-auth.conf";
           networks = [ networks.mqtt.ref ];
           labels = [
-            "wud.tag.include=^\d+\.\d+\.\d+$"
+            "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
           ];
         };
         serviceConfig = {
@@ -76,7 +76,7 @@ in {
           ];
           networks = [ networks.mqtt.ref ];
           labels = [
-            "wud.tag.include=^\d+\.\d+\.\d+$"
+            "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
           ];
           devices = [
             "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyUSB0"

@@ -75,7 +75,7 @@ in
   programs.zoxide.enable = true;
   programs.lsd = {
     enable = true;
-    enableAliases = true;
+    enableFishIntegration = true;
   };
   programs.bat.enable = true;
   programs.thefuck.enable = true;

@@ -51,7 +51,7 @@ in {
         "100.64.0.1:5785:5785"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+-alpine$"
+        "wud.tag.include=^\\d+\\.\\d+-alpine$"
       ];
     };
     serviceConfig = {

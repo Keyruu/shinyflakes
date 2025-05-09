@@ -29,7 +29,7 @@ in {
 
     http:
       use_x_forwarded_for: true
-      trusted_proxies: 
+      trusted_proxies:
         - 127.0.0.1
         - 100.64.0.0/10
 
@@ -42,7 +42,7 @@ in {
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
-      image = "ghcr.io/home-assistant/home-assistant:2025.2.1";
+      image = "ghcr.io/home-assistant/home-assistant:2025.4.4";
       environments = {
         TZ = "Europe/Berlin";
       };
@@ -63,7 +63,7 @@ in {
         "host"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {

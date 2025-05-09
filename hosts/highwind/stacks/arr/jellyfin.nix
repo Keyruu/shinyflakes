@@ -1,4 +1,4 @@
-{...}: 
+{...}:
   let
     jellyfinPath = "/etc/stacks/jellyfin";
   in {
@@ -9,7 +9,7 @@
 
   virtualisation.quadlet.containers.jellyfin = {
     containerConfig = {
-      image = "ghcr.io/jellyfin/jellyfin:10.10.4";
+      image = "ghcr.io/jellyfin/jellyfin:10.10.7";
       environments = {
       };
       volumes = [
@@ -21,7 +21,7 @@
         "127.0.0.1:8096:8096"
       ];
       labels = [
-        "wud.tag.include=^\d+\.\d+\.\d+$"
+        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {
