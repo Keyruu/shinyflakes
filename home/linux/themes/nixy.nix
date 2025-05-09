@@ -65,12 +65,12 @@
           name = "JetBrains Mono Nerd Font";
         };
         sansSerif = {
-          package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
-          name = "SFProDisplay Nerd Font";
+          package = pkgs.nerd-fonts.jetbrains-mono;
+          name = "JetBrains Mono Nerd Font";
         };
         serif = {
-          package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
-          name = "SFProDisplay Nerd Font";
+          package = pkgs.nerd-fonts.jetbrains-mono;
+          name = "JetBrains Mono Nerd Font";
         };
         emoji = {
           package = pkgs.noto-fonts-emoji;

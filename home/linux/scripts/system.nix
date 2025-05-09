@@ -109,4 +109,23 @@ let
       ${pkgs.hyprlock}/bin/hyprlock
     '';
 
-in { home.packages = [ focusOrOpen copyPasteShortcut powermenu lock quickmenu ]; }
+  waybar-fullscreen = pkgs.writeShellScriptBin "waybar-fullscreen"
+    # bash
+    ''
+      is_fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen')
+
+      if [ "$is_fullscreen" -eq 1 ]; then
+        echo "󰊓"
+      fi
+    '';
+
+in {
+  home.packages = [
+    focusOrOpen
+    copyPasteShortcut
+    powermenu
+    lock
+    quickmenu
+    waybar-fullscreen
+  ];
+}

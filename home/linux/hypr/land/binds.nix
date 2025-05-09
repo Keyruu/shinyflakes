@@ -10,6 +10,7 @@
       "$mod, E, exec, focusOrOpen wezterm org.wezfurlong.wezterm"
       "$mod, C, exec, focusOrOpen zen zen"
       "$mod, M, exec, focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player"
+      "$mod, W, exec, focusOrOpen obsidian obsidian"
       "$mod, H, movefocus, l"
       "$mod, J, movefocus, d"
       "$mod, K, movefocus, u"
@@ -38,6 +39,7 @@
       # "$mod, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch"
       # "$mod Shift, tab, exec, hyprswitch gui --mod-key alt --key tab --close mod-key-release --reverse-key=key=shift --sort-recent && hyprswitch dispatch -r"
       "$mod, Tab, workspace, previous"
+      "$otherMod, Tab, exec, walker --modules=windows"
       ]
       ++ (
         # workspaces
@@ -51,7 +53,7 @@
           )
           9)
       );
-    
+
     bindm = [
       "$mod,mouse:272, movewindow" # Move Window (mouse)
       "$mod,R, resizewindow" # Resize Window (mouse)

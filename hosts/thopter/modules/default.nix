@@ -3,6 +3,9 @@
     ./audio.nix
     ./1password.nix
     ./mpv.nix
+    ./kbptr.nix
+    ./gaming.nix
+    ./battery.nix
   ];
 
   programs = {

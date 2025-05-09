@@ -13,7 +13,7 @@
         exclusive = true;
         passthrough = false;
         gtk-layer-shell = true;
-        modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+        modules-left = [ "hyprland/workspaces" "custom/fullscreen" "hyprland/window" ];
         modules-center = [ "mpris" ];
         modules-right = [ "tray" "bluetooth" "network" "cpu" "memory" "battery" "power-profiles-daemon" "pulseaudio" "pulseaudio#microphone" "clock" "custom/dunst" ];
         "hyprland/window" = {
@@ -276,6 +276,15 @@
           on-click-middle = "dunstctl history-pop";  # Middle click: Show history
           on-click-right = "dunstctl close-all";    # Right click: Close all
         };
+
+        "custom/fullscreen" = {
+          exec = "waybar-fullscreen";
+          interval = 1;
+          tooltip = false;
+          on-click = "hyprctl dispatch fullscreenstate 1";   # Left click: Toggle pause
+          format = "{text}";
+          hide-empty-text = true;
+        };
       };
     };
     style = /* css */ ''
@@ -338,6 +347,7 @@
       #memory,
       #custom-spotify,
       #custom-dunst,
+      #custom-fullscreen,
       #modbackground {
         background: #${config.stylix.base16Scheme.base01};
         opacity: 1.0;
@@ -409,6 +419,13 @@
         margin-right: 10px;
       }
 
+      #custom-fullscreen {
+        border-radius: 7px;
+        margin-left: 10px;
+        opacity: 1.0;
+        font-size: 18px;
+      }
+
       #clock {
         color: #fab387;
         border-radius: 7px;
@@ -439,6 +456,7 @@
 
       #battery {
         color: #a6e3a1;
+        margin-right: 5px;
         border-radius: 7px 0px 0px 7px;
       }
 

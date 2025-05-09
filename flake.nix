@@ -3,14 +3,19 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://cache.nixos.org/"
       # "https://attic.joinemm.dev/cache?priority=41"
       "https://nixpkgs.cachix.org"
       "https://nix-community.cachix.org"
+      "https://hyprland.cachix.org"
+      "https://nix-gaming.cachix.org?priority=42"
     ];
     extra-trusted-public-keys = [
       "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
       "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
     ];
   };
 
@@ -53,11 +58,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    apple-fonts = {
-      url = "github:Lyndeno/apple-fonts.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     zen-browser = {
       url = "git+https://git.sr.ht/~canasta/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -73,14 +73,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    spicetify-nix = {
-      url = "github:Gerg-L/spicetify-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     hyprgrass = {
       url = "git+https://github.com/horriblename/hyprgrass?shallow=1&ref=main";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT
+    };
+
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    sherlock = {
+      url = "github:Skxxtz/sherlock";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
     };
   };
 

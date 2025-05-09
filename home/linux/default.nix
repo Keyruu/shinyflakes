@@ -16,11 +16,11 @@
     ./clipse.nix
     ./discord.nix
     ./themes/nixy.nix
-    ./spicetify.nix
     ./tailscale.nix
     ./dunst.nix
     ./scripts
     ./programs
+    ./gaming.nix
   ];
 
   home = {
@@ -56,6 +56,10 @@
     hyprpaper
     xournalpp
     calibre
+    localsend
+    element-desktop
+    chromium
+    firefox
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
   ];

@@ -7,5 +7,6 @@
     ./waybar.nix
     ./walker
     ./squeekboard
+    ./sherlock.nix
   ];
 }

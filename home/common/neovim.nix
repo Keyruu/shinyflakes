@@ -18,6 +18,7 @@
     terraform-ls
     yaml-language-server
     astro-language-server
+    vimPlugins.blink-cmp
   ];
 
   home.file.".config/nvim/init.lua".source = ./lazyvim/init.lua;

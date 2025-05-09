@@ -3,6 +3,7 @@
     ./polkitagent.nix
     ./binds.nix
     ./touch.nix
+    ./kbptr.nix
   ];
 
   home.packages = with pkgs; [

@@ -93,7 +93,7 @@
   services.upower.enable = true;
   services.blueman.enable = true;
   services.libinput.enable = true;
-  services.power-profiles-daemon.enable = true;
+  # services.power-profiles-daemon.enable = true;
 
   services.tailscale.enable = true;
 
