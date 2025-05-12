@@ -60,6 +60,7 @@
     element-desktop
     chromium
     firefox
+    railway-travel
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
   ];

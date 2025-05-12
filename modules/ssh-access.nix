@@ -1,4 +1,9 @@
-{
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [
+    htop
+    btop
+  ];
+
   services.openssh = {
     enable = true;
     settings = {

@@ -27,24 +27,43 @@ in
   };
 
   config = {
-    services.cadvisor = {
+    services.telegraf = {
       enable = true;
-      listenAddress = "0.0.0.0";
-      port = 3022;
-      extraOptions = ["--docker_only=false"];
-    };
-
-    services.prometheus.exporters = lib.mkIf cfg.metrics.enable {
-      node = {
-        enable = true;
-        enabledCollectors = [ "systemd" "cgroups" "processes" ];
-        port = 3021;
+      extraConfig = {
+        inputs = {
+          cpu = {
+            percpu = true;
+            totalcpu = true;
+            collect_cpu_time = false;
+            report_active = false;
+          };
+          disk = {
+            mount_points = [ "/" ];
+          };
+          diskio = {
+            devices = [ "*" ];
+          };
+          net = {};
+          mem = {};
+          processes = {};
+          swap = {};
+          system = {};
+          netstat = {};
+          apcupsd = {};
+          docker = {
+            endpoint = "unix:///run/podman/podman.sock";
+          };
+        };
+        outputs = {
+          prometheus_client = {
+            listen = ":9273";
+          };
+        };
       };
     };
 
     networking.firewall.interfaces."${cfg.metrics.interface}".allowedTCPPorts = [
-      config.services.prometheus.exporters.node.port
-      config.services.cadvisor.port
+      9273
     ];
 
     users.groups.promtail = {};

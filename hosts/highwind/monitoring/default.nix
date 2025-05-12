@@ -5,6 +5,7 @@
     ./loki.nix
     ./grafana.nix
     ./beszel-hub.nix
+    ./telegraf.nix
   ];
 
   services.nginx.virtualHosts."monitoring.lab.keyruu.de" = {
