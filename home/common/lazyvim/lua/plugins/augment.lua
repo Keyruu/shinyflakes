@@ -1,1 +1,4 @@
-return { "augmentcode/augment.vim" }
+return {
+  "augmentcode/augment.vim",
+  enabled = false,
+}

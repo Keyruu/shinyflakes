@@ -547,7 +547,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$instance.*\",id=~\"/system.slice/.*service$\"}[5m]) / 10) by (id)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$instance.*\",id=~\"/system.slice/.*service$\"}[5m])) by (id)",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"

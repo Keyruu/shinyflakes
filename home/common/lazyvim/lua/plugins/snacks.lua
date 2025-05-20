@@ -7,6 +7,12 @@ return {
     { "<leader>sg", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
     { "<leader>fG", LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
     { "<leader>fg", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
-    { "<leader>gF", "<cmd>FzfLua git_files<cr>", desc = "Find Files (git-files)" },
+    {
+      "<leader>tf",
+      function()
+        require("snacks.terminal").toggle("fish")
+      end,
+      desc = "[T]erminal [f]loating",
+    },
   },
 }

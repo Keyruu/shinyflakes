@@ -17,7 +17,19 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    {
+      "LazyVim/LazyVim",
+      import = "lazyvim.plugins",
+      extras = {
+        "lazyvim.extras.coding.blink",
+        "lazyvim.extras.coding.yanky",
+        "lazyvim.extras.editor.mini-diff",
+        "lazyvim.extras.editor.snacks_explorer",
+        "lazyvim.extras.editor.snacks_picker",
+        "lazyvim.extras.ui.treesitter-context",
+        "lazyvim.extras.util.mini-hipatterns",
+      },
+    },
     -- import/override with your plugins
     { import = "plugins" },
   },

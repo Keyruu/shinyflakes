@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   programs.fish = {
     enable = true;
 
@@ -34,6 +34,16 @@
         set -U fish_greeting
 
         set -x KUBECONFIG $HOME/.kube/config
+
+        if test -f "${config.sops.secrets.shellEnv.path}"
+          while read -l line
+            if string match -q -v '^#' "$line" && string match -q '*=*' "$line"
+              set -gx (string split -m1 '=' "$line")
+            end
+          end < "${config.sops.secrets.shellEnv.path}"
+        else
+          echo "Warning: SOPS secrets file not found at ${config.sops.secrets.shellEnv.path}" >&2
+        end
       '';
 
     shellInitLast =

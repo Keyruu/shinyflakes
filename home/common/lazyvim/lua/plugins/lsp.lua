@@ -35,6 +35,8 @@ return {
             },
           },
         },
+        vuels = {},
+        svelte = {},
         nixd = {
           settings = {
             nixpkgs = {

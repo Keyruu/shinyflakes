@@ -18,7 +18,6 @@
   #
   # Related Discussion: https://discourse.nixos.org/t/darwin-again/29331
   environment.systemPackages = with pkgs; [
-    neovim
     git
     just # use Justfile to simplify nix-darwin's commands
   ];
@@ -76,6 +75,7 @@
     # `brew install`
     # TODO Feel free to add your favorite apps here.
     brews = [
+      "mas"
       "nnn" # terminal file manager
       "kanata" # keyboard remapper
 
@@ -96,6 +96,7 @@
       "python@3.10"
       "python@3.11"
       "python@3.12"
+      "pipx"
 
       "php@8.1"
       "php@8.2"

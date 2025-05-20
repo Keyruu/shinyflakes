@@ -6,7 +6,6 @@
     ../common/common.nix
     ../common/neovim.nix
     ./borders.nix
-    ./sketchybar.nix
     ../common/intellij.nix
     ../common/kubie.nix
     ../common/shell
