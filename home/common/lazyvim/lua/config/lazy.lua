@@ -26,6 +26,7 @@ require("lazy").setup({
         "lazyvim.extras.editor.mini-diff",
         "lazyvim.extras.editor.snacks_explorer",
         "lazyvim.extras.editor.snacks_picker",
+        "lazyvim.extras.editor.harpoon2",
         "lazyvim.extras.ui.treesitter-context",
         "lazyvim.extras.util.mini-hipatterns",
       },

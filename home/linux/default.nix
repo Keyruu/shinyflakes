@@ -44,6 +44,8 @@
     kubectx
     kubectl
     devspace
+    uv
+    pipx
 
     squeekboard
     nwg-drawer

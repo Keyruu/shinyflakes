@@ -24,6 +24,8 @@
             source $HOME/.local/bin/env.fish
         end
 
+        fish_add_path $HOME/.local/bin
+
         fish_vi_key_bindings
         bind --mode insert --sets-mode default \;\; repaint
         bind --mode insert \cj history-search-forward
