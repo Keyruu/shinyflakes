@@ -4,7 +4,7 @@
 }: {
   imports = [
     ../common/common.nix
-    ../common/neovim.nix
+    ../common/neovim
     ./borders.nix
     ../common/intellij.nix
     ../common/kubie.nix

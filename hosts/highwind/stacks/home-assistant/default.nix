@@ -5,6 +5,7 @@ in {
     ./zigbee2mqtt.nix
     ./matter-hub.nix
     ./esphome.nix
+    ./music-assistant.nix
   ];
 
   boot.kernel.sysctl = {

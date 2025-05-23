@@ -1,5 +1,8 @@
 {pkgs, ...}: {
   wayland.windowManager.hyprland.settings = {
+    binds = {
+      movefocus_cycles_fullscreen = true;
+    };
     "$mod" = "Alt";
     "$otherMod" = "Super";
     "$terminal" = "wezterm";

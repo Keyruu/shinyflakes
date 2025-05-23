@@ -6,7 +6,7 @@
 }: {
   imports = [
     ../common/common.nix
-    ../common/neovim.nix
+    ../common/neovim
     ../common/shell
     ../common/ssh.nix
 

@@ -69,6 +69,7 @@
         "3,monitor:DP-5"
         "4,monitor:eDP-1"
         "5,monitor:eDP-1"
+        "6,monitor:eDP-1"
       ];
 
       windowrule = [
