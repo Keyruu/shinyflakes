@@ -31,7 +31,7 @@ vim.keymap.set("n", "yc", "yygccp", { desc = "[Y]ank line, paste and [c]omment o
 --   { desc = "Rewrite only word nothing else" }
 -- )
 
-vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+-- vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 vim.keymap.set("n", "<leader>ac", function()
   require("codecompanion").prompt("code")
