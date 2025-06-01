@@ -1,9 +1,10 @@
-{config, ...}: {
+{ config, ... }:
+{
   virtualisation.quadlet.containers.torrent-gluetun = {
     containerConfig = {
       image = "ghcr.io/qdm12/gluetun:v3.40.0";
-      addCapabilities = ["NET_ADMIN"];
-      devices = ["/dev/net/tun:/dev/net/tun"];
+      addCapabilities = [ "NET_ADMIN" ];
+      devices = [ "/dev/net/tun:/dev/net/tun" ];
       environments = {
         FIREWALL_VPN_INPUT_PORTS = "53622,15403";
       };

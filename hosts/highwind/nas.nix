@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./samba.nix
   ];
@@ -45,6 +46,6 @@
     enable = true;
   };
 
-  systemd.services.beszel-agent.environment.EXTRA_FILESYSTEMS = "/dev/disk/by-id/ata-ST12000VN0007-2GS116_ZJV47ZND,/dev/disk/by-id/ata-ST12000VN0007-2GS116_ZJV4GM17";
+  systemd.services.beszel-agent.environment.EXTRA_FILESYSTEMS =
+    "/dev/disk/by-id/ata-ST12000VN0007-2GS116_ZJV47ZND,/dev/disk/by-id/ata-ST12000VN0007-2GS116_ZJV4GM17";
 }
-

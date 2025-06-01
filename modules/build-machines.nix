@@ -1,4 +1,5 @@
-{username, ...}: {
+{ username, ... }:
+{
   nix = {
     distributedBuilds = true;
 
@@ -20,6 +21,7 @@
   };
 
   programs.ssh.knownHosts = {
-    "195.201.39.140".publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJcsxyrD9ha0lnu2i/QIFz1LpnCObCS+tO/cO542Jy/U";
+    "195.201.39.140".publicKey =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJcsxyrD9ha0lnu2i/QIFz1LpnCObCS+tO/cO542Jy/U";
   };
 }

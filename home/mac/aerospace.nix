@@ -1,8 +1,7 @@
-{username, ...}: {
+{ username, ... }:
+{
   home.file.".config/aerospace/aerospace.toml".text =
-    /*
-    toml
-    */
+    # toml
     ''
       # Place a copy of this config to ~/.aerospace.toml
       # After that, you can edit ~/.aerospace.toml to your liking

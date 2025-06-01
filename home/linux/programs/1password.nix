@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   xdg.desktopEntries."1password" = {
     name = "1Password";
     exec = "1password --ozone-platform-hint=x11 %U";

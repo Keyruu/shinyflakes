@@ -1,4 +1,10 @@
-{hostname, lib, pkgs, ...}: {
+{
+  hostname,
+  lib,
+  pkgs,
+  ...
+}:
+{
   services.telegraf = {
     enable = true;
     extraConfig = {
@@ -18,11 +24,11 @@
         net = {
           ignore_protocol_stats = true;
         };
-        mem = {};
-        processes = {};
-        swap = {};
-        system = {};
-        netstat = {};
+        mem = { };
+        processes = { };
+        swap = { };
+        system = { };
+        netstat = { };
         smart = {
           path_smartctl = "${lib.getExe pkgs.smartmontools}";
         };
@@ -31,14 +37,14 @@
           filter = [
             {
               name = "all_cgroup";
-              cgroups = ["/sys/fs/cgroup/system.slice/*.service"];
+              cgroups = [ "/sys/fs/cgroup/system.slice/*.service" ];
             }
           ];
         };
         docker = {
           endpoint = "unix:///run/podman/podman.sock";
         };
-        zfs = {};
+        zfs = { };
       };
       outputs = {
         prometheus_client = {

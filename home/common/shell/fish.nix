@@ -1,4 +1,5 @@
-{config, ...}: {
+{ config, ... }:
+{
   programs.fish = {
     enable = true;
 
@@ -7,9 +8,7 @@
     };
 
     shellInit =
-      /*
-      fish
-      */
+      # fish
       ''
         switch (uname)
           case Darwin
@@ -49,9 +48,7 @@
       '';
 
     shellInitLast =
-      /*
-      fish
-      */
+      # fish
       ''
         function is_inside_neovim
           # Check if NVIM environment variable is set

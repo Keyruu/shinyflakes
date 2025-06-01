@@ -1,4 +1,11 @@
-{lib, modules, pkgs, hostname, ...}: {
+{
+  lib,
+  modules,
+  pkgs,
+  hostname,
+  ...
+}:
+{
   imports = lib.flatten [
     (with modules; [
       locale
@@ -29,10 +36,10 @@
       };
     };
     # use predictable network interface names (eth0)
-    kernelParams = ["net.ifnames=0"];
+    kernelParams = [ "net.ifnames=0" ];
   };
 
-  users.groups.smtp.members = ["root"];
+  users.groups.smtp.members = [ "root" ];
 
   sops = {
     defaultSopsFile = ../../secrets.yaml;

@@ -1,4 +1,10 @@
-{config, lib, pkgs, ...}: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   stylix.targets.waybar.enable = false;
 
   programs.waybar = {
@@ -13,9 +19,25 @@
         exclusive = true;
         passthrough = false;
         gtk-layer-shell = true;
-        modules-left = [ "hyprland/workspaces" "custom/fullscreen" "hyprland/window" ];
+        modules-left = [
+          "hyprland/workspaces"
+          "custom/fullscreen"
+          "hyprland/window"
+        ];
         modules-center = [ "mpris" ];
-        modules-right = [ "tray" "bluetooth" "network" "cpu" "memory" "battery" "power-profiles-daemon" "pulseaudio" "pulseaudio#microphone" "clock" "custom/dunst" ];
+        modules-right = [
+          "tray"
+          "bluetooth"
+          "network"
+          "cpu"
+          "memory"
+          "battery"
+          "power-profiles-daemon"
+          "pulseaudio"
+          "pulseaudio#microphone"
+          "clock"
+          "custom/dunst"
+        ];
         "hyprland/window" = {
           icon = true;
         };
@@ -104,9 +126,9 @@
             "class<steam>" = "";
             "class<thunar|nemo>" = "󰝰";
             "class<Gparted>" = "";
-	    "class<gimp>" = "";
-	    "class<emulator>" = "📱";
-	    "class<android-studio>" = "";
+            "class<gimp>" = "";
+            "class<emulator>" = "📱";
+            "class<android-studio>" = "";
             "class<org.pipewire.Helvum>" = "󰓃";
             "class<localsend>" = "";
             "class<PrusaSlicer|UltiMaker-Cura|OrcaSlicer>" = "󰹛";
@@ -115,7 +137,7 @@
           all-outputs = true;
           on-click = "activate";
         };
-        
+
         tray = {
           spacing = 10;
         };
@@ -152,7 +174,13 @@
             critical = 20;
           };
           format = "{icon}  {capacity}%";
-          format-icons = ["" "" "" "" ""];
+          format-icons = [
+            ""
+            ""
+            ""
+            ""
+            ""
+          ];
           format-charging = " {capacity}%";
           format-plugged = " {capacity}%";
           format-alt = "{time} {icon} ";
@@ -186,7 +214,11 @@
             phone = " ";
             portable = " ";
             car = " ";
-            default = [ " " " " " " ];
+            default = [
+              " "
+              " "
+              " "
+            ];
           };
         };
 
@@ -199,7 +231,7 @@
           on-scroll-down = "${lib.getExe pkgs.pamixer} --default-source -d 5";
           scroll-step = 5;
         };
-        
+
         network = {
           format-wifi = " ";
           format-ethernet = "{ipaddr}/{cidr}";
@@ -219,7 +251,7 @@
           tooltip-format-connected = " {device_enumerate}";
           tooltip-format-enumerate-connected = "{device_alias}";
         };
-        
+
         mpris = {
           title-len = 20;
           interval = 1;
@@ -238,9 +270,14 @@
           status-icons = {
             paused = "";
           };
-          ignored-players = [ "librewolf" "vlc" "firefox" "brave" ];
+          ignored-players = [
+            "librewolf"
+            "vlc"
+            "firefox"
+            "brave"
+          ];
         };
-        
+
         mpd = {
           format = "{stateIcon} {artist} - {title}";
           format-disconnected = "Disconnected ";
@@ -265,245 +302,246 @@
           tooltip-format-disconnected = "MPD (disconnected)";
         };
 
-         "custom/dunst" = {
+        "custom/dunst" = {
           exec = "waybar-dunst-monitor";
           return-type = "json";
           exec-if = "which dunstctl && which dbus-monitor && which waybar-dunst-monitor";
           # Tooltip is handled by the JSON output, disable Waybar's default
           tooltip = false;
           # Click actions
-          on-click = "dunstctl set-paused toggle";   # Left click: Toggle pause
-          on-click-middle = "dunstctl history-pop";  # Middle click: Show history
-          on-click-right = "dunstctl close-all";    # Right click: Close all
+          on-click = "dunstctl set-paused toggle"; # Left click: Toggle pause
+          on-click-middle = "dunstctl history-pop"; # Middle click: Show history
+          on-click-right = "dunstctl close-all"; # Right click: Close all
         };
 
         "custom/fullscreen" = {
           exec = "waybar-fullscreen";
           interval = 1;
           tooltip = false;
-          on-click = "hyprctl dispatch fullscreenstate 1";   # Left click: Toggle pause
+          on-click = "hyprctl dispatch fullscreenstate 1"; # Left click: Toggle pause
           format = "{text}";
           hide-empty-text = true;
         };
       };
     };
-    style = /* css */ ''
-      * {
-        border: none;
-        border-radius: 0px;
-        font-family: "JetBrainsMono Nerd Font";
-        font-size: 14px;
-        min-height: 0;
-        opacity: 1.0;
-      }
+    style = # css
+      ''
+        * {
+          border: none;
+          border-radius: 0px;
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 14px;
+          min-height: 0;
+          opacity: 1.0;
+        }
 
-      window#waybar {
-          background: none;
-      }
+        window#waybar {
+            background: none;
+        }
 
-      tooltip {
-        background: #1a1b26;
-        border-radius: 7px;
-        border-width: 2px;
-        border-style: solid;
-        border-color: #11111b;
-        opacity: 1.0;
-      }
+        tooltip {
+          background: #1a1b26;
+          border-radius: 7px;
+          border-width: 2px;
+          border-style: solid;
+          border-color: #11111b;
+          opacity: 1.0;
+        }
 
-      #workspaces button {
-        padding: 5px;
-        padding-right: 10px;
-        margin-right: 5px;
-        /* margin-left: 10px; */
-      }
+        #workspaces button {
+          padding: 5px;
+          padding-right: 10px;
+          margin-right: 5px;
+          /* margin-left: 10px; */
+        }
 
-      #workspaces button.active {
-        color: #89b4fa;
-        background: #1a1b26;
-        border-radius: 7px;
-      }
+        #workspaces button.active {
+          color: #89b4fa;
+          background: #1a1b26;
+          border-radius: 7px;
+        }
 
-      #workspaces button:hover {
-        background: #11111b;
-        color: #c0caf5;
-        border-radius: 7px;
-      }
+        #workspaces button:hover {
+          background: #11111b;
+          color: #c0caf5;
+          border-radius: 7px;
+        }
 
-      #window,
-      #clock,
-      #battery,
-      #power-profiles-daemon,
-      #mpris,
-      #pulseaudio,
-      #custom-pacman,
-      #network,
-      #bluetooth,
-      #temperature,
-      #workspaces,
-      #tray,
-      #mpd,
-      #custom-pomodoro,
-      #cpu,
-      #memory,
-      #custom-spotify,
-      #custom-dunst,
-      #custom-fullscreen,
-      #modbackground {
-        background: #${config.stylix.base16Scheme.base01};
-        opacity: 1.0;
-        padding: 0px 7px;
-        margin-top: 5px;
-        /*  margin-bottom: 5px; */
-        /* border: 1px solid #b5b0a7; */
-      }
+        #window,
+        #clock,
+        #battery,
+        #power-profiles-daemon,
+        #mpris,
+        #pulseaudio,
+        #custom-pacman,
+        #network,
+        #bluetooth,
+        #temperature,
+        #workspaces,
+        #tray,
+        #mpd,
+        #custom-pomodoro,
+        #cpu,
+        #memory,
+        #custom-spotify,
+        #custom-dunst,
+        #custom-fullscreen,
+        #modbackground {
+          background: #${config.stylix.base16Scheme.base01};
+          opacity: 1.0;
+          padding: 0px 7px;
+          margin-top: 5px;
+          /*  margin-bottom: 5px; */
+          /* border: 1px solid #b5b0a7; */
+        }
 
-      #backlight {
-        border-radius: 7px 0px 0px 7px;
-        background: #1a1b26;
-        opacity: 1.0;
-        padding: 0px 7px;
-        margin-top: 5px;
-        margin-bottom: 6px;
-      }
+        #backlight {
+          border-radius: 7px 0px 0px 7px;
+          background: #1a1b26;
+          opacity: 1.0;
+          padding: 0px 7px;
+          margin-top: 5px;
+          margin-bottom: 6px;
+        }
 
-      #pulseaudio {
-        color: #89b4fa;
-        border-radius: 0px;
-        border-left: 0px;
-        border-radius: 7px 0px 0px 7px;
-        border-right: 0px;
-      }
+        #pulseaudio {
+          color: #89b4fa;
+          border-radius: 0px;
+          border-left: 0px;
+          border-radius: 7px 0px 0px 7px;
+          border-right: 0px;
+        }
 
-      #pulseaudio.microphone {
-        color: #cba6f7;
-        border-left: 0px;
-        border-right: 0px;
-        border-radius: 0px 7px 7px 0px;
-        margin-right: 5px;
-      }
+        #pulseaudio.microphone {
+          color: #cba6f7;
+          border-left: 0px;
+          border-right: 0px;
+          border-radius: 0px 7px 7px 0px;
+          margin-right: 5px;
+        }
 
-      #cpu {
-        color: #89dceb;
-        border-radius: 7px 0px 0px 7px;
-      }
+        #cpu {
+          color: #89dceb;
+          border-radius: 7px 0px 0px 7px;
+        }
 
-      #memory {
-        color: #94e2d5;
-        border-radius: 0px 7px 7px 0px;
-        margin-right: 5px;
-      }
+        #memory {
+          color: #94e2d5;
+          border-radius: 0px 7px 7px 0px;
+          margin-right: 5px;
+        }
 
-      #tray {
-        border-radius: 7px;
-        margin-right: 5px;
-      }
+        #tray {
+          border-radius: 7px;
+          margin-right: 5px;
+        }
 
-      #workspaces {
-        border-radius: 7px;
-        margin-left: 5px;
-        padding-right: 5px;
-        padding-left: 5px;
-        opacity: 1.0;
-      }
+        #workspaces {
+          border-radius: 7px;
+          margin-left: 5px;
+          padding-right: 5px;
+          padding-left: 5px;
+          opacity: 1.0;
+        }
 
-      /* #custom-power_profile { */
-      /*   color: #a6e3a1; */
-      /*   border-left: 0px; */
-      /*   border-right: 0px; */
-      /* } */
+        /* #custom-power_profile { */
+        /*   color: #a6e3a1; */
+        /*   border-left: 0px; */
+        /*   border-right: 0px; */
+        /* } */
 
-      #window {
-        border-radius: 7px;
-        margin-left: 10px;
-        opacity: 1.0;
-        margin-right: 10px;
-      }
+        #window {
+          border-radius: 7px;
+          margin-left: 10px;
+          opacity: 1.0;
+          margin-right: 10px;
+        }
 
-      #custom-fullscreen {
-        border-radius: 7px;
-        margin-left: 10px;
-        opacity: 1.0;
-        font-size: 18px;
-      }
+        #custom-fullscreen {
+          border-radius: 7px;
+          margin-left: 10px;
+          opacity: 1.0;
+          font-size: 18px;
+        }
 
-      #clock {
-        color: #fab387;
-        border-radius: 7px;
-        /* margin-left: 10px; */
-        margin-right: 5px;
-        /* margin-left: 5px; */
-        padding-right: 0px;
-        border-right: 0px;
-        opacity: 1.0;
+        #clock {
+          color: #fab387;
+          border-radius: 7px;
+          /* margin-left: 10px; */
+          margin-right: 5px;
+          /* margin-left: 5px; */
+          padding-right: 0px;
+          border-right: 0px;
+          opacity: 1.0;
 
-      }
+        }
 
-      #network {
-        color: #f9e2af;
-        border-radius: 7px;
-        margin-right: 5px;
-        border-left: 0px;
-        border-right: 0px;
-        opacity: 1.0;
-      }
+        #network {
+          color: #f9e2af;
+          border-radius: 7px;
+          margin-right: 5px;
+          border-left: 0px;
+          border-right: 0px;
+          opacity: 1.0;
+        }
 
-      #bluetooth {
-        color: #89b4fa;
-        border-radius: 7px;
-        margin-right: 5px;
-        opacity: 1.0;
-      }
+        #bluetooth {
+          color: #89b4fa;
+          border-radius: 7px;
+          margin-right: 5px;
+          opacity: 1.0;
+        }
 
-      #battery {
-        color: #a6e3a1;
-        margin-right: 5px;
-        border-radius: 7px 0px 0px 7px;
-      }
+        #battery {
+          color: #a6e3a1;
+          margin-right: 5px;
+          border-radius: 7px 0px 0px 7px;
+        }
 
-      #power-profiles-daemon {
-        color: #a6e3a1;
-        margin-right: 5px;
-        border-radius: 0px 7px 7px 0px;
-      }
+        #power-profiles-daemon {
+          color: #a6e3a1;
+          margin-right: 5px;
+          border-radius: 0px 7px 7px 0px;
+        }
 
-      #custom-spotify {
-        border-radius: 7px;
-        margin-right: 5px;
-        border-right: 0px;
-        opacity: 1.0;
-      }
+        #custom-spotify {
+          border-radius: 7px;
+          margin-right: 5px;
+          border-right: 0px;
+          opacity: 1.0;
+        }
 
-      #mpris {
-        color: #c0caf5;
-        border-radius: 7px;
-        margin-right: 5px;
-        border-right: 0px;
-      }
+        #mpris {
+          color: #c0caf5;
+          border-radius: 7px;
+          margin-right: 5px;
+          border-right: 0px;
+        }
 
-      #mpris.paused {
-        color: #c0caf5;
-        border-bottom: 2px solid @yellow;
-      }
+        #mpris.paused {
+          color: #c0caf5;
+          border-bottom: 2px solid @yellow;
+        }
 
-      #mpd {
-        color: #c0caf5;
-        border-radius: 7px;
-        margin-right: 5px;
-        border-right: 0px;
-      }
+        #mpd {
+          color: #c0caf5;
+          border-radius: 7px;
+          margin-right: 5px;
+          border-right: 0px;
+        }
 
-      #mpd.paused {
-        color: #c0caf5;
-        border-bottom: 2px solid @yellow;
-      }
+        #mpd.paused {
+          color: #c0caf5;
+          border-bottom: 2px solid @yellow;
+        }
 
-      #custom-dunst {
-        color: #FF746C;
-        border-radius: 7px;
-        margin-right: 5px;
-        padding-right: 10px;
-        border-right: 0px;
-      }
-    '';
+        #custom-dunst {
+          color: #FF746C;
+          border-radius: 7px;
+          margin-right: 5px;
+          padding-right: 10px;
+          border-right: 0px;
+        }
+      '';
   };
 }

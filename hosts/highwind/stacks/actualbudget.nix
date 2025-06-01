@@ -1,9 +1,10 @@
-{...}: {
+{ ... }:
+{
   virtualisation.quadlet.containers.actualbudget = {
     containerConfig = {
       image = "docker.io/actualbudget/actual-server:latest";
       publishPorts = [ "127.0.0.1:5006:5006" ];
-      mounts = [ 
+      mounts = [
         "type=bind,source=/etc/stacks/actualbudget/data,destination=/data"
       ];
     };

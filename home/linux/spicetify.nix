@@ -1,8 +1,14 @@
 # Spicetify is a spotify client customizer
-{ pkgs, lib, inputs, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 let
   spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
-in {
+in
+{
   imports = [ inputs.spicetify-nix.homeManagerModules.default ];
 
   stylix.targets.spicetify.enable = false;

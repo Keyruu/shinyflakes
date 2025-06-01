@@ -1,18 +1,21 @@
-{config, ...}: let
+{ config, ... }:
+let
   wudPath = "/etc/stacks/wud/store";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${wudPath} 0755 root root"
   ];
 
-  sops.templates."wud.env".content = /* env */ ''
-    WUD_TRIGGER_SMTP_RESEND_HOST=smtp.resend.com
-    WUD_TRIGGER_SMTP_RESEND_PORT=587
-    WUD_TRIGGER_SMTP_RESEND_FROM=wud@lab.keyruu.de
-    WUD_TRIGGER_SMTP_RESEND_TO=me@keyruu.de
-    WUD_TRIGGER_SMTP_RESEND_USER=resend
-    WUD_TRIGGER_SMTP_RESEND_PASS=${config.sops.placeholder.resendApiKey}
-  '';
+  sops.templates."wud.env".content = # env
+    ''
+      WUD_TRIGGER_SMTP_RESEND_HOST=smtp.resend.com
+      WUD_TRIGGER_SMTP_RESEND_PORT=587
+      WUD_TRIGGER_SMTP_RESEND_FROM=wud@lab.keyruu.de
+      WUD_TRIGGER_SMTP_RESEND_TO=me@keyruu.de
+      WUD_TRIGGER_SMTP_RESEND_USER=resend
+      WUD_TRIGGER_SMTP_RESEND_PASS=${config.sops.placeholder.resendApiKey}
+    '';
 
   virtualisation.quadlet.containers.whatsupdocker = {
     containerConfig = {

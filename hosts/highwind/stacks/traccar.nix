@@ -1,6 +1,8 @@
-{config, ...}: let
+{ config, ... }:
+let
   traccarPath = "/etc/stacks/traccar";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${traccarPath}/data 0755 root root"
     "d ${traccarPath}/logs 0755 root root"

@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   programs.k9s = {
     enable = true;
 
@@ -105,7 +106,7 @@
         raw-logs-follow = {
           shortCut = "Ctrl-L";
           description = "logs -f";
-          scopes = ["po"];
+          scopes = [ "po" ];
           command = "kubectl";
           background = false;
           args = [
@@ -123,7 +124,7 @@
         log-less = {
           shortCut = "Shift-L";
           description = "logs|less";
-          scopes = ["po"];
+          scopes = [ "po" ];
           command = "bash";
           background = false;
           args = [
@@ -144,7 +145,7 @@
         log-less-container = {
           shortCut = "Shift-L";
           description = "logs|less";
-          scopes = ["containers"];
+          scopes = [ "containers" ];
           command = "bash";
           background = false;
           args = [
@@ -168,16 +169,16 @@
           shortCut = "Shift-I";
           confirm = false;
           description = "Dive image";
-          scopes = ["containers"];
+          scopes = [ "containers" ];
           command = "dive";
           background = false;
-          args = ["$COL-IMAGE"];
+          args = [ "$COL-IMAGE" ];
         };
         debug = {
           shortCut = "Shift-B";
           description = "Add debug container";
           dangerous = true;
-          scopes = ["containers"];
+          scopes = [ "containers" ];
           command = "bash";
           background = false;
           confirm = true;
@@ -190,7 +191,7 @@
           shortCut = "Shift-Q";
           confirm = false;
           description = "Logs <Stern>";
-          scopes = ["pods"];
+          scopes = [ "pods" ];
           command = "stern";
           background = false;
           args = [

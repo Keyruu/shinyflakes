@@ -1,7 +1,8 @@
-{...}:
-  let
-    jellyfinPath = "/etc/stacks/jellyfin";
-  in {
+{ ... }:
+let
+  jellyfinPath = "/etc/stacks/jellyfin";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${jellyfinPath}/config 0770 root root"
     "d ${jellyfinPath}/cache 0770 root root"

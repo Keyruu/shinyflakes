@@ -1,5 +1,6 @@
-{username, pkgs, ...}: {
-  home.packages = with pkgs; [ 
+{ username, pkgs, ... }:
+{
+  home.packages = with pkgs; [
     grim
   ];
 

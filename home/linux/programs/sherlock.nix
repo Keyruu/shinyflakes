@@ -1,4 +1,5 @@
-{inputs, ...}: {
+{ inputs, ... }:
+{
   imports = [
     inputs.sherlock.homeManagerModules.default
   ];
@@ -23,7 +24,7 @@
         {
           name = "App Launcher";
           type = "app_launcher";
-          args = {};
+          args = { };
           priority = 1;
           home = true;
         }

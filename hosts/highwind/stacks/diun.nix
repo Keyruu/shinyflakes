@@ -1,32 +1,35 @@
-{config, ...}: let
+{ config, ... }:
+let
   diunPath = "/etc/stacks/diun/data";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${diunPath} 0755 root root"
   ];
 
-  sops.templates."diun.yml".content = /* yaml */ ''
-    watch:
-      workers: 20
-      schedule: "0 */6 * * *"
-      firstCheckNotif: true
-      runOnStartup: true
+  sops.templates."diun.yml".content = # yaml
+    ''
+      watch:
+        workers: 20
+        schedule: "0 */6 * * *"
+        firstCheckNotif: true
+        runOnStartup: true
 
-    notif:
-      mail:
-        host: smtp.resend.com
-        port: 587
-        username: resend
-        password: ${config.sops.placeholder.resendApiKey}
-        from: diun@lab.keyruu.de
-        to:
-          - me@keyruu.de
+      notif:
+        mail:
+          host: smtp.resend.com
+          port: 587
+          username: resend
+          password: ${config.sops.placeholder.resendApiKey}
+          from: diun@lab.keyruu.de
+          to:
+            - me@keyruu.de
 
-    providers:
-      docker:
-        watchByDefault: true
-        watchStopped: true
-  '';
+      providers:
+        docker:
+          watchByDefault: true
+          watchStopped: true
+    '';
 
   virtualisation.quadlet.containers.diun = {
     containerConfig = {

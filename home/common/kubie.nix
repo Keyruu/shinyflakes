@@ -1,8 +1,6 @@
 {
   home.file.".kube/kubie.yaml".text =
-    /*
-    yaml
-    */
+    # yaml
     ''
       shell: fish
 

@@ -8,5 +8,7 @@
     ./home-assistant
     ./speedtest-tracker.nix
     ./wud.nix
+    ./librechat
+    ./mcp
   ];
 }

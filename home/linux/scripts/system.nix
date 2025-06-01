@@ -1,5 +1,5 @@
 # - ## System
-#- 
+#-
 #- Usefull quick scripts
 #-
 #- - `menu` - Open wofi with drun mode. (wofi)
@@ -8,118 +8,127 @@
 { pkgs, ... }:
 
 let
-  focusOrOpen = pkgs.writeShellScriptBin "focusOrOpen" /* bash */ ''
-    #!/bin/sh
+  focusOrOpen =
+    pkgs.writeShellScriptBin "focusOrOpen" # bash
+      ''
+        #!/bin/sh
 
-    execCommand=$1
-    className=$2
+        execCommand=$1
+        className=$2
 
-    address=$(hyprctl -j clients | jq -r "sort_by( .focusHistoryID) | .[] | select(.class == \"$className\") | .address" | head -n 1)
+        address=$(hyprctl -j clients | jq -r "sort_by( .focusHistoryID) | .[] | select(.class == \"$className\") | .address" | head -n 1)
 
-    if [ -n "$address" ]; then
-      hyprctl dispatch focuswindow address:$address
-    else
-      $1
-    fi
-  '';
+        if [ -n "$address" ]; then
+          hyprctl dispatch focuswindow address:$address
+        else
+          $1
+        fi
+      '';
 
-  copyPasteShortcut = pkgs.writeShellScriptBin "copyPasteShortcut" /* bash */ ''
-    #!/bin/sh
-    
-    action=$1
-    terminal_class=$2
+  copyPasteShortcut =
+    pkgs.writeShellScriptBin "copyPasteShortcut" # bash
+      ''
+        #!/bin/sh
 
-    active_class=$(hyprctl activewindow -j | jq -r '.class')
+        action=$1
+        terminal_class=$2
 
-    case "$action" in
-        copy)
-            key="C"
+        active_class=$(hyprctl activewindow -j | jq -r '.class')
+
+        case "$action" in
+            copy)
+                key="C"
+                ;;
+            paste)
+                key="V"
+                ;;
+        esac
+
+        if [ "$active_class" = "$terminal_class" ]; then
+            shortcut="CTRL_SHIFT,$key,"
+        else
+            shortcut="CTRL,$key,"
+        fi
+
+        hyprctl dispatch sendshortcut "$shortcut"
+      '';
+
+  powermenu =
+    pkgs.writeShellScriptBin "powermenu"
+      # bash
+      ''
+        options=(
+          "󰌾 Lock"
+          "󰍃 Logout"
+          " Suspend"
+          "󰑐 Reboot"
+          "󰿅 Shutdown"
+        )
+
+        selected=$(printf '%s\n' "''${options[@]}" | walker --dmenu)
+        selected=''${selected:2}
+
+        case $selected in
+          "Lock")
+            ${pkgs.hyprlock}/bin/hyprlock
             ;;
-        paste)
-            key="V"
+          "Logout")
+            hyprctl dispatch exit
             ;;
-    esac
+          "Suspend")
+            systemctl suspend
+            ;;
+          "Reboot")
+            systemctl reboot
+            ;;
+          "Shutdown")
+            systemctl poweroff
+            ;;
+        esac
+      '';
 
-    if [ "$active_class" = "$terminal_class" ]; then
-        shortcut="CTRL_SHIFT,$key,"
-    else
-        shortcut="CTRL,$key,"
-    fi
+  quickmenu =
+    pkgs.writeShellScriptBin "quickmenu"
+      # bash
+      ''
+        options=(
+          "󰅶 Caffeine"
+          "󰈊 Hyprpicker"
+        )
 
-    hyprctl dispatch sendshortcut "$shortcut"
-  '';
+        selected=$(printf '%s\n' "''${options[@]}" | fuzzel --dmenu)
+        selected=''${selected:2}
 
-  powermenu = pkgs.writeShellScriptBin "powermenu"
-    # bash
-    ''
-      options=(
-        "󰌾 Lock"
-        "󰍃 Logout"
-        " Suspend"
-        "󰑐 Reboot"
-        "󰿅 Shutdown"
-      )
+        case $selected in
+          "Caffeine")
+            caffeine
+            ;;
+          "Hyprpicker")
+            sleep 0.2 && ${pkgs.hyprpicker}/bin/hyprpicker -a
+            ;;
+        esac
+      '';
 
-      selected=$(printf '%s\n' "''${options[@]}" | walker --dmenu)
-      selected=''${selected:2}
+  lock =
+    pkgs.writeShellScriptBin "lock"
+      # bash
+      ''
+        ${pkgs.hyprlock}/bin/hyprlock
+      '';
 
-      case $selected in
-        "Lock")
-          ${pkgs.hyprlock}/bin/hyprlock
-          ;;
-        "Logout")
-          hyprctl dispatch exit
-          ;;
-        "Suspend")
-          systemctl suspend
-          ;;
-        "Reboot")
-          systemctl reboot
-          ;;
-        "Shutdown")
-          systemctl poweroff
-          ;;
-      esac
-    '';
+  waybar-fullscreen =
+    pkgs.writeShellScriptBin "waybar-fullscreen"
+      # bash
+      ''
+        is_fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen')
 
-  quickmenu = pkgs.writeShellScriptBin "quickmenu"
-    # bash
-    ''
-      options=(
-        "󰅶 Caffeine"
-        "󰈊 Hyprpicker"
-      )
+        if [ "$is_fullscreen" -eq 1 ]; then
+          echo "󰊓"
+        fi
+      '';
 
-      selected=$(printf '%s\n' "''${options[@]}" | fuzzel --dmenu)
-      selected=''${selected:2}
-
-      case $selected in
-        "Caffeine")
-          caffeine
-          ;;
-        "Hyprpicker")
-          sleep 0.2 && ${pkgs.hyprpicker}/bin/hyprpicker -a
-          ;;
-      esac
-    '';
-
-  lock = pkgs.writeShellScriptBin "lock"
-    # bash
-    ''
-      ${pkgs.hyprlock}/bin/hyprlock
-    '';
-
-  waybar-fullscreen = pkgs.writeShellScriptBin "waybar-fullscreen"
-    # bash
-    ''
-      is_fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen')
-
-      if [ "$is_fullscreen" -eq 1 ]; then
-        echo "󰊓"
-      fi
-    '';
-
-in {
+in
+{
   home.packages = [
     focusOrOpen
     copyPasteShortcut

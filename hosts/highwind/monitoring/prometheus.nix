@@ -1,8 +1,9 @@
-{config, ...}: {
+{ config, ... }:
+{
   services.cadvisor = {
     enable = true;
     port = 3022;
-    extraOptions = ["--docker_only=false"];
+    extraOptions = [ "--docker_only=false" ];
   };
 
   services.prometheus = {
@@ -19,13 +20,13 @@
       node = {
         enable = true;
         port = 3021;
-        enabledCollectors = ["systemd"];
+        enabledCollectors = [ "systemd" ];
       };
       zfs = {
         enable = true;
         listenAddress = "127.0.0.1";
         port = 9134;
-        pools = ["main"];
+        pools = [ "main" ];
       };
       process = {
         enable = true;

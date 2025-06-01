@@ -36,10 +36,7 @@
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    quadlet-nix = {
-      url = "github:SEIAROTg/quadlet-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -153,28 +150,28 @@
         ];
       };
 
-      nixosConfigurations.thopter = 
+      nixosConfigurations.thopter =
         let
           args = specialArgs // {
             username = "lucas";
           };
         in
-      nixpkgs.lib.nixosSystem {
-      	specialArgs = args;
-        system = "x86_64-linux";
-        modules = [
-          stylix.nixosModules.stylix
-          ./hosts/thopter/configuration.nix
+        nixpkgs.lib.nixosSystem {
+          specialArgs = args;
+          system = "x86_64-linux";
+          modules = [
+            stylix.nixosModules.stylix
+            ./hosts/thopter/configuration.nix
 
-	  home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = args;
-            home-manager.users.lucas = import ./home/linux;
-          }
-        ];
-      };
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = args;
+              home-manager.users.lucas = import ./home/linux;
+            }
+          ];
+        };
 
       darwinConfigurations.stern =
         let

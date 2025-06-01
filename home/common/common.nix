@@ -1,4 +1,10 @@
-{config,inputs, pkgs, ...}: {
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
+{
   imports = [
     inputs.sops-nix.homeManagerModules.sops
   ];
@@ -57,6 +63,8 @@
     pnpm
     just
     goreleaser
+    nixfmt-rfc-style
+    nixfmt-tree
 
     # gui apps
     gimp

@@ -1,4 +1,5 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }:
+{
   programs.helix = with pkgs; {
     enable = true;
     extraPackages = [
@@ -20,10 +21,13 @@
       nodePackages.typescript-language-server
       sql-formatter
       ruff
-      (python3.withPackages (p: (with p; [
-        python-lsp-ruff
-        python-lsp-server
-      ])))
+      (python3.withPackages (
+        p:
+        (with p; [
+          python-lsp-ruff
+          python-lsp-server
+        ])
+      ))
       rust-analyzer
       taplo
       taplo-lsp
@@ -74,8 +78,21 @@
         };
 
         statusline = {
-          left = [ "mode" "file-name" "spinner" "read-only-indicator" "file-modification-indicator" ];
-          right = [ "diagnostics" "selections" "register" "file-type" "file-line-ending" "position" ];
+          left = [
+            "mode"
+            "file-name"
+            "spinner"
+            "read-only-indicator"
+            "file-modification-indicator"
+          ];
+          right = [
+            "diagnostics"
+            "selections"
+            "register"
+            "file-type"
+            "file-line-ending"
+            "position"
+          ];
           mode.normal = "";
           mode.insert = "I";
           mode.select = "S";
@@ -201,7 +218,10 @@
         {
           name = "astro";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
             "astro-language-server"
           ];
@@ -212,13 +232,19 @@
           language-servers = [ "vscode-css-language-server" ];
           formatter = {
             command = "prettier";
-            args = [ "--stdin-filepath" "file.css" ];
+            args = [
+              "--stdin-filepath"
+              "file.css"
+            ];
           };
           auto-format = true;
         }
         {
           name = "go";
-          language-servers = [ "gopls" "golangci-lint-lsp" ];
+          language-servers = [
+            "gopls"
+            "golangci-lint-lsp"
+          ];
           formatter = {
             command = "goimports";
           };
@@ -229,14 +255,20 @@
           language-servers = [ "vscode-html-language-server" ];
           formatter = {
             command = "prettier";
-            args = [ "--stdin-filepath" "file.html" ];
+            args = [
+              "--stdin-filepath"
+              "file.html"
+            ];
           };
           auto-format = true;
         }
         {
           name = "javascript";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           auto-format = true;
@@ -244,37 +276,67 @@
         {
           name = "json";
           language-servers = [
-            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            {
+              name = "vscode-json-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.json" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.json"
+            ];
           };
           auto-format = true;
         }
         {
           name = "jsonc";
           language-servers = [
-            { name = "vscode-json-language-server"; except-features = [ "format" ]; }
+            {
+              name = "vscode-json-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsonc" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.jsonc"
+            ];
           };
-          file-types = [ "jsonc" "hujson" ];
+          file-types = [
+            "jsonc"
+            "hujson"
+          ];
           auto-format = true;
         }
         {
           name = "jsx";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.jsx" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.jsx"
+            ];
           };
           auto-format = true;
         }
@@ -283,7 +345,10 @@
           language-servers = [ "marksman" ];
           formatter = {
             command = "prettier";
-            args = [ "--stdin-filepath" "file.md" ];
+            args = [
+              "--stdin-filepath"
+              "file.md"
+            ];
           };
           auto-format = true;
         }
@@ -299,7 +364,10 @@
           language-servers = [ "pylsp" ];
           formatter = {
             command = "sh";
-            args = [ "-c" "ruff check --select I --fix - | ruff format --line-length 88 -" ];
+            args = [
+              "-c"
+              "ruff check --select I --fix - | ruff format --line-length 88 -"
+            ];
           };
           auto-format = true;
         }
@@ -313,16 +381,24 @@
           language-servers = [ "vscode-css-language-server" ];
           formatter = {
             command = "prettier";
-            args = [ "--stdin-filepath" "file.scss" ];
+            args = [
+              "--stdin-filepath"
+              "file.scss"
+            ];
           };
           auto-format = true;
         }
         {
           name = "sql";
-          language-servers = [];
+          language-servers = [ ];
           formatter = {
             command = "sql-formatter";
-            args = [ "-l" "postgresql" "-c" "{\"keywordCase\": \"lower\", \"dataTypeCase\": \"lower\", \"functionCase\": \"lower\", \"expressionWidth\": 120, \"tabWidth\": 4}" ];
+            args = [
+              "-l"
+              "postgresql"
+              "-c"
+              "{\"keywordCase\": \"lower\", \"dataTypeCase\": \"lower\", \"functionCase\": \"lower\", \"expressionWidth\": 120, \"tabWidth\": 4}"
+            ];
           };
           auto-format = true;
         }
@@ -331,31 +407,54 @@
           language-servers = [ "taplo" ];
           formatter = {
             command = "taplo";
-            args = [ "fmt" "-o" "column_width=120" "-" ];
+            args = [
+              "fmt"
+              "-o"
+              "column_width=120"
+              "-"
+            ];
           };
           auto-format = true;
         }
         {
           name = "tsx";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.tsx" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.tsx"
+            ];
           };
           auto-format = true;
         }
         {
           name = "typescript";
           language-servers = [
-            { name = "typescript-language-server"; except-features = [ "format" ]; }
+            {
+              name = "typescript-language-server";
+              except-features = [ "format" ];
+            }
             "biome"
           ];
           formatter = {
             command = "biome";
-            args = [ "format" "--indent-style" "space" "--stdin-file-path" "file.ts" ];
+            args = [
+              "format"
+              "--indent-style"
+              "space"
+              "--stdin-file-path"
+              "file.ts"
+            ];
           };
           auto-format = true;
         }
@@ -364,7 +463,10 @@
           language-servers = [ "yaml-language-server" ];
           formatter = {
             command = "prettier";
-            args = [ "--stdin-filepath" "file.yaml" ];
+            args = [
+              "--stdin-filepath"
+              "file.yaml"
+            ];
           };
           auto-format = true;
         }

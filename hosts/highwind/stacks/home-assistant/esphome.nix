@@ -1,6 +1,8 @@
-{...}: let
+{ ... }:
+let
   esphomePath = "/etc/stacks/esphome/config";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${esphomePath} 0755 root root"
   ];

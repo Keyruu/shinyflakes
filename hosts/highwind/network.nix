@@ -1,11 +1,21 @@
-{pkgs, config, ...}: {
+{ pkgs, config, ... }:
+{
   networking = {
     firewall = {
       enable = true;
-      allowedTCPPorts = [22 80 443 3010 3020];
+      allowedTCPPorts = [
+        22
+        80
+        443
+        3010
+        3020
+      ];
     };
 
-    nameservers = ["192.168.100.1" "1.1.1.1"];
+    nameservers = [
+      "192.168.100.1"
+      "1.1.1.1"
+    ];
     defaultGateway = {
       address = "192.168.100.1";
       interface = "eth0";
@@ -38,7 +48,7 @@
   services.networkd-dispatcher = {
     enable = true;
     rules."50-tailscale" = {
-      onState = ["routable"];
+      onState = [ "routable" ];
       script = ''
         ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
       '';

@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   networking.firewall.interfaces."podman+".allowedUDPPorts = [ 53 ];
 
   virtualisation.podman = {

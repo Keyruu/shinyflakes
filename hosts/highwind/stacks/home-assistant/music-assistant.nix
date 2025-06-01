@@ -1,6 +1,8 @@
-{config, ...}: let
+{ config, ... }:
+let
   musicAssistantPath = "/etc/stacks/music-assistant";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${musicAssistantPath}/data 0755 root root"
   ];
@@ -31,7 +33,6 @@ in {
     };
   };
 
-
   services.nginx.virtualHosts."music.port.peeraten.net" = {
     useACMEHost = "port.peeraten.net";
     forceSSL = true;
@@ -42,4 +43,3 @@ in {
     };
   };
 }
-

@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home.packages = with pkgs; [
     zellij
   ];
 
   home.file.".config/zellij/config.kdl".text =
-    /*
-    kdl
-    */
+    # kdl
     ''
       keybinds {
         pane {
@@ -23,9 +22,7 @@
     '';
 
   home.file.".config/zellij/layouts/nix.kdl".text =
-    /*
-    kdl
-    */
+    # kdl
     ''
       layout {
         pane size=1 borderless=true {
@@ -50,9 +47,7 @@
     '';
 
   home.file.".config/zellij/layouts/project.kdl".text =
-    /*
-    kdl
-    */
+    # kdl
     ''
       layout {
         pane size=1 borderless=true {

@@ -1,4 +1,5 @@
-{username, pkgs, ...}: {
+{ username, pkgs, ... }:
+{
   # nixpkgs.overlays = [ (import ./overlays/1password.nix) ];
 
   programs._1password.enable = true;

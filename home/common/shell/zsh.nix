@@ -1,13 +1,11 @@
-{...}:
+{ ... }:
 # nix tooling
 {
   programs.zsh = {
     enable = true;
 
     initContent =
-      /*
-      bash
-      */
+      # bash
       ''
         eval "$(/opt/homebrew/bin/brew shellenv)"
 
@@ -22,8 +20,14 @@
     syntaxHighlighting.enable = false;
     historySubstringSearch = {
       enable = true;
-      searchUpKey = ["j" "^[[A"];
-      searchDownKey = ["k" "^[[B"];
+      searchUpKey = [
+        "j"
+        "^[[A"
+      ];
+      searchDownKey = [
+        "k"
+        "^[[B"
+      ];
     };
 
     shellAliases = {
@@ -49,7 +53,10 @@
     history = {
       size = 1000000;
       save = 1000000;
-      ignorePatterns = ["cd ..*" "ls"];
+      ignorePatterns = [
+        "cd ..*"
+        "ls"
+      ];
       extended = true;
     };
 

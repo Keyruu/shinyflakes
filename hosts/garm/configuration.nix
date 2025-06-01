@@ -5,7 +5,8 @@
   modules,
   modulesPath,
   ...
-}: {
+}:
+{
   imports = lib.flatten [
     (with modules; [
       locale
@@ -32,7 +33,6 @@
       headscaleAuthKey.owner = "root";
     };
   };
-
 
   networking = {
     hostName = "garm";

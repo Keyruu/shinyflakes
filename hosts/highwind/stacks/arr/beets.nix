@@ -87,7 +87,7 @@ let
     };
   };
 
-  beetsConfigYaml = pkgs.lib.generators.toYAML {} beetsConfig;
+  beetsConfigYaml = pkgs.lib.generators.toYAML { } beetsConfig;
 in
 {
   environment.etc."stacks/beets/config.yaml".text = beetsConfigYaml;
@@ -108,14 +108,16 @@ in
         musicPath
         beetsPath
       ];
-      ExecStart = let
-        beets-import = pkgs.writeScriptBin "beets-import" ''
-          #!${lib.getExe pkgs.bash}
-          ${lib.getExe pkgs.beets} -c ${beetsConfigPath} update
-          ${lib.getExe pkgs.beets} -c ${beetsConfigPath} import -s -q ${downloadPath}
-          ${lib.getExe pkgs.tmpwatch} 6h ${downloadPath}
-        '';
-      in lib.getExe beets-import;
+      ExecStart =
+        let
+          beets-import = pkgs.writeScriptBin "beets-import" ''
+            #!${lib.getExe pkgs.bash}
+            ${lib.getExe pkgs.beets} -c ${beetsConfigPath} update
+            ${lib.getExe pkgs.beets} -c ${beetsConfigPath} import -s -q ${downloadPath}
+            ${lib.getExe pkgs.tmpwatch} 6h ${downloadPath}
+          '';
+        in
+        lib.getExe beets-import;
     };
   };
 }

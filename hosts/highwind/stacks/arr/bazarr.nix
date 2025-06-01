@@ -1,6 +1,8 @@
-{...}: let
-    bazarrPath = "/etc/stacks/bazarr";
-  in {
+{ ... }:
+let
+  bazarrPath = "/etc/stacks/bazarr";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${bazarrPath}/config 0755 root root"
   ];

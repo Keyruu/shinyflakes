@@ -2,14 +2,20 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }: {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
 
-      ./modules
-    ];
+    ./modules
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -71,13 +77,21 @@
   users.users.lucas = {
     isNormalUser = true;
     description = "Lucas";
-    extraGroups = [ "networkmanager" "wheel" "ydotool" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "ydotool"
+      "docker"
+    ];
     shell = pkgs.fish;
   };
 
   nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   services.fprintd.enable = true;
 

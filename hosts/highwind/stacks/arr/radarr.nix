@@ -1,6 +1,8 @@
-{...}: let
-    radarrPath = "/etc/stacks/radarr";
-  in {
+{ ... }:
+let
+  radarrPath = "/etc/stacks/radarr";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${radarrPath}/config 0755 root root"
   ];

@@ -43,13 +43,13 @@ in
           diskio = {
             devices = [ "*" ];
           };
-          net = {};
-          mem = {};
-          processes = {};
-          swap = {};
-          system = {};
-          netstat = {};
-          apcupsd = {};
+          net = { };
+          mem = { };
+          processes = { };
+          swap = { };
+          system = { };
+          netstat = { };
+          apcupsd = { };
           docker = {
             endpoint = "unix:///run/podman/podman.sock";
           };
@@ -66,14 +66,13 @@ in
       9273
     ];
 
-    users.groups.promtail = {};
-    users.groups.nginx = lib.mkIf cfg.logs.nginx {};
+    users.groups.promtail = { };
+    users.groups.nginx = lib.mkIf cfg.logs.nginx { };
     users.users.promtail = {
       isSystemUser = true;
       group = "promtail";
-      extraGroups = [(lib.mkIf cfg.logs.nginx "nginx")];
+      extraGroups = [ (lib.mkIf cfg.logs.nginx "nginx") ];
     };
-
 
     services.promtail = lib.mkIf cfg.logs.enable {
       enable = true;

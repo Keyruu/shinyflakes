@@ -3,7 +3,8 @@
   username,
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     ../common/common.nix
     ../common/neovim
@@ -35,7 +36,7 @@
 
   services.playerctld.enable = true;
 
-  home.packages = with pkgs; [ 
+  home.packages = with pkgs; [
     jq
     yq
     awscli2

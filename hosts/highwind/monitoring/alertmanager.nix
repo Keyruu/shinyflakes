@@ -1,9 +1,10 @@
-{config, ...}: {
-  users.groups.alertmanager = {};
+{ config, ... }:
+{
+  users.groups.alertmanager = { };
   users.users.alertmanager = {
     isSystemUser = true;
     group = "alertmanager";
-    extraGroups = ["smtp"];
+    extraGroups = [ "smtp" ];
   };
 
   services.prometheus = {
@@ -20,7 +21,7 @@
         };
 
         route = {
-          group_by = ["alertname"];
+          group_by = [ "alertname" ];
           group_wait = "30s";
           group_interval = "5m";
           repeat_interval = "3h";
@@ -54,16 +55,14 @@
         scheme = "http";
         static_configs = [
           {
-            targets = ["127.0.0.1:${toString config.services.prometheus.alertmanager.port}"];
+            targets = [ "127.0.0.1:${toString config.services.prometheus.alertmanager.port}" ];
           }
         ];
       }
     ];
 
     rules = [
-      /*
-      yaml
-      */
+      # yaml
       ''
         groups:
           - name: alertmanager

@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   virtualisation.quadlet.containers.torrent-flaresolverr = {
     containerConfig = {
       image = "ghcr.io/flaresolverr/flaresolverr:v3.3.21";

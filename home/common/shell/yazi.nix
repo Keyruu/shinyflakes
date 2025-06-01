@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   programs.yazi = {
     enable = true;
     enableZshIntegration = true;
@@ -9,13 +10,13 @@
     keymap = {
       manager.prepend_keymap = [
         {
-          on   = "l";
-          run  = "plugin smart-enter";
+          on = "l";
+          run = "plugin smart-enter";
           desc = "Enter the child directory, or open the file";
         }
         {
-          on   = "<Enter>";
-          run  = "plugin smart-enter";
+          on = "<Enter>";
+          run = "plugin smart-enter";
           desc = "Enter the child directory, or open the file";
         }
       ];

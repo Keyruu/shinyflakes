@@ -1,4 +1,5 @@
-{config, ...}: {
+{ config, ... }:
+{
   security.acme = {
     acceptTerms = true;
     defaults.email = "me@keyruu.de";
@@ -6,7 +7,7 @@
 
   security.dhparams = {
     enable = true;
-    params.nginx = {};
+    params.nginx = { };
   };
 
   services.nginx = {
@@ -19,7 +20,10 @@
     sslDhparam = config.security.dhparams.params.nginx.path;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 
   users.users.nginx.extraGroups = [ "acme" ];
 }

@@ -1,6 +1,8 @@
-{...}: let
-    lidarrPath = "/etc/stacks/lidarr/config";
-  in {
+{ ... }:
+let
+  lidarrPath = "/etc/stacks/lidarr/config";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${lidarrPath}/config 0755 root root"
   ];

@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./sonarr.nix
     ./gluetun.nix

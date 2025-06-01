@@ -1,16 +1,19 @@
-{config, ...}: let
+{ config, ... }:
+let
   speedtestTrackerPath = "/etc/stacks/speedtest-tracker/config";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${speedtestTrackerPath} 0755 1000 1000"
   ];
 
   sops = {
     secrets."speedtestTrackerAppKey".owner = "root";
-    templates."speedtest-tracker.env".content = /* env */ ''
-      APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}
-      SPEEDTEST_SCHEDULE=3,33 * * * *
-    '';
+    templates."speedtest-tracker.env".content = # env
+      ''
+        APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}
+        SPEEDTEST_SCHEDULE=3,33 * * * *
+      '';
   };
 
   virtualisation.quadlet.containers.speedtest-tracker = {
@@ -47,4 +50,3 @@ in {
     };
   };
 }
-

@@ -1,6 +1,8 @@
-{config, ...}: let
+{ config, ... }:
+let
   homeAssistantPath = "/etc/stacks/home-assistant";
-in {
+in
+{
   imports = [
     ./zigbee2mqtt.nix
     ./matter-hub.nix
@@ -16,29 +18,33 @@ in {
     "d ${homeAssistantPath}/config 0755 root root"
   ];
 
-  environment.etc."stacks/home-assistant/config/configuration.yaml".text = /* yaml */ ''
-    # Loads default set of integrations. Do not remove.
-    default_config:
+  environment.etc."stacks/home-assistant/config/configuration.yaml".text = # yaml
+    ''
+      # Loads default set of integrations. Do not remove.
+      default_config:
 
-    # Load frontend themes from the themes folder
-    frontend:
-      themes: !include_dir_merge_named themes
+      # Load frontend themes from the themes folder
+      frontend:
+        themes: !include_dir_merge_named themes
 
-    automation: !include automations.yaml
-    script: !include scripts.yaml
-    scene: !include scenes.yaml
+      automation: !include automations.yaml
+      script: !include scripts.yaml
+      scene: !include scenes.yaml
 
-    http:
-      use_x_forwarded_for: true
-      trusted_proxies:
-        - 127.0.0.1
-        - 100.64.0.0/10
+      http:
+        use_x_forwarded_for: true
+        trusted_proxies:
+          - 127.0.0.1
+          - 100.64.0.0/10
 
-    zeroconf:
-      default_interface: true
-  '';
+      zeroconf:
+        default_interface: true
+    '';
 
-  networking.firewall.allowedTCPPorts = [ 8123 51827 ];
+  networking.firewall.allowedTCPPorts = [
+    8123
+    51827
+  ];
   networking.firewall.allowedUDPPorts = [ 5353 ];
 
   virtualisation.quadlet.containers.home-assistant = {

@@ -1,7 +1,8 @@
-{...}: 
-  let
-    sonarrPath = "/etc/stacks/sonarr";
-  in {
+{ ... }:
+let
+  sonarrPath = "/etc/stacks/sonarr";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${sonarrPath}/config 0755 root root"
   ];

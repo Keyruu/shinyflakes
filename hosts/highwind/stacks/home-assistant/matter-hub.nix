@@ -1,20 +1,26 @@
-{config, ...}: let 
+{ config, ... }:
+let
   matterHubPath = "/etc/stacks/matter-hub/data";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${matterHubPath} 0755 root root"
   ];
 
   sops.secrets.hassKey.owner = "root";
 
-  sops.templates."matterHub.env".content = /* env */ ''
-    HAMH_HOME_ASSISTANT_URL=https://hass.peeraten.net
-    HAMH_HOME_ASSISTANT_ACCESS_TOKEN=${config.sops.placeholder.hassKey}
-    HAMH_LOG_LEVEL=info
-    HAMH_HTTP_PORT=8482
-  '';
+  sops.templates."matterHub.env".content = # env
+    ''
+      HAMH_HOME_ASSISTANT_URL=https://hass.peeraten.net
+      HAMH_HOME_ASSISTANT_ACCESS_TOKEN=${config.sops.placeholder.hassKey}
+      HAMH_LOG_LEVEL=info
+      HAMH_HTTP_PORT=8482
+    '';
 
-  networking.firewall.allowedTCPPorts = [ 8482 5540 ];
+  networking.firewall.allowedTCPPorts = [
+    8482
+    5540
+  ];
   networking.firewall.allowedUDPPorts = [ 5540 ];
 
   virtualisation.quadlet.containers.matter-hub = {

@@ -3,7 +3,8 @@
   inputs,
   pkgs,
   ...
-}:let
+}:
+let
   smallPkgs = import inputs.nixpkgs-small { inherit (pkgs) system; };
 in
 {

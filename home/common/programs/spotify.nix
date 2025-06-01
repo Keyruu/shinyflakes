@@ -1,3 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   services.playerctld.enable = true;
 }

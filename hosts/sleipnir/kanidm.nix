@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 {
-  users.groups.kanidm = {};
+  users.groups.kanidm = { };
   users.users.kanidm = {
     isSystemUser = true;
     group = "kanidm";
@@ -57,8 +57,8 @@
         };
       };
       groups = {
-        headscale_users = {};
-        traccar_users = {};
+        headscale_users = { };
+        traccar_users = { };
       };
       # systems.oauth2 = {
       #   headscale = {

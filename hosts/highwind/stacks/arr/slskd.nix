@@ -1,8 +1,9 @@
-{config, ...}: 
+{ config, ... }:
 let
   slskdPath = "/etc/stacks/slskd/app";
   musicPath = "/main/media/Music";
-in {
+in
+{
   systemd.tmpfiles.rules = [
     "d ${slskdPath} 0755 root root"
     "d ${musicPath}/downloads/completed 0755 root root"
@@ -17,13 +18,14 @@ in {
     lidarrKey.owner = "root";
   };
 
-  sops.templates."slskdConfig.yaml".content = /* yaml */ ''
-    web:
-      authentication:
-        api_keys:
-          soularr_key:
-            key: ${config.sops.placeholder.slskdKey}
-  '';
+  sops.templates."slskdConfig.yaml".content = # yaml
+    ''
+      web:
+        authentication:
+          api_keys:
+            soularr_key:
+              key: ${config.sops.placeholder.slskdKey}
+    '';
 
   virtualisation.quadlet.containers.torrent-slskd = {
     containerConfig = {
@@ -57,4 +59,3 @@ in {
     };
   };
 }
-

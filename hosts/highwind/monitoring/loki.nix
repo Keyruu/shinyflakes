@@ -2,10 +2,11 @@
   hostname,
   config,
   ...
-}: {
+}:
+{
   networking.firewall.interfaces = {
-    "eth0".allowedTCPPorts = [config.services.loki.configuration.server.http_listen_port];
-    "tailscale0".allowedTCPPorts = [config.services.loki.configuration.server.http_listen_port];
+    "eth0".allowedTCPPorts = [ config.services.loki.configuration.server.http_listen_port ];
+    "tailscale0".allowedTCPPorts = [ config.services.loki.configuration.server.http_listen_port ];
   };
 
   services.loki = {
@@ -44,12 +45,12 @@
     };
   };
 
-  users.groups.promtail = {};
-  users.groups.nginx = {};
+  users.groups.promtail = { };
+  users.groups.nginx = { };
   users.users.promtail = {
     isSystemUser = true;
     group = "promtail";
-    extraGroups = ["nginx"];
+    extraGroups = [ "nginx" ];
   };
 
   services.promtail = {
@@ -80,7 +81,7 @@
           };
           relabel_configs = [
             {
-              source_labels = ["__journal__systemd_unit"];
+              source_labels = [ "__journal__systemd_unit" ];
               target_label = "unit";
             }
           ];
@@ -89,7 +90,7 @@
           job_name = "nginx";
           static_configs = [
             {
-              targets = ["localhost"];
+              targets = [ "localhost" ];
               labels = {
                 job = "nginx";
                 __path__ = "/var/log/nginx/*.log";

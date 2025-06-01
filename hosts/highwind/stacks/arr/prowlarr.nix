@@ -1,6 +1,8 @@
-{...}: let
-    prowlarrPath = "/etc/stacks/prowlarr";
-  in {
+{ ... }:
+let
+  prowlarrPath = "/etc/stacks/prowlarr";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${prowlarrPath}/config 0755 root root"
   ];

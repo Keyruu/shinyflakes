@@ -1,4 +1,4 @@
-{config, pkgs, ...}: 
+{ config, pkgs, ... }:
 let
   beszelConfig = {
     systems = [
@@ -20,8 +20,9 @@ let
     ];
   };
 
-  beszelConfigYaml = pkgs.lib.generators.toYAML {} beszelConfig;
-in {
+  beszelConfigYaml = pkgs.lib.generators.toYAML { } beszelConfig;
+in
+{
   environment.etc."beszel/beszel_data/config.yml".text = beszelConfigYaml;
 
   sops.secrets = {
@@ -41,16 +42,16 @@ in {
     wantedBy = [ "multi-user.target" ];
     restartTriggers = [
       config.environment.etc."beszel/beszel_data/config.yml".source
-      config.sops.secrets.beszelPrivateKey.path 
-      config.sops.secrets.beszelPublicKey.path 
+      config.sops.secrets.beszelPrivateKey.path
+      config.sops.secrets.beszelPublicKey.path
     ];
     serviceConfig = {
       Type = "simple";
-      Restart="always";
-      RestartSec="3";
-      User="root";
-      WorkingDirectory="/etc/beszel";
-      ExecStart=''${pkgs.beszel}/bin/beszel-hub serve --http "127.0.0.1:7220"'';
+      Restart = "always";
+      RestartSec = "3";
+      User = "root";
+      WorkingDirectory = "/etc/beszel";
+      ExecStart = ''${pkgs.beszel}/bin/beszel-hub serve --http "127.0.0.1:7220"'';
     };
   };
 

@@ -1,7 +1,8 @@
-{...}:
-  let
-    navidromePath = "/etc/stacks/navidrome/data";
-  in {
+{ ... }:
+let
+  navidromePath = "/etc/stacks/navidrome/data";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${navidromePath} 0755 root root"
   ];

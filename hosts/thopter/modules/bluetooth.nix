@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   hardware.enableAllFirmware = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   # boot.kernelParams = [ "thinkpad_acpi.disable_bluetooth=1" ];

@@ -1,7 +1,8 @@
 {
   username,
   ...
-}: {
+}:
+{
   imports = [
     ../common/common.nix
     ../common/neovim

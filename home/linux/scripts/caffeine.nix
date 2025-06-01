@@ -30,4 +30,11 @@ let
     notif "caffeine" "$title" "$description"
   '';
 
-in { home.packages = [ caffeine-status caffeine caffeine-status-icon ]; }
+in
+{
+  home.packages = [
+    caffeine-status
+    caffeine
+    caffeine-status-icon
+  ];
+}

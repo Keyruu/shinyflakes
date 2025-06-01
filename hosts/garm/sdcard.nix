@@ -1,6 +1,6 @@
 {
   nixpkgs.overlays = [
-    (_: super: {makeModulesClosure = x: super.makeModulesClosure (x // {allowMissing = true;});})
+    (_: super: { makeModulesClosure = x: super.makeModulesClosure (x // { allowMissing = true; }); })
   ];
 
   # makes the sdImage a .img instead of .img.zst
@@ -10,7 +10,7 @@
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
-      options = ["noatime"];
+      options = [ "noatime" ];
     };
   };
 }

@@ -1,4 +1,5 @@
-{config, ...}: {
+{ config, ... }:
+{
   services.atuin = {
     enable = true;
     port = 8888;

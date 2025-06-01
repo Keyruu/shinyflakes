@@ -1,6 +1,8 @@
-{...}: let
-    qbittorrentPath = "/etc/stacks/qbittorrent";
-  in {
+{ ... }:
+let
+  qbittorrentPath = "/etc/stacks/qbittorrent";
+in
+{
   systemd.tmpfiles.rules = [
     "d ${qbittorrentPath}/config 0770 root root"
   ];
