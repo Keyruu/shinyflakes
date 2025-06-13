@@ -70,6 +70,7 @@
       "keyruu/tap"
       "kanidm/kanidm"
       "dimentium/autoraise"
+      "opencode-ai/tap"
     ];
 
     # `brew install`
@@ -104,6 +105,7 @@
       "composer"
 
       "kanidm"
+      "opencode"
 
       "borders"
       # "sketchybar" # status bar
@@ -323,7 +325,7 @@
       "balenaetcher"
       "raspberry-pi-imager"
       "qutebrowser"
-      "zen-browser"
+      "zen"
       "element"
       "signal"
       "chromium"

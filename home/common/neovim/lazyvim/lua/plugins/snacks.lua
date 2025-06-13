@@ -14,6 +14,41 @@ return {
       end,
       desc = "[T]erminal [f]loating",
     },
+    {
+      "<leader>tt",
+      function()
+        Snacks.terminal(nil, {
+          win = {
+            height = 0.25,
+            wo = {
+              winbar = "🐟: %{b:term_title}",
+            },
+          },
+        })
+      end,
+      desc = "Open [T]erminal",
+    },
+    {
+      "<leader>tv",
+      function()
+        Snacks.terminal.open(nil, { split = "vertical" })
+      end,
+      desc = "Open [T]erminal [v]ertically",
+    },
+    {
+      "<leader>tao",
+      function()
+        require("snacks.terminal").toggle("opencode")
+      end,
+      desc = "[T]erminal [A]I [O]penCode",
+    },
+    {
+      "<leader>tac",
+      function()
+        require("snacks.terminal").toggle("claude")
+      end,
+      desc = "[T]erminal [A]I [C]laude Code",
+    },
   },
   opts = {
     ---@type table<string, snacks.win.Config>

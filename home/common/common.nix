@@ -93,6 +93,8 @@
     tilt
     yt-dlp
     colmena
+    harlequin
+    cloudlens
 
     # devops
     krew

@@ -4,6 +4,7 @@
     anthropicKey.owner = "root";
     geminiKey.owner = "root";
     openaiKey.owner = "root";
+    openrouterKey.owner = "root";
     librechatCredsKey.owner = "root";
     librechatCredsIv.owner = "root";
     librechatJwtSecret.owner = "root";
@@ -94,7 +95,7 @@
       # GROQ_API_KEY=
       # HUGGINGFACE_TOKEN=
       # MISTRAL_API_KEY=
-      # OPENROUTER_KEY=
+      OPENROUTER_KEY=${config.sops.placeholder.openrouterKey}
       # PERPLEXITY_API_KEY=
       # SHUTTLEAI_API_KEY=
       # TOGETHERAI_API_KEY=

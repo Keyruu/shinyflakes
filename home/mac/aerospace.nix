@@ -141,7 +141,7 @@
       alt-shift-semicolon = 'mode service'
 
       # focus apps
-      alt-c = 'exec-and-forget open -a "Zen Browser"'
+      alt-c = 'exec-and-forget open -a "Zen"'
       alt-e = 'exec-and-forget open -a WezTerm'
       alt-d = 'exec-and-forget open -a Finder'
       alt-a = 'exec-and-forget open -a "Slack"'
