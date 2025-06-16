@@ -4,6 +4,9 @@
   pkgs,
   ...
 }:
+let
+  kanata-tray = pkgs.callPackage ../../pkgs/kanata-tray.nix { };
+in
 {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
@@ -65,6 +68,7 @@
     goreleaser
     nixfmt-rfc-style
     nixfmt-tree
+    kanata-tray
 
     # gui apps
     gimp

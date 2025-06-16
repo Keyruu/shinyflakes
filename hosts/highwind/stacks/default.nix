@@ -10,5 +10,7 @@
     ./wud.nix
     ./librechat
     ./mcp
+    ./karakeep.nix
+    ./dawarich.nix
   ];
 }

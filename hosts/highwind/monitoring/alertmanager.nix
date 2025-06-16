@@ -95,7 +95,7 @@
                   summary: Host out of memory (instance {{ $labels.instance }})
                   description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
               - alert: HostSystemdServiceCrashed
-                expr: (node_systemd_unit_state{state="failed"} == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+                expr: (node_systemd_unit_state{state="failed",name!="user@0.service"} == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
                 for: 1m
                 labels:
                   severity: warning

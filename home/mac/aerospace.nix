@@ -18,7 +18,7 @@
       # 'after-startup-command' is run after 'after-login-command'
       # Available commands : https://nikitabobko.github.io/AeroSpace/commands
       after-startup-command = [
-        'exec-and-forget sudo kanata --cfg /Users/${username}/.config/kanata.kbd'
+        # 'exec-and-forget sudo kanata --cfg /Users/${username}/.config/kanata.kbd'
       ]
 
       # Start AeroSpace at login

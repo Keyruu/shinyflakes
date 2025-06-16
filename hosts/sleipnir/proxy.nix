@@ -20,6 +20,16 @@
     };
   };
 
+  services.nginx.virtualHosts."map.peeraten.net" = {
+    enableACME = true;
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://100.64.0.1:3001";
+      proxyWebsockets = true;
+    };
+  };
+
   # services.nginx.virtualHosts."immich.keyruu.de" = {
   #   enableACME = true;
   #   forceSSL = true;
