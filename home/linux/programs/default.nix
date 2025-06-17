@@ -9,6 +9,5 @@
     ./walker
     ./squeekboard
     ./sherlock.nix
-    ./nh.nix
   ];
 }

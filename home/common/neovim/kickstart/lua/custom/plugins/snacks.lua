@@ -155,18 +155,6 @@ return {
       desc = 'Dismiss All Notifications',
     },
     {
-      '<c-/>',
-      function()
-        Snacks.terminal(nil, { win = {
-          height = 0.25,
-          wo = {
-            winbar = '🐟: %{b:term_title}',
-          },
-        } })
-      end,
-      desc = 'Toggle Terminal',
-    },
-    {
       '<leader>tt',
       function()
         Snacks.terminal(nil, { win = {

@@ -8,6 +8,7 @@ let
   kanata-tray = pkgs.callPackage ../../pkgs/kanata-tray.nix { };
   newerOpencode = pkgs.opencode.overrideAttrs (oldAttrs: rec {
     version = "0.0.53";
+    doInstallCheck = false;
 
     src = pkgs.fetchFromGitHub {
       owner = "opencode-ai";

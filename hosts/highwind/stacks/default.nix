@@ -12,5 +12,6 @@
     ./mcp
     ./karakeep.nix
     ./dawarich.nix
+    ./timetagger.nix
   ];
 }

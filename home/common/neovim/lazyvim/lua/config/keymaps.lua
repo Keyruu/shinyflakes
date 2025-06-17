@@ -60,3 +60,5 @@ vim.keymap.set(
   "]cyic",
   { noremap = true, silent = true, desc = "[Y]ank inner of next fenced [C]ode block" }
 )
+
+vim.keymap.del({ "n", "t" }, "<C-/>")

@@ -11,6 +11,7 @@
     ../common/shell
     ../common/ssh.nix
     ../common/nix-index-database.nix
+    ../common/programs/nh.nix
 
     ./hypr
     ./wofi.nix

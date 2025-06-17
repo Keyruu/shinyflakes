@@ -6,17 +6,18 @@
   imports = [
     ../common/common.nix
     ../common/neovim
-    ./borders.nix
     ../common/intellij.nix
     ../common/kubie.nix
     ../common/shell
     ../common/programs/kitty.nix
     ../common/programs/zathura.nix
-    ./aerospace.nix
+    ../common/programs/helix.nix
+    ../common/programs/nh.nix
     ../common/bin.nix
     ../common/ssh.nix
+    ./aerospace.nix
     ./kanata.nix
-    ../common/programs/helix.nix
+    ./borders.nix
   ];
 
   # Home Manager needs a bit of information about you and the
