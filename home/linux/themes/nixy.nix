@@ -5,7 +5,6 @@
   ...
 }:
 {
-
   options.theme = lib.mkOption {
     type = lib.types.attrs;
     default = {
@@ -30,7 +29,7 @@
 
   config = {
     stylix = {
-      enable = true;
+      enable = false;
 
       # See https://tinted-theming.github.io/tinted-gallery/ for more schemes
       base16Scheme = {

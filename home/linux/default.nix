@@ -10,12 +10,13 @@
     ../common/neovim
     ../common/shell
     ../common/ssh.nix
+    ../common/nix-index-database.nix
 
     ./hypr
     ./wofi.nix
     ./clipman.nix
     ./clipse.nix
-    ./discord.nix
+    # ./discord.nix
     ./themes/nixy.nix
     ./tailscale.nix
     ./dunst.nix
@@ -64,6 +65,10 @@
     chromium
     firefox
     railway-travel
+    wtype
+    wireguard-ui
+    wireguard-tools
+    discord
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
   ];

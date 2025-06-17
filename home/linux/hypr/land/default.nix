@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    ./hy3.nix
     ./polkitagent.nix
     ./binds.nix
     ./touch.nix
@@ -58,6 +59,7 @@
           "iio-hyprland"
           "clipse -listen"
           "walker --gapplication-service"
+          "sherlock --daemonize"
           "1password --ozone-platform-hint=x11"
         ];
 
@@ -128,6 +130,7 @@
           gaps_in = gaps-in;
           gaps_out = gaps-out;
           border_size = border-size;
+          # layout = "hy3";
           layout = "master";
         };
 

@@ -34,6 +34,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
@@ -51,7 +56,7 @@
     hyprland.url = "github:hyprwm/Hyprland";
 
     stylix = {
-      url = "github:danth/stylix";
+      url = "github:danth/stylix/75411fe2b90f67bfb4a2ad9cc3b1379758b64dbb";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -60,10 +65,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixcord = {
-      url = "github:kaylorben/nixcord";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nixcord = {
+    #   url = "github:kaylorben/nixcord";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     iio-hyprland = {
       url = "github:JeanSchoeller/iio-hyprland";
@@ -73,6 +78,11 @@
     hyprgrass = {
       url = "git+https://github.com/horriblename/hyprgrass?shallow=1&ref=main";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT
+    };
+
+    hy3 = {
+      url = "github:outfoxxed/hy3?ref=hl0.49.0";
+      inputs.hyprland.follows = "hyprland";
     };
 
     nix-gaming = {

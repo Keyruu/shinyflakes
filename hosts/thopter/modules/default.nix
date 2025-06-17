@@ -7,6 +7,8 @@
     ./kbptr.nix
     ./gaming.nix
     ./battery.nix
+    ./wireguard.nix
+    ./bluetooth.nix
   ];
 
   programs = {

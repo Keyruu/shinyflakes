@@ -79,6 +79,5 @@ in
     enableFishIntegration = true;
   };
   programs.bat.enable = true;
-  programs.thefuck.enable = true;
   programs.direnv.enable = true;
 }
