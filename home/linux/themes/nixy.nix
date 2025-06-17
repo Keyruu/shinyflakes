@@ -29,7 +29,7 @@
 
   config = {
     stylix = {
-      enable = false;
+      enable = true;
 
       # See https://tinted-theming.github.io/tinted-gallery/ for more schemes
       base16Scheme = {
