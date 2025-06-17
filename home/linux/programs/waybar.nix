@@ -32,7 +32,7 @@
           "cpu"
           "memory"
           "battery"
-          "power-profiles-daemon"
+          # "power-profiles-daemon"
           "pulseaudio"
           "pulseaudio#microphone"
           "clock"

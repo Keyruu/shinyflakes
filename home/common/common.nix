@@ -82,6 +82,7 @@ in
     nixfmt-rfc-style
     nixfmt-tree
     kanata-tray
+    cachix
 
     # gui apps
     gimp
