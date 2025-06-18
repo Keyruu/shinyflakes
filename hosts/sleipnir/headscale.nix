@@ -1,5 +1,44 @@
-{ config, ... }:
+{ config, pkgs, ... }:
+let
+  cfg = config.services.headscale;
+  settingsFormat = pkgs.formats.yaml { };
+  configFile = settingsFormat.generate "headscale.yaml" cfg.settings;
+
+  stackPath = "/etc/stacks/headplane";
+in
 {
+  sops.secrets = {
+    headplaneCookieSecret = { };
+    headplaneEnv = { };
+    headscaleAuthKey = { };
+    headscaleOidc = {
+      group = "headscale";
+      mode = "0440";
+    };
+  };
+
+  sops.templates."headplane.yaml".content = # yaml
+    ''
+      server:
+        host: "0.0.0.0"
+        port: 3000
+        cookie_secret: "${config.sops.placeholder.headplaneCookieSecret}"
+        cookie_secure: true
+
+      headscale:
+        url: "https://headscale.peeraten.net"
+        config_path: "/etc/headscale/config.yaml"
+        config_strict: true
+      integration:
+        agent:
+          enabled: true
+          pre_authkey: "${config.sops.placeholder.headscaleAuthKey}"
+          host_name: "headplane-agent"
+          cache_ttl: 60
+          cache_path: /var/lib/headplane/agent_cache.json
+          work_dir: "/var/lib/headplane/agent"
+    '';
+
   services.headscale = {
     enable = true;
     port = 8085;
@@ -15,7 +54,7 @@
         sqlite.path = "/var/lib/headscale/db.sqlite";
       };
       dns = {
-        override_local_dns = true;
+        override_local_dns = false;
         base_domain = "hafen.peeraten.net";
         magic_dns = true;
         nameservers.split = {
@@ -44,16 +83,22 @@
     };
   };
 
+  systemd.tmpfiles.rules = [
+    "d ${stackPath}/data 0755 root root"
+  ];
+
   virtualisation.quadlet.containers.headplane = {
     containerConfig = {
-      image = "ghcr.io/tale/headplane:0.3.9";
+      image = "ghcr.io/tale/headplane:0.6.0";
       publishPorts = [ "127.0.0.1:3000:3000" ];
+      volumes = [
+        "${configFile}:/etc/headscale/config.yaml:ro"
+        "${config.sops.templates."headplane.yaml".path}:/etc/headplane/config.yaml:ro"
+        "${stackPath}/data:/var/lib/headplane"
+      ];
       environments = {
         HEADSCALE_URL = "https://headscale.peeraten.net";
       };
-      environmentFiles = [
-        config.sops.secrets.headplaneEnv.path
-      ];
     };
   };
 

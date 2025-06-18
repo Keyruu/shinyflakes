@@ -10,6 +10,11 @@
     ];
   };
 
+  sops.secrets = {
+    kanidmAdminPassword.owner = "kanidm";
+    traccarClientSecret.owner = "kanidm";
+  };
+
   security.acme = {
     certs."auth.peeraten.net" = {
       group = "nginx";
@@ -60,22 +65,38 @@
         headscale_users = { };
         traccar_users = { };
       };
-      # systems.oauth2 = {
-      #   headscale = {
-      #     displayName = "Headscale";
-      #     allowInsecureClientDisablePkce = true;
-      #     basicSecretFile = config.sops.secrets.headscaleOidc.path;
-      #     originUrl = "https://headscale.peeraten.net/";
-      #     originLanding = "https://headscale.peeraten.net/";
-      #     scopeMaps = {
-      #       headscale_users = [
-      #         "openid"
-      #         "email"
-      #         "profile"
-      #       ];
-      #     };
-      #   };
-      # };
+      systems.oauth2 = {
+        headscale = {
+          present = true;
+          displayName = "headscale.peeraten.net";
+          allowInsecureClientDisablePkce = true;
+          basicSecretFile = config.sops.secrets.headscaleOidc.path;
+          originUrl = "https://headscale.peeraten.net/oidc/callback";
+          originLanding = "https://headscale.peeraten.net/";
+          scopeMaps = {
+            headscale_users = [
+              "openid"
+              "email"
+              "profile"
+            ];
+          };
+        };
+        traccar = {
+          present = true;
+          displayName = "traccar.peeraten.net";
+          allowInsecureClientDisablePkce = true;
+          basicSecretFile = config.sops.secrets.traccarClientSecret.path;
+          originUrl = "https://traccar.peeraten.net/api/session/openid/callback";
+          originLanding = "https://traccar.peeraten.net/";
+          scopeMaps = {
+            traccar_users = [
+              "openid"
+              "email"
+              "profile"
+            ];
+          };
+        };
+      };
     };
   };
 

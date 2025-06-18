@@ -150,7 +150,7 @@
       # alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
       alt-w = 'exec-and-forget open -a "Obsidian"'
       alt-o = 'exec-and-forget open -a "Microsoft Outlook"'
-      alt-v = 'exec-and-forget open -a "IntelliJ IDEA Ultimate"'
+      alt-v = 'exec-and-forget open -a "Visual Studio Code"'
       alt-g = 'exec-and-forget open raycast://extensions/moored/git-repos/list'
       alt-shift-v = 'exec-and-forget open raycast://extensions/raycast/clipboard-history/clipboard-history'
       alt-period = 'exec-and-forget open raycast://extensions/raycast/floating-notes/toggle-floating-notes-window'

@@ -13,6 +13,7 @@
       nginx
       podman
       beszel-agent
+      nix
     ])
     ./disk-config.nix
     ./hardware-configuration.nix

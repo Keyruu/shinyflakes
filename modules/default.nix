@@ -11,4 +11,5 @@
   build-machines = import ./build-machines.nix;
   podman = import ./podman.nix;
   beszel-agent = import ./beszel-agent.nix;
+  nix = import ./nix.nix;
 }

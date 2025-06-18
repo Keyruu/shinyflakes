@@ -13,6 +13,7 @@
       ssh-access
       podman
       beszel-agent
+      nix
     ])
     ../../services/monitoring.nix
     ./headscale.nix
@@ -25,13 +26,6 @@
     defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
-      headscaleOidc = {
-        owner = "headscale";
-        mode = "0440";
-      };
-      kanidmAdminPassword.owner = "kanidm";
-      headplaneEnv.owner = "root";
-      headscaleAuthKey.owner = "root";
     };
   };
 
