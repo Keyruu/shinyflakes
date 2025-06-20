@@ -13,5 +13,6 @@
     ./karakeep.nix
     ./dawarich.nix
     ./timetagger.nix
+    ./pinchflat.nix
   ];
 }

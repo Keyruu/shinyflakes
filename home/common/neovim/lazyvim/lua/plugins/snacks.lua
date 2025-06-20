@@ -43,6 +43,13 @@ return {
       desc = "[T]erminal [A]I [O]penCode",
     },
     {
+      "<leader>tas",
+      function()
+        require("snacks.terminal").toggle("opencode-sst")
+      end,
+      desc = "[T]erminal [A]I OpenCode by [S]ST",
+    },
+    {
       "<leader>tac",
       function()
         require("snacks.terminal").toggle("claude")

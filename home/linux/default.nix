@@ -14,7 +14,9 @@
     ../common/programs/nh.nix
 
     ./hypr
+    ./sway.nix
     ./wofi.nix
+    ./tofi.nix
     ./clipman.nix
     ./clipse.nix
     # ./discord.nix
@@ -24,6 +26,7 @@
     ./scripts
     ./programs
     ./gaming.nix
+    ./workstyle.nix
   ];
 
   home = {

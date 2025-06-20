@@ -4,7 +4,7 @@
     enable = true;
     settings = {
       global = {
-        width = "250";
+        width = "350";
         height = "(75,150)";
         origin = "top-right";
         offset = "(30, 30)";

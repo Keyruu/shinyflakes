@@ -66,6 +66,15 @@ in
           halign = "center";
           valign = "center";
         }
+        {
+          monitor = "";
+          text = "$FPRINTPROMPT";
+          text_align = "center";
+          position = "0, -210";
+          halign = "center";
+          valign = "center";
+          font_size = "12";
+        }
       ];
 
       # INPUT FIELD
@@ -80,9 +89,9 @@ in
         inner_color = "rgba(255, 255, 255, 0.1)";
         font_color = foreground;
         fade_on_empty = false;
-        placeholder_text = "Enter Password (or fingerprint)";
+        placeholder_text = "Enter Password";
         hide_input = false;
-        position = "0, -250";
+        position = "0, -260";
         halign = "center";
         valign = "center";
       };

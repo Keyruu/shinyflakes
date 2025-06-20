@@ -81,6 +81,9 @@ in
               STORE_GEODATA = "true";
             };
             environmentFiles = [ config.sops.templates."dawarich.env".path ];
+            labels = [
+              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
+            ];
             networks = [ networks.dawarich.ref ];
           };
           serviceConfig = {

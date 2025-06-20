@@ -32,7 +32,7 @@ in
       containers = {
         karakeep-web = {
           containerConfig = {
-            image = "ghcr.io/karakeep-app/karakeep:release";
+            image = "ghcr.io/karakeep-app/karakeep:0.25.0";
             publishPorts = [ "127.0.0.1:3000:3000" ];
             volumes = [
               "${stackPath}/data:/data"
@@ -43,6 +43,9 @@ in
               DATA_DIR = "/data";
             };
             environmentFiles = [ config.sops.templates."karakeep.env".path ];
+            labels = [
+              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
+            ];
             networks = [ networks.karakeep.ref ];
           };
           serviceConfig = {

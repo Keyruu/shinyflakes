@@ -19,33 +19,26 @@ in
   '';
 
   # Quadlet configuration
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.timetagger.networkConfig.driver = "bridge";
-
-      containers = {
-        timetagger = {
-          containerConfig = {
-            image = "ghcr.io/almarklein/timetagger";
-            publishPorts = [ "127.0.0.1:8085:80" ];
-            volumes = [ "${stackPath}/data:/root/_timetagger" ];
-            environments = {
-              TIMETAGGER_BIND = "0.0.0.0:80";
-              TIMETAGGER_DATADIR = "/root/_timetagger";
-              TIMETAGGER_LOG_LEVEL = "info";
-            };
-            environmentFiles = [ config.sops.templates."timetagger.env".path ];
-            networks = [ networks.timetagger.ref ];
+  virtualisation.quadlet = {
+    containers = {
+      timetagger = {
+        containerConfig = {
+          image = "ghcr.io/almarklein/timetagger";
+          publishPorts = [ "127.0.0.1:8085:80" ];
+          volumes = [ "${stackPath}/data:/root/_timetagger" ];
+          environments = {
+            TIMETAGGER_BIND = "0.0.0.0:80";
+            TIMETAGGER_DATADIR = "/root/_timetagger";
+            TIMETAGGER_LOG_LEVEL = "info";
           };
-          serviceConfig = {
-            Restart = "unless-stopped";
-          };
+          environmentFiles = [ config.sops.templates."timetagger.env".path ];
+        };
+        serviceConfig = {
+          Restart = "unless-stopped";
         };
       };
     };
+  };
 
   # Nginx reverse proxy
   services.nginx.virtualHosts."timetagger.lab.keyruu.de" = {

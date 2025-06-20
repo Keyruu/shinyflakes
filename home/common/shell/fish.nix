@@ -18,11 +18,13 @@
             fish_add_path $HOME/Library/Application\ Support/JetBrains/Toolbox/scripts/
             fish_add_path $HOME/Library/Application\ Support/Coursier/bin
             fish_add_path $HOME/.orbstack/bin
-            fish_add_path $HOME/.pnpm-bin
             set -x PNPM_HOME $HOME/.pnpm-bin
             source $HOME/.local/bin/env.fish
+          case Linux
+            alias opencode-sst "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts"
         end
 
+        fish_add_path $HOME/.pnpm-bin
         fish_add_path $HOME/.local/bin
 
         fish_vi_key_bindings
