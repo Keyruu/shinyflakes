@@ -62,7 +62,6 @@ in
         { command = "sherlock --daemonize"; }
         { command = "1password --ozone-platform-hint=x11"; }
         { command = "sworkstyle"; }
-        { command = "sway-focus-tracker"; }
       ];
 
       output = {
@@ -156,8 +155,8 @@ in
       keybindings =
         {
           # Application shortcuts
-          "${modifier}+e" = "exec focusOrOpen wezterm org.wezfurlong.wezterm";
-          "${modifier}+c" = "exec focusOrOpen zen zen";
+          "${modifier}+e" = "workspace number 3; exec focusOrOpen wezterm org.wezfurlong.wezterm";
+          "${modifier}+c" = "workspace number 1; exec focusOrOpen zen zen";
           "${modifier}+m" =
             "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
           "${modifier}+w" = "exec focusOrOpen obsidian obsidian";

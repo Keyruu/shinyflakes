@@ -69,6 +69,7 @@ in
             exec = "--no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --hide-scrollbars";
             networks = [ networks.karakeep.ref ];
             networkAliases = [ "chrome" ];
+            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "unless-stopped";
@@ -87,6 +88,7 @@ in
             ];
             networks = [ networks.karakeep.ref ];
             networkAliases = [ "meilisearch" ];
+            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "unless-stopped";

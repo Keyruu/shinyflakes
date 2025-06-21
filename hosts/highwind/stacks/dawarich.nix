@@ -42,6 +42,7 @@ in
             ];
             networks = [ networks.dawarich.ref ];
             networkAliases = [ "dawarich-db" ];
+            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";

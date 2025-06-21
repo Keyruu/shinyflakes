@@ -1,12 +1,4 @@
-# - ## System
-#-
-#- Usefull quick scripts
-#-
-#- - `menu` - Open wofi with drun mode. (wofi)
-#- - `powermenu` - Open power dropdown menu. (wofi)
-#- - `lock` - Lock the screen. (hyprlock)
 { lib, pkgs, ... }:
-
 let
   focusOrOpen =
     pkgs.writeShellScriptBin "focusOrOpen" # bash
@@ -18,29 +10,32 @@ let
 
         if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ] || pgrep -x "Hyprland" > /dev/null; then
           address=$(hyprctl -j clients | jq -r "sort_by( .focusHistoryID) | .[] | select(.class == \"$className\") | .address" | head -n 1)
-          
+
           if [ -n "$address" ]; then
             hyprctl dispatch focuswindow address:$address
           else
             $1
           fi
         elif [ "$XDG_CURRENT_DESKTOP" = "sway" ] || pgrep -x "sway" > /dev/null; then
-          # Sway - look for marked window first, then any window of the class
-          mark_name="_last_$className"
-          
-          if swaymsg "[con_mark=\"$mark_name\"] focus" 2>/dev/null; then
-            :
-          else
-            # No marked window or mark doesn't exist, find any window of this class
-            window_id=$(swaymsg -r -t get_tree | jq -r ".. | select(.app_id? == \"$className\" or .window_properties.class? == \"$className\") | .id" | head -n 1)
-            
-            if [ -n "$window_id" ] && [ "$window_id" != "null" ]; then
-              # Focus the window and mark it for future use
-              swaymsg "[con_id=$window_id] focus, mark --add \"$mark_name\""
+          # Sway - find the most recently focused window using focus arrays
+          window_id=$(swaymsg -r -t get_tree | jq -r "
+            [.. | select(.app_id? == \"$className\" or .window_properties.class? == \"$className\")] as \$windows |
+            if (\$windows | length) == 0 then empty
+            elif (\$windows | length) == 1 then \$windows[0].id
             else
-              # No existing window, launch new one
-              swaymsg exec -- "$1"
-            fi
+              # Find containers with focus arrays that contain our window IDs
+              [.. | select(.focus? and (.focus | length) > 0)] as \$containers |
+              \$containers[] |
+              .focus[] as \$focused_id |
+              \$windows[] |
+              select(.id == \$focused_id) |
+              .id
+            end | tostring" | head -n 1)
+
+          if [ -n "$window_id" ] && [ "$window_id" != "null" ]; then
+            swaymsg "[con_id=$window_id] focus"
+          else
+            swaymsg exec -- "$1"
           fi
         else
           # Fallback - just execute the command
@@ -185,25 +180,6 @@ let
         fi
       '';
 
-  sway-focus-tracker =
-    pkgs.writeShellScriptBin "sway-focus-tracker"
-      # bash
-      ''
-        #!/bin/sh
-        # Track focus changes in Sway and mark windows for focusOrOpen script
-
-        swaymsg -m -r -t subscribe '["window"]' | \
-          jq --unbuffered -r 'select(.change == "focus") | "\(.container.app_id // .container.window_properties.class // "unknown"):\(.container.id)"' | \
-          while IFS=: read -r app_id window_id; do
-            if [ -n "$app_id" ] && [ "$app_id" != "null" ] && [ "$app_id" != "unknown" ]; then
-              mark_name="_last_$app_id"
-              # Remove old mark for this app and add new one
-              swaymsg "[con_mark=\"$mark_name\"] unmark \"$mark_name\"" 2>/dev/null
-              swaymsg "[con_id=$window_id] mark --add \"$mark_name\"" 2>/dev/null
-            fi
-          done
-      '';
-
 in
 {
   home.packages = [
@@ -213,6 +189,5 @@ in
     lock
     quickmenu
     waybar-fullscreen
-    sway-focus-tracker
   ];
 }

@@ -18,12 +18,11 @@ in
             "/main/media/YouTube:/downloads"
           ];
           environments = {
-            TZ = "America/New_York";
+            TZ = "America/Berlin";
           };
           labels = [
             "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
           ];
-          networks = [ networks.pinchflat.ref ];
         };
         serviceConfig = {
           Restart = "unless-stopped";

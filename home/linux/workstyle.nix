@@ -25,5 +25,6 @@
 
       'spotify_player' = ''
       '1Password' = ''
+      'Element' = '󰭹'
     '';
 }

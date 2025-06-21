@@ -15,7 +15,7 @@ in
 
   # Environment template
   sops.templates."timetagger.env".content = ''
-    TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCredentials}
+    TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCreds}
   '';
 
   # Quadlet configuration
