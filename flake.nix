@@ -107,6 +107,11 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+
+    sirberus = {
+      url = "github:Keyruu/sirberus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

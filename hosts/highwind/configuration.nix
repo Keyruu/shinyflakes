@@ -25,6 +25,7 @@
     ./monitoring
     ./stacks
     ./homepage.nix
+    ./sirberus.nix
   ];
 
   # Use the GRUB 2 boot loader.
