@@ -20,27 +20,29 @@ vim.keymap.set("n", "yc", "yygccp", { desc = "[Y]ank line, paste and [c]omment o
 
 -- vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
-vim.keymap.set(
-  "n",
-  "<leader>at",
-  "<CMD>CodeCompanionChat Toggle<CR>",
-  { noremap = true, silent = true, desc = "[A]I chat toggle" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>an",
-  "<CMD>CodeCompanionChat<CR>",
-  { noremap = true, silent = true, desc = "[A]I [N]ew Augment chat" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>aa",
-  "<CMD>CodeCompanionActions<CR>",
-  { noremap = true, silent = true, desc = "[A]I [A]ctions" }
-)
-vim.keymap.set("n", "<leader>ac", function()
-  require("codecompanion").prompt("code")
-end, { noremap = true, silent = true, desc = "[A]I [C]ode prompt" })
+-- CodeCompanion
+--
+-- vim.keymap.set(
+--   "n",
+--   "<leader>at",
+--   "<CMD>CodeCompanionChat Toggle<CR>",
+--   { noremap = true, silent = true, desc = "[A]I chat toggle" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   "<leader>an",
+--   "<CMD>CodeCompanionChat<CR>",
+--   { noremap = true, silent = true, desc = "[A]I [N]ew Augment chat" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   "<leader>aa",
+--   "<CMD>CodeCompanionActions<CR>",
+--   { noremap = true, silent = true, desc = "[A]I [A]ctions" }
+-- )
+-- vim.keymap.set("n", "<leader>ac", function()
+--   require("codecompanion").prompt("code")
+-- end, { noremap = true, silent = true, desc = "[A]I [C]ode prompt" })
 
 vim.keymap.set("n", "<leader>k", function()
   vim.diagnostic.open_float(nil, { focusable = false })

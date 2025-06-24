@@ -13,8 +13,10 @@
     ../common/programs/zathura.nix
     ../common/programs/helix.nix
     ../common/programs/nh.nix
+    ../common/programs/opencode.nix
     ../common/bin.nix
     ../common/ssh.nix
+    ./scripts
     ./aerospace.nix
     ./kanata.nix
     ./borders.nix

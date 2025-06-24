@@ -21,5 +21,6 @@ in
     ./fetch.nix
     ./atlassian.nix
     ./searxng.nix
+    ./context7.nix
   ];
 }

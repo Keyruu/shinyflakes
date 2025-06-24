@@ -138,6 +138,8 @@ mcpServers:
     url: http://host.containers.internal:30002/sse
   searxng:
     url: http://host.containers.internal:30003/sse
+  context7:
+    url: http://host.containers.internal:30004/sse
 
 # Definition of custom endpoints
 endpoints:

@@ -21,9 +21,9 @@
             set -x PNPM_HOME $HOME/.pnpm-bin
             source $HOME/.local/bin/env.fish
           case Linux
-            alias opencode-sst "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts"
         end
 
+        alias opencode-sst "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts"
         fish_add_path $HOME/.pnpm-bin
         fish_add_path $HOME/.local/bin
 

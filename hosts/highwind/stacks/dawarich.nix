@@ -28,6 +28,22 @@ in
       networks.dawarich.networkConfig.driver = "bridge";
 
       containers = {
+        dawarich-redis = {
+          containerConfig = {
+            image = "redis:7.4-alpine";
+            exec = "redis-server";
+            volumes = [
+              "${stackPath}/shared:/data"
+            ];
+            networks = [ networks.dawarich.ref ];
+            networkAliases = [ "dawarich_redis" ];
+            labels = [ "wud.watch=false" ];
+          };
+          serviceConfig = {
+            Restart = "always";
+          };
+        };
+
         dawarich-db = {
           containerConfig = {
             image = "postgis/postgis:17-3.5-alpine";
@@ -41,7 +57,7 @@ in
               "${stackPath}/shared:/var/shared"
             ];
             networks = [ networks.dawarich.ref ];
-            networkAliases = [ "dawarich-db" ];
+            networkAliases = [ "dawarich_db" ];
             labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
@@ -51,7 +67,7 @@ in
 
         dawarich-app = {
           containerConfig = {
-            image = "freikin/dawarich:0.27.2";
+            image = "freikin/dawarich:latest";
             exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
             publishPorts = [
               "127.0.0.1:3001:3000"
@@ -65,12 +81,10 @@ in
             ];
             environments = {
               RAILS_ENV = "development";
-              DATABASE_HOST = "dawarich-db";
+              REDIS_URL = "redis://dawarich_redis:6379";
+              DATABASE_HOST = "dawarich_db";
               DATABASE_USERNAME = "postgres";
               DATABASE_NAME = "dawarich_development";
-              QUEUE_DATABASE_PATH = "/dawarich_db_data/dawarich_development_queue.sqlite3";
-              CACHE_DATABASE_PATH = "/dawarich_db_data/dawarich_development_cache.sqlite3";
-              CABLE_DATABASE_PATH = "/dawarich_db_data/dawarich_development_cable.sqlite3";
               MIN_MINUTES_SPENT_IN_CITY = "60";
               APPLICATION_HOSTS = "localhost,map.peeraten.net";
               TIME_ZONE = "Europe/Berlin";
@@ -91,8 +105,45 @@ in
             Restart = "on-failure";
           };
           unitConfig = {
-            After = [ "dawarich-db.service" ];
-            Requires = [ "dawarich-db.service" ];
+            After = [ "dawarich-db.service" "dawarich-redis.service" ];
+            Requires = [ "dawarich-db.service" "dawarich-redis.service" ];
+          };
+        };
+
+        dawarich-sidekiq = {
+          containerConfig = {
+            image = "freikin/dawarich:latest";
+            exec = "sidekiq-entrypoint.sh sidekiq";
+            volumes = [
+              "${stackPath}/public:/var/app/public"
+              "${stackPath}/watched:/var/app/tmp/imports/watched"
+              "${stackPath}/storage:/var/app/storage"
+            ];
+            environments = {
+              RAILS_ENV = "development";
+              REDIS_URL = "redis://dawarich_redis:6379";
+              DATABASE_HOST = "dawarich_db";
+              DATABASE_USERNAME = "postgres";
+              DATABASE_NAME = "dawarich_development";
+              APPLICATION_HOSTS = "localhost,map.peeraten.net";
+              BACKGROUND_PROCESSING_CONCURRENCY = "10";
+              APPLICATION_PROTOCOL = "https";
+              PROMETHEUS_EXPORTER_ENABLED = "false";
+              PROMETHEUS_EXPORTER_HOST = "dawarich-app";
+              PROMETHEUS_EXPORTER_PORT = "9394";
+              SELF_HOSTED = "true";
+              STORE_GEODATA = "true";
+            };
+            environmentFiles = [ config.sops.templates."dawarich.env".path ];
+            labels = [ "wud.watch=false" ];
+            networks = [ networks.dawarich.ref ];
+          };
+          serviceConfig = {
+            Restart = "on-failure";
+          };
+          unitConfig = {
+            After = [ "dawarich-db.service" "dawarich-redis.service" "dawarich-app.service" ];
+            Requires = [ "dawarich-db.service" "dawarich-redis.service" "dawarich-app.service" ];
           };
         };
       };

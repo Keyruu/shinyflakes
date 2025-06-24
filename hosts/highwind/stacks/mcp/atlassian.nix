@@ -25,6 +25,7 @@ in
     '';
 
   networking.firewall.interfaces.podman3.allowedTCPPorts = [ 30002 ];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 30002 ];
 
   systemd.services.mcp-atlassian = {
     description = "mcp-atlassian";

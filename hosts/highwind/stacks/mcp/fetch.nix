@@ -8,6 +8,7 @@ let
 in
 {
   networking.firewall.interfaces.podman3.allowedTCPPorts = [ 30001 ];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 30001 ];
 
   systemd.services.mcp-fetch = {
     description = "mcp-fetch";

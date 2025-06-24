@@ -34,6 +34,17 @@
     #   /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     #   killall Finder
     # '';
+
+    # fixing power management for display and split keyboard;w
+    activationScripts.extraActivation.text = # sh
+      ''
+        echo "setting additional power management..."
+        /usr/bin/pmset -a powernap 0
+        /usr/bin/pmset -a tcpkeepalive 1
+        /usr/bin/pmset -a hibernatemode 0
+        /usr/bin/pmset -a standby 0
+      '';
+
     primaryUser = username;
 
     defaults = {

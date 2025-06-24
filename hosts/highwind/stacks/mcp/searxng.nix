@@ -8,6 +8,7 @@ let
 in
 {
   networking.firewall.interfaces.podman3.allowedTCPPorts = [ 30003 ];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 30003 ];
 
   systemd.services.mcp-searxng = {
     description = "mcp-searxng";

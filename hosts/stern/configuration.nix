@@ -32,6 +32,8 @@
     uid = 880220207;
   };
 
+  documentation.man.enable = false;
+
   # nix.package = pkgs.nix;
   nixpkgs.config.allowUnfree = true;
 

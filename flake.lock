@@ -1192,11 +1192,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1750610515,
-        "narHash": "sha256-6IMC6NmmvDNayGBJQhaj/k/LGt5FLa3LMEcUscdKRP4=",
+        "lastModified": 1750694366,
+        "narHash": "sha256-Dvqz9iUwPW5FIdKcIaAEZfnlmphRwHLFGhhH95NuAFc=",
         "owner": "Keyruu",
         "repo": "sirberus",
-        "rev": "a5c897e42049a6411cf5798f3791faf0a8ebd73f",
+        "rev": "3dbc725fd39caac3b973af000698a234dfad2cab",
         "type": "github"
       },
       "original": {
