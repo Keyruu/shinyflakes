@@ -61,7 +61,7 @@ in
 
         searxng-server = {
           containerConfig = {
-            image = "docker.io/searxng/searxng:2025.1.26-70f1b6500";
+            image = "docker.io/searxng/searxng:2025.6.25-776ac0a";
             environments = {
               SEARXNG_BASE_URL = "https://search.lab.keyruu.de";
               UWSGI_WORKERS = "4";

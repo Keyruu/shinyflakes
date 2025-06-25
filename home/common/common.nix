@@ -130,6 +130,8 @@ in
     # tui
     spotify-player
     newerOpencode
+    impala
+    aerc
 
     # http
     curl

@@ -123,7 +123,6 @@
       nixpkgs,
       home-manager,
       quadlet-nix,
-      nur,
       stylix,
       lix-module,
       ...
@@ -149,7 +148,6 @@
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
             quadlet-nix.nixosModules.quadlet
-            nur.modules.nixos.default
             ./hosts/highwind/configuration.nix
           ];
         };
