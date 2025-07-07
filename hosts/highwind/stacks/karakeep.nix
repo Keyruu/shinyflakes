@@ -27,7 +27,10 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.karakeep.networkConfig.driver = "bridge";
+      networks.karakeep.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=karakeep" ];
+      };
 
       containers = {
         karakeep-web = {

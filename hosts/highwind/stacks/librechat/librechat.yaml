@@ -244,6 +244,15 @@ endpoints:
       dropParams: ["stop"]
       modelDisplayLabel: "OpenRouter"
 
+    - name: "Ollama"
+      apiKey: "ollama"
+      baseURL: "http://host.containers.internal:11434/v1/"
+      models:
+        default: ["qwen3:4b-fp16"]
+        fetch: true # fetching list of models is not supported
+      titleConvo: true
+      titleModel: "current_model"
+
     # Portkey AI Example
     - name: "Portkey"
       apiKey: "dummy"

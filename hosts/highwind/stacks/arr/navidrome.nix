@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.navidrome = {
     containerConfig = {
-      image = "deluan/navidrome:0.55.2";
+      image = "deluan/navidrome:0.57.0";
       environments = {
         ND_LOGLEVEL = "info";
         ND_BASEURL = "https://navidrome.lab.keyruu.de";

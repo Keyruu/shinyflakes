@@ -29,6 +29,7 @@ in
         ext_pan_id: ${config.sops.placeholder.z2mExtraPanId}
       frontend:
         enabled: true
+        package: zigbee2mqtt-windfront
       homeassistant:
         enabled: true
         experimental_event_entities: true
@@ -45,7 +46,7 @@ in
       containers = {
         mqtt = {
           containerConfig = {
-            image = "eclipse-mosquitto:2.0.20";
+            image = "eclipse-mosquitto:2.0.21";
             publishPorts = [
               "127.0.0.1:1883:1883"
               "192.168.100.7:1883:1883"
@@ -67,7 +68,7 @@ in
 
         zigbee2mqtt = {
           containerConfig = {
-            image = "koenkk/zigbee2mqtt:2.4.0";
+            image = "koenkk/zigbee2mqtt:2.5.1";
             environments = {
               TZ = "Europe/Berlin";
             };

@@ -4,17 +4,33 @@
   ...
 }:
 let
-  mcp-proxy = pkgs.callPackage ../../../../pkgs/mcp-proxy.nix { };
+  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
+  ssePort = 30001;
+  oapiPort = 30101;
 in
 {
-  networking.firewall.interfaces.podman3.allowedTCPPorts = [ 30001 ];
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 30001 ];
+  networking.firewall.interfaces = {
+    librechat.allowedTCPPorts = [ ssePort ];
+    tailscale0.allowedTCPPorts = [ ssePort ];
+    ai.allowedTCPPorts = [ oapiPort ];
+  };
 
   systemd.services.mcp-fetch = {
     description = "mcp-fetch";
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${lib.getExe mcp-proxy} --port 30001 --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm mcp/fetch";
+      ExecStart = "${lib.getExe pkgs.mcp-proxy} --port ${toString ssePort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm mcp/fetch";
+      User = "root";
+      Group = "root";
+      Restart = "always";
+    };
+  };
+
+  systemd.services.mcpo-fetch = {
+    description = "mcpo-fetch";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm mcp/fetch";
       User = "root";
       Group = "root";
       Restart = "always";

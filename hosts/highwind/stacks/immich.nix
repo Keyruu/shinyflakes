@@ -15,7 +15,11 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.immich.networkConfig.driver = "bridge";
+      networks.immich.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=immich" ];
+      };
+
       containers = {
         immich-server = {
           containerConfig = {
@@ -26,6 +30,7 @@ in
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
               "${UPLOAD_LOCATION}:/usr/src/app/upload"
+              "/main:/usr/src/app/extra-main"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
             labels = [

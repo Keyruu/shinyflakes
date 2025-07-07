@@ -1,10 +1,11 @@
 { pkgs, ... }:
 let
-  mcp-proxy = pkgs.callPackage ../../../../pkgs/mcp-proxy.nix { };
+  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
 in
 {
   environment.systemPackages = [
-    mcp-proxy
+    pkgs.mcp-proxy
+    mcpo
   ];
 
   users.users.mcp = {
@@ -21,6 +22,6 @@ in
     ./fetch.nix
     ./atlassian.nix
     ./searxng.nix
-    ./context7.nix
+    # ./context7.nix
   ];
 }

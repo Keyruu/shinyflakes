@@ -25,7 +25,10 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.dawarich.networkConfig.driver = "bridge";
+      networks.dawarich.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=dawarich" ];
+      };
 
       containers = {
         dawarich-redis = {
@@ -105,8 +108,14 @@ in
             Restart = "on-failure";
           };
           unitConfig = {
-            After = [ "dawarich-db.service" "dawarich-redis.service" ];
-            Requires = [ "dawarich-db.service" "dawarich-redis.service" ];
+            After = [
+              "dawarich-db.service"
+              "dawarich-redis.service"
+            ];
+            Requires = [
+              "dawarich-db.service"
+              "dawarich-redis.service"
+            ];
           };
         };
 
@@ -142,8 +151,16 @@ in
             Restart = "on-failure";
           };
           unitConfig = {
-            After = [ "dawarich-db.service" "dawarich-redis.service" "dawarich-app.service" ];
-            Requires = [ "dawarich-db.service" "dawarich-redis.service" "dawarich-app.service" ];
+            After = [
+              "dawarich-db.service"
+              "dawarich-redis.service"
+              "dawarich-app.service"
+            ];
+            Requires = [
+              "dawarich-db.service"
+              "dawarich-redis.service"
+              "dawarich-app.service"
+            ];
           };
         };
       };

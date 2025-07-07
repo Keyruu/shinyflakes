@@ -4,10 +4,14 @@ let
 in
 {
   imports = [
+    ./custom-sidebar.nix
+
     ./zigbee2mqtt.nix
     ./matter-hub.nix
     ./esphome.nix
     ./music-assistant.nix
+    ./wyoming-whisper.nix
+    ./wyoming-piper.nix
   ];
 
   boot.kernel.sysctl = {
@@ -26,6 +30,8 @@ in
       # Load frontend themes from the themes folder
       frontend:
         themes: !include_dir_merge_named themes
+        extra_module_url:
+          - /hacsfiles/custom-sidebar/custom-sidebar-yaml.js
 
       automation: !include automations.yaml
       script: !include scripts.yaml
@@ -39,6 +45,25 @@ in
 
       zeroconf:
         default_interface: true
+
+      shell_command:
+        get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {aliases, entity_id}]' ./.storage/core.entity_registry
+
+      template:
+        - triggers:
+          - trigger: time_pattern
+            minutes: 5
+          - platform: homeassistant
+            event: start
+          actions:
+            - service: shell_command.get_entity_alias
+              data: {}
+              response_variable: result
+          sensor:
+            - name: "Entity IDs mit Alias"
+              state: '0'
+              attributes:
+                entities: "{{result.stdout}}"
     '';
 
   networking.firewall.allowedTCPPorts = [
@@ -49,7 +74,7 @@ in
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
-      image = "ghcr.io/home-assistant/home-assistant:2025.6.1";
+      image = "ghcr.io/home-assistant/home-assistant:2025.7.0";
       environments = {
         TZ = "Europe/Berlin";
       };

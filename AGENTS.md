@@ -34,7 +34,10 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.service-name.networkConfig.driver = "bridge";
+      networks.service-name.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=service-name" ];
+      };
       
       containers = {
         service-main = {
@@ -53,7 +56,7 @@ in
             networkAliases = [ "service-alias" ];
           };
           serviceConfig = {
-            Restart = "unless-stopped";
+            Restart = "always";
           };
           unitConfig = {
             After = [ "dependency.service" ];
@@ -134,7 +137,7 @@ containers.service-name = {
     networkAliases = [ "service-alias" ];  # For inter-service communication
   };
   serviceConfig = {
-    Restart = "unless-stopped";  # or "always"
+    Restart = "always";
   };
   unitConfig = {
     After = [ "dependency.service" ];
@@ -146,8 +149,11 @@ containers.service-name = {
 #### 5. Network Configuration
 
 ```nix
-# Create dedicated network
-networks.service-network.networkConfig.driver = "bridge";
+# Create dedicated network with interface name
+networks.service-network.networkConfig = {
+  driver = "bridge";
+  podmanArgs = [ "--interface-name=service-name" ];
+};
 
 # Reference in containers
 networks = [ networks.service-network.ref ];
@@ -233,6 +239,14 @@ Common patterns:
 - `^\\d+\\.\\d+\\.\\d+-.*$` - Versions with additional suffixes
 
 Only add labels to the main application containers, not databases or supporting services.
+
+**Disabling WUD for Supporting Services:**
+
+For containers that shouldn't be monitored for updates (databases, caches, etc.), disable WUD monitoring:
+
+```nix
+labels = [ "wud.watch=false" ];
+```
 
 ### Common Gotchas
 

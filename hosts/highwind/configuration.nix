@@ -26,6 +26,7 @@
     ./stacks
     ./homepage.nix
     ./sirberus.nix
+    ./gpu.nix
   ];
 
   # Use the GRUB 2 boot loader.
@@ -40,6 +41,8 @@
     # use predictable network interface names (eth0)
     kernelParams = [ "net.ifnames=0" ];
   };
+
+  hardware.cpu.amd.ryzen-smu.enable = true;
 
   users.groups.smtp.members = [ "root" ];
 
@@ -103,6 +106,9 @@
     beets
     conmon
     runc
+    powertop
+    ryzen-monitor-ng
+    nvtopPackages.nvidia
   ];
 
   system.stateVersion = "24.11"; # Did you read the comment?

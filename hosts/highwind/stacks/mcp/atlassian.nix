@@ -5,7 +5,9 @@
   ...
 }:
 let
-  mcp-proxy = pkgs.callPackage ../../../../pkgs/mcp-proxy.nix { };
+  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
+  ssePort = 30002;
+  oapiPort = 30102;
 in
 {
   sops.secrets = {
@@ -24,15 +26,39 @@ in
       JIRA_API_TOKEN=${config.sops.placeholder.atlassianToken}
     '';
 
-  networking.firewall.interfaces.podman3.allowedTCPPorts = [ 30002 ];
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 30002 ];
+  networking.firewall.interfaces = {
+    librechat.allowedTCPPorts = [ ssePort ];
+    tailscale0.allowedTCPPorts = [ ssePort ];
+    ai.allowedTCPPorts = [ oapiPort ];
+  };
 
   systemd.services.mcp-atlassian = {
     description = "mcp-atlassian";
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       ExecStart = ''
-        ${lib.getExe mcp-proxy} --port 30002 --host 0.0.0.0 --pass-environment -- ${lib.getExe pkgs.podman} run -i --rm \
+        ${lib.getExe pkgs.mcp-proxy} --port ${toString ssePort} --host 0.0.0.0 --pass-environment -- ${lib.getExe pkgs.podman} run -i --rm \
+        -e CONFLUENCE_URL \
+        -e CONFLUENCE_USERNAME \
+        -e CONFLUENCE_API_TOKEN \
+        -e JIRA_URL \
+        -e JIRA_USERNAME \
+        -e JIRA_API_TOKEN \
+        ghcr.io/sooperset/mcp-atlassian:latest
+      '';
+      User = "root";
+      Group = "root";
+      Restart = "always";
+      EnvironmentFile = config.sops.templates."mcp-atlassian.env".path;
+    };
+  };
+
+  systemd.services.mcpo-atlassian = {
+    description = "mcpo-atlassian";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = ''
+        ${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm \
         -e CONFLUENCE_URL \
         -e CONFLUENCE_USERNAME \
         -e CONFLUENCE_API_TOKEN \

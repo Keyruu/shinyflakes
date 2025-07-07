@@ -41,6 +41,7 @@ in
     lua-language-server
     vimPlugins.nvim-treesitter.withAllGrammars
     markdownlint-cli2
+    marksman
   ];
 
   home.file.".config/nvim/init.lua".text = # lua

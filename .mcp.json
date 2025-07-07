@@ -1,14 +1,8 @@
 {
   "mcpServers": {
-    "nixd-lsp": {
-      "command": "/home/lucas/go/bin/mcp-language-server",
-      "args": [
-        "--workspace",
-        "/home/lucas/shinyflakes/",
-        "--lsp",
-        "nixd"
-      ],
-      "env": {}
+    "nixos": {
+      "command": "uvx",
+      "args": ["mcp-nixos"]
     }
   }
 }

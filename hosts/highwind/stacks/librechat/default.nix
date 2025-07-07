@@ -28,6 +28,7 @@ in
       networks.librechat = {
         networkConfig = {
           driver = "bridge";
+          podmanArgs = [ "--interface-name=librechat" ];
         };
       };
 
@@ -61,6 +62,10 @@ in
             Requires = [
               "${stackName}-mongodb.service"
               "${stackName}-rag-api.service"
+            ];
+            # This will cause the service to restart when the config file changes
+            X-RestartTrigger = [
+              "${config.environment.etc."stacks/${stackName}/api/librechat.yaml".source}"
             ];
           };
         };
