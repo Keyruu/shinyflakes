@@ -13,32 +13,35 @@ in
     locationIqKey.owner = "root";
   };
 
-  sops.templates."traccar.xml".content = ''
-    <?xml version='1.0' encoding='UTF-8'?>
-    <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
-    <properties>
-        <entry key='database.driver'>org.h2.Driver</entry>
-        <entry key='database.password'></entry>
-        <entry key='database.url'>jdbc:h2:/opt/traccar/data/database</entry>
-        <entry key='database.user'>sa</entry>
-        <entry key='logger.console'>true</entry>
-        <entry key='media.path'>/opt/traccar/data/media</entry>
-        <entry key='openid.clientId'>traccar</entry>
-        <entry key='openid.clientSecret'>${config.sops.placeholder.traccarClientSecret}</entry>
-        <entry key='openid.issuerUrl'>https://auth.peeraten.net/oauth2/openid/traccar</entry>
-        <entry key='templates.root'>/opt/traccar/data/templates</entry>
-        <entry key='web.address'>0.0.0.0</entry>
-        <entry key='web.port'>5785</entry>
-        <entry key='web.url'>https://traccar.peeraten.net</entry>
-        <entry key='geocoder.enable'>true</entry>
-        <entry key='geocoder.type'>nominatim</entry>
-        <entry key='geocoder.url'>https://eu1.locationiq.com/v1/reverse.php</entry>
-        <entry key='geocoder.key'>${config.sops.placeholder.locationIqKey}</entry>
-        <entry key='geocoder.onRequest'>false</entry>
-        <entry key='geocoder.ignorePositions'>false</entry>
-        <entry key='geocoder.reuseDistance'>10</entry>
-    </properties>
-  '';
+  sops.templates."traccar.xml" = {
+    restartUnits = [ "traccar.service" ];
+    content = ''
+      <?xml version='1.0' encoding='UTF-8'?>
+      <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
+      <properties>
+          <entry key='database.driver'>org.h2.Driver</entry>
+          <entry key='database.password'></entry>
+          <entry key='database.url'>jdbc:h2:/opt/traccar/data/database</entry>
+          <entry key='database.user'>sa</entry>
+          <entry key='logger.console'>true</entry>
+          <entry key='media.path'>/opt/traccar/data/media</entry>
+          <entry key='openid.clientId'>traccar</entry>
+          <entry key='openid.clientSecret'>${config.sops.placeholder.traccarClientSecret}</entry>
+          <entry key='openid.issuerUrl'>https://auth.peeraten.net/oauth2/openid/traccar</entry>
+          <entry key='templates.root'>/opt/traccar/data/templates</entry>
+          <entry key='web.address'>0.0.0.0</entry>
+          <entry key='web.port'>5785</entry>
+          <entry key='web.url'>https://traccar.peeraten.net</entry>
+          <entry key='geocoder.enable'>true</entry>
+          <entry key='geocoder.type'>nominatim</entry>
+          <entry key='geocoder.url'>https://eu1.locationiq.com/v1/reverse.php</entry>
+          <entry key='geocoder.key'>${config.sops.placeholder.locationIqKey}</entry>
+          <entry key='geocoder.onRequest'>false</entry>
+          <entry key='geocoder.ignorePositions'>false</entry>
+          <entry key='geocoder.reuseDistance'>10</entry>
+      </properties>
+    '';
+  };
 
   virtualisation.quadlet.containers.traccar = {
     containerConfig = {

@@ -2,6 +2,10 @@
 
 ## Quadlet Configuration Best Practices
 
+### Key Notes
+
+- **Quadlet Service Names**: Quadlet units are just the container name with `.service` suffix, NOT prefixed with `quadlet-`. For container `service-main`, the systemd service is `service-main.service`.
+
 ### File Structure Pattern
 
 All quadlet configurations follow this standardized structure:
@@ -14,7 +18,9 @@ in
 {
   # 1. Sops secrets (if needed)
   sops.secrets = {
-    serviceSecret = { };
+    serviceSecret = {
+      restartUnits = [ "service-main.service" ];
+    };
   };
 
   # 2. Directory creation
@@ -24,9 +30,12 @@ in
   ];
 
   # 3. Environment template (if secrets needed)
-  sops.templates."service.env".content = ''
-    SECRET_KEY=${config.sops.placeholder.serviceSecret}
-  '';
+  sops.templates."service.env" = {
+    restartUnits = [ "service-main.service" ];
+    content = ''
+      SECRET_KEY=${config.sops.placeholder.serviceSecret}
+    '';
+  };
 
   # 4. Quadlet configuration
   virtualisation.quadlet =
@@ -44,7 +53,10 @@ in
           containerConfig = {
             image = "service:latest";
             publishPorts = [ "127.0.0.1:PORT:PORT" ];
-            volumes = [ "${stackPath}/data:/data" ];
+            volumes = [ 
+              "${stackPath}/data:/data"
+              "${stackPath}/config:/config"
+            ];
             environments = { KEY = "value"; };
             environmentFiles = [ config.sops.templates."service.env".path ];
             labels = [
@@ -108,15 +120,20 @@ systemd.tmpfiles.rules = [
 #### 3. Handle Secrets
 
 ```nix
-# Declare secrets
+# Declare secrets with restart units
 sops.secrets = {
-  serviceSecret = { };
+  serviceSecret = {
+    restartUnits = [ "service-main.service" ];
+  };
 };
 
-# Create environment template
-sops.templates."service.env".content = ''
-  SECRET=${config.sops.placeholder.serviceSecret}
-'';
+# Create environment template with restart units
+sops.templates."service.env" = {
+  restartUnits = [ "service-main.service" ];
+  content = ''
+    SECRET=${config.sops.placeholder.serviceSecret}
+  '';
+};
 ```
 
 #### 4. Convert Services
@@ -218,6 +235,56 @@ services.nginx.virtualHosts."service.peeraten.net" = {
 - Put sensitive vars in sops templates and use `environmentFiles`
 - Use consistent naming patterns
 
+#### Configuration Files and Restart Triggers
+
+For services that need configuration files, use `X-RestartTrigger` to restart containers when config files change:
+
+```nix
+# Create config file
+environment.etc."stacks/service-name/config/config.yml".text = # yaml
+  ''
+    # Service configuration
+    port: 8080
+    database: ${config.sops.placeholder.dbUrl}
+  '';
+
+# Container with restart trigger
+containers.service-main = {
+  containerConfig = {
+    volumes = [ "${stackPath}/config:/config" ];
+  };
+  unitConfig = {
+    # Restart when config file changes
+    "X-RestartTrigger" = [
+      config.environment.etc."stacks/service-name/config.yml".source
+    ];
+  };
+};
+```
+
+#### Automatic Restarts with SOPS
+
+Always include `restartUnits` for both secrets and templates to ensure containers restart when secrets change. **Important**: Use the exact container name with `.service` suffix - no `quadlet-` prefix.
+
+**Best Practice**: Only add `restartUnits` to the SOPS template, not individual secrets. The template will automatically trigger when any referenced secret changes, eliminating redundancy.
+
+```nix
+# Secrets don't need individual restartUnits
+sops.secrets = {
+  serviceSecret = { };
+  anotherSecret = { };
+};
+
+# Only the template needs restartUnits
+sops.templates."service.env" = {
+  restartUnits = [ "service-main.service" ];  # Container name + .service
+  content = ''
+    SECRET=${config.sops.placeholder.serviceSecret}
+    ANOTHER=${config.sops.placeholder.anotherSecret}
+  '';
+};
+```
+
 #### WUD Labels for Update Monitoring
 
 Add appropriate WUD labels to main application containers for automatic update detection:
@@ -248,6 +315,64 @@ For containers that shouldn't be monitored for updates (databases, caches, etc.)
 labels = [ "wud.watch=false" ];
 ```
 
+#### Health Checks
+
+Use the proper Quadlet health check options instead of Docker Compose style healthcheck blocks:
+
+```nix
+# ✅ Correct Quadlet health check format
+containers.service-main = {
+  containerConfig = {
+    healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:8080/health";
+    healthInterval = "30s";
+    healthTimeout = "10s";
+    healthRetries = 3;
+    healthStartPeriod = "30s";
+  };
+};
+
+# ❌ Don't use Docker Compose style
+containers.service-main = {
+  containerConfig = {
+    healthcheck = {
+      test = [ "CMD" "wget" "--spider" "http://localhost:8080/health" ];
+      interval = "30s";
+      timeout = "10s";
+      retries = 3;
+      startPeriod = "30s";
+    };
+  };
+};
+```
+
+Available health check options:
+- `healthCmd` - Command to run for health check
+- `healthInterval` - How often to run health check
+- `healthTimeout` - Maximum time for health check command
+- `healthRetries` - Number of consecutive failures needed to mark unhealthy
+- `healthStartPeriod` - Grace period before health checks count toward retry count
+- `healthOnFailure` - Action to take on health check failure (e.g., "kill", "restart")
+
+#### Secret Naming
+
+Use camelCase for SOPS secret names for consistency:
+
+```nix
+# ✅ Preferred camelCase naming
+sops.secrets = {
+  serviceAuthSecret = { };
+  databasePassword = { };
+  apiKey = { };
+};
+
+# ❌ Avoid kebab-case 
+sops.secrets = {
+  service-auth-secret = { };
+  database-password = { };
+  api-key = { };
+};
+```
+
 ### Common Gotchas
 
 - Remember to add external proxy configuration in sleipnir for peeraten.net domains
@@ -256,3 +381,9 @@ labels = [ "wud.watch=false" ];
 - Always include `inherit (config.virtualisation.quadlet) networks;` in let block when using networks
 - Don't create networks for single-container stacks - use default bridge network instead
 - Add WUD labels only to main application containers for update monitoring
+- Only add `restartUnits` to SOPS templates, not individual secrets (templates trigger when any referenced secret changes)
+- Use `X-RestartTrigger` for configuration files that should restart containers when changed
+- **Critical**: Quadlet service names are just the container name + `.service` - NO `quadlet-` prefix!
+- Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.) instead of Docker Compose style `healthcheck` blocks
+- Use camelCase for SOPS secret names for consistency
+

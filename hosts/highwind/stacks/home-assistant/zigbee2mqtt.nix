@@ -13,29 +13,32 @@ in
   sops.secrets.z2mPanId.owner = "root";
   sops.secrets.z2mExtraPanId.owner = "root";
 
-  sops.templates."z2mConfiguration.yaml".content = # yaml
-    ''
-      version: 4
-      mqtt:
-        base_topic: zigbee2mqtt
-        server: mqtt://mqtt
-      serial:
-        port: /dev/ttyUSB0
-        adapter: zstack
-      advanced:
-        channel: 11
-        network_key: ${config.sops.placeholder.z2mNetworkKey}
-        pan_id: ${config.sops.placeholder.z2mPanId}
-        ext_pan_id: ${config.sops.placeholder.z2mExtraPanId}
-      frontend:
-        enabled: true
-        package: zigbee2mqtt-windfront
-      homeassistant:
-        enabled: true
-        experimental_event_entities: true
-      devices: devices.yaml
-      groups: groups.yaml
-    '';
+  sops.templates."z2mConfiguration.yaml" = {
+    restartUnits = [ "zigbee2mqtt.service" ];
+    content = # yaml
+      ''
+        version: 4
+        mqtt:
+          base_topic: zigbee2mqtt
+          server: mqtt://mqtt
+        serial:
+          port: /dev/ttyUSB0
+          adapter: zstack
+        advanced:
+          channel: 11
+          network_key: ${config.sops.placeholder.z2mNetworkKey}
+          pan_id: ${config.sops.placeholder.z2mPanId}
+          ext_pan_id: ${config.sops.placeholder.z2mExtraPanId}
+        frontend:
+          enabled: true
+          package: zigbee2mqtt-windfront
+        homeassistant:
+          enabled: true
+          experimental_event_entities: true
+        devices: devices.yaml
+        groups: groups.yaml
+      '';
+  };
 
   virtualisation.quadlet =
     let

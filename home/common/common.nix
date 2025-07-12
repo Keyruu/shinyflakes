@@ -4,22 +4,6 @@
   pkgs,
   ...
 }:
-let
-  kanata-tray = pkgs.callPackage ../../pkgs/kanata-tray.nix { };
-  newerOpencode = pkgs.opencode.overrideAttrs (oldAttrs: rec {
-    version = "0.0.53";
-    doInstallCheck = false;
-
-    src = pkgs.fetchFromGitHub {
-      owner = "opencode-ai";
-      repo = "opencode";
-      rev = "v${version}";
-      hash = "sha256-s17LHvyQrw2lBtZwAZu4OsrTJd+xSJXiGdSuDppGYAs=";
-    };
-
-    vendorHash = "sha256-Kcwd8deHug7BPDzmbdFqEfoArpXJb1JtBKuk+drdohM=";
-  });
-in
 {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
@@ -81,8 +65,9 @@ in
     goreleaser
     nixfmt-rfc-style
     nixfmt-tree
-    kanata-tray
     cachix
+    neovim
+    gnupg
 
     # gui apps
     gimp
@@ -129,7 +114,6 @@ in
 
     # tui
     spotify-player
-    newerOpencode
     aerc
 
     # http

@@ -73,7 +73,6 @@
 
   networking.hostName = "${hostname}"; # Define your hostname.
 
-  virtualisation.quadlet.autoEscape = true;
   # virtualisation.podman = let
   #   podman-rc = pkgs.podman.overrideAttrs (old: {
   #     patches = [];

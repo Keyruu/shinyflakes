@@ -19,6 +19,8 @@ in
           publishPorts = [
             "127.0.0.1:9433:8080" # Web
             "127.0.0.1:9434:8081" # WebDAV
+            "100.64.0.1:9433:8080" # Web
+            "100.64.0.1:9434:8081" # WebDAV
           ];
           volumes = [
             "/main/dav:/srv/sftpgo"
@@ -35,8 +37,14 @@ in
     };
   };
 
-  services.nginx.virtualHosts."files.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
+  security.acme.certs."files.keyruu.de" = {
+    dnsProvider = "cloudflare";
+    dnsPropagationCheck = true;
+    environmentFile = config.sops.secrets.cloudflare.path;
+  };
+
+  services.nginx.virtualHosts."files.keyruu.de" = {
+    useACMEHost = "files.keyruu.de";
     forceSSL = true;
     locations = {
       "/" = {

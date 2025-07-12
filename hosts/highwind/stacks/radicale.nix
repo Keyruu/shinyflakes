@@ -56,6 +56,11 @@ in
       serviceConfig = {
         Restart = "always";
       };
+      unitConfig = {
+        X-RestartTrigger = [
+          "${config.environment.etc."stacks/radicale/config/config".source}"
+        ];
+      };
     };
   };
 

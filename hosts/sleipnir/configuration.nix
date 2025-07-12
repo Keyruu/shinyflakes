@@ -20,6 +20,7 @@
     ./proxy.nix
     ./nginx.nix
     ./kanidm.nix
+    ./stacks/rybbit.nix
   ];
 
   sops = {

@@ -303,7 +303,7 @@
 
       # Development
       # "insomnia" # REST client
-      "wireshark" # network analyzer
+      "wireshark-app" # network analyzer
 
       "1password-cli"
       "bruno"
@@ -333,7 +333,7 @@
       "android-platform-tools"
       "threema"
       "orbstack"
-      "neovide"
+      "neovide-app"
       "utm"
       "autoraiseapp"
       "font-monaspace"

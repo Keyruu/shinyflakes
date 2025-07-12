@@ -15,7 +15,7 @@ in
         devices = [ "nvidia.com/gpu=all" ];
         volumes = [ "${stackPath}/data:/data" ];
         environments = {
-          PIPER_VOICE = "de_DE-kerstin-low";
+          PIPER_VOICE = "de_DE-thorsten-high";
         };
         labels = [
           "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"

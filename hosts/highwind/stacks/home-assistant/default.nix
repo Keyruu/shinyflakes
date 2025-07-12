@@ -64,6 +64,14 @@ in
               state: '0'
               attributes:
                 entities: "{{result.stdout}}"
+
+      tts:
+        - platform: marytts
+          host: 127.0.0.1 # IP address of the server
+          port: 9898
+          codec: WAVE_FILE
+          voice: glados # The name of the voice you want to use.
+          language: de # The model is multilingual, it only affects the pronunciation accent.
     '';
 
   networking.firewall.allowedTCPPorts = [
@@ -100,6 +108,11 @@ in
     };
     serviceConfig = {
       Restart = "always";
+    };
+    unitConfig = {
+      X-RestartTrigger = [
+        "${config.environment.etc."stacks/home-assistant/config/configuration.yaml".source}"
+      ];
     };
   };
 

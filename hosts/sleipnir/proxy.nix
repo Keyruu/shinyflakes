@@ -40,6 +40,22 @@
     };
   };
 
+  services.nginx.virtualHosts."files.keyruu.de" = {
+    enableACME = true;
+    forceSSL = true;
+
+    locations = {
+      "/" = {
+        proxyPass = "http://100.64.0.1:9433";
+        proxyWebsockets = true;
+      };
+      "/dav" = {
+        proxyPass = "http://100.64.0.1:9434";
+        proxyWebsockets = true;
+      };
+    };
+  };
+
   # services.nginx.virtualHosts."immich.keyruu.de" = {
   #   enableACME = true;
   #   forceSSL = true;

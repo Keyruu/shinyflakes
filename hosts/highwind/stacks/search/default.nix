@@ -87,6 +87,9 @@ in
             Requires = [
               "searxng-redis.service"
             ];
+            X-RestartTrigger = [
+              "${config.environment.etc."stacks/searxng/data/settings.yml".source}"
+            ];
           };
         };
       };
