@@ -7,6 +7,10 @@
     locations."/" = {
       proxyPass = "http://100.64.0.1:8123";
       proxyWebsockets = true;
+      extraConfig = ''
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
+      '';
     };
   };
 
@@ -17,6 +21,10 @@
     locations."/" = {
       proxyPass = "http://100.64.0.1:5785";
       proxyWebsockets = true;
+      extraConfig = ''
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
+      '';
     };
   };
 
@@ -27,6 +35,10 @@
     locations."/" = {
       proxyPass = "http://100.64.0.1:3001";
       proxyWebsockets = true;
+      extraConfig = ''
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
+      '';
     };
   };
 
@@ -37,6 +49,10 @@
     locations."/" = {
       proxyPass = "http://100.64.0.1:5232";
       proxyWebsockets = true;
+      extraConfig = ''
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
+      '';
     };
   };
 
@@ -48,10 +64,18 @@
       "/" = {
         proxyPass = "http://100.64.0.1:9433";
         proxyWebsockets = true;
+        extraConfig = ''
+          modsecurity on;
+          modsecurity_rules_file /etc/nginx/modsec/main.conf;
+        '';
       };
       "/dav" = {
         proxyPass = "http://100.64.0.1:9434";
         proxyWebsockets = true;
+        extraConfig = ''
+          modsecurity on;
+          modsecurity_rules_file /etc/nginx/modsec/main.conf;
+        '';
       };
     };
   };

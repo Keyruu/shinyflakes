@@ -48,6 +48,13 @@ vim.keymap.set("n", "<leader>k", function()
   vim.diagnostic.open_float(nil, { focusable = false })
 end, { desc = "Diagnostic float" })
 
+vim.keymap.set(
+  "n",
+  "<leader>k",
+  '<cmd>lua require("kubectl").toggle({ tab = true })<cr>',
+  { noremap = true, silent = true }
+)
+
 -- Keymaps for navigating and yanking FENCED code blocks (e.g., in Markdown)
 vim.keymap.set("n", "<leader>bc", "]c", { noremap = true, silent = true, desc = "Jump to next fenced [C]ode block" })
 vim.keymap.set(

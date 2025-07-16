@@ -15,6 +15,13 @@ return {
       desc = "[T]erminal [f]loating",
     },
     {
+      "<leader>tk",
+      function()
+        require("snacks.terminal").toggle("k9s")
+      end,
+      desc = "[T]erminal [k]9s",
+    },
+    {
       "<leader>tt",
       function()
         Snacks.terminal(nil, {
@@ -45,7 +52,12 @@ return {
     {
       "<leader>tas",
       function()
-        require("snacks.terminal").toggle("opencode-sst")
+        require("snacks.terminal").toggle("opencode-sst", {
+          win = {
+            position = "right",
+            width = 0.3,
+          },
+        })
       end,
       desc = "[T]erminal [A]I OpenCode by [S]ST",
     },
@@ -65,4 +77,13 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    -- Call the original snacks setup
+    require("snacks").setup(opts)
+
+    vim.defer_fn(function()
+      local file_watcher = require("config.file-watcher")
+      file_watcher.setup_terminal_integration()
+    end, 100)
+  end,
 }
