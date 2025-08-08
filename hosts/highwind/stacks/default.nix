@@ -11,7 +11,7 @@
     ./librechat
     ./mcp
     ./karakeep.nix
-    ./dawarich.nix
+    # ./dawarich.nix
     ./timetagger.nix
     ./pinchflat.nix
     ./whishper.nix

@@ -7,6 +7,7 @@ local internal_changes = {}
 local debounce_timer = nil
 local cached_gitignore_patterns = {}
 local cached_cwd = nil
+local open_diffs = {} -- Track open diff buffers by filepath
 
 -- Parse .gitignore file and convert patterns to Lua patterns
 local function parse_gitignore(cwd)
@@ -104,6 +105,101 @@ local function is_internal_change(filepath)
   return (vim.loop.now() - last_change) < 3000
 end
 
+-- Find the main editor window (not terminal, floating, etc.)
+local function find_main_editor_window()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+    local config = vim.api.nvim_win_get_config(win)
+
+    -- Skip floating windows, terminals, and special buffers
+    if config.relative == "" and buftype == "" then
+      return win
+    end
+  end
+  return nil
+end
+
+-- Create git diff for a file
+local function create_git_diff(filepath)
+  -- Check if diff is already open for this file
+  if open_diffs[filepath] then
+    local bufnr = open_diffs[filepath]
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      return -- Diff already exists
+    else
+      open_diffs[filepath] = nil -- Clean up invalid buffer reference
+    end
+  end
+
+  -- Get the current file path relative to git root
+  local file = vim.fn.expand("%")
+  if file == "" then
+    file = vim.fn.fnamemodify(filepath, ":.")
+  end
+
+  -- Check if file is in git repository
+  local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("\n", "")
+  if vim.v.shell_error ~= 0 then
+    return -- Not in a git repository
+  end
+
+  -- Get relative path from git root
+  local relative_path = vim.fn.fnamemodify(filepath, ":.")
+
+  -- Get git content
+  local git_content = vim.fn.system("git show HEAD:" .. relative_path .. " 2>/dev/null")
+  if vim.v.shell_error ~= 0 then
+    return -- File not in git or other error
+  end
+
+  -- Save current window and buffer
+  local current_win = vim.api.nvim_get_current_win()
+  local current_buf = vim.api.nvim_win_get_buf(current_win)
+
+  -- Enable diff mode for current buffer
+  vim.cmd("diffthis")
+
+  -- Create new window on the left
+  vim.cmd("leftabove vnew")
+  local git_buf = vim.api.nvim_get_current_buf()
+
+  -- Set buffer name and options
+  local git_buf_name = string.format("[Git HEAD] %s", vim.fn.fnamemodify(filepath, ":t"))
+  vim.api.nvim_buf_set_name(git_buf, git_buf_name)
+  vim.bo[git_buf].buftype = "nofile"
+  vim.bo[git_buf].bufhidden = "wipe"
+  vim.bo[git_buf].buflisted = false
+  vim.bo[git_buf].swapfile = false
+  vim.bo[git_buf].modifiable = true
+
+  -- Set git content in buffer
+  vim.api.nvim_buf_set_lines(git_buf, 0, -1, false, vim.split(git_content, "\n"))
+  vim.bo[git_buf].modifiable = false
+
+  -- Enable diff mode for git buffer
+  vim.cmd("diffthis")
+
+  -- Set filetype to match original for syntax highlighting
+  local original_filetype = vim.api.nvim_buf_get_option(current_buf, "filetype")
+  vim.bo[git_buf].filetype = original_filetype
+
+  -- Track this diff buffer
+  open_diffs[filepath] = git_buf
+
+  -- Set up autocmd to clean up when buffer is deleted
+  vim.api.nvim_create_autocmd("BufDelete", {
+    buffer = git_buf,
+    callback = function()
+      open_diffs[filepath] = nil
+    end,
+    once = true,
+  })
+
+  -- Return focus to original window
+  vim.api.nvim_set_current_win(current_win)
+end
+
 -- Handle file changes with debouncing
 local function handle_file_change(filepath)
   -- Clear existing debounce timer
@@ -135,10 +231,19 @@ local function handle_file_change(filepath)
           vim.cmd("checktime")
         end)
         vim.notify(string.format("Reloaded: %s", vim.fn.fnamemodify(filepath, ":~:.")), vim.log.levels.INFO)
+        vim.api.nvim_set_current_buf(bufnr)
+
+        create_git_diff(filepath)
       else
-        -- Open file in new buffer
         vim.cmd.edit(filepath)
         vim.notify(string.format("Opened: %s", vim.fn.fnamemodify(filepath, ":~:.")), vim.log.levels.INFO)
+        bufnr = vim.fn.bufnr(filepath)
+        vim.api.nvim_set_current_buf(bufnr)
+
+        -- Create git diff after a delay to ensure file is fully loaded
+        vim.defer_fn(function()
+          create_git_diff(filepath)
+        end, 500)
       end
     end)
   end, 200)
@@ -166,7 +271,12 @@ function M.start_watching()
         return
       end
 
-      if not filename or not events.change then
+      if not filename then
+        return
+      end
+
+      -- Handle both file changes and new file creation
+      if not (events.change or events.rename) then
         return
       end
 
@@ -216,6 +326,7 @@ function M.stop_watching()
   internal_changes = {}
   cached_gitignore_patterns = {}
   cached_cwd = nil
+  open_diffs = {}
 
   vim.notify("File watcher stopped", vim.log.levels.INFO)
 end
@@ -232,14 +343,14 @@ function M.setup_terminal_integration()
   require("snacks.terminal").toggle = function(cmd, opts)
     local result = original_toggle(cmd, opts)
 
-    if cmd == "opencode-sst" then
+    if cmd == "opencode-sst" or cmd == "opencode" then
       vim.defer_fn(function()
         -- Check if terminal is visible
         local term_visible = false
         for _, win in ipairs(vim.api.nvim_list_wins()) do
           local buf = vim.api.nvim_win_get_buf(win)
           local buf_name = vim.api.nvim_buf_get_name(buf)
-          if buf_name:match("opencode%-sst") then
+          if buf_name:match("opencode%-sst") or buf_name:match("opencode") then
             term_visible = true
             break
           end
@@ -258,4 +369,3 @@ function M.setup_terminal_integration()
 end
 
 return M
-

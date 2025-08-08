@@ -23,6 +23,8 @@
   ];
   environment.variables.EDITOR = "nvim";
 
+  ids.gids.nixbld = 350;
+
   # TODO To make this work, homebrew need to be installed manually, see https://brew.sh
   #
   # The apps installed by homebrew are not managed by nix, and not reproducible!
@@ -70,7 +72,7 @@
       "keyruu/tap"
       "kanidm/kanidm"
       "dimentium/autoraise"
-      "opencode-ai/tap"
+      "sst/tap"
     ];
 
     # `brew install`

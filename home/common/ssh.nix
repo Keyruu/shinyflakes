@@ -2,6 +2,7 @@
 {
   programs.ssh = {
     enable = true;
+    controlPath = "~/.ssh/_%C";
     matchBlocks = {
       "sleipnir" = {
         hostname = "168.119.225.165";

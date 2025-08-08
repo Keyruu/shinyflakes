@@ -24,9 +24,10 @@ return {
     {
       "<leader>tt",
       function()
-        Snacks.terminal(nil, {
+        Snacks.terminal("fish", {
           win = {
             height = 0.25,
+            position = "bottom",
             wo = {
               winbar = "🐟: %{b:term_title}",
             },
@@ -38,14 +39,19 @@ return {
     {
       "<leader>tv",
       function()
-        Snacks.terminal.open(nil, { split = "vertical" })
+        Snacks.terminal.open("fish", { split = "vertical" })
       end,
       desc = "Open [T]erminal [v]ertically",
     },
     {
       "<leader>tao",
       function()
-        require("snacks.terminal").toggle("opencode")
+        require("snacks.terminal").toggle("opencode", {
+          win = {
+            position = "right",
+            width = 0.3,
+          },
+        })
       end,
       desc = "[T]erminal [A]I [O]penCode",
     },

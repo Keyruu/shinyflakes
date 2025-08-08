@@ -7,6 +7,7 @@ A comprehensive NixOS and nix-darwin configuration for managing multiple hosts a
 ## 🏗️ Architecture
 
 This configuration uses a modular approach with:
+
 - **NixOS** for Linux servers and desktops
 - **nix-darwin** for macOS development machines  
 - **Home Manager** for user-specific configurations
@@ -52,30 +53,35 @@ This configuration uses a modular approach with:
 ## 🛠️ Key Features
 
 ### Container Management
+
 - **Quadlet integration** for systemd-managed containers
 - Standardized service deployment patterns
 - Automatic container updates with WUD (What's Up Docker)
 - Health checks and dependency management
 
 ### Security & Secrets
+
 - **SOPS-nix** for encrypted secrets management
 - Age-based encryption with multiple keys
 - Automatic secret rotation and container restarts
 - Secure credential handling for all services
 
 ### Networking
+
 - **Tailscale** mesh networking between hosts
 - **Nginx** reverse proxy with automatic SSL certificates
 - **Cloudflare** DNS and SSL certificate management
 - Internal service discovery and load balancing
 
 ### Storage & Backup
+
 - **ZFS** for data integrity and snapshots
 - **Disko** for declarative disk configuration
 - Automated backup strategies
 - NAS functionality with Samba
 
 ### Monitoring & Observability
+
 - **Grafana** dashboards for system metrics
 - **Prometheus** metrics collection
 - **Loki** log aggregation
@@ -106,6 +112,7 @@ This configuration uses a modular approach with:
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Nix with flakes enabled
 - SOPS for secrets management
 - Age key for decryption (if using secrets)
@@ -113,6 +120,7 @@ This configuration uses a modular approach with:
 ### Deployment
 
 For NixOS hosts:
+
 ```bash
 # Build and switch to new configuration
 sudo nixos-rebuild switch --flake .#hostname
@@ -122,6 +130,7 @@ nixos-rebuild build --flake .#hostname
 ```
 
 For nix-darwin (macOS):
+
 ```bash
 # Build and switch
 darwin-rebuild switch --flake .#stern
@@ -137,7 +146,9 @@ darwin-rebuild switch --flake .#stern
 ## 🔧 Configuration Highlights
 
 ### Service Deployment Pattern
+
 All containerized services follow a standardized pattern:
+
 - Quadlet for container management
 - SOPS for secrets
 - Nginx reverse proxy
@@ -145,12 +156,14 @@ All containerized services follow a standardized pattern:
 - Automatic updates
 
 ### Development Environment
+
 - Consistent tooling across all machines
 - Shell configurations with Fish
 - Editor configurations (Neovim, Helix)
 - Development containers and tools
 
 ### Desktop Environment (Linux)
+
 - **Hyprland** compositor with custom configurations
 - **Stylix** for consistent theming
 - Custom keybindings and window management
@@ -165,6 +178,7 @@ All containerized services follow a standardized pattern:
 ## 🔐 Secrets Management
 
 Secrets are managed using SOPS with age encryption:
+
 - Keys stored in `.sops.yaml`
 - Encrypted secrets in `secrets.yaml`
 - Automatic decryption during deployment
@@ -173,6 +187,7 @@ Secrets are managed using SOPS with age encryption:
 ## 🤝 Contributing
 
 This is a personal configuration repository, but feel free to:
+
 - Use patterns and configurations as inspiration
 - Report issues or suggest improvements
 - Adapt modules for your own use
@@ -180,5 +195,3 @@ This is a personal configuration repository, but feel free to:
 ## 📄 License
 
 This configuration is provided as-is for educational and reference purposes. Individual components may have their own licenses.
-
-dummy

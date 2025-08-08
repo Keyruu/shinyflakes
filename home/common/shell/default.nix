@@ -57,6 +57,7 @@ in
     deploy-highwind = "nixos-rebuild --flake ~/shinyflakes#highwind switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --fast";
     deploy-garm = "nixos-rebuild --flake ~/shinyflakes#garm switch --target-host root@192.168.100.5 --fast";
     deploy-sleipnir = "nixos-rebuild --flake ~/shinyflakes#sleipnir switch --target-host root@sleipnir --build-host root@sleipnir --fast";
+    opencode-sst = "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts";
   };
 
   programs.starship = {
