@@ -19,12 +19,19 @@ in
   ];
 
   # Environment template for secrets
-  sops.templates."whishper.env".content = ''
-    DB_USER=mongo
-    DB_PASS=${config.sops.placeholder.whishperDbPass}
-    MONGO_INITDB_ROOT_USERNAME=mongo
-    MONGO_INITDB_ROOT_PASSWORD=${config.sops.placeholder.whishperDbPass}
-  '';
+  sops.templates."whishper.env" = {
+    restartUnits = [
+      "whishper-main.service"
+      "whishper-mongo.service"
+      "whishper-translate.service"
+    ];
+    content = ''
+      DB_USER=mongo
+      DB_PASS=${config.sops.placeholder.whishperDbPass}
+      MONGO_INITDB_ROOT_USERNAME=mongo
+      MONGO_INITDB_ROOT_PASSWORD=${config.sops.placeholder.whishperDbPass}
+    '';
+  };
 
   # Quadlet configuration
   virtualisation.quadlet =

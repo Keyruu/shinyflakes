@@ -16,15 +16,21 @@ in
     atlassianToken.owner = "root";
   };
 
-  sops.templates."mcp-atlassian.env".content = # sh
-    ''
-      CONFLUENCE_URL=${config.sops.placeholder.atlassianUrl}/wiki
-      CONFLUENCE_USERNAME=${config.sops.placeholder.atlassianUsername}
-      CONFLUENCE_API_TOKEN=${config.sops.placeholder.atlassianToken}
-      JIRA_URL=${config.sops.placeholder.atlassianUrl}/
-      JIRA_USERNAME=${config.sops.placeholder.atlassianUsername}
-      JIRA_API_TOKEN=${config.sops.placeholder.atlassianToken}
-    '';
+  sops.templates."mcp-atlassian.env" = {
+    restartUnits = [
+      "mcp-atlassian.service"
+      "mcpo-atlassian.service"
+    ];
+    content = # sh
+      ''
+        CONFLUENCE_URL=${config.sops.placeholder.atlassianUrl}/wiki
+        CONFLUENCE_USERNAME=${config.sops.placeholder.atlassianUsername}
+        CONFLUENCE_API_TOKEN=${config.sops.placeholder.atlassianToken}
+        JIRA_URL=${config.sops.placeholder.atlassianUrl}/
+        JIRA_USERNAME=${config.sops.placeholder.atlassianUsername}
+        JIRA_API_TOKEN=${config.sops.placeholder.atlassianToken}
+      '';
+  };
 
   networking.firewall.interfaces = {
     librechat.allowedTCPPorts = [ ssePort ];

@@ -13,14 +13,20 @@ in
     "d ${stackPath}/meilisearch 0755 root root"
   ];
 
-  sops.templates."karakeep.env".content = # sh
-    ''
-      NEXTAUTH_SECRET=${config.sops.placeholder.karakeepNextauthSecret}
-      MEILI_MASTER_KEY=${config.sops.placeholder.karakeepMeiliMasterKey}
-      NEXTAUTH_URL=https://karakeep.lab.keyruu.de
-      DISABLE_SIGNUPS=true
-      OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
-    '';
+  sops.templates."karakeep.env" = {
+    restartUnits = [
+      "karakeep-web.service"
+      "karakeep-meilisearch.service"
+    ];
+    content = # sh
+      ''
+        NEXTAUTH_SECRET=${config.sops.placeholder.karakeepNextauthSecret}
+        MEILI_MASTER_KEY=${config.sops.placeholder.karakeepMeiliMasterKey}
+        NEXTAUTH_URL=https://karakeep.lab.keyruu.de
+        DISABLE_SIGNUPS=true
+        OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
+      '';
+  };
 
   virtualisation.quadlet =
     let
@@ -35,7 +41,7 @@ in
       containers = {
         karakeep-web = {
           containerConfig = {
-            image = "ghcr.io/karakeep-app/karakeep:0.25.0";
+            image = "ghcr.io/karakeep-app/karakeep:0.26.0";
             publishPorts = [ "127.0.0.1:3000:3000" ];
             volumes = [
               "${stackPath}/data:/data"

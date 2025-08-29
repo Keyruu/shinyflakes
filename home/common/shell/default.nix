@@ -18,6 +18,7 @@ in
     ./wezterm.nix
     ./zellij.nix
     ./fish.nix
+    ./tmux.nix
   ];
 
   # add environment variables

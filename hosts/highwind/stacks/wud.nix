@@ -7,19 +7,22 @@ in
     "d ${wudPath} 0755 root root"
   ];
 
-  sops.templates."wud.env".content = # env
-    ''
-      WUD_TRIGGER_SMTP_RESEND_HOST=smtp.resend.com
-      WUD_TRIGGER_SMTP_RESEND_PORT=587
-      WUD_TRIGGER_SMTP_RESEND_FROM=wud@lab.keyruu.de
-      WUD_TRIGGER_SMTP_RESEND_TO=me@keyruu.de
-      WUD_TRIGGER_SMTP_RESEND_USER=resend
-      WUD_TRIGGER_SMTP_RESEND_PASS=${config.sops.placeholder.resendApiKey}
-    '';
+  sops.templates."wud.env" = {
+    restartUnits = [ "whatsupdocker.service" ];
+    content = # env
+      ''
+        WUD_TRIGGER_SMTP_RESEND_HOST=smtp.resend.com
+        WUD_TRIGGER_SMTP_RESEND_PORT=587
+        WUD_TRIGGER_SMTP_RESEND_FROM=wud@lab.keyruu.de
+        WUD_TRIGGER_SMTP_RESEND_TO=me@keyruu.de
+        WUD_TRIGGER_SMTP_RESEND_USER=resend
+        WUD_TRIGGER_SMTP_RESEND_PASS=${config.sops.placeholder.resendApiKey}
+      '';
+  };
 
   virtualisation.quadlet.containers.whatsupdocker = {
     containerConfig = {
-      image = "ghcr.io/getwud/wud:8.0.1";
+      image = "ghcr.io/getwud/wud:8.1.1";
       environments = {
         TZ = "Europe/Berlin";
       };

@@ -9,12 +9,12 @@ in
   ];
 
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/api/images 0770 root root"
-    "d ${stackPath}/api/uploads 0770 root root"
-    "d ${stackPath}/api/logs 0770 root root"
+    "d ${stackPath}/api/images 0770 1000 1000"
+    "d ${stackPath}/api/uploads 0770 1000 1000"
+    "d ${stackPath}/api/logs 0770 1000 1000"
     "d ${stackPath}/mongodb/data 0770 root root"
     "d ${stackPath}/meilisearch/meili_data_v1.12 0770 root root"
-    "d ${stackPath}/vectordb/pgdata2 0770 root root"
+    "d ${stackPath}/vectordb/pgdata2 0770 999 999"
   ];
 
   environment.etc."stacks/${stackName}/api/librechat.yaml".source = ./librechat.yaml;
@@ -50,6 +50,10 @@ in
             ];
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
+            labels = [
+              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
+            ];
+            autoUpdate = "registry";
           };
           serviceConfig = {
             Restart = "always";
@@ -136,6 +140,10 @@ in
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
             networkAliases = [ "rag_api" ];
+            labels = [
+              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
+            ];
+            autoUpdate = "registry";
           };
           serviceConfig = {
             Restart = "always";

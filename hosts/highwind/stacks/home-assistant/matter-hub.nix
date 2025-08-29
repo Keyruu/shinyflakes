@@ -9,13 +9,16 @@ in
 
   sops.secrets.hassKey.owner = "root";
 
-  sops.templates."matterHub.env".content = # env
-    ''
-      HAMH_HOME_ASSISTANT_URL=https://hass.peeraten.net
-      HAMH_HOME_ASSISTANT_ACCESS_TOKEN=${config.sops.placeholder.hassKey}
-      HAMH_LOG_LEVEL=info
-      HAMH_HTTP_PORT=8482
-    '';
+  sops.templates."matterHub.env" = {
+    restartUnits = [ "matter-hub.service" ];
+    content = # env
+      ''
+        HAMH_HOME_ASSISTANT_URL=https://hass.peeraten.net
+        HAMH_HOME_ASSISTANT_ACCESS_TOKEN=${config.sops.placeholder.hassKey}
+        HAMH_LOG_LEVEL=info
+        HAMH_HTTP_PORT=8482
+      '';
+  };
 
   networking.firewall.allowedTCPPorts = [
     8482

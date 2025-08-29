@@ -9,11 +9,14 @@ in
 
   sops = {
     secrets."speedtestTrackerAppKey".owner = "root";
-    templates."speedtest-tracker.env".content = # env
-      ''
-        APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}
-        SPEEDTEST_SCHEDULE=3,33 * * * *
-      '';
+    templates."speedtest-tracker.env" = {
+      restartUnits = [ "speedtest-tracker.service" ];
+      content = # env
+        ''
+          APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}
+          SPEEDTEST_SCHEDULE=3,33 * * * *
+        '';
+    };
   };
 
   virtualisation.quadlet.containers.speedtest-tracker = {

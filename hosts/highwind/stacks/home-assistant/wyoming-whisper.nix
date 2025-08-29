@@ -11,11 +11,11 @@ in
   virtualisation.quadlet.containers = {
     wyoming-whisper = {
       containerConfig = {
-        image = "slackr31337/wyoming-whisper-gpu:latest";
+        image = "slackr31337/wyoming-whisper-gpu:v2025.01.4";
         publishPorts = [ "127.0.0.1:10300:10300" ];
         environments = {
-          MODEL = "medium-int8";
-          BEAM_SIZE = "5";
+          MODEL = "large-v3";
+          BEAM_SIZE = "0";
           LANGUAGE = "de";
           COMPUTE_TYPE = "int8";
         };

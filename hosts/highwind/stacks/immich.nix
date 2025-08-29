@@ -11,7 +11,7 @@ in
   virtualisation.quadlet =
     let
       UPLOAD_LOCATION = "/main/immich";
-      IMMICH_VERSION = "v1.135.3";
+      IMMICH_VERSION = "v1.137.3";
       inherit (config.virtualisation.quadlet) networks;
     in
     {
@@ -29,7 +29,7 @@ in
             ];
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
-              "${UPLOAD_LOCATION}:/usr/src/app/upload"
+              "${UPLOAD_LOCATION}:/data"
               "/main:/usr/src/app/extra-main"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];

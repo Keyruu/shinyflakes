@@ -11,10 +11,16 @@ let
 in
 {
   sops.secrets.githubToken.owner = "root";
-  sops.templates."mcp-github.env".content = # sh
-    ''
-      GITHUB_PERSONAL_ACCESS_TOKEN=${config.sops.placeholder.githubToken}
-    '';
+  sops.templates."mcp-github.env" = {
+    restartUnits = [
+      "mcp-github.service"
+      "mcpo-github.service"
+    ];
+    content = # sh
+      ''
+        GITHUB_PERSONAL_ACCESS_TOKEN=${config.sops.placeholder.githubToken}
+      '';
+  };
 
   networking.firewall.interfaces = {
     librechat.allowedTCPPorts = [ ssePort ];

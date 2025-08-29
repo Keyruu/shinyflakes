@@ -15,10 +15,17 @@ in
     "d ${stackPath}/storage 0755 root root"
   ];
 
-  sops.templates."dawarich.env".content = ''
-    POSTGRES_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
-    DATABASE_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
-  '';
+  sops.templates."dawarich.env" = {
+    restartUnits = [
+      "dawarich-app.service"
+      "dawarich-sidekiq.service"
+      "dawarich-db.service"
+    ];
+    content = ''
+      POSTGRES_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
+      DATABASE_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
+    '';
+  };
 
   virtualisation.quadlet =
     let

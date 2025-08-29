@@ -14,9 +14,12 @@ in
   ];
 
   # Environment template
-  sops.templates."timetagger.env".content = ''
-    TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCreds}
-  '';
+  sops.templates."timetagger.env" = {
+    restartUnits = [ "timetagger.service" ];
+    content = ''
+      TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCreds}
+    '';
+  };
 
   # Quadlet configuration
   virtualisation.quadlet = {

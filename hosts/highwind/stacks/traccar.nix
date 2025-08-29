@@ -32,6 +32,7 @@ in
           <entry key='web.address'>0.0.0.0</entry>
           <entry key='web.port'>5785</entry>
           <entry key='web.url'>https://traccar.peeraten.net</entry>
+          <entry key='owntracks.port'>5144</entry>
           <entry key='geocoder.enable'>true</entry>
           <entry key='geocoder.type'>nominatim</entry>
           <entry key='geocoder.url'>https://eu1.locationiq.com/v1/reverse.php</entry>
@@ -45,7 +46,7 @@ in
 
   virtualisation.quadlet.containers.traccar = {
     containerConfig = {
-      image = "docker.io/traccar/traccar:6.7-alpine";
+      image = "docker.io/traccar/traccar:6.8-alpine";
       volumes = [
         "${traccarPath}/data:/opt/traccar/data"
         "${traccarPath}/logs:/opt/traccar/logs"
@@ -54,6 +55,8 @@ in
       publishPorts = [
         "127.0.0.1:5785:5785"
         "100.64.0.1:5785:5785"
+        "127.0.0.1:5144:5144"
+        "100.64.0.1:5144:5144"
       ];
       labels = [
         "wud.tag.include=^\\d+\\.\\d+-alpine$"
@@ -64,8 +67,13 @@ in
     };
   };
 
-  security.acme = {
-    certs."traccar.peeraten.net" = {
+  security.acme.certs = {
+    "traccar.peeraten.net" = {
+      dnsProvider = "cloudflare";
+      dnsPropagationCheck = true;
+      environmentFile = config.sops.secrets.cloudflare.path;
+    };
+    "owntracks.peeraten.net" = {
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
@@ -78,6 +86,16 @@ in
 
     locations."/" = {
       proxyPass = "http://127.0.0.1:5785";
+      proxyWebsockets = true;
+    };
+  };
+
+  services.nginx.virtualHosts."owntracks.peeraten.net" = {
+    useACMEHost = "owntracks.peeraten.net";
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:5144";
       proxyWebsockets = true;
     };
   };

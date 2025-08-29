@@ -11,7 +11,7 @@ in
 
   virtualisation.quadlet.containers.music-assistant = {
     containerConfig = {
-      image = "ghcr.io/music-assistant/server:2.5.5";
+      image = "ghcr.io/music-assistant/server:2.5.8";
       environments = {
         TZ = "Europe/Berlin";
       };

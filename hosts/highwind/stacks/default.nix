@@ -14,7 +14,7 @@
     # ./dawarich.nix
     ./timetagger.nix
     ./pinchflat.nix
-    ./whishper.nix
+    # ./whishper.nix
     ./pigallery2.nix
     ./radicale.nix
     ./sftpgo.nix

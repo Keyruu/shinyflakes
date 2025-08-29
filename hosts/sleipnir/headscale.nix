@@ -17,27 +17,30 @@ in
     };
   };
 
-  sops.templates."headplane.yaml".content = # yaml
-    ''
-      server:
-        host: "0.0.0.0"
-        port: 3000
-        cookie_secret: "${config.sops.placeholder.headplaneCookieSecret}"
-        cookie_secure: true
+  sops.templates."headplane.yaml" = {
+    restartUnits = [ "headplane.service" ];
+    content = # yaml
+      ''
+        server:
+          host: "0.0.0.0"
+          port: 3000
+          cookie_secret: "${config.sops.placeholder.headplaneCookieSecret}"
+          cookie_secure: true
 
-      headscale:
-        url: "https://headscale.peeraten.net"
-        config_path: "/etc/headscale/config.yaml"
-        config_strict: true
-      integration:
-        agent:
-          enabled: true
-          pre_authkey: "${config.sops.placeholder.headscaleAuthKey}"
-          host_name: "headplane-agent"
-          cache_ttl: 60
-          cache_path: /var/lib/headplane/agent_cache.json
-          work_dir: "/var/lib/headplane/agent"
-    '';
+        headscale:
+          url: "https://headscale.peeraten.net"
+          config_path: "/etc/headscale/config.yaml"
+          config_strict: true
+        integration:
+          agent:
+            enabled: true
+            pre_authkey: "${config.sops.placeholder.headscaleAuthKey}"
+            host_name: "headplane-agent"
+            cache_ttl: 60
+            cache_path: /var/lib/headplane/agent_cache.json
+            work_dir: "/var/lib/headplane/agent"
+      '';
+  };
 
   services.headscale = {
     enable = true;
@@ -70,7 +73,7 @@ in
         };
       };
       oidc = {
-        only_start_if_oidc_is_available = false;
+        only_start_if_oidc_is_available = true;
         issuer = "https://auth.peeraten.net/oauth2/openid/headscale";
         client_id = "headscale";
         client_secret_path = config.sops.secrets.headscaleOidc.path;
@@ -79,6 +82,9 @@ in
           "profile"
           "email"
         ];
+        pkce = {
+          enabled = true;
+        };
       };
     };
   };
@@ -99,6 +105,15 @@ in
       environments = {
         HEADSCALE_URL = "https://headscale.peeraten.net";
       };
+    };
+    serviceConfig = {
+      Restart = "always";
+    };
+    unitConfig = {
+      X-RestartTrigger = [
+        "${configFile}"
+        "${config.sops.templates."headplane.yaml".path}"
+      ];
     };
   };
 

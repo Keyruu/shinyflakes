@@ -71,7 +71,7 @@ in
 
         zigbee2mqtt = {
           containerConfig = {
-            image = "koenkk/zigbee2mqtt:2.5.1";
+            image = "koenkk/zigbee2mqtt:2.6.0";
             environments = {
               TZ = "Europe/Berlin";
             };
