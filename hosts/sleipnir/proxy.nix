@@ -28,6 +28,20 @@
     };
   };
 
+  services.nginx.virtualHosts."owntracks.peeraten.net" = {
+    enableACME = true;
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://100.64.0.1:5144";
+      proxyWebsockets = true;
+      extraConfig = ''
+        modsecurity on;
+        modsecurity_rules_file /etc/nginx/modsec/main.conf;
+      '';
+    };
+  };
+
   services.nginx.virtualHosts."map.peeraten.net" = {
     enableACME = true;
     forceSSL = true;

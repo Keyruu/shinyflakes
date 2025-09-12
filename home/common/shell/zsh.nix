@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 # nix tooling
 {
   programs.zsh = {
@@ -13,7 +13,7 @@
         bindkey -M viins "^[[B" history-substring-search-down
       '';
 
-    dotDir = ".config/zsh";
+    dotDir = "${config.home.homeDirectory}/.config/zsh";
     autosuggestion.enable = true;
     enableCompletion = true;
 

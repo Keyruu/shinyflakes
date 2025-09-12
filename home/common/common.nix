@@ -68,6 +68,7 @@
     cachix
     neovim
     gnupg
+    mill
 
     # gui apps
     gimp
@@ -135,7 +136,6 @@
     tree
     inetutils
     aria2
-    neofetch
     yadm
     rsync
     rclone
