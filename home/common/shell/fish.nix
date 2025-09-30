@@ -1,5 +1,7 @@
 { config, ... }:
 {
+  programs.man.generateCaches = false;
+
   programs.fish = {
     enable = true;
 
@@ -12,6 +14,7 @@
       ''
         switch (uname)
           case Darwin
+            starship init fish --print-full-init | source
             eval "$(/opt/homebrew/bin/brew shellenv)"
             fish_add_path $HOME/.krew
             fish_add_path $HOME/.cargo/bin
@@ -21,6 +24,7 @@
             set -x PNPM_HOME $HOME/.pnpm-bin
             source $HOME/.local/bin/env.fish
           case Linux
+            starship init fish | source
         end
 
         alias opencode-sst "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts"
@@ -52,17 +56,17 @@
     shellInitLast =
       # fish
       ''
-        function is_inside_neovim
-          # Check if NVIM environment variable is set
-          if test -n "$NVIM"
-            return 0  # Inside Neovim
-          end
-          return 1  # Not inside Neovim
-        end
-        # Call enable_transience only if not inside Neovim terminal
-        if not is_inside_neovim
-          enable_transience
-        end
+        # function is_inside_neovim
+        #   # Check if NVIM environment variable is set
+        #   if test -n "$NVIM"
+        #     return 0  # Inside Neovim
+        #   end
+        #   return 1  # Not inside Neovim
+        # end
+        # # Call enable_transience only if not inside Neovim terminal
+        # if not is_inside_neovim
+        #   enable_transience
+        # end
       '';
   };
 }

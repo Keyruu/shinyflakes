@@ -7,4 +7,4 @@ vim.opt.clipboard = ""
 vim.opt.scrolloff = 999
 
 -- Use bash instead of fish for shell commands
-vim.opt.shell = "/bin/bash"
+-- vim.opt.shell = "/bin/bash"

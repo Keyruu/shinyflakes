@@ -19,6 +19,7 @@ in
     ./zellij.nix
     ./fish.nix
     ./tmux.nix
+    ./television.nix
   ];
 
   # add environment variables
@@ -63,7 +64,9 @@ in
 
   programs.starship = {
     enable = true;
-    enableTransience = true;
+    enableTransience = false;
+    enableFishIntegration = false;
+
     settings = {
       right_format = "$time";
       kubernetes = {

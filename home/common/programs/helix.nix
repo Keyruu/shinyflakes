@@ -2,6 +2,7 @@
 {
   programs.helix = with pkgs; {
     enable = true;
+    package = evil-helix;
     extraPackages = [
       astro-language-server
       bash-language-server
@@ -38,150 +39,243 @@
     ];
 
     settings = {
-      theme = "gruvbox_community";
+      theme = "kanagawa";
 
       editor = {
-        color-modes = true;
+        # Enable evil mode (vim keybindings)
+        evil = true;
+        
+        # Visual and UI settings
+        color-modes = true;  # Evil-helix colors file types in statusline with this
         cursorline = true;
         bufferline = "multiple";
-
-        soft-wrap.enable = true;
-
-        auto-save = {
-          focus-lost = true;
-          after-delay.enable = true;
-        };
-
+        line-number = "relative";
+        rulers = [ 80 120 ];
+        
+        # Scrolloff matching your LazyVim config
+        scrolloff = 999;
+        
+        # Cursor shapes (vim conventions)
         cursor-shape = {
           insert = "bar";
           normal = "block";
           select = "underline";
         };
-
+        
+        # Auto-save and formatting
+        auto-save = {
+          focus-lost = true;
+          after-delay.enable = true;
+        };
+        auto-format = true;
+        
+        # File picker settings
         file-picker = {
           hidden = false;
-          ignore = false;
+          ignore = true;
+          git-ignore = true;
+          git-global = true;
+          git-exclude = true;
         };
-
+        
+        # Indentation guides (evil-helix supports colored/rainbow guides)
         indent-guides = {
-          character = "┊";
           render = true;
+          character = "│";
           skip-levels = 1;
+          rainbow-option = "dim";  # Evil-helix rainbow indentation
         };
-
+        
+        # Soft wrap
+        soft-wrap = {
+          enable = true;
+          wrap-at-text-width = true;
+        };
+        
+        # Diagnostics display
         end-of-line-diagnostics = "hint";
         inline-diagnostics.cursor-line = "warning";
-
+        
+        # LSP features
         lsp = {
-          display-inlay-hints = true;
           display-messages = true;
+          display-inlay-hints = true;
+          display-signature-help-docs = true;
+          snippets = true;
+          goto-reference-include-declaration = true;
         };
-
+        
+        # Mouse support
+        mouse = true;
+        
+        # Smart tab disabled by default in evil-helix
+        smart-tab.enable = false;
+        
+        # Statusline configuration
         statusline = {
           left = [
             "mode"
-            "file-name"
             "spinner"
+            "file-name"
             "read-only-indicator"
             "file-modification-indicator"
           ];
+          center = [ "diagnostics" ];
           right = [
-            "diagnostics"
             "selections"
-            "register"
-            "file-type"
-            "file-line-ending"
+            "primary-selection-length"
             "position"
+            "position-percentage"
+            "file-encoding"
+            "file-line-ending"
+            "file-type"
           ];
-          mode.normal = "";
-          mode.insert = "I";
-          mode.select = "S";
+          separator = "│";
+          mode = {
+            normal = "NOR";
+            insert = "INS";
+            select = "VIS";  # Evil-helix renames SEL to VIS
+          };
+        };
+        
+        # Search configuration
+        search = {
+          smart-case = true;
+          wrap-around = true;
+        };
+        
+        # Whitespace rendering
+        whitespace = {
+          render = {
+            space = "none";
+            tab = "all";
+            newline = "none";
+          };
+          characters = {
+            space = "·";
+            nbsp = "⍽";
+            tab = "→";
+            newline = "⏎";
+            tabpad = "·";
+          };
         };
       };
 
-      # keys = {
-      #   normal = {
-      #     H = "extend_char_left";
-      #     x = "extend_to_line_bounds";
-      #     J = [ "extend_line_down" "extend_to_line_bounds" ];
-      #     K = [ "extend_line_up" "extend_to_line_bounds" ];
-      #     L = "extend_char_right";
-      #     B = "extend_prev_word_start";
-      #     W = "extend_next_word_start";
-      #     E = "extend_next_word_end";
-      #     A-b = "move_prev_long_word_start";
-      #     A-B = "extend_prev_long_word_start";
-      #     A-w = "move_next_long_word_start";
-      #     A-W = "extend_next_long_word_start";
-      #     A-e = "move_next_long_word_end";
-      #     A-E = "extend_next_long_word_end";
-      #     T = "extend_till_char";
-      #     F = "extend_next_char";
-      #     A-t = "till_prev_char";
-      #     A-f = "find_prev_char";
-      #     A-T = "extend_till_prev_char";
-      #     A-F = "extend_prev_char";
-      #     A-j = "join_selections";
-      #     A-k = "keep_selections";
-      #     M = [ "select_mode" "match_brackets" "normal_mode" ];
-      #     "#" = "toggle_comments";
-      #     A-l = "extend_to_line_end";
-      #     A-h = "extend_to_line_start";
-      #     left = "goto_previous_buffer";
-      #     right = "goto_next_buffer";
-      #     A-d = "delete_selection";
-      #     c = "change_selection_noyank";
-      #     d = "delete_selection_noyank";
-      #     N = "extend_search_next";
-      #     A-n = "search_prev";
-      #     A-N = "extend_search_prev";
-      #     C-d = [ "page_cursor_half_down" "align_view_center" ];
-      #     C-u = [ "page_cursor_half_up" "align_view_center" ];
-      #     tab = "move_parent_node_end";
-      #     S-tab = "move_parent_node_start";
-      #
-      #     G = {
-      #       j = "@vgj<esc>";
-      #       k = "@vgk<esc>";
-      #     };
-      #
-      #     g = {
-      #       j = "goto_last_line";
-      #       k = "goto_file_start";
-      #     };
-      #
-      #     space = {
-      #       c = ":buffer-close";
-      #       A-f = ":toggle auto-format";
-      #       q = ":write-quit-all";
-      #       Q = ":quit!";
-      #       e = ":config-open";
-      #       w = ":write";
-      #       "." = ":toggle file-picker.git-ignore";
-      #     };
-      #   };
-      #
-      #   insert = {
-      #     C-u = [ "extend_to_line_bounds" "delete_selection_noyank" "open_above" ];
-      #     C-w = [ "move_prev_word_start" "delete_selection_noyank" ];
-      #     C-space = "completion";
-      #     S-tab = "move_parent_node_start";
-      #   };
-      #
-      #   select = {
-      #     tab = "extend_parent_node_end";
-      #     S-tab = "extend_parent_node_start";
-      #
-      #     g = {
-      #       j = "goto_last_line";
-      #       k = "goto_file_start";
-      #     };
-      #   };
-      # };
+      # With evil-helix, you get vim keybindings by default, so we only need
+      # to add custom mappings that aren't part of standard vim
+      keys = {
+        normal = {
+          # Leader key mappings (these supplement vim bindings)
+          space = {
+            # File operations
+            w = ":write";
+            q = ":quit";
+            Q = ":quit!";
+            x = ":write-quit";
+            X = ":write-quit-all";
+            
+            # File picker and search (LazyVim-like)
+            f = {
+              f = "file_picker";
+              r = "file_picker_in_current_buffer_directory";
+              g = "global_search";
+              b = "buffer_picker";
+              h = "select_references_to_symbol_under_cursor";
+              s = "symbol_picker";
+              S = "workspace_symbol_picker";
+              d = "diagnostics_picker";
+              D = "workspace_diagnostics_picker";
+            };
+            
+            # LSP operations
+            l = {
+              r = "rename_symbol";
+              a = "code_action";
+              h = "hover";
+              s = "signature_help";
+              d = "goto_definition";
+              D = "goto_declaration";
+              i = "goto_implementation";
+              t = "goto_type_definition";
+              R = "goto_references";
+              f = ":format";
+            };
+            
+            # Git operations
+            g = {
+              s = ":toggle-option diff-gutter";
+              b = ":reset-diff-change";
+              n = "goto_next_change";
+              p = "goto_prev_change";
+            };
+            
+            # Diagnostics
+            e = "goto_next_diag";
+            E = "goto_prev_diag";
+            
+            # Toggle options
+            o = {
+              w = ":toggle soft-wrap.enable";
+              n = ":toggle line-numbers";
+              r = ":toggle relative-line-numbers";
+              i = ":toggle lsp.display-inlay-hints";
+              d = ":toggle lsp.display-messages";
+            };
+            
+            # System clipboard (matching LazyVim)
+            y = "yank_to_clipboard";
+            p = "paste_clipboard_after";
+            P = "paste_clipboard_before";
+          };
+
+          # Quick LSP actions (vim-style with 'g' prefix)
+          g = {
+            d = "goto_definition";
+            D = "goto_declaration";
+            i = "goto_implementation";
+            t = "goto_type_definition";
+            r = "goto_references";
+            h = "hover";
+          };
+          
+          # Window navigation (keep these for muscle memory)
+          C-h = "jump_view_left";
+          C-j = "jump_view_down";
+          C-k = "jump_view_up";
+          C-l = "jump_view_right";
+          
+          # Tab navigation for buffers
+          tab = "goto_next_buffer";
+          S-tab = "goto_previous_buffer";
+        };
+
+        # Insert mode additions
+        insert = {
+          # Common vim escape sequences
+          j.k = "normal_mode";
+          j.j = "normal_mode";
+          
+          # Clipboard in insert
+          C-v = "paste_clipboard_after";
+        };
+        
+        # Visual/Select mode additions
+        select = {
+          # System clipboard in visual mode
+          space.y = "yank_to_clipboard";
+          space.p = "replace_selections_with_clipboard";
+        };
+      };
     };
 
     themes = {
-      # https://github.com/helix-editor/helix/blob/master/runtime/themes/gruvbox.toml
+      # Kanagawa theme (matching your LazyVim kanagawa plugin)
+      kanagawa = {
+        inherits = "kanagawa";
+        "ui.background" = { };
+      };
+      
+      # Keep gruvbox as fallback
       gruvbox_community = {
         inherits = "gruvbox";
         "variable" = "blue1";

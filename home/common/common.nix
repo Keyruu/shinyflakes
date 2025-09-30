@@ -69,6 +69,11 @@
     neovim
     gnupg
     mill
+    sbt
+    bloop
+    scalafix
+    scalafmt
+    nil
 
     # gui apps
     gimp

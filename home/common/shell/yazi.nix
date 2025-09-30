@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
   programs.yazi = {
     enable = true;
@@ -8,7 +8,7 @@
       starship = starship;
     };
     keymap = {
-      manager.prepend_keymap = [
+      mgr.prepend_keymap = [
         {
           on = "l";
           run = "plugin smart-enter";
@@ -22,7 +22,14 @@
       ];
     };
     settings = {
+      # preview.cache_dir = "$HOME/.cache/yazi";
       opener = {
+        edit = [
+          {
+            run = "zed \"$@\"; ya emit quit";
+            desc = "Open in Zed";
+          }
+        ];
         open = [
           {
             run = "xdg-open \"$@\"";

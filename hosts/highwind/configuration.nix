@@ -27,6 +27,7 @@
     ./homepage.nix
     ./sirberus.nix
     ./gpu.nix
+    ./perplexica.nix
   ];
 
   # Use the GRUB 2 boot loader.

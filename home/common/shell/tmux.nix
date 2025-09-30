@@ -16,13 +16,22 @@ in
     enable = true;
     clock24 = true;
     mouse = true;
+    keyMode = "vi";
+    prefix = "C-a";
+    sensibleOnTop = true;
+    terminal = "tmux-256color";
+    shell = "${lib.getExe pkgs.fish}";
     extraConfig = ''
+      set-option -g default-shell "${lib.getExe pkgs.fish}"
+      set-option -g default-command "${lib.getExe pkgs.fish}"
       set-option -sa terminal-overrides ",xterm*:Tc"
+      set-option -sa terminal-features ",*:RGB"
       set -g mouse on
+      set -g @tmux-which-key-xdg-enable 1
 
       # Vim style pane selection
       bind h select-pane -L
-      bind j select-pane -D 
+      bind j select-pane -D
       bind k select-pane -U
       bind l select-pane -R
 
@@ -46,8 +55,8 @@ in
       bind -n M-H previous-window
       bind -n M-L next-window
 
-      # set vi-mode
-      set-window-option -g mode-keys vi
+      bind -n r source-file ~/.tmux.conf
+
       # keybindings
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
@@ -56,11 +65,46 @@ in
       bind '"' split-window -v -c "#{pane_current_path}"
       bind % split-window -h -c "#{pane_current_path}"
 
-      set -g status-style bg=black,fg=white
-      set -g status-left '#[fg=green]#S '
-      set -g status-right '#[fg=yellow]#(whoami)@#H #[fg=cyan]%Y-%m-%d %H:%M'
-      set -g status-left-length 20
+      # DESIGN TWEAKS
+
+      # don't do anything when a 'bell' rings
+      set -g visual-activity off
+      set -g visual-bell off
+      set -g visual-silence off
+      setw -g monitor-activity off
+      set -g bell-action none
+
+      # clock mode
+      setw -g clock-mode-colour yellow
+
+      # copy mode
+      setw -g mode-style 'fg=black bg=red bold'
+
+      # panes
+      set -g pane-border-style 'fg=red'
+      set -g pane-active-border-style 'fg=yellow'
+
+      # statusbar
+      set -g status-position bottom
+      set -g status-justify left
+      set -g status-style 'fg=red'
+
+      set -g status-left-length 10
+
+      set -g status-right-style 'fg=black bg=yellow'
+      set -g status-right '%Y-%m-%d %H:%M '
       set -g status-right-length 50
+
+      setw -g window-status-current-style 'fg=black bg=red'
+      setw -g window-status-current-format ' #I #W #F '
+
+      setw -g window-status-style 'fg=red bg=black'
+      setw -g window-status-format ' #I #[fg=white]#W #[fg=yellow]#F '
+
+      setw -g window-status-bell-style 'fg=yellow bg=red bold'
+
+      # messages
+      set -g message-style 'fg=yellow bg=red bold'
     '';
     plugins = with pkgs.tmuxPlugins; [
       smart-splits

@@ -61,10 +61,10 @@
       [gaps]
       inner.horizontal = 10
       inner.vertical =   10
-      outer.left =       [{ monitor."C34H89x" = 100 }, 10]
+      outer.left =       [{ monitor."C34H89x" = 500 }, 10]
       outer.bottom =     10
       outer.top =        10
-      outer.right =      [{ monitor."C34H89x" = 100 }, 10]
+      outer.right =      [{ monitor."C34H89x" = 500 }, 10]
 
       # 'main' binding mode declaration
       # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -150,7 +150,7 @@
       # alt - i : yabai -m window --toggle heynote && $HOME/shinyflakes/darwin/home/yabai/focusApp.sh Heynote || open -a "Heynote"
       alt-w = 'exec-and-forget open -a "Obsidian"'
       alt-o = 'exec-and-forget open -a "Microsoft Outlook"'
-      alt-v = 'exec-and-forget open -a "Visual Studio Code"'
+      alt-v = 'exec-and-forget open -a "Zed"'
       alt-g = 'exec-and-forget open raycast://extensions/moored/git-repos/list'
       alt-shift-v = 'exec-and-forget open raycast://extensions/raycast/clipboard-history/clipboard-history'
       alt-period = 'exec-and-forget open raycast://extensions/raycast/floating-notes/toggle-floating-notes-window'
@@ -261,6 +261,10 @@
 
       [[on-window-detected]]
       if.app-id = 'com.microsoft.VSCode'
+      run = ["move-node-to-workspace 2"]
+
+      [[on-window-detected]]
+      if.app-id = 'dev.zed.Zed'
       run = ["move-node-to-workspace 2"]
 
       [[on-window-detected]]
