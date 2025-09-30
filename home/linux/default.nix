@@ -75,6 +75,6 @@
     discord
     inputs.iio-hyprland.packages.${system}.default
     inputs.zen-browser.packages."${system}".default
-    inputs.sirberus.packages."${system}".default
+    # inputs.sirberus.packages."${system}".default
   ];
 }

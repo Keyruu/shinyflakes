@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ./hy3.nix
+    # ./hy3.nix
     ./polkitagent.nix
     ./binds.nix
     ./touch.nix

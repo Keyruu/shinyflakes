@@ -1,4 +1,5 @@
 {
+  inputs,
   config,
   pkgs,
   ...
@@ -10,6 +11,12 @@ let
   gaps-out = config.theme.gaps-out or 10;
 in
 {
+  imports = [ inputs.iio-sway.homeManagerModules.default ];
+
+  programs.iio-sway = {
+    enable = true;
+  };
+
   home.packages = with pkgs; [
     # Wayland utilities (similar to Hyprland packages)
     wl-clipboard
@@ -62,6 +69,7 @@ in
         { command = "sherlock --daemonize"; }
         { command = "1password --ozone-platform-hint=x11"; }
         { command = "sworkstyle"; }
+        { command = "iio-sway"; }
       ];
 
       output = {
@@ -149,105 +157,107 @@ in
         "type:keyboard" = {
           xkb_numlock = "enabled";
         };
+        "type:pointer" = {
+          pointer_accel = "-1";
+        };
       };
 
       # Key bindings (adapted from Hyprland binds.nix)
-      keybindings =
-        {
-          # Application shortcuts
-          "${modifier}+e" = "workspace number 3; exec focusOrOpen wezterm org.wezfurlong.wezterm";
-          "${modifier}+c" = "workspace number 1; exec focusOrOpen zen zen";
-          "${modifier}+m" =
-            "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
-          "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
+      keybindings = {
+        # Application shortcuts
+        "${modifier}+e" = "workspace number 3; exec focusOrOpen wezterm org.wezfurlong.wezterm";
+        "${modifier}+c" = "workspace number 1; exec focusOrOpen zen zen";
+        "${modifier}+m" =
+          "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
+        "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
-          # Window management (vim-style navigation)
-          "${modifier}+h" = "focus left";
-          "${modifier}+j" = "focus down";
-          "${modifier}+k" = "focus up";
-          "${modifier}+l" = "focus right";
-          "${modifier}+Shift+h" = "move left";
-          "${modifier}+Shift+j" = "move down";
-          "${modifier}+Shift+k" = "move up";
-          "${modifier}+Shift+l" = "move right";
+        # Window management (vim-style navigation)
+        "${modifier}+h" = "focus left";
+        "${modifier}+j" = "focus down";
+        "${modifier}+k" = "focus up";
+        "${modifier}+l" = "focus right";
+        "${modifier}+Shift+h" = "move left";
+        "${modifier}+Shift+j" = "move down";
+        "${modifier}+Shift+k" = "move up";
+        "${modifier}+Shift+l" = "move right";
 
-          # Arrow key alternatives
-          "${modifier}+Left" = "focus left";
-          "${modifier}+Down" = "focus down";
-          "${modifier}+Up" = "focus up";
-          "${modifier}+Right" = "focus right";
-          "${modifier}+Shift+Left" = "move left";
-          "${modifier}+Shift+Down" = "move down";
-          "${modifier}+Shift+Up" = "move up";
-          "${modifier}+Shift+Right" = "move right";
+        # Arrow key alternatives
+        "${modifier}+Left" = "focus left";
+        "${modifier}+Down" = "focus down";
+        "${modifier}+Up" = "focus up";
+        "${modifier}+Right" = "focus right";
+        "${modifier}+Shift+Left" = "move left";
+        "${modifier}+Shift+Down" = "move down";
+        "${modifier}+Shift+Up" = "move up";
+        "${modifier}+Shift+Right" = "move right";
 
-          # Window actions
-          "Super+q" = "kill"; # Close window (matching Hyprland $otherMod)
-          "${modifier}+t" = "floating toggle";
-          "${modifier}+f" = "fullscreen toggle";
-          "${modifier}+Tab" = "workspace back_and_forth";
-          "${modifier}+Comma" = "layout toggle stacking tabbed";
-          "${modifier}+Period" = "layout toggle splitv splith";
+        # Window actions
+        "Super+q" = "kill"; # Close window (matching Hyprland $otherMod)
+        "${modifier}+t" = "floating toggle";
+        "${modifier}+f" = "fullscreen toggle";
+        "${modifier}+Tab" = "workspace back_and_forth";
+        "${modifier}+Comma" = "layout toggle stacking tabbed";
+        "${modifier}+Period" = "layout toggle splitv splith";
 
-          # Launchers and utilities
-          "Super+space" = "exec sherlock";
-          "Super+Shift+space" = "exec tofi-drun | xargs swaymsg exec --";
-          "Super+x" = "exec powermenu";
-          # "Super+Shift+l" = "exec pidof swaylock || swaylock";
-          "Super+Shift+v" = "exec foot --app-id clipse sh -c clipse";
-          "Super+Shift+l" = "exec pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock";
+        # Launchers and utilities
+        "Super+space" = "exec sherlock";
+        "Super+Shift+space" = "exec tofi-drun | xargs swaymsg exec --";
+        "Super+x" = "exec powermenu";
+        # "Super+Shift+l" = "exec pidof swaylock || swaylock";
+        "Super+Shift+v" = "exec foot --app-id clipse sh -c clipse";
+        "Super+Shift+l" = "exec pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock";
 
-          # Screenshots
-          "Print" = "exec grim -g \"$(slurp)\" - | wl-copy";
-          "Super+Shift+4" = "exec grim -g \"$(slurp)\" - | wl-copy";
+        # Screenshots
+        "Print" = "exec grim -g \"$(slurp)\" - | wl-copy";
+        "Super+Shift+4" = "exec grim -g \"$(slurp)\" - | wl-copy";
 
-          # Copy/paste shortcuts (matching Hyprland)
-          "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm";
-          "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm";
-          "Super+a" = "exec wtype -M ctrl -k a";
-          "Super+t" = "exec wtype -M ctrl -k t";
-          "Super+k" = "exec wtype -M ctrl -k k";
-          "Super+w" = "exec wtype -M ctrl -k w";
+        # Copy/paste shortcuts (matching Hyprland)
+        "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm";
+        "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm";
+        "Super+a" = "exec wtype -M ctrl -k a";
+        "Super+t" = "exec wtype -M ctrl -k t";
+        "Super+k" = "exec wtype -M ctrl -k k";
+        "Super+w" = "exec wtype -M ctrl -k w";
 
-          # Layout
-          "${modifier}+v" = "splitv";
-          "${modifier}+b" = "splith";
+        # Layout
+        "${modifier}+v" = "splitv";
+        "${modifier}+b" = "splith";
 
-          # Resize mode
-          "${modifier}+r" = "mode resize";
+        # Resize mode
+        "${modifier}+r" = "mode resize";
 
-          # Media keys
-          "XF86AudioMute" = "exec sound-toggle";
-          "XF86AudioPlay" = "exec playerctl play-pause";
-          "XF86AudioNext" = "exec playerctl next";
-          "XF86AudioPrev" = "exec playerctl previous";
-          "XF86AudioRaiseVolume" = "exec sound-up";
-          "XF86AudioLowerVolume" = "exec sound-down";
-          "XF86MonBrightnessUp" = "exec brightness-up";
-          "XF86MonBrightnessDown" = "exec brightness-down";
+        # Media keys
+        "XF86AudioMute" = "exec sound-toggle";
+        "XF86AudioPlay" = "exec playerctl play-pause";
+        "XF86AudioNext" = "exec playerctl next";
+        "XF86AudioPrev" = "exec playerctl previous";
+        "XF86AudioRaiseVolume" = "exec sound-up";
+        "XF86AudioLowerVolume" = "exec sound-down";
+        "XF86MonBrightnessUp" = "exec brightness-up";
+        "XF86MonBrightnessDown" = "exec brightness-down";
 
-          # Workspace switching (1-9)
-        }
-        // builtins.listToAttrs (
-          builtins.concatLists (
-            builtins.genList (
-              i:
-              let
-                ws = toString (i + 1);
-              in
-              [
-                {
-                  name = "${modifier}+${ws}";
-                  value = "workspace number ${ws}";
-                }
-                {
-                  name = "${modifier}+Shift+${ws}";
-                  value = "move container to workspace number ${ws}";
-                }
-              ]
-            ) 9
-          )
-        );
+        # Workspace switching (1-9)
+      }
+      // builtins.listToAttrs (
+        builtins.concatLists (
+          builtins.genList (
+            i:
+            let
+              ws = toString (i + 1);
+            in
+            [
+              {
+                name = "${modifier}+${ws}";
+                value = "workspace number ${ws}";
+              }
+              {
+                name = "${modifier}+Shift+${ws}";
+                value = "move container to workspace number ${ws}";
+              }
+            ]
+          ) 9
+        )
+      );
 
       # Mouse bindings
       floating.modifier = modifier;

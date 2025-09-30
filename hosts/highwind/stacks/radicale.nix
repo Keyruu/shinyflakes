@@ -39,7 +39,7 @@ in
   virtualisation.quadlet.containers = {
     radicale = {
       containerConfig = {
-        image = "tomsquest/docker-radicale:3.5.4.0";
+        image = "tomsquest/docker-radicale:3.5.5.0";
         publishPorts = [
           "127.0.0.1:5232:5232"
           "100.64.0.1:5232:5232"

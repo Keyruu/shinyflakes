@@ -73,6 +73,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    iio-sway = {
+      url = "github:tbaumann/iio-sway";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hyprgrass = {
       url = "git+https://github.com/horriblename/hyprgrass?shallow=1&ref=main";
       inputs.hyprland.follows = "hyprland"; # IMPORTANT

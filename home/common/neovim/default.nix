@@ -6,19 +6,21 @@
 }:
 let
   blinkCmpPatched = pkgs.vimPlugins.blink-cmp.overrideAttrs (oldAttrs: {
-    postFixup =
-      (oldAttrs.postFixup or "")
-      + ''
-        rm -rf $out/LICENSE
-        rm -rf $out/README.md
-        rm -rf $out/.gitignore
-        rm -rf $out/.github
-        rm -rf $out/doc
-        rm -rf $out/.stylua.toml
-      '';
+    postFixup = (oldAttrs.postFixup or "") + ''
+      rm -rf $out/LICENSE
+      rm -rf $out/README.md
+      rm -rf $out/.gitignore
+      rm -rf $out/.github
+      rm -rf $out/doc
+      rm -rf $out/.stylua.toml
+    '';
   });
 in
 {
+  imports = [
+    ./man.nix
+  ];
+
   home.packages = with pkgs; [
     neovim
     alejandra

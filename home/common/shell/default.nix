@@ -37,7 +37,7 @@ in
     # enable scrolling in git diff
     DELTA_PAGER = "less -R";
 
-    MANPAGER = "sh -c 'col -bx | bat -l man -p'";
+    # MANPAGER = "sh -c 'col -bx | bat -l man -p'";
     PNPM_HOME = "$HOME/.pnpm-bin";
   };
 

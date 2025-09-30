@@ -29,7 +29,7 @@ in
       containers = {
         ollama = {
           containerConfig = {
-            image = "ollama/ollama:0.11.4";
+            image = "ollama/ollama:0.11.10";
             devices = [ "nvidia.com/gpu=all" ];
             publishPorts = [ "11434:11434" ];
             volumes = [ "/root/.ollama:/root/.ollama" ];
@@ -47,7 +47,7 @@ in
 
         openwebui = {
           containerConfig = {
-            image = "ghcr.io/open-webui/open-webui:0.6.22";
+            image = "ghcr.io/open-webui/open-webui:0.6.28";
             publishPorts = [ "127.0.0.1:3004:8080" ];
             volumes = [ "${openwebuiStackPath}/data:/app/backend/data" ];
             labels = [

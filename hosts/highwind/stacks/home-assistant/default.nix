@@ -83,7 +83,7 @@ in
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
-      image = "ghcr.io/home-assistant/home-assistant:2025.8.1";
+      image = "ghcr.io/home-assistant/home-assistant:2025.9.1";
       environments = {
         TZ = "Europe/Berlin";
       };
