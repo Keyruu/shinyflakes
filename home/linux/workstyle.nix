@@ -21,7 +21,7 @@
       'codium-url-handler' = '󰨞'
       'VSCodium' = '󰨞'
       'Code' = '󰨞'
-      'dev.zed.Zed' = '󰵁'
+      'dev.zed.Zed' = '󰰶'
 
       'spotify_player' = ''
       '1Password' = ''

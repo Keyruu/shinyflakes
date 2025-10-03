@@ -26,7 +26,7 @@
       opener = {
         edit = [
           {
-            run = "zed \"$@\"; ya emit quit";
+            run = "zeditor \"$@\"; ya emit quit";
             desc = "Open in Zed";
           }
         ];

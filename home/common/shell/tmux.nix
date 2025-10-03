@@ -14,20 +14,16 @@ in
 {
   programs.tmux = {
     enable = true;
-    clock24 = true;
-    mouse = true;
-    keyMode = "vi";
-    prefix = "C-a";
     sensibleOnTop = true;
     terminal = "tmux-256color";
     shell = "${lib.getExe pkgs.fish}";
     extraConfig = ''
-      set-option -g default-shell "${lib.getExe pkgs.fish}"
-      set-option -g default-command "${lib.getExe pkgs.fish}"
       set-option -sa terminal-overrides ",xterm*:Tc"
-      set-option -sa terminal-features ",*:RGB"
       set -g mouse on
-      set -g @tmux-which-key-xdg-enable 1
+
+      unbind C-b
+      set -g prefix C-Space
+      bind C-Space send-prefix
 
       # Vim style pane selection
       bind h select-pane -L
@@ -42,10 +38,10 @@ in
       set-option -g renumber-windows on
 
       # Use Alt-arrow keys without prefix key to switch panes
-      bind -n M-Left select-pane -L
-      bind -n M-Right select-pane -R
-      bind -n M-Up select-pane -U
-      bind -n M-Down select-pane -D
+      bind -n C-Left select-pane -L
+      bind -n C-Right select-pane -R
+      bind -n C-Up select-pane -U
+      bind -n C-Down select-pane -D
 
       # Shift arrow to switch windows
       bind -n S-Left  previous-window
@@ -55,8 +51,10 @@ in
       bind -n M-H previous-window
       bind -n M-L next-window
 
-      bind -n r source-file ~/.tmux.conf
+      bind -n C-X copy-mode
 
+      # set vi-mode
+      set-window-option -g mode-keys vi
       # keybindings
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
@@ -110,7 +108,6 @@ in
       smart-splits
       sensible
       yank
-      tmux-which-key
     ];
   };
 }

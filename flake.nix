@@ -4,11 +4,11 @@
   nixConfig = {
     extra-substituters = [
       "https://cache.nixos.org/"
-      "https://cache.lix.systems"
+      "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
-      "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
+      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
     ];
   };
 
@@ -16,11 +16,6 @@
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
-
-    lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.0.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     disko = {
       url = "github:nix-community/disko";
@@ -63,29 +58,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # nixcord = {
-    #   url = "github:kaylorben/nixcord";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
-    iio-hyprland = {
-      url = "github:JeanSchoeller/iio-hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     iio-sway = {
       url = "github:tbaumann/iio-sway";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    hyprgrass = {
-      url = "git+https://github.com/horriblename/hyprgrass?shallow=1&ref=main";
-      inputs.hyprland.follows = "hyprland"; # IMPORTANT
-    };
-
-    hy3 = {
-      url = "github:outfoxxed/hy3?ref=hl0.49.0";
-      inputs.hyprland.follows = "hyprland";
     };
 
     nix-gaming = {
@@ -101,6 +76,8 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+
+    vicinae.url = "github:vicinaehq/vicinae";
 
     sirberus = {
       url = "github:Keyruu/sirberus";
@@ -118,7 +95,7 @@
       home-manager,
       quadlet-nix,
       stylix,
-      lix-module,
+      vicinae,
       ...
     }:
     let
@@ -185,6 +162,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = args;
+
               home-manager.users.lucas = import ./home/linux;
             }
           ];

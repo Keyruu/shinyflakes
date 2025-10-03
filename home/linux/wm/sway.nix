@@ -1,17 +1,17 @@
 {
   inputs,
-  config,
   pkgs,
   ...
 }:
-let
-  # Theme variables (similar to Hyprland setup)
-  border-size = config.theme.border-size or 1;
-  gaps-in = config.theme.gaps-in or 5;
-  gaps-out = config.theme.gaps-out or 10;
-in
 {
-  imports = [ inputs.iio-sway.homeManagerModules.default ];
+  imports = [
+    ./lock.nix
+    ./gtk.nix
+
+    inputs.iio-sway.homeManagerModules.default
+  ];
+
+  services.gnome-keyring.enable = true;
 
   programs.iio-sway = {
     enable = true;
@@ -32,6 +32,10 @@ in
     tofi
     workstyle
     swayest-workstyle
+    swaybg
+    swayidle
+    pamixer
+    wlopm
   ];
 
   wayland.windowManager.sway = {
@@ -45,18 +49,18 @@ in
       menu = "tofi-drun | xargs swaymsg exec --";
 
       window = {
-        border = border-size;
-        titlebar = false;
+        border = 1;
+        titlebar = true;
       };
 
       gaps = {
-        inner = gaps-in;
-        outer = gaps-out;
+        inner = 0;
+        outer = 0;
       };
 
       focus = {
         followMouse = "yes";
-        mouseWarping = false;
+        mouseWarping = "container";
         newWindow = "smart";
       };
 
@@ -65,14 +69,15 @@ in
       startup = [
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "clipse -listen"; }
-        { command = "walker --gapplication-service"; }
-        { command = "sherlock --daemonize"; }
-        { command = "1password --ozone-platform-hint=x11"; }
+        { command = "1password --ozone-platform-hint=wayland"; }
         { command = "sworkstyle"; }
         { command = "iio-sway"; }
       ];
 
       output = {
+        "*" = {
+          bg = "${../themes/blue-bg.jpg} fill";
+        };
         "eDP-1" = {
           mode = "1920x1200@60Hz";
           pos = "0 0";
@@ -141,7 +146,6 @@ in
         }
       ];
 
-      # Input configuration (matching Hyprland input settings)
       input = {
         "*" = {
           xkb_options = "caps:escape";
@@ -162,11 +166,11 @@ in
         };
       };
 
-      # Key bindings (adapted from Hyprland binds.nix)
       keybindings = {
         # Application shortcuts
         "${modifier}+e" = "workspace number 3; exec focusOrOpen wezterm org.wezfurlong.wezterm";
         "${modifier}+c" = "workspace number 1; exec focusOrOpen zen zen";
+        "${modifier}+v" = "exec focusOrOpen zeditor dev.zed.Zed";
         "${modifier}+m" =
           "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
         "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
@@ -200,41 +204,31 @@ in
         "${modifier}+Period" = "layout toggle splitv splith";
 
         # Launchers and utilities
-        "Super+space" = "exec sherlock";
-        "Super+Shift+space" = "exec tofi-drun | xargs swaymsg exec --";
-        "Super+x" = "exec powermenu";
-        # "Super+Shift+l" = "exec pidof swaylock || swaylock";
-        "Super+Shift+v" = "exec foot --app-id clipse sh -c clipse";
-        "Super+Shift+l" = "exec pidof hyprlock || ${pkgs.hyprlock}/bin/hyprlock";
+        "Super+space" = "exec vicinae";
+        "Super+Shift+space" = "exec 1password --ozone-platform-hint=wayland --quick-access";
+        "Super+Shift+l" = "exec loginctl lock";
+        "Super+Shift+v" = "exec vicinae vicinae://extensions/vicinae/clipboard/history";
 
         # Screenshots
         "Print" = "exec grim -g \"$(slurp)\" - | wl-copy";
         "Super+Shift+4" = "exec grim -g \"$(slurp)\" - | wl-copy";
 
-        # Copy/paste shortcuts (matching Hyprland)
+        # Copy/paste shortcuts
         "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm";
-        "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm";
+        "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed";
         "Super+a" = "exec wtype -M ctrl -k a";
         "Super+t" = "exec wtype -M ctrl -k t";
         "Super+k" = "exec wtype -M ctrl -k k";
         "Super+w" = "exec wtype -M ctrl -k w";
+        "Super+r" = "exec wtype -M ctrl -k r";
+        "Super+f" = "exec wtype -M ctrl -k f";
 
         # Layout
-        "${modifier}+v" = "splitv";
-        "${modifier}+b" = "splith";
+        # "${modifier}+v" = "splitv";
+        # "${modifier}+b" = "splith";
 
         # Resize mode
         "${modifier}+r" = "mode resize";
-
-        # Media keys
-        "XF86AudioMute" = "exec sound-toggle";
-        "XF86AudioPlay" = "exec playerctl play-pause";
-        "XF86AudioNext" = "exec playerctl next";
-        "XF86AudioPrev" = "exec playerctl previous";
-        "XF86AudioRaiseVolume" = "exec sound-up";
-        "XF86AudioLowerVolume" = "exec sound-down";
-        "XF86MonBrightnessUp" = "exec brightness-up";
-        "XF86MonBrightnessDown" = "exec brightness-down";
 
         # Workspace switching (1-9)
       }
@@ -277,16 +271,72 @@ in
           "Escape" = "mode default";
         };
       };
+
+      fonts = {
+        names = [ "pango:JetBrains Mono" ];
+        size = 10.0;
+      };
+
+      colors = {
+        focused = {
+          border = "#313244"; # base0D - Blue accent
+          background = "#313244"; # base02 - Selection background
+          text = "#cdd6f4"; # base05 - Default foreground
+          indicator = "#313244"; # base0D - Blue accent
+          childBorder = "#313244"; # base0D - Blue accent
+        };
+
+        focusedInactive = {
+          border = "#45475a"; # base03 - Comments/invisibles
+          background = "#202324"; # base01 - Lighter background
+          text = "#cdd6f4"; # base05 - Default foreground
+          indicator = "#45475a"; # base03 - Comments/invisibles
+          childBorder = "#45475a"; # base03 - Comments/invisibles
+        };
+
+        unfocused = {
+          border = "#45475a"; # base03 - Comments/invisibles
+          background = "#0c0e0f"; # base00 - Default background
+          text = "#585b70"; # base04 - Dark foreground
+          indicator = "#45475a"; # base03 - Comments/invisibles
+          childBorder = "#45475a"; # base03 - Comments/invisibles
+        };
+
+        urgent = {
+          border = "#f38ba8"; # base08 - Variables/errors (red/pink)
+          background = "#f38ba8"; # base08 - Variables/errors
+          text = "#0c0e0f"; # base00 - Dark text on bright background
+          indicator = "#f38ba8"; # base08 - Variables/errors
+          childBorder = "#f38ba8"; # base08 - Variables/errors
+        };
+
+        placeholder = {
+          border = "#45475a"; # base03 - Comments/invisibles
+          background = "#0c0e0f"; # base00 - Default background
+          text = "#585b70"; # base04 - Dark foreground
+          indicator = "#45475a"; # base03 - Comments/invisibles
+          childBorder = "#45475a"; # base03 - Comments/invisibles
+        };
+      };
     };
 
     # Extra configuration for environment variables (matching Hyprland env)
     extraConfig = ''
-      # Environment variables
-      exec systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
-      exec dbus-update-activation-environment --systemd XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+      bindsym --locked XF86AudioRaiseVolume exec --no-startup-id pamixer -i 5 #to increase 5%
+      bindsym --locked XF86AudioLowerVolume exec --no-startup-id pamixer -d 5 #to decrease 5%
+      bindsym --locked XF86AudioMute exec --no-startup-id pamixer -t
+      bindsym --locked XF86AudioPlay exec playerctl play-pause
+      bindsym --locked XF86AudioNext exec playerctl next
+      bindsym --locked XF86AudioPrev exec playerctl previous
+
+      # Brightness controls
+      bindsym --locked XF86MonBrightnessUp exec --no-startup-id brightnessctl set +10%
+      bindsym --locked XF86MonBrightnessDown exec --no-startup-id brightnessctl set 10%-
 
       # Lid switch
-      bindswitch --reload --locked lid:on exec pidof swaylock || swaylock
+      bindswitch --reload --locked lid:on exec pidof hyprlock || hyprlock
+
+      for_window [title=".*"] title_format "<b>%title</b> (%app_id)"
     '';
 
     # Sway-specific settings

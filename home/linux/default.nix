@@ -12,21 +12,23 @@
     ../common/ssh.nix
     ../common/nix-index-database.nix
     ../common/programs/nh.nix
+    ../common/programs/zed.nix
+    ../common/programs/vicinae.nix
 
-    ./hypr
-    ./sway.nix
-    ./wofi.nix
-    ./tofi.nix
+    ./wm
+    # ./wofi.nix
+    # ./tofi.nix
     ./clipman.nix
     ./clipse.nix
     # ./discord.nix
-    ./themes/nixy.nix
+    # ./themes/nixy.nix
     ./tailscale.nix
     ./dunst.nix
     ./scripts
     ./programs
     ./gaming.nix
     ./workstyle.nix
+    ./mpv.nix
   ];
 
   home = {
@@ -73,7 +75,9 @@
     wireguard-ui
     wireguard-tools
     discord
-    inputs.iio-hyprland.packages.${system}.default
+    vesktop
+    slack
+    signal-desktop
     inputs.zen-browser.packages."${system}".default
     # inputs.sirberus.packages."${system}".default
   ];

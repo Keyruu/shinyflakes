@@ -1,12 +1,12 @@
 { ... }:
 {
   imports = [
-    ./fuzzel.nix
+    # ./fuzzel.nix
     ./foot.nix
     ./1password.nix
     ./vscode
     ./waybar.nix
-    ./walker
+    # ./walker
     ./squeekboard
     ./sherlock.nix
   ];

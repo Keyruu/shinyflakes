@@ -48,7 +48,7 @@
 
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd sway";
         user = "greeter";
       };
     };
@@ -58,7 +58,7 @@
     enable = true;
     xkb = {
       layout = "us";
-      variant = "";
+      variant = "mac";
     };
   };
 
@@ -88,10 +88,18 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
+  nix.package = pkgs.lixPackageSets.stable.lix;
+
+  nix.settings = {
+    trusted-users = [
+      "lucas"
+      "root"
+    ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+  };
 
   services.fprintd.enable = true;
 

@@ -1,30 +1,60 @@
-{ ... }:
 {
-  powerManagement.powertop.enable = true; # enable powertop auto tuning on startup.
+  pkgs,
+  ...
+}:
+{
+  environment.systemPackages = with pkgs; [
+    brightnessctl
+    mons
+    acpi
+  ];
 
-  services.system76-scheduler.settings.cfsProfiles.enable = true; # Better scheduling for CPU cycles - thanks System76!!!
-  services.thermald.enable = true; # Enable thermald, the temperature management daemon. (only necessary if on Intel CPUs)
-  services.power-profiles-daemon.enable = false; # Disable GNOMEs power management
-  services.tlp = {
-    enable = true; # Enable TLP (better than gnomes internal power manager)
-    # sudo tlp-stat or sudo tlp-stat -p
-    settings = {
-      CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+  # use S3 sleep mode
+  boot.kernelParams = [ "mem_sleep_default=deep" ];
 
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+  # battery life improvements
+  powerManagement = {
+    enable = true;
+    powertop.enable = true;
+  };
 
-      CPU_MIN_PERF_ON_AC = 0;
-      CPU_MAX_PERF_ON_AC = 100;
-      CPU_BOOST_ON_AC = 1;
-      CPU_HWP_DYN_BOOST_ON_AC = 1;
-      CPU_MIN_PERF_ON_BAT = 0;
-      CPU_MAX_PERF_ON_BAT = 20;
+  # turn off wifi without sudo
+  security.sudo.extraRules = [
+    {
+      groups = [ "wheel" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/rfkill";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
-      #Optional helps save long term battery health
-      START_CHARGE_THRESH_BAT0 = 40; # 40 and below it starts to charge
-      STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
+  services = {
+    libinput.touchpad = {
+      tapping = true;
+      disableWhileTyping = true;
+    };
+
+    upower = {
+      enable = true;
+      percentageLow = 10;
+      percentageCritical = 5;
+      percentageAction = 2;
+    };
+
+    # Enable the auto-cpufreq daemon
+    auto-cpufreq.enable = true;
+
+    # Enable thermald, the temperature management daemon
+    thermald.enable = true;
+
+    tlp = {
+      enable = true;
+      settings = {
+        DEVICES_TO_DISABLE_ON_STARTUP = "nfc";
+      };
     };
   };
 }

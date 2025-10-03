@@ -3,12 +3,10 @@
   imports = [
     ./audio.nix
     ./1password.nix
-    ./mpv.nix
     ./kbptr.nix
     ./gaming.nix
     ./battery.nix
     ./wireguard.nix
-    ./bluetooth.nix
   ];
 
   programs = {
@@ -40,4 +38,15 @@
   };
 
   services.gvfs.enable = true; # Mount, trash, and other functionalities
+
+  services.gnome.gnome-keyring.enable = true;
+  programs.dconf.enable = true;
+
+  security.pam.services.hyprlock = { };
+  security.pam.services.swaylock = {
+    text = ''
+      auth sufficient pam_unix.so try_first_pass likeauth nullok
+      auth sufficient pam_fprintd.so
+    '';
+  };
 }

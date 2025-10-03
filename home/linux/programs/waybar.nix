@@ -5,7 +5,9 @@
   ...
 }:
 {
-  stylix.targets.waybar.enable = false;
+  home.packages = with pkgs; [
+    waybar
+  ];
 
   programs.waybar = {
     enable = true;
@@ -20,9 +22,6 @@
         passthrough = false;
         gtk-layer-shell = true;
         modules-left = [
-          # "hyprland/workspaces"
-          # "custom/fullscreen"
-          # "hyprland/window"
           "sway/workspaces"
           "sway/window"
         ];
@@ -40,105 +39,6 @@
           "clock"
           "custom/dunst"
         ];
-        "hyprland/window" = {
-          icon = true;
-        };
-
-        "hyprland/workspaces" = {
-          disable-scroll = true;
-          format = "{icon} {windows}";
-          format-icons = {
-            "1" = "1";
-            "2" = "2";
-            "3" = "3";
-            "4" = "4";
-            "5" = "5";
-            "6" = "6";
-            "7" = "7";
-            "8" = "8";
-            "9" = "9";
-            "10" = "10";
-          };
-          window-rewrite-default = "";
-          window-rewrite = {
-            "class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>" = " ";
-            "class<zen>" = "󰰷";
-            "class<waterfox|waterfox-bin>" = "";
-            "class<microsoft-edge>" = "";
-            "class<Chromium|Thorium|[Cc]hrome>" = "";
-            "class<brave-browser>" = "🦁";
-            "class<tor browser>" = "";
-            "class<firefox-developer-edition>" = "🦊";
-
-            "class<kitty|konsole>" = "";
-            "class<kitty-dropterm>" = "";
-            "class<com.mitchellh.ghostty>" = "";
-            "class<org.wezfurlong.wezterm>" = "";
-
-            "class<[Tt]hunderbird|[Tt]hunderbird-esr>" = "";
-            "class<eu.betterbird.Betterbird>" = "";
-            "title<.*gmail.*>" = "󰊫";
-
-            "class<[Tt]elegram-desktop|org.telegram.desktop|io.github.tdesktop_x64.TDesktop>" = "";
-            "class<discord|[Ww]ebcord|Vesktop>" = "";
-            "title<.*whatsapp.*>" = "";
-            "title<.*zapzap.*>" = "";
-            "title<.*messenger.*>" = "";
-            "title<.*facebook.*>" = "";
-            "title<.*reddit.*>" = "";
-
-            "title<.*ChatGPT.*>" = "󰚩";
-            "title<.*deepseek.*>" = "󰚩";
-            "title<.*qwen.*>" = "󰚩";
-            "class<subl>" = "󰅳";
-            "class<slack>" = "";
-
-            "class<mpv>" = "";
-            "class<celluloid|Zoom>" = "";
-            "class<Cider>" = "󰎆";
-            "title<.*Picture-in-Picture.*>" = "";
-            "title<.*youtube.*>" = "";
-            "class<vlc>" = "󰕼";
-            "title<.*cmus.*>" = "";
-            "class<.*[Ss]potify.*>" = "";
-
-            "class<virt-manager>" = "";
-            "class<.virt-manager-wrapped>" = "";
-
-            "class<VSCode|code-url-handler|code-oss|codium|codium-url-handler|VSCodium>" = "󰨞";
-            "class<dev.zed.Zed>" = "󰵁";
-            "class<codeblocks>" = "󰅩";
-            "title<.*github.*>" = "";
-            "class<mousepad>" = "";
-            "class<libreoffice-writer>" = "";
-            "class<libreoffice-startcenter>" = "󰏆";
-            "class<libreoffice-calc>" = "";
-            "title<.*nvim ~.*>" = "";
-            "title<.*vim.*>" = "";
-            "title<.*nvim.*>" = "";
-            "title<.*figma.*>" = "";
-            "title<.*jira.*>" = "";
-            "class<jetbrains-idea>" = "";
-
-            "class<obs|com.obsproject.Studio>" = "";
-
-            "class<polkit-gnome-authentication-agent-1>" = "󰒃";
-            "class<nwg-look>" = "";
-            "class<[Pp]avucontrol|org.pulseaudio.pavucontrol>" = "󱡫";
-            "class<steam>" = "";
-            "class<thunar|nemo>" = "󰝰";
-            "class<Gparted>" = "";
-            "class<gimp>" = "";
-            "class<emulator>" = "📱";
-            "class<android-studio>" = "";
-            "class<org.pipewire.Helvum>" = "󰓃";
-            "class<localsend>" = "";
-            "class<PrusaSlicer|UltiMaker-Cura|OrcaSlicer>" = "󰹛";
-            "class<1Password>" = "󰎤";
-          };
-          all-outputs = true;
-          on-click = "activate";
-        };
 
         "sway/window" = {
           icon = true;
@@ -338,15 +238,6 @@
           on-click-middle = "dunstctl history-pop"; # Middle click: Show history
           on-click-right = "dunstctl close-all"; # Right click: Close all
         };
-
-        "custom/fullscreen" = {
-          exec = "waybar-fullscreen";
-          interval = 1;
-          tooltip = false;
-          on-click = "hyprctl dispatch fullscreenstate 1"; # Left click: Toggle pause
-          format = "{text}";
-          hide-empty-text = true;
-        };
       };
     };
     style = # css
@@ -374,6 +265,7 @@
         }
 
         #workspaces button {
+          color: #cdd6f4;
           padding: 5px;
           padding-right: 10px;
           /* margin-right: 5px; */
@@ -413,7 +305,7 @@
         #custom-dunst,
         #custom-fullscreen,
         #modbackground {
-          background: #${config.stylix.base16Scheme.base00};
+          background: #0c0e0f;
           opacity: 1.0;
           padding: 0px 7px;
           margin-top: 0px;
@@ -479,6 +371,7 @@
         #window {
           /* border-radius: 7px; */
           /* margin-left: 10px; */
+          color: #cdd6f4;
           opacity: 1.0;
           margin-right: 10px;
         }

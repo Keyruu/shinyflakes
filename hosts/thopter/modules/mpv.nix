@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [ mpv ];
+  environment.systemPackages = with pkgs; [
+    mpv
+    yt-dlp
+  ];
   nixpkgs.overlays = [
     (self: super: {
       mpv = super.mpv.override {

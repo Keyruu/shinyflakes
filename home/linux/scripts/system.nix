@@ -49,50 +49,37 @@ let
         #!/bin/sh
 
         action=$1
-        terminal_class=$2
+        shift
+        terminal_classes="$@"
 
-        # Detect which window manager is running
-        if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ] || pgrep -x "Hyprland" > /dev/null; then
-          # Hyprland
-          active_class=$(hyprctl activewindow -j | jq -r '.class')
-          
-          case "$action" in
-              copy)
-                  key="C"
-                  ;;
-              paste)
-                  key="V"
-                  ;;
-          esac
+        # Sway - get focused window info
+        active_class=$(swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .app_id // .window_properties.class' | head -n 1)
 
-          if [ "$active_class" = "$terminal_class" ]; then
-              shortcut="CTRL_SHIFT,$key,"
-          else
-              shortcut="CTRL,$key,"
-          fi
+        # Check if active_class matches any of the provided terminal classes
+        use_shift_modifier=false
+        for class in $terminal_classes; do
+            if [ "$active_class" = "$class" ]; then
+                use_shift_modifier=true
+                break
+            fi
+        done
 
-          hyprctl dispatch sendshortcut "$shortcut"
-        elif [ "$XDG_CURRENT_DESKTOP" = "sway" ] || pgrep -x "sway" > /dev/null; then
-          # Sway - get focused window info
-          active_class=$(swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .app_id // .window_properties.class' | head -n 1)
-          
-          case "$action" in
-              copy)
-                  if [ "$active_class" = "$terminal_class" ]; then
-                      ${lib.getExe pkgs.wtype} -M ctrl -M shift -k c -m ctrl -m shift
-                  else
-                      ${lib.getExe pkgs.wtype} -M ctrl -k c -m ctrl
-                  fi
-                  ;;
-              paste)
-                  if [ "$active_class" = "$terminal_class" ]; then
-                      ${lib.getExe pkgs.wtype} -M ctrl -M shift -k v -m ctrl -m shift
-                  else
-                      ${lib.getExe pkgs.wtype} -M ctrl -k v -m ctrl
-                  fi
-                  ;;
-          esac
-        fi
+        case "$action" in
+            copy)
+                if [ "$use_shift_modifier" = true ]; then
+                    ${lib.getExe pkgs.wtype} -M ctrl -M shift -k c -m ctrl -m shift
+                else
+                    ${lib.getExe pkgs.wtype} -M ctrl -k c -m ctrl
+                fi
+                ;;
+            paste)
+                if [ "$use_shift_modifier" = true ]; then
+                    ${lib.getExe pkgs.wtype} -M ctrl -M shift -k v -m ctrl -m shift
+                else
+                    ${lib.getExe pkgs.wtype} -M ctrl -k v -m ctrl
+                fi
+                ;;
+        esac
       '';
 
   powermenu =
@@ -166,14 +153,14 @@ let
         if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ] || pgrep -x "Hyprland" > /dev/null; then
           # Hyprland
           is_fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen')
-          
+
           if [ "$is_fullscreen" -eq 1 ]; then
             echo "󰊓"
           fi
         elif [ "$XDG_CURRENT_DESKTOP" = "sway" ] || pgrep -x "sway" > /dev/null; then
           # Sway
           is_fullscreen=$(swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .fullscreen_mode')
-          
+
           if [ "$is_fullscreen" -eq 1 ]; then
             echo "󰊓"
           fi
