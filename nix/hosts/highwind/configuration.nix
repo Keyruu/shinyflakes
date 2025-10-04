@@ -1,0 +1,94 @@
+{
+  inputs,
+  flake,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  imports = [
+    inputs.disko.nixosModules.disko
+    inputs.sops-nix.nixosModules.sops
+    inputs.quadlet-nix.nixosModules.quadlet
+    
+    flake.modules.nixos.core
+    flake.modules.nixos.headless
+    flake.modules.nixos.server
+    flake.modules.nixos.locale
+    flake.modules.nixos.nginx
+    flake.modules.nixos.podman
+    flake.modules.nixos.beszel-agent
+    
+    # Import local modules and services
+    ./hardware-configuration.nix
+    ./modules
+    ./monitoring
+    ./stacks
+  ];
+
+  # Use the GRUB 2 boot loader.
+  boot = {
+    loader = {
+      grub = {
+        enable = true;
+        efiSupport = true;
+        efiInstallAsRemovable = true;
+      };
+    };
+    # use predictable network interface names (eth0)
+    kernelParams = [ "net.ifnames=0" ];
+  };
+
+  hardware.cpu.amd.ryzen-smu.enable = true;
+
+  users.groups.smtp.members = [ "root" ];
+
+  sops = {
+    defaultSopsFile = ../../../secrets.yaml;
+    secrets = {
+      cloudflare.owner = "root";
+      resendApiKey = {
+        owner = "root";
+        group = "smtp";
+        mode = "0440";
+      };
+      headscaleAuthKey.owner = "root";
+      immichEnv.owner = "root";
+      gluetunEnv.owner = "root";
+      lidarrKey.owner = "root";
+      sonarrKey.owner = "root";
+      radarrKey.owner = "root";
+      bazarrKey.owner = "root";
+      prowlarrKey.owner = "root";
+      qbittorrentUsername.owner = "root";
+      qbittorrentPassword.owner = "root";
+      beszelUsername.owner = "root";
+      beszelPassword.owner = "root";
+      jellyfinKey.owner = "root";
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+    busybox
+    ethtool
+    podman-tui
+    smartmontools
+    pv
+    tmux
+    slirp4netns
+    amdgpu_top
+    lazydocker
+    usbutils
+    beets
+    conmon
+    runc
+    powertop
+    ryzen-monitor-ng
+    nvtopPackages.nvidia
+  ];
+
+  system.stateVersion = "24.11";
+}

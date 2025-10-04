@@ -1,9 +1,0 @@
---- a/setup.py	2025-05-26 22:17:54.016852493 +0200
-+++ b/setup.py	2025-05-26 22:20:40.687318860 +0200
-@@ -140,5 +140,5 @@
-             "hintsd = hints.mouse_service:main",
-         ]
-     },
--    cmdclass={"install": PostInstallCommand},
-+    # cmdclass={"install": PostInstallCommand},
- )

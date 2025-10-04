@@ -7,15 +7,19 @@
       "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "cache:U/hdZXmAW51DPCRFSU5EVlr5EFn2aafUOK63LACEeyo="
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
     ];
   };
 
+  # Add all your dependencies here
   inputs = {
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
+
+    blueprint.url = "github:numtide/blueprint";
+    blueprint.inputs.nixpkgs.follows = "nixpkgs";
 
     disko = {
       url = "github:nix-community/disko";
@@ -85,112 +89,9 @@
     };
   };
 
-  outputs =
-    inputs@{
-      self,
-      nix-darwin,
-      disko,
-      sops-nix,
-      nixpkgs,
-      home-manager,
-      quadlet-nix,
-      stylix,
-      vicinae,
-      ...
-    }:
-    let
-      specialArgs = {
-        inherit inputs;
-        inherit (self) outputs;
-        modules = import ./modules;
-      };
-    in
-    {
-      nixosConfigurations.highwind =
-        let
-          args = specialArgs // {
-            hostname = "highwind";
-          };
-        in
-        nixpkgs.lib.nixosSystem {
-          specialArgs = args;
-          system = "x86_64-linux";
-          modules = [
-            disko.nixosModules.disko
-            sops-nix.nixosModules.sops
-            quadlet-nix.nixosModules.quadlet
-            ./hosts/highwind/configuration.nix
-          ];
-        };
-
-      nixosConfigurations.sleipnir = nixpkgs.lib.nixosSystem {
-        inherit specialArgs;
-        system = "x86_64-linux";
-        modules = [
-          disko.nixosModules.disko
-          sops-nix.nixosModules.sops
-          quadlet-nix.nixosModules.quadlet
-          ./hosts/sleipnir/configuration.nix
-        ];
-      };
-
-      nixosConfigurations.garm = nixpkgs.lib.nixosSystem {
-        inherit specialArgs;
-        system = "aarch64-linux";
-        modules = [
-          disko.nixosModules.disko
-          sops-nix.nixosModules.sops
-          ./hosts/garm/configuration.nix
-        ];
-      };
-
-      nixosConfigurations.thopter =
-        let
-          args = specialArgs // {
-            username = "lucas";
-          };
-        in
-        nixpkgs.lib.nixosSystem {
-          specialArgs = args;
-          system = "x86_64-linux";
-          modules = [
-            stylix.nixosModules.stylix
-            ./hosts/thopter/configuration.nix
-
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = args;
-
-              home-manager.users.lucas = import ./home/linux;
-            }
-          ];
-        };
-
-      darwinConfigurations.stern =
-        let
-          args = specialArgs // {
-            username = "lucas.rott";
-            hostname = "PCL2022020701";
-          };
-        in
-        nix-darwin.lib.darwinSystem {
-          specialArgs = args;
-          modules = [
-            ./hosts/stern/configuration.nix
-
-            # sops-nix.darwinModules.sops
-            home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                extraSpecialArgs = args;
-                users."${args.username}" = import ./home/mac;
-              };
-            }
-          ];
-        };
-    };
+  # Load the blueprint with custom prefix
+  outputs = inputs: inputs.blueprint { 
+    inherit inputs;
+    prefix = "nix";
+  };
 }
