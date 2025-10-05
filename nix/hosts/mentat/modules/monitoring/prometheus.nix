@@ -73,7 +73,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
-              "sleipnir:3021"
+              "prime:3021"
               "garm:3021"
             ];
           }
@@ -85,7 +85,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.cadvisor.port}"
-              "sleipnir:3022"
+              "prime:3022"
               "garm:3022"
             ];
           }

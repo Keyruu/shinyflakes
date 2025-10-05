@@ -6,6 +6,7 @@
     ./vscode
     ./waybar.nix
     ./squeekboard
+    ./spotify.nix
     ./zed.nix
     ./vicinae.nix
   ];

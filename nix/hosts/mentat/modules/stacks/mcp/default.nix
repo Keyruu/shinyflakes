@@ -1,11 +1,8 @@
-{ pkgs, ... }:
-let
-  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
-in
+{ pkgs, perSystem, ... }:
 {
   environment.systemPackages = [
     pkgs.mcp-proxy
-    mcpo
+    perSystem.self.mcpo
   ];
 
   users.users.mcp = {

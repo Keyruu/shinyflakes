@@ -56,9 +56,9 @@ in
     vi = "nvim";
     ".." = "cd ..";
     "..." = "cd ../..";
-    deploy-highwind = "nixos-rebuild --flake ~/shinyflakes#highwind switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --fast";
+    deploy-mentat = "nixos-rebuild --flake ~/shinyflakes#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --fast";
     deploy-garm = "nixos-rebuild --flake ~/shinyflakes#garm switch --target-host root@192.168.100.5 --fast";
-    deploy-sleipnir = "nixos-rebuild --flake ~/shinyflakes#sleipnir switch --target-host root@sleipnir --build-host root@sleipnir --fast";
+    deploy-prime = "nixos-rebuild --flake ~/shinyflakes#prime switch --target-host root@prime --build-host root@prime --fast";
     opencode-sst = "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts";
   };
 

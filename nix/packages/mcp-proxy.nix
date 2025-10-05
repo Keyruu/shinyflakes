@@ -1,13 +1,11 @@
 {
-  lib,
   pkgs,
-  fetchFromGitHub,
 }:
 pkgs.python3Packages.buildPythonApplication rec {
   pname = "mcp-proxy";
   version = "0.7.0";
 
-  src = fetchFromGitHub {
+  src = pkgs.fetchFromGitHub {
     owner = "sparfenyuk";
     repo = pname;
     rev = "v${version}";
@@ -23,7 +21,7 @@ pkgs.python3Packages.buildPythonApplication rec {
     mcp
   ];
 
-  meta = with lib; {
+  meta = with pkgs.lib; {
     description = "A MCP server which proxies requests to a remote MCP server over SSE transport.";
     homepage = "https://github.com/sparfenyuk/mcp-proxy";
     license = licenses.mit;

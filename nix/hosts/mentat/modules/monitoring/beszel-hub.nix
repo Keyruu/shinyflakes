@@ -8,12 +8,12 @@ let
         port = 45876;
       }
       {
-        name = "sleipnir";
-        host = "sleipnir";
+        name = "prime";
+        host = "prime";
         port = 45876;
       }
       {
-        name = "highwind";
+        name = "mentat";
         host = "127.0.0.1";
         port = 45876;
       }

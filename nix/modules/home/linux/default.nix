@@ -1,6 +1,6 @@
 {
-  inputs,
   pkgs,
+  perSystem,
   ...
 }:
 {
@@ -64,7 +64,7 @@
     vesktop
     slack
     signal-desktop
-    inputs.zen-browser.packages."${system}".default
+    perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];
 }

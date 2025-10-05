@@ -1,10 +1,10 @@
 {
   pkgs,
+  perSystem,
   lib,
   ...
 }:
 let
-  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
   ssePort = 30001;
   oapiPort = 30101;
 in
@@ -30,7 +30,7 @@ in
     description = "mcpo-fetch";
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm mcp/fetch";
+      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm mcp/fetch";
       User = "root";
       Group = "root";
       Restart = "always";

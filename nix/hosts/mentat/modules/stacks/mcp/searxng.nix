@@ -1,10 +1,10 @@
 {
+  perSystem,
   pkgs,
   lib,
   ...
 }:
 let
-  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
   ssePort = 30003;
   oapiPort = 30103;
 in
@@ -36,7 +36,7 @@ in
       SEARXNG_URL = "http://127.0.0.1:4899";
     };
     serviceConfig = {
-      ExecStart = "${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e SEARXNG_URL --network host isokoliuk/mcp-searxng:latest";
+      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e SEARXNG_URL --network host isokoliuk/mcp-searxng:latest";
       User = "root";
       Group = "root";
       Restart = "always";

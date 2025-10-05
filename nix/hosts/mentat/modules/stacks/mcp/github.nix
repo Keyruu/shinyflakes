@@ -1,11 +1,11 @@
 {
   config,
   pkgs,
+  perSystem,
   lib,
   ...
 }:
 let
-  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
   ssePort = 30000;
   oapiPort = 30100;
 in
@@ -44,7 +44,7 @@ in
     description = "mcpo-github";
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server:main";
+      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server:main";
       User = "root";
       Group = "root";
       Restart = "always";

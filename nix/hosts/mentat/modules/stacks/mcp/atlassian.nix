@@ -1,11 +1,11 @@
 {
   config,
+  perSystem,
   pkgs,
   lib,
   ...
 }:
 let
-  mcpo = pkgs.callPackage ../../../../pkgs/mcpo.nix { };
   ssePort = 30002;
   oapiPort = 30102;
 in
@@ -64,7 +64,7 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       ExecStart = ''
-        ${lib.getExe mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm \
+        ${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm \
         -e CONFLUENCE_URL \
         -e CONFLUENCE_USERNAME \
         -e CONFLUENCE_API_TOKEN \

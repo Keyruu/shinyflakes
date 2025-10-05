@@ -1,5 +1,5 @@
 {
-  hostname,
+  hostName,
   lib,
   pkgs,
   ...

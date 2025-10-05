@@ -1,5 +1,7 @@
 {
   imports = [
+    ./stacks
+
     ./atuin.nix
     ./headscale.nix
     ./kanidm.nix

@@ -3,10 +3,10 @@
   networking = {
     networkmanager = {
       enable = true;
-      wifi = {
-        backend = "iwd";
-        powersave = true;
-      };
+      # wifi = {
+      #   backend = "iwd";
+      #   powersave = true;
+      # };
     };
 
     firewall.enable = true;

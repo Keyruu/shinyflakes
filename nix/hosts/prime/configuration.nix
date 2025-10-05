@@ -1,9 +1,7 @@
 {
   inputs,
   flake,
-  config,
   pkgs,
-  lib,
   ...
 }:
 {
@@ -23,11 +21,10 @@
     # Import local modules and services
     flake.modules.services.monitoring
     ./modules
-    ./stacks/rybbit.nix
   ];
 
   sops = {
-    defaultSopsFile = ../../../secrets.yaml;
+    defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
     };

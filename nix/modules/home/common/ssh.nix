@@ -7,7 +7,7 @@
       "*" = {
         controlPath = "~/.ssh/_%C";
       };
-      "sleipnir" = {
+      "prime" = {
         hostname = "168.119.225.165";
         user = "root";
       };

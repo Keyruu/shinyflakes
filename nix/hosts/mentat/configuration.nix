@@ -1,9 +1,7 @@
 {
   inputs,
   flake,
-  config,
   pkgs,
-  lib,
   ...
 }:
 {
@@ -11,21 +9,20 @@
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
     inputs.quadlet-nix.nixosModules.quadlet
-    
+
     flake.modules.nixos.core
-    flake.modules.nixos.headless
     flake.modules.nixos.server
     flake.modules.nixos.locale
     flake.modules.nixos.nginx
     flake.modules.nixos.podman
     flake.modules.nixos.beszel-agent
-    
+
     # Import local modules and services
     ./hardware-configuration.nix
     ./modules
-    ./monitoring
-    ./stacks
   ];
+
+  user.name = "root";
 
   # Use the GRUB 2 boot loader.
   boot = {
@@ -45,7 +42,7 @@
   users.groups.smtp.members = [ "root" ];
 
   sops = {
-    defaultSopsFile = ../../../secrets.yaml;
+    defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
       resendApiKey = {

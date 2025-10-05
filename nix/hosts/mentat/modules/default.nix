@@ -14,6 +14,5 @@
     ./perplexica.nix
     ./samba.nix
     ./sirberus.nix
-    ./syncthing.nix
   ];
 }

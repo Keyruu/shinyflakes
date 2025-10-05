@@ -1,13 +1,11 @@
 {
-  lib,
   pkgs,
-  fetchFromGitHub,
 }:
 pkgs.python3Packages.buildPythonApplication rec {
   pname = "mcpo";
   version = "0.0.16";
 
-  src = fetchFromGitHub {
+  src = pkgs.fetchFromGitHub {
     owner = "open-webui";
     repo = "mcpo";
     tag = "v${version}";
@@ -38,7 +36,7 @@ pkgs.python3Packages.buildPythonApplication rec {
     description = "A simple, secure MCP-to-OpenAPI proxy server";
     homepage = "https://github.com/open-webui/mcpo";
     mainProgram = "mcpo";
-    license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ keyruu ];
+    license = pkgs.lib.licenses.mit;
+    maintainers = with pkgs.lib.maintainers; [ keyruu ];
   };
 }

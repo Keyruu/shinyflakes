@@ -1,5 +1,5 @@
 {
-  hostname,
+  hostName,
   config,
   ...
 }:
@@ -75,7 +75,7 @@
             max_age = "12h";
             labels = {
               job = "systemd-journal";
-              host = hostname;
+              host = hostName;
               instance = "127.0.0.1";
             };
           };
@@ -94,7 +94,7 @@
               labels = {
                 job = "nginx";
                 __path__ = "/var/log/nginx/*.log";
-                host = hostname;
+                host = hostName;
                 instance = "127.0.0.1";
               };
             }
