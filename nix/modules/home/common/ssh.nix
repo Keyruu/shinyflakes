@@ -10,6 +10,7 @@
       "prime" = {
         hostname = "168.119.225.165";
         user = "root";
+        compression = true;
       };
       "coolify" = {
         hostname = "195.201.39.140";

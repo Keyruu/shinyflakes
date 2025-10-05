@@ -11,7 +11,7 @@
     flake.modules.darwin.brew
     flake.modules.darwin.darwin
     flake.modules.nixos.build-machines
-    
+
     # Import local modules
     ./modules
   ];
@@ -39,7 +39,7 @@
     uid = 880220207;
   };
 
-  documentation.man.enable = false;
+  # documentation.man.enable = false;
 
   nixpkgs.config.allowUnfree = true;
 

@@ -37,6 +37,8 @@
     kernelParams = [ "net.ifnames=0" ];
   };
 
+  services.resolved.enable = false;
+
   hardware.cpu.amd.ryzen-smu.enable = true;
 
   users.groups.smtp.members = [ "root" ];

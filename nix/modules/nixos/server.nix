@@ -1,4 +1,4 @@
-{ flake, ... }:
+{ flake, hostName, ... }:
 {
   imports = [
     flake.modules.nixos.headless
@@ -6,4 +6,6 @@
   ];
 
   user.name = "root";
+
+  networking.hostName = hostName;
 }

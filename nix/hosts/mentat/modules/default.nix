@@ -11,8 +11,9 @@
     ./nas.nix
     ./network.nix
     ./nginx.nix
-    ./perplexica.nix
+    # ./perplexica.nix
     ./samba.nix
     ./sirberus.nix
+    ./adguard.nix
   ];
 }

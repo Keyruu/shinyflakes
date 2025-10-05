@@ -1,10 +1,5 @@
 { ... }:
 {
-  home.file.".config/intellij-settings" = {
-    source = ./intellij-settings;
-    recursive = true;
-  };
-
   home.file.".ideavimrc".text =
     # vim
     ''

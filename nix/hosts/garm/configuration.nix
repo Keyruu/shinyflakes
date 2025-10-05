@@ -12,7 +12,6 @@
     inputs.sops-nix.nixosModules.sops
 
     flake.modules.nixos.core
-    flake.modules.nixos.headless
     flake.modules.nixos.server
     flake.modules.nixos.locale
     flake.modules.nixos.nginx
@@ -29,8 +28,11 @@
   nixpkgs.hostPlatform = "aarch64-linux";
   system.stateVersion = "24.05";
 
+  # Override raspberry-pi-3 module's kernel packages
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
+
   sops = {
-    defaultSopsFile = ../../../secrets.yaml;
+    defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
       headscaleAuthKey.owner = "root";
