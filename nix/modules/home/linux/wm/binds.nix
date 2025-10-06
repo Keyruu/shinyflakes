@@ -13,6 +13,7 @@
       # "${modifier}+m" =
       #   "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
       "${modifier}+m" = "workspace number 4; exec focusOrOpen spotify";
+      "${modifier}+a" = "exec focusOrOpen slack Slack";
       "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
       # Window management (vim-style navigation)

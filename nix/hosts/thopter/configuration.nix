@@ -53,6 +53,7 @@
       "wheel"
       "ydotool"
       "docker"
+      "disk"
     ];
     shell = pkgs.fish;
   };

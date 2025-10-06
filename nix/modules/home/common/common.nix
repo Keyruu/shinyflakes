@@ -74,6 +74,7 @@
     scalafix
     scalafmt
     nil
+    marp-cli
 
     # gui apps
     gimp

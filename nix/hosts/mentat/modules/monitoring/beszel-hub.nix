@@ -3,11 +3,6 @@ let
   beszelConfig = {
     systems = [
       {
-        name = "garm";
-        host = "garm";
-        port = 45876;
-      }
-      {
         name = "prime";
         host = "prime";
         port = 45876;

@@ -11,6 +11,7 @@
     ../common/ssh.nix
     ../common/nix-index-database.nix
     ../common/programs/nh.nix
+    ../common/repos.nix
 
     ./wm
     # ./tofi.nix
@@ -64,6 +65,7 @@
     vesktop
     slack
     signal-desktop
+    rpi-imager
     perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];
