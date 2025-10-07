@@ -14,6 +14,7 @@
       dns = {
         bind_hosts = [
           "192.168.100.7"
+          "100.64.0.1"
         ];
         port = 53;
         upstream_dns = [

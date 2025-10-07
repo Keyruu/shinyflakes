@@ -56,12 +56,12 @@
     }
     {
       label = "claude";
-      command = "claude";
+      command = "/home/lucas/.pnpm-bin/claude";
       shell = {
         program = "sh";
       };
       hide = "always";
-      reveal_target = "right";
+      reveal_target = "center";
     }
   ];
 }

@@ -42,6 +42,7 @@
     devspace
     uv
     pipx
+    impala
 
     squeekboard
     nwg-drawer

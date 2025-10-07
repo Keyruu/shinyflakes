@@ -62,13 +62,13 @@ in
         magic_dns = true;
         nameservers.split = {
           "lab.keyruu.de" = [
-            "100.64.0.11"
+            "100.64.0.1"
           ];
           "home.zimtix.de" = [
-            "100.64.0.11"
+            "100.64.0.1"
           ];
           "port.peeraten.net" = [
-            "100.64.0.11"
+            "100.64.0.1"
           ];
         };
       };
