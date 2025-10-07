@@ -12,7 +12,7 @@ The secret sauce here is using [Quadlet](https://docs.podman.io/en/latest/markdo
 
 ### mentat - Main homelab server (x86_64-linux)
 The big boi running everything in my apartment:
-- **Media**: Jellyfin + the usual *arr suspects for *totally legal Linux ISOs*
+- **Media**: Jellyfin + the usual *arr suspects for *Linux ISOs*
 - **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT, and Wyoming for voice stuff
 - **AI Things**: LibreChat, Whishper, various MCP servers because AI is everywhere now apparently
 - **Self-hosted Goodness**: Immich (photos), Actual Budget (money tracking), Traccar (GPS stalking... I mean tracking)
