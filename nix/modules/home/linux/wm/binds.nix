@@ -16,6 +16,9 @@
       "${modifier}+a" = "exec focusOrOpen slack Slack";
       "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
+      "${modifier}+u" = "mode umlaut";
+      "${modifier}+s" = "exec wtype ß";
+
       # Window management (vim-style navigation)
       "${modifier}+h" = "focus left";
       "${modifier}+j" = "focus down";
@@ -108,6 +111,17 @@
         "Right" = "resize grow width 10px";
         "Return" = "mode default";
         "Escape" = "mode default";
+      };
+      umlaut = {
+        "a" = "exec wtype ä, mode default";
+        "o" = "exec wtype ö, mode default";
+        "u" = "exec wtype ü, mode default";
+        "Shift+a" = "exec wtype Ä, mode default";
+        "Shift+o" = "exec wtype Ö, mode default";
+        "Shift+u" = "exec wtype Ü, mode default";
+        "Escape" = "mode default";
+        "Return" = "mode default";
+        "Control+g" = "mode default";
       };
     };
   };

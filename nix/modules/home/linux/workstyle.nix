@@ -13,7 +13,7 @@
       'Discord' = ''
       'Webcord' = ''
       'webcord' = ''
-      'Vesktop' = ''
+      'vesktop' = ''
       'VSCode' = '󰨞'
       'code-url-handler' = '󰨞'
       'code-oss' = '󰨞'
@@ -21,7 +21,8 @@
       'codium-url-handler' = '󰨞'
       'VSCodium' = '󰨞'
       'Code' = '󰨞'
-      'dev.zed.Zed' = '󰰶'
+      'dev.zed.Zed' = '󰬇'
+      'signal' = '󰭹'
 
       'spotify_player' = ''
       '1Password' = ''

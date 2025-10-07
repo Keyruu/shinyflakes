@@ -5,10 +5,6 @@
   ...
 }:
 {
-  home.packages = with pkgs; [
-    waybar
-  ];
-
   programs.waybar = {
     enable = true;
     systemd.enable = true;
@@ -28,6 +24,7 @@
         modules-center = [ "mpris" ];
         modules-right = [
           "tray"
+          "sway/mode"
           "bluetooth"
           "network"
           "cpu"
@@ -65,6 +62,11 @@
 
         tray = {
           spacing = 10;
+        };
+
+        "sway/mode" = {
+          format = "󰌌 {}";
+          max-length = 50;
         };
 
         cpu = {
@@ -286,6 +288,7 @@
         }
 
         #window,
+        #mode,
         #clock,
         #battery,
         #power-profiles-daemon,
@@ -357,6 +360,15 @@
         #workspaces {
           /* border-radius: 7px; */
           /* margin-left: 5px; */
+          padding-right: 5px;
+          padding-left: 5px;
+          opacity: 1.0;
+        }
+
+        #mode {
+          /* border-radius: 7px; */
+          /* margin-left: 5px; */
+          color: #cdd6f4;
           padding-right: 5px;
           padding-left: 5px;
           opacity: 1.0;

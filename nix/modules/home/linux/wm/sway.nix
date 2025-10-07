@@ -133,6 +133,12 @@
         }
         {
           criteria = {
+            app_id = "dev.zed.Zed";
+          };
+          command = "move container to workspace number 2";
+        }
+        {
+          criteria = {
             app_id = "org.wezfurlong.wezterm";
           };
           command = "move container to workspace number 3";
@@ -142,6 +148,24 @@
             app_id = "spotify_player";
           };
           command = "move container to workspace number 4";
+        }
+        {
+          criteria = {
+            app_id = "Slack";
+          };
+          command = "move container to workspace number 5";
+        }
+        {
+          criteria = {
+            app_id = "signal";
+          };
+          command = "move container to workspace number 5";
+        }
+        {
+          criteria = {
+            app_id = "vesktop";
+          };
+          command = "move container to workspace number 5";
         }
       ];
 
