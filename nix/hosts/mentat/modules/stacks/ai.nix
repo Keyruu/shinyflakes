@@ -1,17 +1,8 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   openwebuiStackPath = "/etc/stacks/openwebui";
 in
 {
-  environment.systemPackages = with pkgs; [
-    (llama-cpp.override { cudaSupport = true; })
-    python312
-    python312Packages.huggingface-hub
-    python312Packages.torch
-    python312Packages.gguf
-    vllm
-  ];
-
   systemd.tmpfiles.rules = [
     "d ${openwebuiStackPath}/data 0755 root root"
   ];

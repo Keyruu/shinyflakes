@@ -1,8 +1,12 @@
 {
+  inputs,
   pkgs,
   perSystem,
   ...
 }:
+let
+  pkgs-stable = import inputs.nixpkgs-stable { system = pkgs.system; };
+in
 {
   imports = [
     ../common/common.nix
@@ -34,8 +38,8 @@
   home.packages = with pkgs; [
     jq
     yq
-    awscli2
     gh # github cli
+    pkgs-stable.awscli2
     kubernetes-helm
     kubectx
     kubectl
@@ -44,15 +48,12 @@
     pipx
     impala
 
-    squeekboard
-    nwg-drawer
     pavucontrol
     rustc
     cargo
     clang
     notion-app-enhanced
     lsof
-    xournalpp
     calibre
     localsend
     element-desktop

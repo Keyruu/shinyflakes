@@ -40,7 +40,7 @@
 
         set -U fish_greeting
 
-        set -x KUBECONFIG $HOME/.kube/config
+        set -x KUBECONFIG (string join ":" $HOME/.kube/*.yaml)
 
         if test -f "${config.sops.secrets.shellEnv.path}"
           while read -l line

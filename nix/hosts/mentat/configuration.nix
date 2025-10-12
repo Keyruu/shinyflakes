@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   flake,
   pkgs,
@@ -36,6 +37,8 @@
     # use predictable network interface names (eth0)
     kernelParams = [ "net.ifnames=0" ];
   };
+
+  boot.kernelPackages = pkgs.linuxPackages_6_16;
 
   services.resolved.enable = false;
 
@@ -78,7 +81,6 @@
     pv
     tmux
     slirp4netns
-    amdgpu_top
     lazydocker
     usbutils
     beets

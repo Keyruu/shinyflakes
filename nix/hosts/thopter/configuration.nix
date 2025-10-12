@@ -17,6 +17,7 @@
     flake.modules.nixos.laptop
 
     ./hardware-configuration.nix
+    ./disk.nix
     ./modules
   ];
 

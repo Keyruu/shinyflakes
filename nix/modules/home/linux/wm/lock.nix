@@ -89,11 +89,11 @@
           command = screenOff;
           resumeCommand = screenOn;
         }
-        {
-          timeout = suspendTimeout; # 900 seconds (15 minutes)
-          command = "${lib.getExe' pkgs.systemd "systemctl"} suspend";
-          resumeCommand = screenOn;
-        }
+        # {
+        #   timeout = suspendTimeout; # 900 seconds (15 minutes)
+        #   command = "${lib.getExe' pkgs.systemd "systemctl"} suspend";
+        #   resumeCommand = screenOn;
+        # }
       ];
       events = [
         {

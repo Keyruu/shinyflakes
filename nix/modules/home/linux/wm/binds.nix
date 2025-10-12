@@ -48,7 +48,7 @@
       "${modifier}+Period" = "layout toggle splitv splith";
 
       # Launchers and utilities
-      "Super+space" = "exec vicinae";
+      "Super+space" = "exec vicinae toggle";
       "${modifier}+space" = "exec scratch";
       "Super+Shift+space" =
         "exec 1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations";
@@ -93,7 +93,7 @@
             }
             {
               name = "${modifier}+Shift+${ws}";
-              value = "move container to workspace number ${ws}";
+              value = "move container to workspace number ${ws}; workspace number ${ws}";
             }
           ]
         ) 9

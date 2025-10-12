@@ -12,7 +12,7 @@
   };
 
   services.samba = {
-    enable = true;
+    enable = false;
     package = pkgs.sambaFull;
     openFirewall = true;
     settings = {

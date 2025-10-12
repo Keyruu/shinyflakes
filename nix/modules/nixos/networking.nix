@@ -3,6 +3,7 @@
   networking = {
     networkmanager = {
       enable = true;
+      dns = "systemd-resolved";
       wifi = {
         # backend = "iwd";
         # powersave = true;
@@ -14,8 +15,13 @@
 
   services.resolved = {
     enable = true;
+    fallbackDns = [
+      "1.1.1.1"
+      "8.8.8.8"
+    ];
     extraConfig = ''
-      Cache=no
+      Cache=yes
+      CacheFromLocalhost=yes
     '';
   };
 

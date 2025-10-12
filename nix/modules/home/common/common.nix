@@ -115,7 +115,6 @@
     eksctl # aws
     hcloud # hetzner cloud
     rclone
-    packer # image builder
     opentofu # terraform sucks
     terragrunt
 
