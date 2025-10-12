@@ -27,7 +27,7 @@
     enable = true;
     xkb = {
       layout = "us";
-      variant = "mac";
+      options = "caps:escape";
     };
   };
 

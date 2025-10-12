@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   ...
@@ -146,7 +145,7 @@
           format-linked = "{ifname} (No IP)";
           format-disconnected = "󰖪 ";
           # format-alt = "{ifname}:{essid} {ipaddr}/{cidr}";
-          on-click = "foot nmtui";
+          on-click = "foot impala";
         };
 
         bluetooth = {

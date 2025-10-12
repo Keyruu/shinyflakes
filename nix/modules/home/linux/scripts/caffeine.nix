@@ -6,7 +6,7 @@
 #- - `caffeine-status-icon` - Check if hypridle is running. (icon)
 #- - `caffeine` - Toggle hypridle.
 
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   idleService = "swayidle";
 
@@ -39,4 +39,13 @@ in
     caffeine
     caffeine-status-icon
   ];
+
+  xdg.desktopEntries.caffeine = {
+    name = "☕ Caffeine";
+    exec = "${lib.getExe caffeine}";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" ];
+    icon = "system-run";
+  };
 }

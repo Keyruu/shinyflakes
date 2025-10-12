@@ -9,14 +9,14 @@
       # Application shortcuts
       "${modifier}+e" = "workspace number 3; exec focusOrOpen wezterm org.wezfurlong.wezterm";
       "${modifier}+c" = "workspace number 1; exec focusOrOpen zen zen";
-      "${modifier}+v" = "exec focusOrOpen zeditor dev.zed.Zed";
+      "${modifier}+v" = "workspace number 2; exec focusOrOpen zeditor dev.zed.Zed";
       # "${modifier}+m" =
       #   "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
       "${modifier}+m" = "workspace number 4; exec focusOrOpen spotify";
-      "${modifier}+a" = "exec focusOrOpen slack Slack";
+      "${modifier}+a" = "workspace 5; exec focusOrOpen slack Slack";
       "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
-      "${modifier}+u" = "mode umlaut";
+      "Super+u" = "mode umlaut";
       "${modifier}+s" = "exec wtype ß";
 
       # Window management (vim-style navigation)
@@ -49,7 +49,9 @@
 
       # Launchers and utilities
       "Super+space" = "exec vicinae";
-      "Super+Shift+space" = "exec 1password --ozone-platform-hint=wayland --quick-access";
+      "${modifier}+space" = "exec scratch";
+      "Super+Shift+space" =
+        "exec 1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations";
       "Super+Shift+l" = "exec loginctl lock-session";
       "Super+Shift+v" = "exec vicinae vicinae://extensions/vicinae/clipboard/history";
       "Super+x" = "exec wl-kbptr -c $HOME/.config/wl-kbptr/floating";
@@ -113,12 +115,12 @@
         "Escape" = "mode default";
       };
       umlaut = {
-        "a" = "exec wtype ä, mode default";
-        "o" = "exec wtype ö, mode default";
-        "u" = "exec wtype ü, mode default";
-        "Shift+a" = "exec wtype Ä, mode default";
-        "Shift+o" = "exec wtype Ö, mode default";
-        "Shift+u" = "exec wtype Ü, mode default";
+        "a" = "exec type-umlaut ä, mode default";
+        "o" = "exec type-umlaut ö, mode default";
+        "u" = "exec type-umlaut ü, mode default";
+        "Shift+a" = "exec type-umlaut Ä, mode default";
+        "Shift+o" = "exec type-umlaut Ö, mode default";
+        "Shift+u" = "exec type-umlaut Ü, mode default";
         "Escape" = "mode default";
         "Return" = "mode default";
         "Control+g" = "mode default";

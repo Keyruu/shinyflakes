@@ -67,6 +67,7 @@
     slack
     signal-desktop
     rpi-imager
+    espflash
     perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];

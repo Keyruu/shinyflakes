@@ -50,13 +50,6 @@
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
-
-    stylix = {
-      url = "github:danth/stylix/75411fe2b90f67bfb4a2ad9cc3b1379758b64dbb";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     zen-browser = {
       url = "git+https://git.sr.ht/~canasta/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -90,8 +83,10 @@
   };
 
   # Load the blueprint with custom prefix
-  outputs = inputs: inputs.blueprint { 
-    inherit inputs;
-    prefix = "nix";
-  };
+  outputs =
+    inputs:
+    inputs.blueprint {
+      inherit inputs;
+      prefix = "nix";
+    };
 }

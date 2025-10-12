@@ -68,10 +68,50 @@ let
                 ;;
         esac
       '';
+
+  scratch =
+    pkgs.writeShellScriptBin "scratch" # bash
+      ''
+        #!/bin/bash
+
+        # Get the current focused monitor's geometry (resolution)
+        monitor_resolution=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .rect | "\(.width) \(.height)"')
+
+        # Extract width and height from the geometry
+        monitor_width=$(echo $monitor_resolution | awk '{print $1}')
+        monitor_height=$(echo $monitor_resolution | awk '{print $2}')
+
+        # Calculate desired size (e.g., 88% width, 92% height)
+        width=$((monitor_width * 88 / 100))
+        height=$((monitor_height * 92 / 100))
+
+        if ! swaymsg '[app_id="^scratchpad$"] scratchpad show, resize set width '$width' px height '$height' px'; then
+          # If the scratchpad doesn't exist, launch it
+          exec foot --app-id scratchpad
+        fi
+      '';
+
+  type-umlaut =
+    pkgs.writeShellScriptBin "type-umlaut" # bash
+      ''
+        #!/bin/bash
+
+        char="$1"
+        wl-paste > /tmp/clipboard-backup-$$ 2>/dev/null || touch /tmp/clipboard-backup-$$
+        echo -n "$char" | wl-copy
+        wtype -M ctrl v -m ctrl
+
+        sleep 0.1
+
+        wl-copy < /tmp/clipboard-backup-$$
+        rm -f /tmp/clipboard-backup-$$
+      '';
 in
 {
   home.packages = [
     focusOrOpen
     copyPasteShortcut
+    scratch
+    type-umlaut
   ];
 }

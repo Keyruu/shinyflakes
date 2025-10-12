@@ -11,7 +11,7 @@ in
   virtualisation.quadlet =
     let
       UPLOAD_LOCATION = "/main/immich";
-      IMMICH_VERSION = "v1.137.3";
+      IMMICH_VERSION = "v2.0.1";
       inherit (config.virtualisation.quadlet) networks;
     in
     {

@@ -60,7 +60,7 @@
       focus = {
         followMouse = "yes";
         mouseWarping = "container";
-        newWindow = "smart";
+        newWindow = "focus";
       };
 
       bars = [ ];
@@ -119,6 +119,18 @@
 
       # Window rules (matching Hyprland windowrule)
       window.commands = [
+        {
+          criteria = {
+            title = ".*";
+          };
+          command = "title_format \"<b>%title</b> (%app_id)\"";
+        }
+        {
+          criteria = {
+            app_id = "scratchpad";
+          };
+          command = "floating enable, opacity 0.96, move scratchpad, scratchpad show, resize set width 88 ppt height 92 ppt, border none";
+        }
         {
           criteria = {
             app_id = "clipse";
@@ -182,6 +194,8 @@
           click_method = "clickfinger";
         };
         "type:keyboard" = {
+          xkb_layout = "us";
+          xkb_options = "caps:escape";
           xkb_numlock = "enabled";
         };
         "type:pointer" = {
@@ -196,11 +210,11 @@
 
       colors = {
         focused = {
-          border = "#313244"; # base0D - Blue accent
-          background = "#313244"; # base02 - Selection background
+          border = "#003a6a"; # base0D - Blue accent
+          background = "#003a6a"; # base02 - Selection background
           text = "#cdd6f4"; # base05 - Default foreground
-          indicator = "#313244"; # base0D - Blue accent
-          childBorder = "#313244"; # base0D - Blue accent
+          indicator = "#003a6a"; # base0D - Blue accent
+          childBorder = "#003a6a"; # base0D - Blue accent
         };
 
         focusedInactive = {
@@ -252,8 +266,6 @@
 
       # Lid switch
       bindswitch --reload --locked lid:on exec pidof hyprlock || hyprlock
-
-      for_window [title=".*"] title_format "<b>%title</b> (%app_id)"
     '';
 
     # Sway-specific settings
@@ -269,6 +281,7 @@
       export SDL_VIDEODRIVER=wayland
       export CLUTTER_BACKEND=wayland
       export DIRENV_LOG_FORMAT=""
+      export MOZ_ENABLE_WAYLAND=1
     '';
   };
 }
