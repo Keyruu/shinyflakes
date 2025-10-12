@@ -10,6 +10,7 @@
   imports = [
     inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
     inputs.sops-nix.nixosModules.sops
+    inputs.disko.nixosModules.disko
 
     flake.modules.nixos.core
     flake.modules.nixos.workstation
