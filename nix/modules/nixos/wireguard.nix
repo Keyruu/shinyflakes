@@ -5,7 +5,4 @@
   };
   # Enable WireGuard
   networking.wireguard.enable = true;
-  services.resolved = {
-    enable = true;
-  };
 }

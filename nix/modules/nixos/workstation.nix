@@ -9,5 +9,7 @@
     flake.modules.nixos.build-machines
     flake.modules.nixos.sound
     flake.modules.nixos.graphical
+    flake.modules.nixos.onepassword
+    flake.modules.nixos.wireguard
   ];
 }

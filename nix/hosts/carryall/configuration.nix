@@ -12,6 +12,9 @@
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
+    # inputs.lanzaboote.nixosModules.lanzaboote
+    # flake.modules.nixos.secure-boot
+
     flake.modules.nixos.core
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
@@ -19,9 +22,10 @@
 
     ./hardware-configuration.nix
     ./disk.nix
+    ./modules
   ];
 
-  # Set the primary user name
+  networking.hostName = "PCL2025101301";
   user.name = "lucas";
 
   services.xserver = {
