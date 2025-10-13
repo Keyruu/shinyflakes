@@ -1,17 +1,6 @@
 {
   description = "Keyruu's shinyflakes";
 
-  nixConfig = {
-    extra-substituters = [
-      "https://cache.nixos.org/"
-      "https://vicinae.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-    ];
-  };
-
   # Add all your dependencies here
   inputs = {
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
@@ -81,6 +70,8 @@
     };
 
     vicinae.url = "github:vicinaehq/vicinae";
+
+    spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     sirberus = {
       url = "github:Keyruu/sirberus";

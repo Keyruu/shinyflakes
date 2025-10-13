@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, perSystem, ... }:
 {
   imports = [
     inputs.vicinae.homeManagerModules.default
@@ -7,6 +7,7 @@
   services.vicinae = {
     enable = true;
     autoStart = true;
+    package = perSystem.vicinae.default;
     settings = {
       faviconService = "twenty"; # twenty | google | none
       font.size = 11;

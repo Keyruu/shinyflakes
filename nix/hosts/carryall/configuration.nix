@@ -8,7 +8,8 @@
 }:
 {
   imports = [
-    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
+    inputs.nixos-hardware.nixosModules.common-cpu-intel
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
@@ -19,13 +20,13 @@
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
     flake.modules.nixos.laptop
+    flake.modules.nixos.hibernation
 
     ./hardware-configuration.nix
     ./disk.nix
-    ./modules
   ];
 
-  networking.hostName = "PCL2025101301";
+  networking.hostName = lib.mkForce "PCL2025101301";
   user.name = "lucas";
 
   services.xserver = {
@@ -73,7 +74,6 @@
 
   services.fprintd.enable = true;
   services.fprintd.tod.enable = true;
-  services.fprintd.package = pkgs.fprintd;
   services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
 
   services.blueman.enable = true;

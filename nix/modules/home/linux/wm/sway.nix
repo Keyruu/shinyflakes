@@ -263,9 +263,6 @@
       # Brightness controls
       bindsym --locked XF86MonBrightnessUp exec --no-startup-id brightnessctl set +10%
       bindsym --locked XF86MonBrightnessDown exec --no-startup-id brightnessctl set 10%-
-
-      # Lid switch
-      bindswitch --reload --locked lid:on exec pidof hyprlock || hyprlock
     '';
 
     # Sway-specific settings

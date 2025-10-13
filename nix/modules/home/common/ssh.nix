@@ -20,11 +20,6 @@
         hostname = "78.47.122.5";
         user = "root";
       };
-      "github.com" = {
-        hostname = "ssh.github.com";
-        port = 443;
-        user = "git";
-      };
     };
   };
 }

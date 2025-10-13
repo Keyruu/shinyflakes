@@ -99,9 +99,7 @@ let
         char="$1"
         wl-paste > /tmp/clipboard-backup-$$ 2>/dev/null || touch /tmp/clipboard-backup-$$
         echo -n "$char" | wl-copy
-        wtype -M ctrl v -m ctrl
-
-        sleep 0.1
+        copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed
 
         wl-copy < /tmp/clipboard-backup-$$
         rm -f /tmp/clipboard-backup-$$

@@ -46,6 +46,6 @@ in
     terminal = false;
     type = "Application";
     categories = [ "Utility" ];
-    icon = "system-run";
+    icon = "caffeine";
   };
 }

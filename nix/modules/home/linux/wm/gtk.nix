@@ -7,6 +7,9 @@
       size = 24;
       gtk.enable = true;
     };
+    packages = with pkgs; [
+      papirus-icon-theme
+    ];
   };
 
   gtk =

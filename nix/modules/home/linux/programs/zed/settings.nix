@@ -8,6 +8,7 @@
       "scala"
       "git-firefly"
       "dockerfile"
+      "colorizer"
     ];
 
     userSettings = {

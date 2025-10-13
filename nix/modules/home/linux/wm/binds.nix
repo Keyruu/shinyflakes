@@ -13,7 +13,7 @@
       # "${modifier}+m" =
       #   "workspace number 4; exec focusOrOpen \"foot --app-id spotify_player spotify_player\" spotify_player";
       "${modifier}+m" = "workspace number 4; exec focusOrOpen spotify";
-      "${modifier}+a" = "workspace 5; exec focusOrOpen slack Slack";
+      "${modifier}+a" = "workspace number 5; exec focusOrOpen slack Slack";
       "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
       "Super+u" = "mode umlaut";
