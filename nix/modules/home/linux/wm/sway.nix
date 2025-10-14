@@ -14,6 +14,7 @@
   ];
 
   services.gnome-keyring.enable = true;
+  services.polkit-gnome.enable = true;
 
   programs.iio-sway = {
     enable = true;
@@ -87,6 +88,11 @@
           pos = "0 -1440";
           transform = "normal";
         };
+        "Samsung Electric Company C34H89x H4ZT801005" = {
+          mode = "3440x1440@99.982Hz";
+          pos = "0 -1440";
+          transform = "normal";
+        };
       };
 
       # Workspace assignments (matching Hyprland)
@@ -102,6 +108,18 @@
         {
           workspace = "3";
           output = "DP-5";
+        }
+        {
+          workspace = "1";
+          output = "DP-3";
+        }
+        {
+          workspace = "2";
+          output = "DP-3";
+        }
+        {
+          workspace = "3";
+          output = "DP-3";
         }
         {
           workspace = "4";

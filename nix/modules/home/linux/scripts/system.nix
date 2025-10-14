@@ -104,6 +104,29 @@ let
         wl-copy < /tmp/clipboard-backup-$$
         rm -f /tmp/clipboard-backup-$$
       '';
+
+  ultrawide =
+    pkgs.writeShellScriptBin "ultrawide" # bash
+      ''
+        #!/bin/bash
+
+        CURRENT_WORKSPACE=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused==true) | .name')
+
+        for workspace in 1 2 3; do
+            swaymsg workspace number "$workspace"
+            OUTPUT_MODEL=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused==true) | .model')
+
+            if [ "$OUTPUT_MODEL" = "C34H89x" ]; then
+                swaymsg gaps left current set 440
+                swaymsg gaps right current set 440
+            else
+                swaymsg gaps left current set 0
+                swaymsg gaps right current set 0
+            fi
+        done
+
+        swaymsg workspace number "$CURRENT_WORKSPACE"
+      '';
 in
 {
   home.packages = [
@@ -111,5 +134,6 @@ in
     copyPasteShortcut
     scratch
     type-umlaut
+    ultrawide
   ];
 }

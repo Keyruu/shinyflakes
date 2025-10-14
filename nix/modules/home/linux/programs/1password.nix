@@ -2,7 +2,7 @@
 {
   xdg.desktopEntries."1password" = {
     name = "1Password";
-    exec = "1password --ozone-platform-hint=x11 %U";
+    exec = "1password --ozone-platform-hint=wayland %U";
     terminal = false;
     type = "Application";
     icon = "1password";

@@ -13,8 +13,8 @@
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
-    # inputs.lanzaboote.nixosModules.lanzaboote
-    # flake.modules.nixos.secure-boot
+    inputs.lanzaboote.nixosModules.lanzaboote
+    flake.modules.nixos.secure-boot
 
     flake.modules.nixos.core
     flake.modules.nixos.workstation
@@ -24,6 +24,7 @@
 
     ./hardware-configuration.nix
     ./disk.nix
+    ./modules
   ];
 
   networking.hostName = lib.mkForce "PCL2025101301";
@@ -73,8 +74,6 @@
   ];
 
   services.fprintd.enable = true;
-  services.fprintd.tod.enable = true;
-  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
 
   services.blueman.enable = true;
   services.libinput.enable = true;
