@@ -49,7 +49,7 @@ in
       containers = {
         mqtt = {
           containerConfig = {
-            image = "eclipse-mosquitto:2.0.21";
+            image = "eclipse-mosquitto:2.0.22";
             publishPorts = [
               "127.0.0.1:1883:1883"
               "192.168.100.7:1883:1883"
