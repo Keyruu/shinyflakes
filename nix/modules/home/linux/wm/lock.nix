@@ -78,7 +78,7 @@
       timeouts = [
         {
           timeout = lockTimeout - 5;
-          command = "${lib.getExe pkgs.libnotify} 'Locking in 5 seconds' -t 5000";
+          command = "${lib.getExe pkgs.libnotify} 'Idle' 'Locking soon!' -t 5000";
         }
         {
           timeout = lockTimeout; # 300 seconds (5 minutes)
@@ -91,7 +91,7 @@
         }
         {
           timeout = suspendTimeout; # 900 seconds (15 minutes)
-          command = "${lib.getExe' pkgs.systemd "systemctl"} suspend-then-hibernate";
+          command = "${lib.getExe' pkgs.systemd "systemctl"} suspend";
           resumeCommand = screenOn;
         }
       ];

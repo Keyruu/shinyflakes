@@ -1,9 +1,5 @@
 { lib, pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [
-    cmatrix
-  ];
-
   security.pam.services = {
     hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
   };
@@ -22,11 +18,6 @@
       };
     };
   };
-
-  # services.displayManager = {
-  #   enable = true;
-  #   ly.enable = true;
-  # };
 
   services.greetd = {
     enable = true;

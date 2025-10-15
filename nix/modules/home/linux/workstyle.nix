@@ -25,6 +25,7 @@
       'signal' = '󰭹'
 
       'spotify_player' = ''
+      'spotify' = ''
       '1Password' = ''
       'Element' = '󰭹'
     '';

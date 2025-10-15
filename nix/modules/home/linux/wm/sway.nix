@@ -70,6 +70,7 @@
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "clipse -listen"; }
         { command = "1password --ozone-platform-hint=wayland --silent"; }
+        { command = "tailscale systray"; }
         { command = "sworkstyle"; }
         { command = "iio-sway"; }
         { command = "distrobox enter mdm -- exit"; }
@@ -137,68 +138,66 @@
       ];
 
       # Window rules (matching Hyprland windowrule)
-      window.commands = [
-        {
-          criteria = {
-            title = ".*";
+      window.commands =
+        let
+          # Helper function to move app to workspace
+          moveToWorkspace = app_id: workspace: {
+            criteria = { inherit app_id; };
+            command = "move container to workspace number ${toString workspace}";
           };
-          command = "title_format \"<b>%title</b> (%app_id)\"";
-        }
-        {
-          criteria = {
-            app_id = "scratchpad";
-          };
-          command = "floating enable, opacity 0.96, move scratchpad, scratchpad show, resize set width 88 ppt height 92 ppt, border none";
-        }
-        {
-          criteria = {
-            app_id = "clipse";
-          };
-          command = "floating enable, resize set 622 652";
-        }
-        {
-          criteria = {
-            app_id = "zen";
-          };
-          command = "move container to workspace number 1";
-        }
-        {
-          criteria = {
-            app_id = "dev.zed.Zed";
-          };
-          command = "move container to workspace number 2";
-        }
-        {
-          criteria = {
-            app_id = "org.wezfurlong.wezterm";
-          };
-          command = "move container to workspace number 3";
-        }
-        {
-          criteria = {
-            app_id = "spotify_player";
-          };
-          command = "move container to workspace number 4";
-        }
-        {
-          criteria = {
-            app_id = "Slack";
-          };
-          command = "move container to workspace number 5";
-        }
-        {
-          criteria = {
-            app_id = "signal";
-          };
-          command = "move container to workspace number 5";
-        }
-        {
-          criteria = {
-            app_id = "vesktop";
-          };
-          command = "move container to workspace number 5";
-        }
-      ];
+
+          # Workspace assignments
+          workspaceRules = builtins.concatMap (
+            { workspace, apps }:
+            map (app: moveToWorkspace app workspace) apps
+          ) [
+            {
+              workspace = 1;
+              apps = [ "zen" ];
+            }
+            {
+              workspace = 2;
+              apps = [ "dev.zed.Zed" ];
+            }
+            {
+              workspace = 3;
+              apps = [ "org.wezfurlong.wezterm" ];
+            }
+            {
+              workspace = 4;
+              apps = [ "spotify_player" ];
+            }
+            {
+              workspace = 5;
+              apps = [
+                "Slack"
+                "signal"
+                "vesktop"
+              ];
+            }
+          ];
+        in
+        [
+          {
+            criteria = {
+              title = ".*";
+            };
+            command = "title_format \"<b>%title</b> (%app_id)\"";
+          }
+          {
+            criteria = {
+              app_id = "scratchpad";
+            };
+            command = "floating enable, opacity 0.96, move scratchpad, scratchpad show, resize set width 88 ppt height 92 ppt, border none";
+          }
+          {
+            criteria = {
+              app_id = "clipse";
+            };
+            command = "floating enable, resize set 622 652";
+          }
+        ]
+        ++ workspaceRules;
 
       input = {
         "*" = {
@@ -214,7 +213,7 @@
         };
         "type:keyboard" = {
           xkb_layout = "us";
-          xkb_options = "caps:escape";
+          xkb_options = "caps:escape,compose:menu";
           xkb_numlock = "enabled";
         };
         "type:pointer" = {

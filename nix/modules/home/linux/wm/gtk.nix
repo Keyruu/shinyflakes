@@ -42,8 +42,8 @@
         package = pkgs.dracula-theme;
       };
       iconTheme = {
-        name = "WhiteSur";
-        package = pkgs.whitesur-icon-theme;
+        name = "Papirus";
+        package = pkgs.papirus-icon-theme;
       };
 
       gtk3 = disableDecorations;

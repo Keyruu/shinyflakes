@@ -56,7 +56,7 @@
     }
     {
       label = "claude";
-      command = "/home/lucas/.pnpm-bin/claude";
+      command = "claude";
       shell = {
         program = "sh";
       };

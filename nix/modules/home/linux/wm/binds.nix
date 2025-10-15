@@ -61,8 +61,8 @@
       "Super+Shift+4" = "exec grim -g \"$(slurp)\" - | wl-copy";
 
       # Copy/paste shortcuts
-      "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm";
-      "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed";
+      "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm dev.zed.Zed foot";
+      "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed foot";
       "Super+a" = "exec wtype -M ctrl -k a";
       "Super+t" = "exec wtype -M ctrl -k t";
       "Super+k" = "exec wtype -M ctrl -k k";

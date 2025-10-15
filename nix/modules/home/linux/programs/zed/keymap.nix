@@ -197,6 +197,12 @@
       };
     }
     {
+      context = "!Terminal";
+      bindings = {
+        "ctrl-shift-c" = "vim::VisualYank";
+      };
+    }
+    {
       context = "Terminal && vi_mode";
       bindings = {
         q = "pane::CloseActiveItem";

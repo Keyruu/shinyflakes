@@ -3,5 +3,14 @@
   "dependencyDashboard": true,
   "nix": {
     "enabled": true
-  }
+  },
+  "regexManagers": [
+    {
+      "fileMatch": ["\\.nix$"],
+      "matchStrings": [
+        "image\\s*=\\s*\"(?<depName>[^:]+):(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
 }

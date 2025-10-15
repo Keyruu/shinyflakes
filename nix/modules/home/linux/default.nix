@@ -47,6 +47,7 @@ in
     uv
     pipx
     impala
+    claude-code
 
     pavucontrol
     rustc
