@@ -69,9 +69,10 @@
       startup = [
         { command = "dbus-update-activation-environment --systemd --all"; }
         { command = "clipse -listen"; }
-        { command = "1password --ozone-platform-hint=wayland"; }
+        { command = "1password --ozone-platform-hint=wayland --silent"; }
         { command = "sworkstyle"; }
         { command = "iio-sway"; }
+        { command = "distrobox enter mdm -- exit"; }
       ];
 
       output = {
