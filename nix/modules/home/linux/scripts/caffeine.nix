@@ -11,11 +11,7 @@ let
   idleService = "swayidle";
 
   caffeine-status = pkgs.writeShellScriptBin "caffeine-status" ''
-    [[ $(pidof "${idleService}") ]] && echo "0" || echo "1"
-  '';
-
-  caffeine-status-icon = pkgs.writeShellScriptBin "caffeine-status-icon" ''
-    [[ $(pidof "${idleService}") ]] && echo "󰾪" || echo "󰅶"
+    [[ $(pidof "${idleService}") ]] && echo "" || echo "󰅶"
   '';
 
   caffeine = pkgs.writeShellScriptBin "caffeine" ''
@@ -37,7 +33,6 @@ in
   home.packages = [
     caffeine-status
     caffeine
-    caffeine-status-icon
   ];
 
   xdg.desktopEntries.caffeine = {

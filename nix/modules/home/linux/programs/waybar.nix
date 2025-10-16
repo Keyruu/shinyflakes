@@ -184,10 +184,10 @@
           ];
         };
         "custom/caffeine" = {
-          format = "󰅶";
+          format = "{}";
           interval = 5;
           on-click = "caffeine";
-          exec-if = "pidof swayidle";
+          exec = "caffeine-status";
         };
         "custom/swaync" = {
           tooltip = true;

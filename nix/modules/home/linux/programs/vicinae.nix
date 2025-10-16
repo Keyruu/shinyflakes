@@ -19,7 +19,7 @@
       };
       window = {
         csd = true;
-        opacity = 0.95;
+        opacity = 1;
         rounding = 10;
       };
     };
