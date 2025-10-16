@@ -85,11 +85,6 @@
     ydotool.enable = true;
   };
 
-  services.kanata = {
-    enable = true;
-    keyboards.lenovo.configFile = ../../modules/home/common/kanata.kbd;
-  };
-
   services.gvfs.enable = true;
 
   nixpkgs.hostPlatform = "x86_64-linux";

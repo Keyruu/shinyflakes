@@ -1,0 +1,20 @@
+;; Kanata config for external keyboards (no homerow mods)
+
+(defcfg
+  process-unmapped-keys yes
+  linux-dev-names-exclude (
+    "AT Translated Set 2 keyboard"
+  )
+)
+
+(defsrc
+  u
+)
+
+(deflayer base
+  @u
+)
+
+(defalias
+  u (fork u (macro menu 20 S-') (lalt ralt))
+)

@@ -20,7 +20,7 @@
   fn 143
 )
 (defsrc
-  fn  a   s   d   f   h   j   k   l   ;   o   u
+  fn  a   s   d   f   h   j   k   l   ;   u
 )
 (defvar
   ;; Note: consider using different time values for your different fingers.
@@ -41,24 +41,19 @@
   )
 )
 (deflayer base
-  @fn  @a  @s  @d  @f  h  @j  @k  @l  @;  o  @u
+  @fn  @a  @s  @d  @f  h  @j  @k  @l  @;  @u
 )
 
 (deflayer nomods
-  @fn  a   s   d   f   h   j   k   l   ;  o  u
+  @fn  a   s   d   f   h   j   k   l   ;  u
 )
 
 (deflayer arrows
-  _   _   _   _   _  left down up rght _  _  _
-)
-
-(deflayer umlauts
-  _   (fork @ä @Ä (lsft rsft))   _   _   _  _   _   _   _   _  (fork @ö @Ö (lsft rsft))  (fork @ü @Ü (lsft rsft))
+  _   _   _   _   _  left down up rght _  _
 )
 
 (deffakekeys
   to-base (layer-switch base)
-  to-umlauts (layer-switch umlauts)
 )
 (defalias
   tap (multi
@@ -66,21 +61,8 @@
     (on-idle-fakekey to-base tap 20)
   )
 
-  umlaut (multi
-    (on-idle-fakekey to-umlauts tap 1)
-    (on-idle-fakekey to-base tap 500)
-  )
-
-  ;; Umlaut macros using compose key
-  ä (macro menu 20 S-' 20 a)
-  ö (macro menu 20 S-' 20 o)
-  ü (macro menu 20 S-' 20 u)
-  Ä (macro menu 20 S-' 20 S-a)
-  Ö (macro menu 20 S-' 20 S-o)
-  Ü (macro menu 20 S-' 20 S-u)
-
   fn (layer-toggle arrows)
-  u (fork u @umlaut (lalt ralt))
+  u (fork u (macro menu 20 S-') (lalt ralt))
   a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lsft $left-hand-keys)
   s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lctl $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lalt $left-hand-keys)
