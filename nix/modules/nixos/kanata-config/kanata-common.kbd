@@ -8,13 +8,33 @@
 )
 
 (defsrc
-  u
+  a  o  u  s
 )
 
 (deflayer base
-  @u
+  a  o  @u  @s
+)
+
+(deflayer umlauts
+  @ä  @ö  @ü  _
+)
+
+(deffakekeys
+  to-base (layer-switch base)
+  to-umlauts (layer-switch umlauts)
 )
 
 (defalias
-  u (fork u (macro menu 20 S-') (lalt ralt))
+  umlaut (multi
+    (on-idle-fakekey to-umlauts tap 1)
+    (on-idle-fakekey to-base tap 500)
+  )
+
+  ;; Umlaut macros using AltGr - auto-switch back to base layer
+  ä (macro RA-a (on-idle-fakekey to-base tap 1))
+  ö (macro RA-o (on-idle-fakekey to-base tap 1))
+  ü (macro RA-u (on-idle-fakekey to-base tap 1))
+
+  u (fork u @umlaut (lmet rmet))
+  s (fork s (macro RA-s) (lalt ralt))
 )

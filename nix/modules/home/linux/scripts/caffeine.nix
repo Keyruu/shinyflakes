@@ -21,11 +21,11 @@ let
   caffeine = pkgs.writeShellScriptBin "caffeine" ''
     if [[ $(pidof "${idleService}") ]]; then
       systemctl --user stop ${idleService}.service
-      title="󰅶  Caffeine Activated"
+      title="Caffeine Activated"
       description="Caffeine is now active! Your screen will not turn off automatically."
     else
       systemctl --user start ${idleService}.service
-      title="󰾪  Caffeine Deactivated"
+      title="Caffeine Deactivated"
       description="Caffeine is now deactivated! Your screen will turn off automatically."
     fi
 
@@ -41,7 +41,7 @@ in
   ];
 
   xdg.desktopEntries.caffeine = {
-    name = "☕ Caffeine";
+    name = "Caffeine";
     exec = "${lib.getExe caffeine}";
     terminal = false;
     type = "Application";

@@ -22,6 +22,7 @@ in
     ./clipse.nix
     ./tailscale.nix
     ./dunst.nix
+    ./swaync.nix
     ./scripts
     ./programs
     ./gaming.nix

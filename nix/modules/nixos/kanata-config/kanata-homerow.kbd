@@ -20,7 +20,7 @@
   fn 143
 )
 (defsrc
-  fn  a   s   d   f   h   j   k   l   ;   u
+  fn  a   s   d   f   h   j   k   l   ;   o   u
 )
 (defvar
   ;; Note: consider using different time values for your different fingers.
@@ -41,19 +41,24 @@
   )
 )
 (deflayer base
-  @fn  @a  @s  @d  @f  h  @j  @k  @l  @;  @u
+  @fn  @a  @s  @d  @f  h  @j  @k  @l  @;  o  @u
 )
 
 (deflayer nomods
-  @fn  a   s   d   f   h   j   k   l   ;  u
+  @fn  a   s   d   f   h   j   k   l   ;  o  u
 )
 
 (deflayer arrows
-  _   _   _   _   _  left down up rght _  _
+  _   _   _   _   _  left down up rght _  _  _
+)
+
+(deflayer umlauts
+  _   @ä  _   _   _  _   _   _   _   _  @ö  @ü
 )
 
 (deffakekeys
   to-base (layer-switch base)
+  to-umlauts (layer-switch umlauts)
 )
 (defalias
   tap (multi
@@ -61,14 +66,24 @@
     (on-idle-fakekey to-base tap 20)
   )
 
+  umlaut (multi
+    (on-idle-fakekey to-umlauts tap 1)
+    (on-idle-fakekey to-base tap 500)
+  )
+
+  ;; Umlaut macros using AltGr - auto-switch back to base layer
+  ä (macro RA-a (on-idle-fakekey to-base tap 1))
+  ö (macro RA-o (on-idle-fakekey to-base tap 1))
+  ü (macro RA-u (on-idle-fakekey to-base tap 1))
+
   fn (layer-toggle arrows)
-  u (fork u (macro menu 20 S-') (lalt ralt))
+  u (fork u @umlaut (lmet rmet))
+  s (fork (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lctl $left-hand-keys) (macro RA-s) (lalt ralt))
   a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lsft $left-hand-keys)
-  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lctl $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lalt $left-hand-keys)
   f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lmet $left-hand-keys)
   j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rmet $right-hand-keys)
-  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) ralt $right-hand-keys)
+  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) lalt $right-hand-keys)
   l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) rctl $right-hand-keys)
   ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rsft $right-hand-keys)
 )

@@ -16,7 +16,7 @@
       "${modifier}+a" = "workspace number 5; exec focusOrOpen slack Slack";
       "${modifier}+w" = "exec focusOrOpen obsidian obsidian";
 
-      "Super+u" = "mode umlaut";
+      # "Super+u" = "mode umlaut";
       "${modifier}+s" = "exec wtype ß";
 
       # Window management (vim-style navigation)
@@ -43,7 +43,7 @@
       "Super+q" = "kill"; # Close window (matching Hyprland $otherMod)
       "${modifier}+t" = "floating toggle";
       "${modifier}+f" = "fullscreen toggle";
-      "${modifier}+Tab" = "workspace back_and_forth";
+      "${modifier}+Tab" = "vicinae vicinae://extensions/vicinae/wm/switch-windows";
       "${modifier}+Comma" = "layout toggle stacking tabbed";
       "${modifier}+Period" = "layout toggle splitv splith";
 
@@ -61,8 +61,8 @@
       "Super+Shift+4" = "exec grim -g \"$(slurp)\" - | wl-copy";
 
       # Copy/paste shortcuts
-      "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm dev.zed.Zed foot";
-      "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed foot";
+      "Super+c" = "exec copyPasteShortcut copy org.wezfurlong.wezterm dev.zed.Zed foot scratchpad";
+      "Super+v" = "exec copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed foot scratchpad";
       "Super+a" = "exec wtype -M ctrl -k a";
       "Super+t" = "exec wtype -M ctrl -k t";
       "Super+k" = "exec wtype -M ctrl -k k";

@@ -7,6 +7,7 @@
   imports = [
     ./binds.nix
     ./lock.nix
+    ./idle.nix
     ./gtk.nix
     ./kbptr.nix
 
@@ -147,35 +148,34 @@
           };
 
           # Workspace assignments
-          workspaceRules = builtins.concatMap (
-            { workspace, apps }:
-            map (app: moveToWorkspace app workspace) apps
-          ) [
-            {
-              workspace = 1;
-              apps = [ "zen" ];
-            }
-            {
-              workspace = 2;
-              apps = [ "dev.zed.Zed" ];
-            }
-            {
-              workspace = 3;
-              apps = [ "org.wezfurlong.wezterm" ];
-            }
-            {
-              workspace = 4;
-              apps = [ "spotify_player" ];
-            }
-            {
-              workspace = 5;
-              apps = [
-                "Slack"
-                "signal"
-                "vesktop"
+          workspaceRules =
+            builtins.concatMap ({ workspace, apps }: map (app: moveToWorkspace app workspace) apps)
+              [
+                {
+                  workspace = 1;
+                  apps = [ "zen" ];
+                }
+                {
+                  workspace = 2;
+                  apps = [ "dev.zed.Zed" ];
+                }
+                {
+                  workspace = 3;
+                  apps = [ "org.wezfurlong.wezterm" ];
+                }
+                {
+                  workspace = 4;
+                  apps = [ "spotify_player" ];
+                }
+                {
+                  workspace = 5;
+                  apps = [
+                    "Slack"
+                    "signal"
+                    "vesktop"
+                  ];
+                }
               ];
-            }
-          ];
         in
         [
           {
@@ -212,8 +212,8 @@
           click_method = "clickfinger";
         };
         "type:keyboard" = {
-          xkb_layout = "us";
-          xkb_options = "caps:escape,compose:menu";
+          xkb_layout = "eu";
+          xkb_options = "caps:escape";
           xkb_numlock = "enabled";
         };
         "type:pointer" = {

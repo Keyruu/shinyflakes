@@ -29,11 +29,11 @@
           "cpu"
           "memory"
           "battery"
-          # "power-profiles-daemon"
           "pulseaudio"
           "pulseaudio#microphone"
           "clock"
-          "custom/dunst"
+          "custom/caffeine"
+          "custom/swaync"
         ];
 
         "sway/window" = {
@@ -183,17 +183,31 @@
             "brave"
           ];
         };
-
-        "custom/dunst" = {
-          exec = "waybar-dunst-monitor";
+        "custom/caffeine" = {
+          format = "󰅶";
+          interval = 5;
+          on-click = "caffeine";
+          exec-if = "pidof swayidle";
+        };
+        "custom/swaync" = {
+          tooltip = true;
+          format = "{icon}";
+          format-icons = {
+            notification = "󱅫";
+            none = "󰂜";
+            dnd-notification = "󰂠";
+            dnd-none = "󰪓";
+            inhibited-notification = "󰂛";
+            inhibited-none = "󰪑";
+            dnd-inhibited-notification = "󰂛";
+            dnd-inhibited-none = "󰪑";
+          };
           return-type = "json";
-          exec-if = "which dunstctl && which dbus-monitor && which waybar-dunst-monitor";
-          # Tooltip is handled by the JSON output, disable Waybar's default
-          tooltip = false;
-          # Click actions
-          on-click = "dunstctl set-paused toggle"; # Left click: Toggle pause
-          on-click-middle = "dunstctl history-pop"; # Middle click: Show history
-          on-click-right = "dunstctl close-all"; # Right click: Close all
+          exec-if = "which swaync-client";
+          exec = "swaync-client -swb";
+          on-click = "swaync-client -t -sw";
+          on-click-right = "swaync-client -d -sw";
+          escape = true;
         };
       };
     };
@@ -233,6 +247,8 @@
         #pulseaudio.microphone,
         #clock,
         #mpris,
+        #custom-caffeine,
+        #custom-swaync,
         #custom-dunst {
           background: #0c0e0f;
           padding: 0 7px;
@@ -349,6 +365,17 @@
           border-bottom: 2px solid #f9e2af;
         }
 
+        /* Caffeine */
+        #custom-caffeine {
+          color: #f9e2af;
+        }
+
+        /* SwayNC notification */
+        #custom-swaync {
+          color: #89b4fa;
+          padding-right: 10px;
+        }
+
         /* Dunst notification */
         #custom-dunst {
           color: #ff746c;
@@ -362,6 +389,8 @@
         #pulseaudio.microphone:hover,
         #network:hover,
         #bluetooth:hover,
+        #custom-caffeine:hover,
+        #custom-swaync:hover,
         #custom-dunst:hover {
           background: #11111b;
         }

@@ -8,8 +8,8 @@
   };
 
   services.logind.settings.Login = {
-    HandleLidSwitch = "suspend-then-hibernate";
-    HandlePowerKey = "hibernate";
+    HandleLidSwitch = "lock";
+    HandlePowerKey = "suspend";
     HandlePowerKeyLongPress = "poweroff";
   };
 

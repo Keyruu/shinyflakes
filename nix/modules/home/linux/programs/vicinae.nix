@@ -13,7 +13,10 @@
       font.size = 11;
       popToRootOnClose = false;
       rootSearch.searchFiles = false;
-      theme.name = "vicinae-dark";
+      theme = {
+        name = "vicinae-dark";
+        iconTheme = "Papirus";
+      };
       window = {
         csd = true;
         opacity = 0.95;
