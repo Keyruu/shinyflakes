@@ -68,7 +68,7 @@ in
 
         whishper-translate = {
           containerConfig = {
-            image = "libretranslate/libretranslate:v1.6.5";
+            image = "libretranslate/libretranslate:v1.7.3";
             volumes = [
               "${stackPath}/libretranslate/data:/home/libretranslate/.local/share"
               "${stackPath}/libretranslate/cache:/home/libretranslate/.local/cache"
