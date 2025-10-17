@@ -95,7 +95,7 @@ in
 
   virtualisation.quadlet.containers.headplane = {
     containerConfig = {
-      image = "ghcr.io/tale/headplane:0.6.0";
+      image = "ghcr.io/tale/headplane:0.6.1";
       publishPorts = [ "127.0.0.1:3000:3000" ];
       volumes = [
         "${configFile}:/etc/headscale/config.yaml:ro"
