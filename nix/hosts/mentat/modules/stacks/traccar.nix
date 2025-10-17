@@ -46,7 +46,7 @@ in
 
   virtualisation.quadlet.containers.traccar = {
     containerConfig = {
-      image = "docker.io/traccar/traccar:6.9-alpine";
+      image = "docker.io/traccar/traccar:6.10-alpine";
       volumes = [
         "${traccarPath}/data:/opt/traccar/data"
         "${traccarPath}/logs:/opt/traccar/logs"
