@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.maloja = {
     containerConfig = {
-      image = "krateng/maloja:3.2.3";
+      image = "krateng/maloja:3.2.4";
       environments = {
         MALOJA_DATA_DIRECTORY = "/data";
       };
