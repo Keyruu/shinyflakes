@@ -17,7 +17,7 @@
       ''
         set -g @tmux-which-key-xdg-enable 1
         set -g @tmux-which-key-disable-autobuild 1
-        run-shell ${pkgs.tmuxPlugins.tmux-which-key}/share/tmux-plugins/tmux-which-key/plugin.sh.tmux
+        # run-shell ${pkgs.tmuxPlugins.tmux-which-key}/share/tmux-plugins/tmux-which-key/plugin.sh.tmux
 
         set -g @mode_indicator_empty_prompt ' NORMAL '
         set -g @mode_indicator_prefix_prompt ' PREFIX '
@@ -76,7 +76,6 @@
         bind '"' split-window -v -c "#{pane_current_path}"
         bind % split-window -h -c "#{pane_current_path}"
 
-        # DESIGN TWEAKS
         set -g status-position top
         set -g status-left-length 100
         set -g status-style "fg=${gray_light},bg=default"
@@ -94,7 +93,6 @@
       '';
     plugins = with pkgs.tmuxPlugins; [
       sensible
-      yank
     ];
   };
 }

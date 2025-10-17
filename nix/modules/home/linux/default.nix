@@ -71,6 +71,9 @@ in
     signal-desktop
     rpi-imager
     espflash
+    gcalcli
+    thunderbird
+    perSystem.self.nextmeeting
     perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];

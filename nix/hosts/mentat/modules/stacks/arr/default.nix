@@ -9,11 +9,8 @@
     ./qbittorrent.nix
     ./flaresolverr.nix
     ./jellyfin.nix
-    # ./slskd.nix
     ./navidrome.nix
-    # ./beets.nix
     ./recyclarr.nix
     ./lidarr.nix
-    # ./soularr.nix
   ];
 }

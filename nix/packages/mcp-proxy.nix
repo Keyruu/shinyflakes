@@ -12,13 +12,18 @@ pkgs.python3Packages.buildPythonApplication rec {
     sha256 = "sha256-xHy+IwnUoyICSTusqTzGf/kOvT0FvJYcTT9Do0C5DiY=";
   };
 
-  format = "pyproject";
+  pyproject = true;
 
-  nativeBuildInputs = [ pkgs.python3Packages.setuptools ];
+  build-system = [ pkgs.python3Packages.setuptools ];
 
-  propagatedBuildInputs = with pkgs.python3Packages; [
+  dependencies = with pkgs.python3Packages; [
     uvicorn
     mcp
+  ];
+
+  nativeCheckInputs = with pkgs.python3Packages; [
+    pytestCheckHook
+    pytest-asyncio
   ];
 
   meta = with pkgs.lib; {
