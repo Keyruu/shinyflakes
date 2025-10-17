@@ -40,7 +40,7 @@ in
       containers = {
         dawarich-redis = {
           containerConfig = {
-            image = "redis:7.4-alpine";
+            image = "redis:8.2-alpine";
             exec = "redis-server";
             volumes = [
               "${stackPath}/shared:/data"
