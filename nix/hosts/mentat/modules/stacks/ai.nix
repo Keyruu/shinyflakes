@@ -38,7 +38,7 @@ in
 
         openwebui = {
           containerConfig = {
-            image = "ghcr.io/open-webui/open-webui:0.6.28";
+            image = "ghcr.io/open-webui/open-webui:0.6.34";
             publishPorts = [ "127.0.0.1:3004:8080" ];
             volumes = [ "${openwebuiStackPath}/data:/app/backend/data" ];
             labels = [
