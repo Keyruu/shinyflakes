@@ -67,7 +67,7 @@ in
       containers = {
         rybbit-clickhouse = {
           containerConfig = {
-            image = "clickhouse/clickhouse-server:25.4.2";
+            image = "clickhouse/clickhouse-server:25.9.3";
             volumes = [
               "${stackPath}/clickhouse-data:/var/lib/clickhouse"
               "${stackPath}/clickhouse_config:/etc/clickhouse-server/config.d"
