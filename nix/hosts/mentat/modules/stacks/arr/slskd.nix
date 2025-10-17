@@ -29,7 +29,7 @@ in
 
   virtualisation.quadlet.containers.torrent-slskd = {
     containerConfig = {
-      image = "slskd/slskd:0.22.1.65534-a2e1e65b";
+      image = "slskd/slskd:0.22.2.0-a2e1e65b";
       environments = {
         SLSKD_UMASK = "022";
         SLSKD_DOWNLOADS_DIR = "/data/Music/downloads/completed";
