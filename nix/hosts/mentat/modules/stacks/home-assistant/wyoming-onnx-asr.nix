@@ -10,7 +10,7 @@ in
   virtualisation.quadlet.containers = {
     wyoming-onnx-asr = {
       containerConfig = {
-        image = "ghcr.io/tboby/wyoming-onnx-asr-gpu:v0.3.5";
+        image = "ghcr.io/tboby/wyoming-onnx-asr-gpu:v0.4.0";
         publishPorts = [ "127.0.0.1:10301:10300" ];
         devices = [ "nvidia.com/gpu=all" ];
         volumes = [
