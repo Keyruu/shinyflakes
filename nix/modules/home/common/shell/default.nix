@@ -32,7 +32,7 @@ in
     # set default applications
     EDITOR = "nvim";
     BROWSER = "firefox";
-    TERMINAL = "kitty";
+    TERMINAL = "wezterm";
 
     # enable scrolling in git diff
     DELTA_PAGER = "less -R";

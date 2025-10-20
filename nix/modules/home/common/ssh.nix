@@ -7,6 +7,11 @@
       "*" = {
         controlPath = "~/.ssh/_%C";
       };
+      "github.com" = {
+        hostname = "ssh.github.com";
+        port = 443;
+        user = "git";
+      };
       "prime" = {
         hostname = "168.119.225.165";
         user = "root";

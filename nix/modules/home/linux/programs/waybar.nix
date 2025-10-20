@@ -23,6 +23,7 @@
         modules-center = [ "mpris" ];
         modules-right = [
           "tray"
+          "custom/meeting"
           "sway/mode"
           "bluetooth"
           "network"
@@ -81,7 +82,7 @@
         };
 
         clock = {
-          format = "󰃰  {:%a; %b %e %H:%M }";
+          format = "󰃰 {:%d.%m. %H:%M }";
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         };
 
@@ -130,8 +131,8 @@
 
         "pulseaudio#microphone" = {
           format = "{format_source}";
-          format-source = "󰍬 {volume}%";
-          format-source-muted = "󰍭 ";
+          format-source = "󰍬";
+          format-source-muted = "󰍭";
           on-click = "${lib.getExe pkgs.pamixer} --default-source -t";
           on-scroll-up = "${lib.getExe pkgs.pamixer} --default-source -i 5";
           on-scroll-down = "${lib.getExe pkgs.pamixer} --default-source -d 5";
@@ -209,6 +210,14 @@
           on-click-right = "swaync-client -d -sw";
           escape = true;
         };
+        "custom/meeting" = {
+          format = "{}";
+          exec = "nextmeeting --waybar";
+          on-click = "nextmeeting --open-meet-url";
+          interval = 59;
+          return-type = "json";
+          tooltip = "true";
+        };
       };
     };
 
@@ -249,6 +258,7 @@
         #mpris,
         #custom-caffeine,
         #custom-swaync,
+        #custom-meeting,
         #custom-dunst {
           background: #0c0e0f;
           padding: 0 7px;
@@ -376,6 +386,10 @@
           padding-right: 10px;
         }
 
+        #custom-swaync {
+          color: #347aeb;
+        }
+
         /* Dunst notification */
         #custom-dunst {
           color: #ff746c;
@@ -391,6 +405,7 @@
         #bluetooth:hover,
         #custom-caffeine:hover,
         #custom-swaync:hover,
+        #custom-meeting:hover,
         #custom-dunst:hover {
           background: #11111b;
         }

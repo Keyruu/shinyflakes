@@ -91,20 +91,6 @@ let
         fi
       '';
 
-  type-umlaut =
-    pkgs.writeShellScriptBin "type-umlaut" # bash
-      ''
-        #!/bin/bash
-
-        char="$1"
-        wl-paste > /tmp/clipboard-backup-$$ 2>/dev/null || touch /tmp/clipboard-backup-$$
-        echo -n "$char" | wl-copy
-        copyPasteShortcut paste org.wezfurlong.wezterm dev.zed.Zed
-
-        wl-copy < /tmp/clipboard-backup-$$
-        rm -f /tmp/clipboard-backup-$$
-      '';
-
   ultrawide =
     pkgs.writeShellScriptBin "ultrawide" # bash
       ''
@@ -133,7 +119,6 @@ in
     focusOrOpen
     copyPasteShortcut
     scratch
-    type-umlaut
     ultrawide
   ];
 }

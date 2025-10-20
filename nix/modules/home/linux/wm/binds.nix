@@ -111,7 +111,7 @@
         "Down" = "resize grow height 10px";
         "Up" = "resize shrink height 10px";
         "Right" = "resize grow width 10px";
-        "w" = "exec ultrawide";
+        "w" = "exec ultrawide; mode default";
         "Return" = "mode default";
         "Escape" = "mode default";
       };

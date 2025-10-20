@@ -74,7 +74,8 @@ in
       image = "ghcr.io/home-assistant/home-assistant:2025.10.3";
       environments = {
         TZ = "Europe/Berlin";
-        OPENAI_BASE_URL = "https://api.scaleway.ai/28f14df5-01a1-40d6-b09f-046cadfaf4c9/v1";
+        # OPENAI_BASE_URL = "https://api.scaleway.ai/28f14df5-01a1-40d6-b09f-046cadfaf4c9/v1";
+        OPENAI_BASE_URL = "https://api.mistral.ai/v1";
       };
       exposePorts = [
         "8123"

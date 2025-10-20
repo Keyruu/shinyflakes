@@ -34,7 +34,7 @@
   services = {
     libinput.touchpad = {
       tapping = true;
-      disableWhileTyping = true;
+      disableWhileTyping = false;
     };
 
     upower = {

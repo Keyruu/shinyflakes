@@ -146,6 +146,7 @@
 
       variables = {
         DO_NOT_TRACK = 1;
+        EDITOR = "nvim";
       };
     };
   }; # close config block

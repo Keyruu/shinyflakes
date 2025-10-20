@@ -28,6 +28,7 @@ in
     ./gaming.nix
     ./workstyle.nix
     ./mpv.nix
+    ./calendar.nix
   ];
 
   home.stateVersion = "24.11";
@@ -71,9 +72,9 @@ in
     signal-desktop
     rpi-imager
     espflash
-    gcalcli
     thunderbird
-    perSystem.self.nextmeeting
+    vlc
+    isd
     perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];

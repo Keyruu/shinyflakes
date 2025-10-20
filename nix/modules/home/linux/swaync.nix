@@ -32,6 +32,25 @@
       hide-on-action = true;
       script-fail-notify = true;
 
+      notification-visibility = {
+        spotify-app = {
+          state = "transient";
+          app-name = "Spotify";
+        };
+        spotify-player = {
+          state = "transient";
+          app-name = "spotify_player";
+        };
+        swayidle = {
+          state = "transient";
+          summary = "swayidle";
+        };
+        caffeine = {
+          state = "transient";
+          summary = "Caffeine.*";
+        };
+      };
+
       widgets = [
         "label"
         "mpris"

@@ -5,6 +5,18 @@
   programs.fish = {
     enable = true;
 
+    plugins = [
+      {
+        name = "fish-ai";
+        src = pkgs.fetchFromGitHub {
+          owner = "Realiserad";
+          repo = "fish-ai";
+          rev = "v2.3.1";
+          hash = "sha256-bgFvzjX/TphyoAz4X9Xsux8zK/N9QeBY04d9q5z8lwc=";
+        };
+      }
+    ];
+
     functions = {
       starship_transient_rprompt_func = "starship module time";
     };
@@ -12,22 +24,8 @@
     shellInit =
       # fish
       ''
-        switch (uname)
-          case Darwin
-            starship init fish --print-full-init | source
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-            fish_add_path $HOME/.krew
-            fish_add_path $HOME/.cargo/bin
-            fish_add_path $HOME/Library/Application\ Support/JetBrains/Toolbox/scripts/
-            fish_add_path $HOME/Library/Application\ Support/Coursier/bin
-            fish_add_path $HOME/.orbstack/bin
-            set -x PNPM_HOME $HOME/.pnpm-bin
-            source $HOME/.local/bin/env.fish
-          case Linux
-            starship init fish | source
-        end
+        starship init fish | source
 
-        alias opencode-sst "bun run $HOME/tmp/opencode/packages/opencode/src/index.ts"
         fish_add_path $HOME/.pnpm-bin
         fish_add_path $HOME/.local/bin
 
@@ -52,21 +50,14 @@
           echo "Warning: SOPS secrets file not found at ${config.sops.secrets.shellEnv.path}" >&2
         end
       '';
-
-    shellInitLast =
-      # fish
-      ''
-        # function is_inside_neovim
-        #   # Check if NVIM environment variable is set
-        #   if test -n "$NVIM"
-        #     return 0  # Inside Neovim
-        #   end
-        #   return 1  # Not inside Neovim
-        # end
-        # # Call enable_transience only if not inside Neovim terminal
-        # if not is_inside_neovim
-        #   enable_transience
-        # end
-      '';
   };
+
+  home.file.".config/fish-ai.ini".text = # ini
+    ''
+      [fish-ai]
+      configuration = anthropic
+
+      [anthropic]
+      provider = anthropic
+    '';
 }
