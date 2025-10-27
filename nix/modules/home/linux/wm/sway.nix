@@ -6,40 +6,12 @@
 {
   imports = [
     ./binds.nix
-    ./lock.nix
-    ./idle.nix
-    ./gtk.nix
-    ./kbptr.nix
-
     inputs.iio-sway.homeManagerModules.default
   ];
-
-  services.gnome-keyring.enable = true;
-  services.polkit-gnome.enable = true;
 
   programs.iio-sway = {
     enable = true;
   };
-
-  home.packages = with pkgs; [
-    wl-clipboard
-    brightnessctl
-    grim
-    slurp
-    swappy
-    imv
-    wf-recorder
-    wayland-utils
-    wayland-protocols
-    playerctl
-    tofi
-    workstyle
-    swayest-workstyle
-    swaybg
-    swayidle
-    pamixer
-    wlopm
-  ];
 
   wayland.windowManager.sway = {
     enable = true;
@@ -50,7 +22,7 @@
       floating.modifier = modifier;
 
       window = {
-        border = 1;
+        border = 2;
         titlebar = true;
       };
 
@@ -188,7 +160,7 @@
             criteria = {
               app_id = "scratchpad";
             };
-            command = "floating enable, opacity 0.96, move scratchpad, scratchpad show, resize set width 88 ppt height 92 ppt, border none";
+            command = "floating enable, opacity 0.96, move scratchpad, scratchpad show, resize set width 88 ppt height 92 ppt, border pixel 2";
           }
           {
             criteria = {

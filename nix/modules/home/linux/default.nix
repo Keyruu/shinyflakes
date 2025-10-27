@@ -75,6 +75,9 @@ in
     thunderbird
     vlc
     isd
+    bluetui
+    aichat
+    socat
     perSystem.zen-browser.default
     # inputs.sirberus.packages."${system}".default
   ];

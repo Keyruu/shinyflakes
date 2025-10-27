@@ -8,15 +8,23 @@
 
   xdg.portal = {
     enable = true;
-    wlr.enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    config = {
-      common = {
-        default = [
-          "gtk"
-        ];
-      };
+    wlr.enable = false;
+    config.niri = {
+      default = [
+        "gnome"
+        "gtk"
+      ];
+      "org.freedesktop.impl.portal.Access" = "gtk";
+      "org.freedesktop.impl.portal.Notification" = "gtk";
+      "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+      "org.freedesktop.impl.portal.FileChooser" = "gtk";
+      "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
     };
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
+    ];
   };
 
   services.greetd = {
@@ -33,7 +41,7 @@
             cmd: "${pkgs.tuigreet}/bin/tuigreet ${theme} ${time} --asterisks ${greeting} --cmd ${cmd}";
         in
         {
-          command = tuigreet "sway"; # Replace with your default session
+          command = tuigreet "niri-session"; # Replace with your default session
           user = "greeter";
         };
     };

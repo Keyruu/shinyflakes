@@ -19,6 +19,8 @@
         modules-left = [
           "sway/workspaces"
           "sway/window"
+          "niri/workspaces"
+          "custom/niri-windows"
         ];
         modules-center = [ "mpris" ];
         modules-right = [
@@ -41,6 +43,10 @@
           icon = true;
         };
 
+        "niri/window" = {
+          icon = true;
+        };
+
         "sway/workspaces" = {
           disable-scroll = true;
           format = "{icon}";
@@ -57,6 +63,20 @@
             "10" = "10";
           };
           all-outputs = true;
+          on-click = "activate";
+        };
+
+        "niri/workspaces" = {
+          disable-scroll = true;
+          format = "{icon}";
+          format-icons = {
+            "browse" = "";
+            "ide" = "";
+            "term" = "";
+            "media" = "";
+            "social" = "";
+          };
+          all-outputs = false;
           on-click = "activate";
         };
 
@@ -212,11 +232,16 @@
         };
         "custom/meeting" = {
           format = "{}";
-          exec = "nextmeeting --waybar";
-          on-click = "nextmeeting --open-meet-url";
-          interval = 59;
+          exec = "waybar-khal";
+          on-click = "khal-open-meet";
+          interval = 60;
           return-type = "json";
-          tooltip = "true";
+          tooltip = true;
+        };
+        "custom/niri-windows" = {
+          format = "{}";
+          exec = "niri-workstyle";
+          tooltip = true;
         };
       };
     };
@@ -259,6 +284,7 @@
         #custom-caffeine,
         #custom-swaync,
         #custom-meeting,
+        #custom-niri-windows,
         #custom-dunst {
           background: #0c0e0f;
           padding: 0 7px;
@@ -267,20 +293,19 @@
 
         /* Workspaces */
         #workspaces {
-          padding: 0 5px;
+          padding: 0px;
         }
 
         #workspaces button {
           color: #cdd6f4;
           padding: 5px;
-          padding-right: 10px;
-          min-width: 20px;
+          min-width: 25px;
           transition: all 0.2s ease;
         }
 
         #workspaces button.active,
         #workspaces button.focused {
-          color: #89b4fa;
+          color: #4079d6;
           background: #111;
         }
 
@@ -396,6 +421,12 @@
           padding-right: 10px;
         }
 
+        /* Niri windows */
+        #custom-niri-windows {
+          color: #c0caf5;
+          margin-right: 10px;
+        }
+
         /* Hover effects for interactive modules */
         #cpu:hover,
         #memory:hover,
@@ -406,6 +437,7 @@
         #custom-caffeine:hover,
         #custom-swaync:hover,
         #custom-meeting:hover,
+        #custom-niri-windows:hover,
         #custom-dunst:hover {
           background: #11111b;
         }

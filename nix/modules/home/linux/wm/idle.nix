@@ -7,8 +7,9 @@
 
       screenLocker = lib.getExe pkgs.hyprlock;
 
-      screenOn = "${lib.getExe' pkgs.sway "swaymsg"} 'output * power on'";
-      screenOff = "${lib.getExe' pkgs.sway "swaymsg"} 'output * power off'";
+      # Use compositor-agnostic commands for screen power management
+      screenOn = "${lib.getExe pkgs.wlopm} --on '*'";
+      screenOff = "${lib.getExe pkgs.wlopm} --off '*'";
     in
     {
       enable = true;

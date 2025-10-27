@@ -9,8 +9,13 @@
     acpi
   ];
 
+  services.envfs.enable = true;
+
   # use S3 sleep mode
-  boot.kernelParams = [ "mem_sleep_default=deep" ];
+  boot.kernelParams = [
+    "mem_sleep_default=deep"
+    "usbcore.autosuspend=120"
+  ];
 
   # battery life improvements
   powerManagement = {

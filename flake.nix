@@ -1,7 +1,6 @@
 {
   description = "Keyruu's shinyflakes";
 
-  # Add all your dependencies here
   inputs = {
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
@@ -62,14 +61,9 @@
       };
     };
 
-    sherlock = {
-      url = "github:Skxxtz/sherlock";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
     vicinae.url = "github:vicinaehq/vicinae";
+
+    niri.url = "github:sodiboo/niri-flake";
 
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 

@@ -27,6 +27,11 @@
     ./modules
   ];
 
+  # Niri overlay for niri-stable and niri-unstable packages
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+
+  fileSystems."/home".neededForBoot = true;
+
   networking.hostName = lib.mkForce "PCL2025101301";
   user.name = "lucas";
 

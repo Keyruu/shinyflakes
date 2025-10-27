@@ -1,11 +1,3 @@
-# - ## Caffeine
-#-
-#- Caffeine is a simple script that toggles hypridle (disable suspend & screenlock).
-#-
-#- - `caffeine-status` - Check if hypridle is running. (0/1)
-#- - `caffeine-status-icon` - Check if hypridle is running. (icon)
-#- - `caffeine` - Toggle hypridle.
-
 { pkgs, lib, ... }:
 let
   idleService = "swayidle";
@@ -17,11 +9,11 @@ let
   caffeine = pkgs.writeShellScriptBin "caffeine" ''
     if [[ $(pidof "${idleService}") ]]; then
       systemctl --user stop ${idleService}.service
-      title="Caffeine Activated"
+      title="Caffeine activated"
       description="Caffeine is now active! Your screen will not turn off automatically."
     else
       systemctl --user start ${idleService}.service
-      title="Caffeine Deactivated"
+      title="Caffeine deactivated"
       description="Caffeine is now deactivated! Your screen will turn off automatically."
     fi
 

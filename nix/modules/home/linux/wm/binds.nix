@@ -75,7 +75,7 @@
       # "${modifier}+b" = "splith";
 
       # Resize mode
-      "${modifier}+r" = "mode resize";
+      "${modifier}+r" = "exec wlr-which-key --initial-keys \"r\"";
 
       # Workspace switching (1-9)
     }
@@ -99,33 +99,5 @@
         ) 9
       )
     );
-
-    # Resize mode
-    modes = {
-      resize = {
-        "h" = "resize shrink width 10px";
-        "j" = "resize grow height 10px";
-        "k" = "resize shrink height 10px";
-        "l" = "resize grow width 10px";
-        "Left" = "resize shrink width 10px";
-        "Down" = "resize grow height 10px";
-        "Up" = "resize shrink height 10px";
-        "Right" = "resize grow width 10px";
-        "w" = "exec ultrawide; mode default";
-        "Return" = "mode default";
-        "Escape" = "mode default";
-      };
-      umlaut = {
-        "a" = "exec type-umlaut ä, mode default";
-        "o" = "exec type-umlaut ö, mode default";
-        "u" = "exec type-umlaut ü, mode default";
-        "Shift+a" = "exec type-umlaut Ä, mode default";
-        "Shift+o" = "exec type-umlaut Ö, mode default";
-        "Shift+u" = "exec type-umlaut Ü, mode default";
-        "Escape" = "mode default";
-        "Return" = "mode default";
-        "Control+g" = "mode default";
-      };
-    };
   };
 }

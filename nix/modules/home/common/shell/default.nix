@@ -16,6 +16,7 @@ in
     ./k9s.nix
     ./lazygit.nix
     ./wezterm.nix
+    ./alacritty.nix
     ./zellij.nix
     ./fish.nix
     ./tmux.nix
@@ -32,7 +33,7 @@ in
     # set default applications
     EDITOR = "nvim";
     BROWSER = "firefox";
-    TERMINAL = "wezterm";
+    TERMINAL = "alacritty";
 
     # enable scrolling in git diff
     DELTA_PAGER = "less -R";

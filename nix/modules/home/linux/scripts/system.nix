@@ -39,8 +39,11 @@ let
         shift
         terminal_classes="$@"
 
-        # Sway - get focused window info
-        active_class=$(swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .app_id // .window_properties.class' | head -n 1)
+        if [ "$XDG_CURRENT_DESKTOP" = "niri" ]; then
+          active_class=$(niri msg -j windows | jq -r '.[] | select(.is_focused == true) | .app_id' | head -n 1)
+        else
+          active_class=$(swaymsg -t get_tree | jq -r '.. | select(.focused? == true) | .app_id // .window_properties.class' | head -n 1)
+        fi
 
         # Check if active_class matches any of the provided terminal classes
         use_shift_modifier=false
@@ -74,20 +77,33 @@ let
       ''
         #!/bin/bash
 
-        # Get the current focused monitor's geometry (resolution)
         monitor_resolution=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .rect | "\(.width) \(.height)"')
-
-        # Extract width and height from the geometry
         monitor_width=$(echo $monitor_resolution | awk '{print $1}')
         monitor_height=$(echo $monitor_resolution | awk '{print $2}')
 
-        # Calculate desired size (e.g., 88% width, 92% height)
         width=$((monitor_width * 88 / 100))
         height=$((monitor_height * 92 / 100))
 
         if ! swaymsg '[app_id="^scratchpad$"] scratchpad show, resize set width '$width' px height '$height' px'; then
-          # If the scratchpad doesn't exist, launch it
-          exec foot --app-id scratchpad
+          exec wezterm start --class scratchpad
+        fi
+      '';
+
+  scratch-niri =
+    pkgs.writeShellScriptBin "scratch-niri" # bash
+      ''
+        #!/bin/bash
+
+        window_id=$(niri msg -j windows | jq -r '.[] | select(.app_id == "scratchpad") | .id')
+
+        if [ -n "$window_id" ]; then
+          nirius scratchpad-show -a scratchpad
+          niri msg action set-window-height --id $window_id 88%
+          niri msg action set-window-width --id $window_id 88%
+        else
+          niri msg action spawn -- alacritty --class scratchpad
+          sleep 0.5
+          nirius scratchpad-toggle -a scratchpad --no-move
         fi
       '';
 
@@ -119,6 +135,7 @@ in
     focusOrOpen
     copyPasteShortcut
     scratch
+    scratch-niri
     ultrawide
   ];
 }

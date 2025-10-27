@@ -49,15 +49,11 @@
         else
           echo "Warning: SOPS secrets file not found at ${config.sops.secrets.shellEnv.path}" >&2
         end
+
+        function last_history_item
+          echo $history[1]
+        end
+        abbr -a !! --position anywhere --function last_history_item
       '';
   };
-
-  home.file.".config/fish-ai.ini".text = # ini
-    ''
-      [fish-ai]
-      configuration = anthropic
-
-      [anthropic]
-      provider = anthropic
-    '';
 }

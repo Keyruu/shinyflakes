@@ -1,34 +1,71 @@
 {
   config,
   pkgs,
-  perSystem,
   ...
 }:
+let
+  waybar-khal = pkgs.writeShellScriptBin "waybar-khal" ''
+    five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
+
+    next_event=$(khal list "$five_min_ago" 24h \
+      --day-format "" \
+      --notstarted \
+      --format "{start-end-time-style} {title:.20}{repeat-symbol}" |
+      grep -Ev '↦|↔ |⇥' |
+      grep -v '^ ' |
+      head -n 1 || echo "No events")
+
+    tooltip=$(khal list "$(date '+%Y-%m-%d %H:%M')" 7d \
+      --day-format "<i>{name}, {date}</i>" \
+      -f "{start-time}-{end-time} <b>{title}</b> ({location})" |
+      grep -Ev '↦|↔ |⇥' |
+      grep -v '^ ' |
+      sed -e 's/&/\&amp;/g')
+
+    jq -nc \
+      --arg text "$next_event" \
+      --arg tooltip "$tooltip" \
+      '{text: $text, tooltip: $tooltip}'
+  '';
+
+  khal-notify = pkgs.writeShellScriptBin "khal-notify" ''
+    now=$(date '+%Y-%m-%d %H:%M')
+    events=$(khal list "$now" 15m \
+      --day-format "" \
+      --notstarted \
+      --format "|{all-day}|• {start-time} <i>{title}</i> ({location})" |
+      grep -v '^ ' |
+      grep -v '^|True|' |
+      sed 's/^|False|//')
+
+    if [ -n "$events" ]; then
+      notify-send -u normal -i calendar "Upcoming events" "$events"
+    fi
+  '';
+
+  khal-open-meet = pkgs.writeShellScriptBin "khal-open-meet" ''
+    in_five_min=$(date -d '+5 minutes' '+%Y-%m-%d %H:%M')
+    meet_url=$(khal at $in_five_min 2>/dev/null | grep -oP 'https://meet\.google\.com/[a-z0-9-]+' | head -n 1)
+    if [ -n "$meet_url" ]; then
+      ${pkgs.xdg-utils}/bin/xdg-open "$meet_url"
+    else
+      notify-send -i google-meet 'Could not find a meet URL'
+    fi
+  '';
+in
 {
-  home.packages = with pkgs; [
-    gcalcli
-    perSystem.self.nextmeeting
+  home.packages = [
+    waybar-khal
+    khal-notify
+    khal-open-meet
   ];
 
   sops.secrets = {
-    gcalConfig.path = "/home/${config.home.username}/.config/gcalcli/config.toml";
-    gcalUrl = { };
     gmailClientId = { };
     gmailClientSecret = { };
     sharedCalendarUser = { };
     sharedCalendarPassword = { };
   };
-
-  home.file.".config/nextmeeting/config.toml".text = # toml
-    ''
-      [nextmeeting]
-      max-title-length = 30
-      notify-min-before-events = 5
-      notify-offsets = [15, 5]
-      notify-icon = calendar
-      hour-separator = ":"
-      privacy = false
-    '';
 
   # Calendar accounts
   accounts.calendar = {
@@ -54,10 +91,6 @@
           metadata = [
             "color"
           ];
-          # urlCommand = [
-          #   "cat"
-          #   config.sops.secrets.gcalUrl.path
-          # ];
           clientIdCommand = [
             "cat"
             config.sops.secrets.gmailClientId.path
@@ -145,5 +178,28 @@
   services.vdirsyncer = {
     enable = true;
     frequency = "*:0/5"; # Sync every 5 minutes
+  };
+
+  systemd.user.services.khal-notify = {
+    Unit = {
+      Description = "Check for upcoming calendar events";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${khal-notify}/bin/khal-notify";
+    };
+  };
+
+  systemd.user.timers.khal-notify = {
+    Unit = {
+      Description = "Timer for calendar notifications";
+    };
+    Timer = {
+      OnCalendar = "*:0/5"; # Check every 5 minutes
+      Persistent = true;
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
   };
 }

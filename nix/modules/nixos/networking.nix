@@ -6,7 +6,8 @@
       dns = "systemd-resolved";
       wifi = {
         # backend = "iwd";
-        # powersave = true;
+        scanRandMacAddress = false; # Can help with faster reconnection
+        powersave = false; # Disable power saving for faster connections
       };
     };
 
