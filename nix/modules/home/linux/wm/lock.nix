@@ -17,7 +17,7 @@
 
       background = [
         {
-          path = "${../themes/blue-bg.jpg}";
+          path = "${../themes/dark-bg.jpg}";
         }
       ];
 

@@ -61,7 +61,7 @@ in
     localsend
     element-desktop
     chromium
-    firefox
+    # firefox
     railway-travel
     wtype
     wireguard-ui
@@ -70,15 +70,15 @@ in
     vesktop
     slack
     signal-desktop
-    rpi-imager
     espflash
     thunderbird
     vlc
     isd
     bluetui
     aichat
-    socat
-    perSystem.zen-browser.default
+    fluffychat
+    vdhcoapp
+    flatpak
     # inputs.sirberus.packages."${system}".default
   ];
 }

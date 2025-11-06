@@ -6,7 +6,7 @@
 {
   programs.waybar = {
     enable = true;
-    systemd.enable = true;
+    systemd.enable = false;
 
     settings = {
       mainBar = {
@@ -21,6 +21,7 @@
           "sway/window"
           "niri/workspaces"
           "custom/niri-windows"
+          "niri/window"
         ];
         modules-center = [ "mpris" ];
         modules-right = [
@@ -286,9 +287,11 @@
         #custom-meeting,
         #custom-niri-windows,
         #custom-dunst {
-          background: #0c0e0f;
+          background-color: rgba(12, 14, 15, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 5px;
           padding: 0 7px;
-          margin: 0;
+          margin: 2px;
         }
 
         /* Workspaces */
@@ -298,7 +301,8 @@
 
         #workspaces button {
           color: #cdd6f4;
-          padding: 5px;
+          padding-right: 2px;
+          padding-left: 2px;
           min-width: 25px;
           transition: all 0.2s ease;
         }
@@ -424,7 +428,7 @@
         /* Niri windows */
         #custom-niri-windows {
           color: #c0caf5;
-          margin-right: 10px;
+          padding-right: 10px;
         }
 
         /* Hover effects for interactive modules */

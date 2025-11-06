@@ -3,6 +3,7 @@
   imports = [
     ./sway.nix
     ./niri.nix
+    ./kanshi.nix
     ./lock.nix
     ./idle.nix
     ./gtk.nix

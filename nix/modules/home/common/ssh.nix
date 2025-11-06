@@ -6,6 +6,7 @@
     matchBlocks = {
       "*" = {
         controlPath = "~/.ssh/_%C";
+        controlMaster = "no";
       };
       "github.com" = {
         hostname = "ssh.github.com";

@@ -1,12 +1,15 @@
-{ ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./samba.nix
   ];
 
   boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.forceImportRoot = false;
-  boot.zfs.extraPools = [ "main" ];
+  boot.zfs = {
+    package = pkgs.zfs_unstable;
+    forceImportRoot = false;
+    extraPools = [ "main" ];
+  };
   networking.hostId = "7dddaca4";
   services.zfs.autoScrub.enable = true;
 

@@ -12,5 +12,7 @@
     flake.modules.nixos.onepassword
     flake.modules.nixos.wireguard
     flake.modules.nixos.kanata
+    flake.modules.nixos.flatpak
+    flake.modules.nixos.thunar
   ];
 }

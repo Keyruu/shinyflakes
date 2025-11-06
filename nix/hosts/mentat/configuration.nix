@@ -38,7 +38,7 @@
     kernelParams = [ "net.ifnames=0" ];
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_6_16;
+  # boot.kernelPackages = pkgs.linuxPackages_6_16;
 
   services.resolved.enable = false;
 
@@ -88,6 +88,7 @@
     runc
     powertop
     ryzen-monitor-ng
+    isd
     nvtopPackages.nvidia
   ];
 

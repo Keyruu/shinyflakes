@@ -8,12 +8,12 @@
     ''
       # Theming
       font: JetBrainsMono Nerd Font 12
-      background: "#202324d0"
+      background: "#222222d0"
       color: "#cdd6f4"
-      border: "#003a6a"
+      border: "#ffffff"
       separator: " ➜ "
       border_width: 2
-      corner_r: 0
+      corner_r: 5
       padding: 15 # Defaults to corner_r
       # rows_per_column: 5 # No limit by default
       column_padding: 25 # Defaults to padding
@@ -90,18 +90,33 @@
                 - key: "b"
                   desc: Focus Browse
                   cmd: niri msg action focus-workspace browse
+                - key: "B"
+                  desc: Move to Browse
+                  cmd: niri msg action move-column-to-workspace browse
                 - key: "i"
                   desc: Focus IDE
                   cmd: niri msg action focus-workspace ide
+                - key: "I"
+                  desc: Move to IDE
+                  cmd: niri msg action move-column-to-workspace ide
                 - key: "t"
                   desc: Focus Terminal
                   cmd: niri msg action focus-workspace term
+                - key: "T"
+                  desc: Move to Terminal
+                  cmd: niri msg action move-column-to-workspace term
                 - key: "m"
                   desc: Focus Media
                   cmd: niri msg action focus-workspace media
+                - key: "M"
+                  desc: Move to Media
+                  cmd: niri msg action move-column-to-workspace media
                 - key: "s"
                   desc: Focus Social
                   cmd: niri msg action focus-workspace social
+                - key: "S"
+                  desc: Move to Social
+                  cmd: niri msg action move-column-to-workspace social
             - key: "l"
               desc: Layout
               submenu:

@@ -16,5 +16,6 @@
     ./pigallery2.nix
     ./radicale.nix
     ./sftpgo.nix
+    ./isponsorblocktv.nix
   ];
 }

@@ -3,6 +3,7 @@
   pkgs,
   lib,
   perSystem,
+  config,
   ...
 }:
 {
@@ -23,11 +24,13 @@
         XDG_SESSION_TYPE = "wayland";
         XDG_SESSION_DESKTOP = "niri";
         XDG_CURRENT_DESKTOP = "niri";
+        XDG_DATA_DIRS = "$XDG_DATA_DIRS:/usr/share:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share";
         MOZ_ENABLE_WAYLAND = "1";
         MOZ_DBUS_REMOTE = "1";
         ANKI_WAYLAND = "1";
         NIXOS_OZONE_WL = "1";
         QT_QPA_PLATFORM = "wayland";
+        QT_QPA_PLATFORMTHEME = "gtk3";
         QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
         ELECTRON_OZONE_PLATFORM_HINT = "wayland";
         SDL_VIDEODRIVER = "wayland";
@@ -51,7 +54,9 @@
           command = [
             "swaybg"
             "-i"
-            "${../themes/lucy.jpeg}"
+            "${../themes/dark-bg.jpg}"
+            "-m"
+            "fill"
           ];
         }
         {
@@ -119,7 +124,7 @@
         workspace-auto-back-and-forth = false;
       };
 
-      # Output configuration matching your Sway outputs
+      # Output configuration managed by kanshi
       outputs = {
         "eDP-1" = {
           mode = {
@@ -141,20 +146,20 @@
           };
           scale = 1.0;
           position = {
-            x = 0;
+            x = -320;
             y = -1440;
           };
         };
-        "Samsung Electric Company C34H89x H4ZT801005" = {
+        "LG Electronics LG HDR 4K 0x00073A91" = {
           mode = {
-            width = 3440;
-            height = 1440;
-            refresh = 99.982;
+            width = 3840;
+            height = 2160;
+            refresh = 59.997;
           };
-          scale = 1.0;
+          scale = 1.4;
           position = {
-            x = 0;
-            y = -1440;
+            x = -411;
+            y = -1543;
           };
         };
       };
@@ -186,7 +191,7 @@
         always-center-single-column = true;
         center-focused-column = "on-overflow";
 
-        gaps = 0;
+        gaps = 4;
         struts = {
           left = 0;
           right = 0;
@@ -208,241 +213,455 @@
             if workspaceName != null then
               "nirius focus-or-spawn -a ${appId} ${command} && niri msg action focus-workspace ${workspaceName}"
             else
-              "nirius focurs-or-spawn -a ${appId} ${command}";
+              "nirius focus-or-spawn -a ${appId} ${command}";
         in
         {
           # Media keys (matching your extraConfig)
-          "XF86AudioRaiseVolume".action.spawn = [
-            "${pkgs.pamixer}/bin/pamixer"
-            "-i"
-            "5"
-          ];
-          "XF86AudioLowerVolume".action.spawn = [
-            "${pkgs.pamixer}/bin/pamixer"
-            "-d"
-            "5"
-          ];
-          "XF86AudioMute".action.spawn = [
-            "${pkgs.pamixer}/bin/pamixer"
-            "-t"
-          ];
-          "XF86AudioPlay".action.spawn = [
-            "${pkgs.playerctl}/bin/playerctl"
-            "play-pause"
-          ];
-          "XF86AudioNext".action.spawn = [
-            "${pkgs.playerctl}/bin/playerctl"
-            "next"
-          ];
-          "XF86AudioPrev".action.spawn = [
-            "${pkgs.playerctl}/bin/playerctl"
-            "previous"
-          ];
+          "XF86AudioRaiseVolume" = {
+            action.spawn = [
+              "${pkgs.pamixer}/bin/pamixer"
+              "-i"
+              "5"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86AudioLowerVolume" = {
+            action.spawn = [
+              "${pkgs.pamixer}/bin/pamixer"
+              "-d"
+              "5"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86AudioMute" = {
+            action.spawn = [
+              "${pkgs.pamixer}/bin/pamixer"
+              "-t"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86AudioPlay" = {
+            action.spawn = [
+              "${pkgs.playerctl}/bin/playerctl"
+              "play-pause"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86AudioNext" = {
+            action.spawn = [
+              "${pkgs.playerctl}/bin/playerctl"
+              "next"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86AudioPrev" = {
+            action.spawn = [
+              "${pkgs.playerctl}/bin/playerctl"
+              "previous"
+            ];
+            hotkey-overlay.hidden = true;
+          };
 
-          "XF86MonBrightnessUp".action.spawn = [
-            "${pkgs.brightnessctl}/bin/brightnessctl"
-            "set"
-            "+10%"
-          ];
-          "XF86MonBrightnessDown".action.spawn = [
-            "${pkgs.brightnessctl}/bin/brightnessctl"
-            "set"
-            "10%-"
-          ];
+          "XF86MonBrightnessUp" = {
+            action.spawn = [
+              "${pkgs.brightnessctl}/bin/brightnessctl"
+              "set"
+              "+10%"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "XF86MonBrightnessDown" = {
+            action.spawn = [
+              "${pkgs.brightnessctl}/bin/brightnessctl"
+              "set"
+              "10%-"
+            ];
+            hotkey-overlay.hidden = true;
+          };
 
           # Application shortcuts using nirius focus-or-spawn
-          "Alt+E".action.spawn-sh = focusOrSpawn "term" "Alacritty" "alacritty";
-          "Alt+C".action.spawn-sh = focusOrSpawn "browse" "zen" "zen";
-          "Alt+V".action.spawn-sh = focusOrSpawn "ide" "dev.zed.Zed" "zeditor";
-          "Alt+M".action.spawn-sh = focusOrSpawn "media" "spotify" "spotify";
-          "Alt+A".action.spawn-sh = focusOrSpawn "social" "Slack" "slack";
-
-          # Special character
-          "Alt+S".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "ß"
-          ];
+          "Alt+E" = {
+            action.spawn-sh = focusOrSpawn "term" "Alacritty" "alacritty";
+            hotkey-overlay.title = "Terminal";
+          };
+          "Alt+C" = {
+            action.spawn-sh = focusOrSpawn null "zen-beta" "zen";
+            hotkey-overlay.title = "Browser";
+          };
+          "Alt+V" = {
+            action.spawn-sh = focusOrSpawn "ide" "dev.zed.Zed" "zeditor";
+            hotkey-overlay.title = "Code Editor";
+          };
+          "Alt+M" = {
+            action.spawn-sh = focusOrSpawn "media" "spotify" "spotify";
+            hotkey-overlay.title = "Music";
+          };
+          "Alt+A" = {
+            action.spawn-sh = focusOrSpawn "social" "Slack" "slack";
+            hotkey-overlay.title = "Slack";
+          };
 
           # Window management (vim-style navigation)
-          "Alt+H".action.focus-column-or-monitor-left = [ ];
-          "Alt+J".action.focus-window-or-workspace-down = [ ];
-          "Alt+K".action.focus-window-or-workspace-up = [ ];
-          "Alt+L".action.focus-column-or-monitor-right = [ ];
-          "Alt+Shift+H".action.move-column-left = [ ];
-          "Alt+Shift+J".action.move-window-down-or-to-workspace-down = [ ];
-          "Alt+Shift+K".action.move-window-up-or-to-workspace-up = [ ];
-          "Alt+Shift+L".action.move-column-right = [ ];
-          "Ctrl+Alt+J".action.focus-monitor-down = [ ];
-          "Ctrl+Alt+K".action.focus-monitor-up = [ ];
-          "Alt+Q".action.focus-monitor-next = [ ];
-          "Alt+Shift+Q".action.move-window-to-monitor-next = [ ];
+          "Alt+H" = {
+            action.focus-column-or-monitor-left = [ ];
+            hotkey-overlay.title = "Focus Left";
+          };
+          "Alt+J" = {
+            action.focus-window-or-workspace-down = [ ];
+            hotkey-overlay.title = "Focus Down";
+          };
+          "Alt+K" = {
+            action.focus-window-or-workspace-up = [ ];
+            hotkey-overlay.title = "Focus Up";
+          };
+          "Alt+L" = {
+            action.focus-column-or-monitor-right = [ ];
+            hotkey-overlay.title = "Focus Right";
+          };
+          "Alt+Shift+H" = {
+            action.move-column-left = [ ];
+            hotkey-overlay.title = "Move Window Left";
+          };
+          "Alt+Shift+J" = {
+            action.move-window-down-or-to-workspace-down = [ ];
+            hotkey-overlay.title = "Move Window Down";
+          };
+          "Alt+Shift+K" = {
+            action.move-window-up-or-to-workspace-up = [ ];
+            hotkey-overlay.title = "Move Window Up";
+          };
+          "Alt+Shift+L" = {
+            action.move-column-right = [ ];
+            hotkey-overlay.title = "Move Window Right";
+          };
+          "Ctrl+Alt+J" = {
+            action.focus-monitor-down = [ ];
+            hotkey-overlay.title = "Focus Monitor Down";
+          };
+          "Ctrl+Alt+K" = {
+            action.focus-monitor-up = [ ];
+            hotkey-overlay.title = "Focus Monitor Up";
+          };
+          "Alt+Q" = {
+            action.focus-monitor-next = [ ];
+            hotkey-overlay.title = "Next Monitor";
+          };
+          "Alt+Shift+Q" = {
+            action.move-window-to-monitor-next = [ ];
+            hotkey-overlay.title = "Move to Next Monitor";
+          };
 
-          # Arrow key alternatives
-          "Alt+Left".action.focus-column-left = [ ];
-          "Alt+Down".action.focus-window-down = [ ];
-          "Alt+Up".action.focus-window-up = [ ];
-          "Alt+Right".action.focus-column-right = [ ];
-          "Alt+Shift+Left".action.move-column-left = [ ];
-          "Alt+Shift+Down".action.move-window-down = [ ];
-          "Alt+Shift+Up".action.move-window-up = [ ];
-          "Alt+Shift+Right".action.move-column-right = [ ];
+          # Arrow key alternatives (hidden from overlay since vim keys are shown)
+          "Alt+Left" = {
+            action.focus-column-left = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Down" = {
+            action.focus-window-down = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Up" = {
+            action.focus-window-up = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Right" = {
+            action.focus-column-right = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+Left" = {
+            action.move-column-left = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+Down" = {
+            action.move-window-down = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+Up" = {
+            action.move-window-up = [ ];
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+Right" = {
+            action.move-column-right = [ ];
+            hotkey-overlay.hidden = true;
+          };
 
           # Window actions
-          "Super+Q".action.close-window = [ ];
-          "Alt+T".action.toggle-window-floating = [ ];
-          "Alt+F".action.maximize-column = [ ];
-          "Alt+Tab".action.spawn = [
-            "vicinae"
-            "vicinae://extensions/vicinae/wm/switch-windows"
-          ];
-          "Alt+Comma".action.consume-window-into-column = [ ];
-          "Alt+Period".action.expel-window-from-column = [ ];
+          "Super+Q" = {
+            action.close-window = [ ];
+            hotkey-overlay.title = "Close Window";
+          };
+          "Alt+T" = {
+            action.toggle-window-floating = [ ];
+            hotkey-overlay.title = "Toggle Floating";
+          };
+          "Alt+F" = {
+            action.maximize-column = [ ];
+            hotkey-overlay.title = "Maximize Column";
+          };
+          "Alt+Tab" = {
+            action.spawn = [
+              "vicinae"
+              "vicinae://extensions/vicinae/wm/switch-windows"
+            ];
+            hotkey-overlay.title = "Switch Windows";
+          };
+          "Alt+Comma" = {
+            action.consume-window-into-column = [ ];
+            hotkey-overlay.title = "Stack Window";
+          };
+          "Alt+Period" = {
+            action.expel-window-from-column = [ ];
+            hotkey-overlay.title = "Unstack Window";
+          };
 
           # Launchers and utilities
-          "Super+Space".action.spawn = [
-            "vicinae"
-            "toggle"
-          ];
-          "Alt+Space".action.spawn = "scratch-niri";
-          "Super+Shift+Space".action.spawn = [
-            "1password"
-            "--ozone-platform-hint=wayland"
-            "--quick-access"
-            "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"
-          ];
-          "Super+Shift+L".action.spawn = [
-            "loginctl"
-            "lock-session"
-          ];
-          "Super+Shift+V".action.spawn = [
-            "vicinae"
-            "vicinae://extensions/vicinae/clipboard/history"
-          ];
-          "Super+X".action.spawn = [
-            "${pkgs.wl-kbptr}/bin/wl-kbptr"
-            "-c"
-            "$HOME/.config/wl-kbptr/floating"
-          ];
+          "Super+Space" = {
+            action.spawn = [
+              "vicinae"
+              "toggle"
+            ];
+            hotkey-overlay.title = "App Launcher";
+          };
+          "Alt+Space" = {
+            action.spawn = "scratch-niri";
+            hotkey-overlay.title = "Scratchpad";
+          };
+          "Super+Shift+Space" = {
+            action.spawn = [
+              "1password"
+              "--ozone-platform-hint=wayland"
+              "--quick-access"
+              "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"
+            ];
+            hotkey-overlay.title = "1Password";
+          };
+          "Super+Shift+L" = {
+            action.spawn = [
+              "loginctl"
+              "lock-session"
+            ];
+            hotkey-overlay.title = "Lock Screen";
+          };
+          "Super+Shift+V" = {
+            action.spawn = [
+              "vicinae"
+              "vicinae://extensions/vicinae/clipboard/history"
+            ];
+            hotkey-overlay.title = "Clipboard History";
+          };
+          "Super+X" = {
+            action.spawn = [
+              "${pkgs.wl-kbptr}/bin/wl-kbptr"
+              "-c"
+              "$HOME/.config/wl-kbptr/floating"
+            ];
+            hotkey-overlay.title = "Keyboard Pointer";
+          };
 
-          "Super+Shift+4".action.screenshot = [ ];
+          "Super+Shift+4" = {
+            action.screenshot = [ ];
+            hotkey-overlay.title = "Screenshot";
+          };
 
-          # Copy/paste shortcuts
-          "Super+C".action.spawn = [
-            "copyPasteShortcut"
-            "copy"
-            "org.wezfurlong.wezterm"
-            "Alacritty"
-            "dev.zed.Zed"
-            "foot"
-            "scratchpad"
-          ];
-          "Super+V".action.spawn = [
-            "copyPasteShortcut"
-            "paste"
-            "org.wezfurlong.wezterm"
-            "Alacritty"
-            "dev.zed.Zed"
-            "foot"
-            "scratchpad"
-          ];
-          "Super+A".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "a"
-          ];
-          "Super+T".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "t"
-          ];
-          "Super+K".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "k"
-          ];
-          "Super+W".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "w"
-          ];
-          "Super+R".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "r"
-          ];
-          "Super+F".action.spawn = [
-            "${pkgs.wtype}/bin/wtype"
-            "-M"
-            "ctrl"
-            "-k"
-            "f"
-          ];
+          # Copy/paste shortcuts (hidden - transparent to user)
+          "Super+C" = {
+            action.spawn = [
+              "copyPasteShortcut"
+              "copy"
+              "org.wezfurlong.wezterm"
+              "Alacritty"
+              "dev.zed.Zed"
+              "foot"
+              "scratchpad"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+V" = {
+            action.spawn = [
+              "copyPasteShortcut"
+              "paste"
+              "org.wezfurlong.wezterm"
+              "Alacritty"
+              "dev.zed.Zed"
+              "foot"
+              "scratchpad"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+A" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "a"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+T" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "t"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+K" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "k"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+W" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "w"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+R" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "r"
+            ];
+            hotkey-overlay.hidden = true;
+          };
+          "Super+F" = {
+            action.spawn = [
+              "${pkgs.wtype}/bin/wtype"
+              "-M"
+              "ctrl"
+              "-k"
+              "f"
+            ];
+            hotkey-overlay.hidden = true;
+          };
 
           # Resize mode equivalent
-          "Alt+R".action.switch-preset-column-width = [ ];
-          "Alt+G".action.spawn = [
-            "wlr-which-key"
-            "--initial-keys"
-            "n"
-          ];
-          "Alt+W".action.spawn = [
-            "wlr-which-key"
-            "--initial-keys"
-            "n w"
-          ];
+          "Alt+R" = {
+            action.switch-preset-column-width = [ ];
+            hotkey-overlay.title = "Cycle Column Width";
+          };
+          "Alt+G" = {
+            action.spawn = [
+              "wlr-which-key"
+              "--initial-keys"
+              "n"
+            ];
+            hotkey-overlay.title = "Which Key Menu";
+          };
+          "Alt+W" = {
+            action.spawn = [
+              "wlr-which-key"
+              "--initial-keys"
+              "n w"
+            ];
+            hotkey-overlay.title = "Workspace Menu";
+          };
 
-          # Workspace switching (1-9)
-          "Alt+1".action.focus-workspace = 1;
-          "Alt+2".action.focus-workspace = 2;
-          "Alt+3".action.focus-workspace = 3;
-          "Alt+4".action.focus-workspace = 4;
-          "Alt+5".action.focus-workspace = 5;
-          "Alt+6".action.focus-workspace = 6;
-          "Alt+7".action.focus-workspace = 7;
-          "Alt+8".action.focus-workspace = 8;
-          "Alt+9".action.focus-workspace = 9;
+          # Workspace switching (1-9) - hidden from overlay
+          "Alt+1" = {
+            action.focus-workspace = 1;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+2" = {
+            action.focus-workspace = 2;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+3" = {
+            action.focus-workspace = 3;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+4" = {
+            action.focus-workspace = 4;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+5" = {
+            action.focus-workspace = 5;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+6" = {
+            action.focus-workspace = 6;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+7" = {
+            action.focus-workspace = 7;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+8" = {
+            action.focus-workspace = 8;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+9" = {
+            action.focus-workspace = 9;
+            hotkey-overlay.hidden = true;
+          };
 
-          # Move to workspace
-          "Alt+Shift+1".action.move-column-to-workspace = 1;
-          "Alt+Shift+2".action.move-column-to-workspace = 2;
-          "Alt+Shift+3".action.move-column-to-workspace = 3;
-          "Alt+Shift+4".action.move-column-to-workspace = 4;
-          "Alt+Shift+5".action.move-column-to-workspace = 5;
-          "Alt+Shift+6".action.move-column-to-workspace = 6;
-          "Alt+Shift+7".action.move-column-to-workspace = 7;
-          "Alt+Shift+8".action.move-column-to-workspace = 8;
-          "Alt+Shift+9".action.move-column-to-workspace = 9;
+          # Move to workspace - hidden from overlay
+          "Alt+Shift+1" = {
+            action.move-column-to-workspace = 1;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+2" = {
+            action.move-column-to-workspace = 2;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+3" = {
+            action.move-column-to-workspace = 3;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+4" = {
+            action.move-column-to-workspace = 4;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+5" = {
+            action.move-column-to-workspace = 5;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+6" = {
+            action.move-column-to-workspace = 6;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+7" = {
+            action.move-column-to-workspace = 7;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+8" = {
+            action.move-column-to-workspace = 8;
+            hotkey-overlay.hidden = true;
+          };
+          "Alt+Shift+9" = {
+            action.move-column-to-workspace = 9;
+            hotkey-overlay.hidden = true;
+          };
         };
 
       workspaces = {
         "01-browse" = {
-          open-on-output = "DP-5";
           name = "browse";
         };
         "02-ide" = {
-          open-on-output = "DP-5";
           name = "ide";
         };
         "03-term" = {
-          open-on-output = "DP-5";
           name = "term";
         };
         "04-media" = {
-          open-on-output = "eDP-1";
           name = "media";
         };
         "05-social" = {
-          open-on-output = "eDP-1";
           name = "social";
         };
 
@@ -455,6 +674,13 @@
           default-column-width = {
             proportion = 1.0;
           };
+          geometry-corner-radius = {
+            bottom-left = 7.0;
+            bottom-right = 7.0;
+            top-left = 7.0;
+            top-right = 7.0;
+          };
+          clip-to-geometry = true;
         }
         # Scratchpad
         {
@@ -476,7 +702,10 @@
         }
         # Workspace assignments
         {
-          matches = [ { app-id = "^zen$"; } ];
+          matches = [
+            { app-id = "^zen$"; }
+            { app-id = "^zen-beta$"; }
+          ];
           open-on-workspace = "browse";
         }
         {
@@ -506,11 +735,30 @@
             { app-id = "^Slack$"; }
             { app-id = "^signal$"; }
             { app-id = "^vesktop$"; }
+            { app-id = "^fluffychat$"; }
           ];
           open-on-workspace = "social";
           default-column-width = {
             proportion = 0.666;
           };
+        }
+        {
+          matches = [
+            { app-id = "^1Password$"; }
+            { app-id = "^signal$"; }
+            { app-id = "^vesktop$"; }
+            { app-id = "^fluffychat$"; }
+          ];
+          block-out-from = "screencast";
+        }
+      ];
+
+      layer-rules = [
+        {
+          matches = [
+            { namespace = "^swaync-notification-window$"; }
+          ];
+          block-out-from = "screencast";
         }
       ];
 

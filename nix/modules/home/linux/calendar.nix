@@ -4,23 +4,32 @@
   ...
 }:
 let
-  waybar-khal = pkgs.writeShellScriptBin "waybar-khal" ''
+  next-event = pkgs.writeShellScriptBin "next-event" ''
     five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
-
-    next_event=$(khal list "$five_min_ago" 24h \
+    khal list "$five_min_ago" 24h \
       --day-format "" \
       --notstarted \
-      --format "{start-end-time-style} {title:.20}{repeat-symbol}" |
+      --format "{start-end-time-style} {title}{repeat-symbol}" |
       grep -Ev '↦|↔ |⇥' |
       grep -v '^ ' |
-      head -n 1 || echo "No events")
-
-    tooltip=$(khal list "$(date '+%Y-%m-%d %H:%M')" 7d \
+      sed -e 's/&/\&amp;/g' |
+      head -n 1 || echo "No events"
+  '';
+  next-events = pkgs.writeShellScriptBin "next-events" ''
+    khal list "$(date '+%Y-%m-%d %H:%M')" 7d \
       --day-format "<i>{name}, {date}</i>" \
       -f "{start-time}-{end-time} <b>{title}</b> ({location})" |
       grep -Ev '↦|↔ |⇥' |
       grep -v '^ ' |
-      sed -e 's/&/\&amp;/g')
+      sed -e 's/&/\&amp;/g'
+  '';
+
+  waybar-khal = pkgs.writeShellScriptBin "waybar-khal" ''
+    five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
+
+    next_event=$(next-event)
+
+    tooltip=$(next-events)
 
     jq -nc \
       --arg text "$next_event" \
@@ -55,6 +64,8 @@ let
 in
 {
   home.packages = [
+    next-event
+    next-events
     waybar-khal
     khal-notify
     khal-open-meet

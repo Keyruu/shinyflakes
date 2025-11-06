@@ -7,8 +7,8 @@
     ./matter-hub.nix
     ./esphome.nix
     ./music-assistant.nix
-    ./wyoming-whisper.nix
-    ./wyoming-piper.nix
+    # ./wyoming-whisper.nix
+    # ./wyoming-piper.nix
     # ./wyoming-onnx-asr.nix
   ];
 }
