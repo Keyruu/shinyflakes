@@ -62,7 +62,7 @@ in
     element-desktop
     chromium
     # firefox
-    railway-travel
+    diebahn
     wtype
     wireguard-ui
     wireguard-tools

@@ -73,6 +73,10 @@
             }
             {
               id = "SystemMonitor";
+              showCpuUsage = true;
+              showCpuTemp = false;
+              showMemoryUsage = true;
+              showMemoryAsPercent = true;
             }
             {
               alwaysShowPercentage = false;

@@ -82,7 +82,7 @@
 
     # cli apps
     glow # render markdown on the cli
-    qmk
+    # qmk
     act # run github actions locally
     ansible # automation
     aws-iam-authenticator # aws

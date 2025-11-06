@@ -12,6 +12,7 @@
   services.vicinae = {
     enable = true;
     autoStart = true;
+    useLayerShell = false;
     package = perSystem.vicinae.default;
     extensions = [
       # (inputs.vicinae.mkVicinaeExtension.${pkgs.system} {
