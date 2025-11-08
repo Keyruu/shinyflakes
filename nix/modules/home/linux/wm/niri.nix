@@ -19,25 +19,6 @@
     enable = true;
     package = pkgs.niri-unstable;
     settings = {
-      # Environment variables matching your Sway extraSessionCommands
-      environment = {
-        XDG_SESSION_TYPE = "wayland";
-        XDG_SESSION_DESKTOP = "niri";
-        XDG_CURRENT_DESKTOP = "niri";
-        # XDG_DATA_DIRS = "$XDG_DATA_DIRS:/usr/share:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share";
-        MOZ_ENABLE_WAYLAND = "1";
-        MOZ_DBUS_REMOTE = "1";
-        ANKI_WAYLAND = "1";
-        NIXOS_OZONE_WL = "1";
-        QT_QPA_PLATFORM = "wayland";
-        QT_QPA_PLATFORMTHEME = "gtk3";
-        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-        ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-        SDL_VIDEODRIVER = "wayland";
-        CLUTTER_BACKEND = "wayland";
-        DIRENV_LOG_FORMAT = "";
-      };
-
       xwayland-satellite = {
         enable = true;
         path = lib.getExe pkgs.xwayland-satellite-unstable;
@@ -175,7 +156,7 @@
         border = {
           enable = true;
           width = 3;
-          active.color = "#f5f5f5";
+          active.color = "#4079d6";
           inactive.color = "#45475a";
         };
 
@@ -437,8 +418,11 @@
           };
           "Super+Shift+L" = {
             action.spawn = [
-              "loginctl"
-              "lock-session"
+              "noctalia-shell"
+              "ipc"
+              "call"
+              "lockScreen"
+              "lock"
             ];
             hotkey-overlay.title = "Lock Screen";
           };
@@ -759,6 +743,12 @@
             { namespace = "^swaync-notification-window$"; }
           ];
           block-out-from = "screencast";
+        }
+        {
+          matches = [
+            { namespace = "^noctalia-overview*"; }
+          ];
+          place-within-backdrop = true;
         }
       ];
 

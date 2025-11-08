@@ -1,4 +1,9 @@
-{ pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [
     inputs.noctalia.homeModules.default
@@ -33,7 +38,7 @@
         widgets = {
           left = [
             {
-              id = "SidePanelToggle";
+              id = "ControlCenter";
               useDistroLogo = true;
             }
             {
@@ -66,6 +71,12 @@
               id = "Tray";
             }
             {
+              id = "CustomButton";
+              icon = "calendar";
+              textCommand = "next-event | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) \"...\"; else print; }'";
+              textIntervalMs = 60000;
+            }
+            {
               id = "WiFi";
             }
             {
@@ -77,6 +88,7 @@
               showCpuTemp = false;
               showMemoryUsage = true;
               showMemoryAsPercent = true;
+              usePrimaryColor = false;
             }
             {
               alwaysShowPercentage = false;
@@ -96,22 +108,36 @@
               useMonospacedFont = true;
               usePrimaryColor = false;
             }
+            {
+              id = "CustomButton";
+              icon = "bell";
+              textCommand = "swaync-client -c";
+              textIntervalMs = 2500;
+              leftClickExec = "swaync-client -t -sw";
+              rightClickExec = "swaync-client -C";
+            }
           ];
         };
       };
       ui = {
         fontDefault = "JetBrainsMono Nerd Font";
         fontFixed = "JetBrainsMono Nerd Font";
+        radiusRatio = 2;
       };
       # colorSchemes.predefinedScheme = "Noctalia (default)";
       general = {
         radiusRatio = 0.2;
       };
+      wallpaper = {
+        enabled = true;
+        directory = ../themes;
+        defaultWallpaper = ../themes/dark-bg.jpg;
+      };
+      notifications.enabled = false;
       location = {
         name = "Munich, Germany";
         firstDayOfWeek = 0;
       };
-      wallpaper.enabled = false;
       dock.enabled = false;
     };
   };

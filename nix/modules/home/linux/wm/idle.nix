@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   services.swayidle =
     let
@@ -41,7 +46,7 @@
         }
         {
           event = "lock";
-          command = "${lib.getExe' pkgs.procps "pidof"} hyprlock || ${screenLocker}";
+          command = "${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call lockScreen lock";
         }
         {
           event = "unlock";

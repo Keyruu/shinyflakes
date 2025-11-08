@@ -14,5 +14,6 @@
     flake.modules.nixos.kanata
     flake.modules.nixos.flatpak
     flake.modules.nixos.thunar
+    flake.modules.nixos.voyager
   ];
 }

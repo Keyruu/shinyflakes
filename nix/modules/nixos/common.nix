@@ -36,8 +36,7 @@
 
     console = {
       earlySetup = true;
-      font = "ter-v24b";
-      packages = [ pkgs.terminus_font ];
+      font = "latarcyrheb-sun16";
     };
 
     security = {

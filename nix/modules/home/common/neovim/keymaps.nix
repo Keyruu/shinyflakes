@@ -10,28 +10,40 @@
 
     {
       key = "<C-h>";
-      mode = [ "n" "t" ];
+      mode = [
+        "n"
+        "t"
+      ];
       action = "<C-w>h";
       desc = "Move to left window";
       silent = true;
     }
     {
       key = "<C-j>";
-      mode = [ "n" "t" ];
+      mode = [
+        "n"
+        "t"
+      ];
       action = "<C-w>j";
       desc = "Move to bottom window";
       silent = true;
     }
     {
       key = "<C-k>";
-      mode = [ "n" "t" ];
+      mode = [
+        "n"
+        "t"
+      ];
       action = "<C-w>k";
       desc = "Move to top window";
       silent = true;
     }
     {
       key = "<C-l>";
-      mode = [ "n" "t" ];
+      mode = [
+        "n"
+        "t"
+      ];
       action = "<C-w>l";
       desc = "Move to right window";
       silent = true;
@@ -141,62 +153,62 @@
       silent = true;
     }
 
-    {
-      key = "<leader>tf";
-      mode = "n";
-      action = "open_fish_terminal";
-      lua = true;
-      desc = "Open fish terminal";
-      silent = true;
-    }
-    {
-      key = "<leader>tt";
-      mode = "n";
-      action = "open_fish_terminal_bottom";
-      lua = true;
-      desc = "Open terminal (bottom)";
-      silent = true;
-    }
-    {
-      key = "<leader>tv";
-      mode = "n";
-      action = "open_fish_terminal_vsplit";
-      lua = true;
-      desc = "Open terminal (vertical split)";
-      silent = true;
-    }
-    {
-      key = "<leader>tk";
-      mode = "n";
-      action = "open_k9s_terminal";
-      lua = true;
-      desc = "Open k9s terminal";
-      silent = true;
-    }
-    {
-      key = "<leader>tao";
-      mode = "n";
-      action = "open_opencode_terminal";
-      lua = true;
-      desc = "Open OpenCode terminal";
-      silent = true;
-    }
-    {
-      key = "<leader>tas";
-      mode = "n";
-      action = "open_opencode_sst_terminal";
-      lua = true;
-      desc = "Open OpenCode SST terminal";
-      silent = true;
-    }
-    {
-      key = "<leader>tac";
-      mode = "n";
-      action = "open_claude_terminal";
-      lua = true;
-      desc = "Open Claude Code terminal";
-      silent = true;
-    }
+    # {
+    #   key = "<leader>tf";
+    #   mode = "n";
+    #   action = "open_fish_terminal";
+    #   lua = true;
+    #   desc = "Open fish terminal";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tt";
+    #   mode = "n";
+    #   action = "open_fish_terminal_bottom";
+    #   lua = true;
+    #   desc = "Open terminal (bottom)";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tv";
+    #   mode = "n";
+    #   action = "open_fish_terminal_vsplit";
+    #   lua = true;
+    #   desc = "Open terminal (vertical split)";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tk";
+    #   mode = "n";
+    #   action = "open_k9s_terminal";
+    #   lua = true;
+    #   desc = "Open k9s terminal";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tao";
+    #   mode = "n";
+    #   action = "open_opencode_terminal";
+    #   lua = true;
+    #   desc = "Open OpenCode terminal";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tas";
+    #   mode = "n";
+    #   action = "open_opencode_sst_terminal";
+    #   lua = true;
+    #   desc = "Open OpenCode SST terminal";
+    #   silent = true;
+    # }
+    # {
+    #   key = "<leader>tac";
+    #   mode = "n";
+    #   action = "open_claude_terminal";
+    #   lua = true;
+    #   desc = "Open Claude Code terminal";
+    #   silent = true;
+    # }
 
     {
       key = "<leader>bc";
