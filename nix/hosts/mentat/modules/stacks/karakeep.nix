@@ -87,7 +87,7 @@ in
 
         karakeep-meilisearch = {
           containerConfig = {
-            image = "getmeili/meilisearch:v1.13.3";
+            image = "getmeili/meilisearch:v1.25.0";
             environments = {
               MEILI_NO_ANALYTICS = "true";
             };
