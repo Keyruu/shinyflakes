@@ -10,7 +10,7 @@ in
 
   virtualisation.quadlet.containers.jellyfin = {
     containerConfig = {
-      image = "ghcr.io/jellyfin/jellyfin:10.10.7";
+      image = "ghcr.io/jellyfin/jellyfin:10.11.2";
       environments = {
       };
       volumes = [
