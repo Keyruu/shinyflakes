@@ -2,7 +2,7 @@
 {
   virtualisation.quadlet.containers.torrent-flaresolverr = {
     containerConfig = {
-      image = "ghcr.io/flaresolverr/flaresolverr:v3.4.2";
+      image = "ghcr.io/flaresolverr/flaresolverr:v3.4.4";
       environments = {
         LOG_LEVEL = "info";
         LOG_HTML = "false";
