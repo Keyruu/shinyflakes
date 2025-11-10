@@ -11,7 +11,7 @@ in
     containers = {
       sftpgo = {
         containerConfig = {
-          image = "drakkan/sftpgo:v2.6.6-alpine-slim";
+          image = "drakkan/sftpgo:v2.7.0-alpine-slim";
           environments = {
             SFTPGO_WEBDAVD__BINDINGS__0__PORT = "8081";
             SFTPGO_WEBDAVD__BINDINGS__0__PREFIX = "/dav";
