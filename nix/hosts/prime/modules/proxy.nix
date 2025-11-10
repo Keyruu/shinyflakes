@@ -76,15 +76,7 @@
 
     locations = {
       "/" = {
-        proxyPass = "http://100.64.0.1:9433";
-        proxyWebsockets = true;
-        extraConfig = ''
-          modsecurity on;
-          modsecurity_rules_file /etc/nginx/modsec/main.conf;
-        '';
-      };
-      "/dav" = {
-        proxyPass = "http://100.64.0.1:9434";
+        proxyPass = "http://100.64.0.1:3210";
         proxyWebsockets = true;
         extraConfig = ''
           modsecurity on;

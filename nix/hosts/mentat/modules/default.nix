@@ -15,5 +15,6 @@
     ./samba.nix
     ./sirberus.nix
     ./adguard.nix
+    ./copyparty.nix
   ];
 }

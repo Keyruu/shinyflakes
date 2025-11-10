@@ -72,7 +72,7 @@
     # CUDA development tools
     cudatoolkit
     cudaPackages.cudnn
-    cudaPackages.cutensor
+    cudaPackages.libcutensor
 
     # GPU monitoring and utilities
     nvidia-container-toolkit

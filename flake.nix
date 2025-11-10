@@ -2,13 +2,17 @@
   description = "Keyruu's shinyflakes";
 
   inputs = {
+    # nixpkgs
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-darwin.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixpkgs-unstable";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
     nixpkgs-stable.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-25.05";
 
-    blueprint.url = "github:numtide/blueprint";
-    blueprint.inputs.nixpkgs.follows = "nixpkgs";
+    # base
+    blueprint = {
+      url = "github:numtide/blueprint";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     disko = {
       url = "github:nix-community/disko";
@@ -34,8 +38,17 @@
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
+    # infra
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
+    sirberus = {
+      url = "github:Keyruu/sirberus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    copyparty.url = "github:9001/copyparty";
+
+    # workstation
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
@@ -72,11 +85,6 @@
 
     niri.url = "github:sodiboo/niri-flake";
 
-    ironbar = {
-      url = "github:JakeStanger/ironbar";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     nvf = {
@@ -94,11 +102,6 @@
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.quickshell.follows = "quickshell"; # Use same quickshell version
-    };
-
-    sirberus = {
-      url = "github:Keyruu/sirberus";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 

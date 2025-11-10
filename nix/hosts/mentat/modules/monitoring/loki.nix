@@ -12,7 +12,10 @@
   services.loki = {
     enable = true;
     configuration = {
-      server.http_listen_port = 3030;
+      server = {
+        http_listen_address = "0.0.0.0";
+        http_listen_port = 3030;
+      };
       auth_enabled = false;
 
       common = {

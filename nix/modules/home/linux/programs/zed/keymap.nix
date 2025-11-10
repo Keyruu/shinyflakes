@@ -88,9 +88,6 @@
       context = "Editor && vim_mode == normal && !VimWaiting && !menu";
       bindings = {
         # put key-bindings here if you want them to work only in normal mode
-        # Window movement bindings
-        # Ctrl jklk to move between panes
-
         # +LSP
         "space c a" = "editor::ToggleCodeActions";
         "space ." = "editor::ToggleCodeActions";
@@ -141,14 +138,28 @@
         "space e" = "pane::RevealInProjectPanel";
       };
     }
+    {
+      context = "Editor && vim_mode == visual && !VimWaiting && !menu";
+      bindings = {
+        # put key-bindings here if you want them to work only in visual mode
+        "y" = [
+          "workspace::SendKeystrokes"
+          "y ` >"
+        ];
+      };
+    }
     # Empty pane, set of keybindings that are available when there is no active editor
     {
       context = "EmptyPane || SharedScreen";
       bindings = {
-        # Open file finder
-        "space space" = "file_finder::Toggle";
-        # Open recent project
         "space f p" = "projects::OpenRecent";
+        # Search word under cursor
+        # "space f g" = "pane::DeploySearch";
+        "space f g" = [
+          "task::Spawn"
+          { task_name = "tv-text"; }
+        ];
+        "space f f" = "file_finder::Toggle";
       };
     }
     # Rename

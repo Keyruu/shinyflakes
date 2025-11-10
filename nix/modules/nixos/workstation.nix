@@ -15,5 +15,6 @@
     flake.modules.nixos.flatpak
     flake.modules.nixos.thunar
     flake.modules.nixos.voyager
+    flake.modules.nixos.nice
   ];
 }

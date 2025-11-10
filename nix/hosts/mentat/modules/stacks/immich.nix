@@ -11,6 +11,7 @@ in
   virtualisation.quadlet =
     let
       UPLOAD_LOCATION = "/main/immich";
+      # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
       IMMICH_VERSION = "v2.0.1";
       inherit (config.virtualisation.quadlet) networks;
     in

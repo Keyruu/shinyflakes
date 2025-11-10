@@ -38,7 +38,7 @@
     logs = {
       enable = true;
       nginx = true;
-      lokiAddress = "http://hati:3030";
+      lokiAddress = "http://mentat:3030";
     };
   };
 

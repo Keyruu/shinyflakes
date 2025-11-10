@@ -145,7 +145,6 @@
         };
       };
 
-      # Layout configuration matching your Sway window settings
       layout = {
         focus-ring = {
           enable = false;
@@ -157,8 +156,14 @@
           enable = true;
           width = 3;
           active.color = "#4079d6";
+          # active.gradient = {
+          #   angle = 135;
+          #   from = "#4079d6";
+          #   to = "#00a2dc";
+          # };
           inactive.color = "#45475a";
         };
+        shadow.enable = true;
 
         preset-column-widths = [
           { proportion = 0.333; }

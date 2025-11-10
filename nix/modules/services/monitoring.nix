@@ -23,7 +23,6 @@ in
         description = "Loki adress to push logs to";
       };
     };
-
   };
 
   config = {
