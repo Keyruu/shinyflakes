@@ -12,6 +12,10 @@
     };
 
     firewall.enable = true;
+
+    hosts = {
+      "0.0.0.0" = [ "apresolve.spotify.com" ];
+    };
   };
 
   services.resolved = {

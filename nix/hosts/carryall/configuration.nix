@@ -35,6 +35,9 @@
   networking.hostName = lib.mkForce "PCL2025101301";
   user.name = "lucas";
 
+  networking.firewall.allowedTCPPorts = [ 57621 ];
+  networking.firewall.allowedUDPPorts = [ 5353 ];
+
   services.xserver = {
     enable = true;
     xkb = {
