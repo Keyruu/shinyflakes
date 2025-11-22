@@ -72,7 +72,7 @@ let
 
     ${pkgs.jq}/bin/jq -n \
       --arg from "${cfg.fromEmail}" \
-      --argjson to ${builtins.toJSON cfg.toEmails} \
+      --arg to ${builtins.toJSON cfg.toEmails} \
       --arg subject "$STATUS_EMOJI ${cfg.emailSubjectPrefix} $STATUS_TEXT: $HOSTNAME" \
       --arg html "$HTML_BODY" \
       '{from: $from, to: $to, subject: $subject, html: $html}' | \
