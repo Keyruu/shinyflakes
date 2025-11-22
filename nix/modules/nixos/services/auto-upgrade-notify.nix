@@ -121,7 +121,7 @@ in
 
     upgradeServiceName = lib.mkOption {
       type = lib.types.str;
-      default = "nixos-upgrade.service";
+      default = "nixos-upgrade";
       description = "The systemd service name to monitor and attach notifications to";
     };
 
