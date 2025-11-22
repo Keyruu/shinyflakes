@@ -2,7 +2,7 @@
 {
   imports = [
     flake.modules.nixos.headless
-    flake.modules.nixos.comin
+    flake.modules.nixos.auto-upgrade
     flake.modules.nixos.ssh-access
   ];
 
