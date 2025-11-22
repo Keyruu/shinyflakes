@@ -14,6 +14,36 @@ in
     group = "grafana";
   };
 
+  # Create a home dashboard that lists all dashboards
+  environment.etc."grafana/home.json".text = builtins.toJSON {
+    title = "Home";
+    uid = "home";
+    editable = false;
+    hideControls = false;
+    panels = [
+      {
+        id = 1;
+        type = "dashlist";
+        title = "Dashboards";
+        gridPos = {
+          h = 20;
+          w = 24;
+          x = 0;
+          y = 0;
+        };
+        options = {
+          showSearch = true;
+          showStarred = false;
+          showRecentlyViewed = false;
+          showHeadings = true;
+          maxItems = 100;
+          query = "";
+          tags = [ ];
+        };
+      }
+    ];
+  };
+
   services.grafana = {
     enable = true;
     package = smallPkgs.grafana;
@@ -41,6 +71,11 @@ in
 
       # Disable features not needed
       explore.enabled = false;
+
+      # Set default home dashboard to the dashboard list
+      dashboards = {
+        default_home_dashboard_path = "/etc/grafana/home.json";
+      };
 
       feature_toggles = {
         provisioning = true;

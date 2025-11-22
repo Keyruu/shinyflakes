@@ -15,6 +15,7 @@
 
   services.comin = {
     enable = true;
+    hostname = config.networking.hostName;
     remotes = [
       {
         name = "origin";
