@@ -120,6 +120,9 @@
             - key: "l"
               desc: Layout
               submenu:
+                - key: "f"
+                  desc: Toggle Fullscreen
+                  cmd: niri msg action toggle-fullscreen
                 - key: "t"
                   desc: Toggle Column Tabbed
                   cmd: niri msg action toggle-column-tabbed-display
@@ -138,6 +141,45 @@
                 - key: "v"
                   desc: Center All Visible
                   cmd: niri msg action center-visible-columns
+                - key: "m"
+                  desc: Multi-Monitor
+                  submenu:
+                    - key: "h"
+                      desc: Focus Monitor Left
+                      cmd: niri msg action focus-monitor-left
+                    - key: "j"
+                      desc: Focus Monitor Down
+                      cmd: niri msg action focus-monitor-down
+                    - key: "k"
+                      desc: Focus Monitor Up
+                      cmd: niri msg action focus-monitor-up
+                    - key: "l"
+                      desc: Focus Monitor Right
+                      cmd: niri msg action focus-monitor-right
+                    - key: "Left"
+                      desc: Focus Monitor Left
+                      cmd: niri msg action focus-monitor-left
+                    - key: "Down"
+                      desc: Focus Monitor Down
+                      cmd: niri msg action focus-monitor-down
+                    - key: "Up"
+                      desc: Focus Monitor Up
+                      cmd: niri msg action focus-monitor-up
+                    - key: "Right"
+                      desc: Focus Monitor Right
+                      cmd: niri msg action focus-monitor-right
+                    - key: "H"
+                      desc: Move to Monitor Left
+                      cmd: niri msg action move-column-to-monitor-left
+                    - key: "J"
+                      desc: Move to Monitor Down
+                      cmd: niri msg action move-column-to-monitor-down
+                    - key: "K"
+                      desc: Move to Monitor Up
+                      cmd: niri msg action move-column-to-monitor-up
+                    - key: "L"
+                      desc: Move to Monitor Right
+                      cmd: niri msg action move-column-to-monitor-right
             - key: "f"
               desc: Floating
               submenu:

@@ -21,6 +21,26 @@
         "type": "github"
       }
     },
+    "comin": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763588299,
+        "narHash": "sha256-VaIEjtFYAx2QMjKLmgCFWmGKUXlLDAOtIm0aeVPuAUY=",
+        "owner": "nlewo",
+        "repo": "comin",
+        "rev": "b57811c588ed2bcf519b62e5e7215daac6c25ddc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlewo",
+        "repo": "comin",
+        "type": "github"
+      }
+    },
     "copyparty": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -720,11 +740,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763789622,
-        "narHash": "sha256-S5uCU42+V6ETWWLtV7VwAK/6uTpfdgyMLOzvldCuFi8=",
+        "lastModified": 1763831096,
+        "narHash": "sha256-8ClyZ82RyrjYW+PccvPYyPdamu+UtW/xRAECaxbmvSo=",
         "owner": "noctalia-dev",
         "repo": "noctalia-shell",
-        "rev": "823042b24538eba0423f1a1ef07277fd0e0fec6b",
+        "rev": "cee39cce58ecbb4ae623ea3247aa3770f3f88610",
         "type": "github"
       },
       "original": {
@@ -801,6 +821,7 @@
     "root": {
       "inputs": {
         "blueprint": "blueprint",
+        "comin": "comin",
         "copyparty": "copyparty",
         "disko": "disko",
         "firefox-addons": "firefox-addons",
@@ -895,11 +916,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1763267524,
-        "narHash": "sha256-CywB4iCpGr4CYZAD+WboFwBQ7Wnc7LdfSemFWuH/1Ro=",
+        "lastModified": 1763831750,
+        "narHash": "sha256-84LFvgGQSJJ12FPNSiuHjlHSwcEp9enkGh5tGRtw9w8=",
         "owner": "Gerg-L",
         "repo": "spicetify-nix",
-        "rev": "cf33e39bd1a21993a28ffee8be433e212ecf346a",
+        "rev": "ca2ce884882a9a96fa996823b99247a55efb9567",
         "type": "github"
       },
       "original": {

@@ -26,7 +26,7 @@
 
   services.kanidm = {
     enableServer = true;
-    package = pkgs.kanidm.withSecretProvisioning;
+    package = pkgs.kanidmWithSecretProvisioning_1_7;
     serverSettings = {
       origin = "https://auth.peeraten.net";
       domain = "auth.peeraten.net";

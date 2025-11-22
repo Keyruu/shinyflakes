@@ -30,6 +30,18 @@ in
       };
       panels.disable_sanitize_html = true;
 
+      # Disable alerting to simplify UI
+      alerting.enabled = false;
+      unified_alerting.enabled = false;
+
+      # Simplify the navigation menu
+      navigation = {
+        app_standalone_pages = false;
+      };
+
+      # Disable features not needed
+      explore.enabled = false;
+
       feature_toggles = {
         provisioning = true;
         kubernetesDashboards = true;
