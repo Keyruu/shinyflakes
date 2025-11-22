@@ -11,6 +11,7 @@ let
     set -euo pipefail
 
     STATUS=$1
+    STATE_FILE="/var/lib/nixos-upgrade-notify/last-generation"
 
     RESEND_API_KEY=$(cat ${cfg.resendApiKeyPath})
     HOSTNAME=$(${pkgs.nettools}/bin/hostname)
@@ -20,66 +21,62 @@ let
     if [ "$STATUS" = "success" ]; then
       STATUS_EMOJI="✅"
       STATUS_TEXT="Success"
-      STATUS_COLOR="green"
+
+      if [ -f "$STATE_FILE" ]; then
+        LAST_GENERATION=$(${pkgs.coreutils}/bin/cat "$STATE_FILE")
+        if [ "$GENERATION" = "$LAST_GENERATION" ]; then
+          echo "No changes detected, skipping notification"
+          exit 0
+        fi
+      fi
     else
       STATUS_EMOJI="❌"
       STATUS_TEXT="Failed"
-      STATUS_COLOR="red"
     fi
 
     WARNINGS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} -n ${toString cfg.logLines} --no-pager | ${pkgs.gnugrep}/bin/grep -i "warning" || echo "No warnings")
     ERRORS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} -n ${toString cfg.logLines} --no-pager | ${pkgs.gnugrep}/bin/grep -i "error" || echo "No errors")
 
-    WARNINGS_HTML=$(echo "$WARNINGS" | ${pkgs.gnused}/bin/sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g' | ${pkgs.gnused}/bin/sed ':a;N;$!ba;s/\n/<br>/g')
-    ERRORS_HTML=$(echo "$ERRORS" | ${pkgs.gnused}/bin/sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g' | ${pkgs.gnused}/bin/sed ':a;N;$!ba;s/\n/<br>/g')
+    TEXT_BODY=$(cat <<TEXT
+    $STATUS_EMOJI ${cfg.emailSubjectPrefix} $STATUS_TEXT
 
-    HTML_BODY=$(cat <<HTML
-    <html>
-    <body style='font-family: monospace; max-width: 1200px; margin: 20px;'>
-      <h2 style='color: $STATUS_COLOR;'>$STATUS_EMOJI ${cfg.emailSubjectPrefix} $STATUS_TEXT</h2>
-      <table style='border-collapse: collapse; margin: 20px 0;'>
-        <tr style='background-color: #f5f5f5;'>
-          <td style='padding: 12px; font-weight: bold; border: 1px solid #ddd;'>Hostname</td>
-          <td style='padding: 12px; border: 1px solid #ddd;'>$HOSTNAME</td>
-        </tr>
-        <tr>
-          <td style='padding: 12px; font-weight: bold; border: 1px solid #ddd;'>Status</td>
-          <td style='padding: 12px; border: 1px solid #ddd; color: $STATUS_COLOR;'>$STATUS_TEXT</td>
-        </tr>
-        <tr style='background-color: #f5f5f5;'>
-          <td style='padding: 12px; font-weight: bold; border: 1px solid #ddd;'>Timestamp</td>
-          <td style='padding: 12px; border: 1px solid #ddd;'>$TIMESTAMP</td>
-        </tr>
-        <tr>
-          <td style='padding: 12px; font-weight: bold; border: 1px solid #ddd;'>Generation</td>
-          <td style='padding: 12px; border: 1px solid #ddd;'><code>$GENERATION</code></td>
-        </tr>
-      </table>
+    Hostname:   $HOSTNAME
+    Status:     $STATUS_TEXT
+    Timestamp:  $TIMESTAMP
+    Generation: $GENERATION
 
-      <h3 style='color: #ff8800;'>⚠️ Warnings</h3>
-      <div style='background-color: #fff8e1; padding: 15px; border-left: 4px solid #ff8800; margin: 10px 0;'>
-        <pre style='margin: 0; white-space: pre-wrap; word-wrap: break-word;'>$WARNINGS_HTML</pre>
-      </div>
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⚠️  WARNINGS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-      <h3 style='color: #d32f2f;'>❌ Errors</h3>
-      <div style='background-color: #ffebee; padding: 15px; border-left: 4px solid #d32f2f; margin: 10px 0;'>
-        <pre style='margin: 0; white-space: pre-wrap; word-wrap: break-word;'>$ERRORS_HTML</pre>
-      </div>
-    </body>
-    </html>
-    HTML
+    $WARNINGS
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ❌ ERRORS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    $ERRORS
+    TEXT
     )
+
+    TO_EMAILS='${builtins.toJSON cfg.toEmails}'
 
     ${pkgs.jq}/bin/jq -n \
       --arg from "${cfg.fromEmail}" \
-      --arg to ${builtins.toJSON cfg.toEmails} \
+      --argjson to "$TO_EMAILS" \
       --arg subject "$STATUS_EMOJI ${cfg.emailSubjectPrefix} $STATUS_TEXT: $HOSTNAME" \
-      --arg html "$HTML_BODY" \
-      '{from: $from, to: $to, subject: $subject, html: $html}' | \
+      --arg text "$TEXT_BODY" \
+      '{from: $from, to: $to, subject: $subject, text: $text}' | \
     ${pkgs.curl}/bin/curl -X POST https://api.resend.com/emails \
       -H "Authorization: Bearer $RESEND_API_KEY" \
       -H "Content-Type: application/json" \
       -d @-
+
+    if [ "$STATUS" = "success" ]; then
+      ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$STATE_FILE")"
+      echo "$GENERATION" > "$STATE_FILE"
+      echo "Saved generation to state file"
+    fi
   '';
 in
 {
@@ -170,6 +167,10 @@ in
         ;
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/nixos-upgrade-notify 0755 root root"
+    ];
+
     systemd.services."${cfg.upgradeServiceName}-notify-success" = {
       description = "Notify on successful system upgrade";
       serviceConfig = {
@@ -190,6 +191,17 @@ in
       unitConfig = {
         OnSuccess = "${cfg.upgradeServiceName}-notify-success.service";
         OnFailure = "${cfg.upgradeServiceName}-notify-failure.service";
+      };
+      serviceConfig = {
+        # Prevent concurrent runs
+        Type = "oneshot";
+      };
+    };
+
+    systemd.timers.${lib.replaceStrings [".service"] [".timer"] cfg.upgradeServiceName} = {
+      timerConfig = {
+        # Skip if previous run is still active
+        Unit = cfg.upgradeServiceName;
       };
     };
   };
