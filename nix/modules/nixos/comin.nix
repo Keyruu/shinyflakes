@@ -18,7 +18,7 @@
     remotes = [
       {
         name = "origin";
-        url = "https://gitlab.com/Keyruu/shinyflakes.git";
+        url = "https://github.com/Keyruu/shinyflakes.git";
         branches.main.name = "main";
       }
     ];
