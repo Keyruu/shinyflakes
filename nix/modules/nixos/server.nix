@@ -1,4 +1,4 @@
-{ flake, ... }:
+{ flake, pkgs, ... }:
 {
   imports = [
     flake.modules.nixos.headless
@@ -7,4 +7,8 @@
   ];
 
   user.name = "root";
+
+  environment.systemPackages = with pkgs; [
+    isd
+  ];
 }
