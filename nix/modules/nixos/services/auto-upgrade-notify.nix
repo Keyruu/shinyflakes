@@ -7,7 +7,7 @@
 let
   cfg = config.services.autoUpgradeNotify;
 
-  notificationScript = pkgs.writers.writeBash "upgrade-notify" ''
+  notificationScript = pkgs.writeShellScript "upgrade-notify" ''
     set -euo pipefail
 
     STATUS=$1
@@ -109,7 +109,10 @@ in
     };
 
     operation = lib.mkOption {
-      type = lib.types.enum [ "switch" "boot" ];
+      type = lib.types.enum [
+        "switch"
+        "boot"
+      ];
       default = "switch";
       description = "Whether to switch immediately or boot into the new generation";
     };
@@ -127,7 +130,6 @@ in
       description = "Add randomized delay before upgrade";
     };
 
-    # Notification options
     upgradeServiceName = lib.mkOption {
       type = lib.types.str;
       default = "nixos-upgrade.service";
@@ -167,7 +169,13 @@ in
   config = lib.mkIf cfg.enable {
     system.autoUpgrade = {
       enable = true;
-      inherit (cfg) flake dates operation allowReboot randomizedDelaySec;
+      inherit (cfg)
+        flake
+        dates
+        operation
+        allowReboot
+        randomizedDelaySec
+        ;
     };
 
     systemd.services."${cfg.upgradeServiceName}-notify-success" = {
