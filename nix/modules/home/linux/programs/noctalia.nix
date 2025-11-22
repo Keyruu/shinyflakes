@@ -2,6 +2,7 @@
   config,
   pkgs,
   inputs,
+  perSystem,
   ...
 }:
 {
@@ -12,6 +13,11 @@
   programs.noctalia-shell = {
     enable = true;
     systemd.enable = true;
+
+    # package = perSystem.noctalia.default.override {
+    #   quickshell = perSystem.noctalia.quickshell;
+    # };
+
     colors = {
       mError = "#f38ba8"; # red from waybar critical state
       mOnError = "#111111";
@@ -25,8 +31,10 @@
       mSecondary = "#89b4fa"; # lighter blue accent from waybar
       mShadow = "#000000";
       mSurface = "#111111"; # dark background
-      mSurfaceVariant = "#1a1b26"; # slightly lighter background from waybar
+      mSurfaceVariant = "#1E1E1E"; # slightly lighter background from waybar
       mTertiary = "#cdd6f4"; # keeping it simple with main text color
+      mHover = "#89b4fa";
+      mOnHover = "#111111";
     };
     settings = {
       bar = {
@@ -73,8 +81,10 @@
             {
               id = "CustomButton";
               icon = "calendar";
-              textCommand = "next-event | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) \"...\"; else print; }'";
+              textCommand = "noctalia-event";
               textIntervalMs = 60000;
+              parseJson = true;
+              maxTextLength.horizontal = 43;
             }
             {
               id = "WiFi";
@@ -109,20 +119,29 @@
               usePrimaryColor = false;
             }
             {
-              id = "CustomButton";
-              icon = "bell";
-              textCommand = "swaync-client -c";
-              textIntervalMs = 2500;
-              leftClickExec = "swaync-client -t -sw";
-              rightClickExec = "swaync-client -C";
+              id = "KeepAwake";
             }
+            {
+              id = "NotificationHistory";
+              showUnreadBadge = true;
+              hideWhenZero = true;
+            }
+            # {
+            #   id = "CustomButton";
+            #   icon = "bell";
+            #   textCommand = "noctalia-swaync";
+            #   textIntervalMs = 2500;
+            #   parseJson = true;
+            #   leftClickExec = "swaync-client -t -sw";
+            #   rightClickExec = "swaync-client -C";
+            # }
           ];
         };
       };
       ui = {
         fontDefault = "JetBrainsMono Nerd Font";
         fontFixed = "JetBrainsMono Nerd Font";
-        radiusRatio = 2;
+        radiusRatio = 0.3;
       };
       # colorSchemes.predefinedScheme = "Noctalia (default)";
       general = {
@@ -132,13 +151,49 @@
         enabled = true;
         directory = ../themes;
         defaultWallpaper = ../themes/dark-bg.jpg;
+        overviewEnabled = true;
       };
-      notifications.enabled = false;
+      notifications.enabled = true;
       location = {
         name = "Munich, Germany";
         firstDayOfWeek = 0;
       };
       dock.enabled = false;
     };
+  };
+
+  xdg.desktopEntries.caffeine = {
+    name = "Caffeine";
+    exec = "noctalia-shell ipc call idleInhibitor toggle";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" ];
+    icon = "caffeine";
+  };
+
+  xdg.desktopEntries.notification-center = {
+    name = "Notification Center";
+    exec = "noctalia-shell ipc call notifications toggleHistory";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" ];
+    icon = "notifications";
+  };
+
+  xdg.desktopEntries.clear-notification = {
+    name = "Clear Notifications";
+    exec = "noctalia-shell ipc call notifications clear";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" ];
+    icon = "notification-disabled";
+  };
+  xdg.desktopEntries.do-not-disturb = {
+    name = "Toggle DND";
+    exec = "noctalia-shell ipc call notifications toggleDND";
+    terminal = false;
+    type = "Application";
+    categories = [ "Utility" ];
+    icon = "notification-disabled";
   };
 }

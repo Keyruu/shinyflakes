@@ -30,54 +30,67 @@
       filtering = {
         rewrites = [
           {
+            enabled = true;
             domain = "adguard.port.peeraten.net";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "monitoring.lab.keyruu.de";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "*.lab.keyruu.de";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "files.keyruu.de";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "*.port.peeraten.net";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "hass.peeraten.net";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "traccar.peeraten.net";
             answer = "192.168.100.7";
           }
           {
+            enabled = true;
             domain = "*.home.zimtix.de";
             answer = "192.168.100.32";
           }
           {
+            enabled = true;
             domain = "ubuntu";
             answer = "192.168.100.32";
           }
           {
+            enabled = true;
             domain = "teamspeak";
             answer = "192.168.100.32";
           }
           {
+            enabled = true;
             domain = "plex.zimtix.de";
             answer = "192.168.100.32";
           }
           {
+            enabled = true;
             domain = "nextcloud.zimtix.de";
             answer = "192.168.100.32";
           }
           {
+            enabled = true;
             domain = "gitea.zimtix.de";
             answer = "192.168.100.32";
           }

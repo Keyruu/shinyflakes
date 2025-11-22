@@ -24,6 +24,16 @@ let
       sed -e 's/&/\&amp;/g'
   '';
 
+  noctalia-event = pkgs.writeShellScriptBin "noctalia-event" ''
+    text=$(next-event | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }')
+    tooltip="<div align='left'>$(next-events | sed -z 's/\n/<br\/>/g')</div>"
+
+    jq -nc \
+      --arg text "$text" \
+      --arg tooltip "$tooltip" \
+      '{text: $text, tooltip: $tooltip}'
+  '';
+
   waybar-khal = pkgs.writeShellScriptBin "waybar-khal" ''
     five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
 
@@ -66,6 +76,7 @@ in
   home.packages = [
     next-event
     next-events
+    noctalia-event
     waybar-khal
     khal-notify
     khal-open-meet

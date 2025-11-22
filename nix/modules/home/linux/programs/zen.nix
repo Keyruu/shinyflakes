@@ -50,37 +50,37 @@
           id = 2;
         };
       };
-      spacesForce = true;
-      spaces =
-        let
-          containers = config.programs.zen-browser.profiles."default".containers;
-        in
-        {
-          "Personal" = {
-            id = "c6de089c-410d-4206-961d-ab11f988d40a";
-            position = 1000;
-            theme.colors = [
-              {
-                red = 19;
-                green = 16;
-                blue = 164;
-              }
-            ];
-          };
-          "Work" = {
-            id = "cdd10fab-4fc5-494b-9041-325e5759195b";
-            icon = "💼";
-            container = containers."Work".id;
-            position = 2000;
-            theme.colors = [
-              {
-                red = 88;
-                green = 30;
-                blue = 0;
-              }
-            ];
-          };
-        };
+      # spacesForce = true;
+      # spaces =
+      #   let
+      #     containers = config.programs.zen-browser.profiles."default".containers;
+      #   in
+      #   {
+      #     "Personal" = {
+      #       id = "c6de089c-410d-4206-961d-ab11f988d40a";
+      #       position = 1000;
+      #       theme.colors = [
+      #         {
+      #           red = 19;
+      #           green = 16;
+      #           blue = 164;
+      #         }
+      #       ];
+      #     };
+      #     "Work" = {
+      #       id = "cdd10fab-4fc5-494b-9041-325e5759195b";
+      #       icon = "💼";
+      #       container = containers."Work".id;
+      #       position = 2000;
+      #       theme.colors = [
+      #         {
+      #           red = 88;
+      #           green = 30;
+      #           blue = 0;
+      #         }
+      #       ];
+      #     };
+      #   };
     };
   };
 

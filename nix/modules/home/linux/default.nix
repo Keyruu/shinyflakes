@@ -22,7 +22,7 @@ in
     ./clipse.nix
     ./tailscale.nix
     ./dunst.nix
-    ./swaync.nix
+    # ./swaync.nix
     ./scripts
     ./programs
     ./gaming.nix
@@ -50,6 +50,7 @@ in
     pipx
     impala
     claude-code
+    biome
 
     pavucontrol
     rustc
@@ -79,6 +80,10 @@ in
     fluffychat
     vdhcoapp
     flatpak
+    teams-for-linux
+    libreoffice-qt6-fresh
+
+    perSystem.self.librepods
     # inputs.sirberus.packages."${system}".default
   ];
 }

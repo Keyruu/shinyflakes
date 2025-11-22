@@ -1,5 +1,9 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
+  home.packages = with pkgs; [
+    package-version-server
+  ];
+
   programs.zed-editor = {
     extensions = [
       "material-icon-theme"
@@ -41,7 +45,7 @@
       };
       cursor_blink = false;
       vim_mode = true;
-      relative_line_numbers = true;
+      relative_line_numbers = "enabled";
       ui_font_size = 14;
       buffer_font_size = 14;
       vim = {
@@ -49,6 +53,9 @@
       };
       inlay_hints = {
         enabled = true;
+        toggle_on_modifiers_press = {
+          control = true;
+        };
       };
       file_types = {
         Helm = [

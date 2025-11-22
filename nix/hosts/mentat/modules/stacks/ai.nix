@@ -61,23 +61,25 @@ in
     11434
   ];
 
-  services.nginx.virtualHosts."ollama.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+  services.nginx.virtualHosts = {
+    "ollama.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:11434";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:11434";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."ai.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "ai.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:3004";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:3004";
+        proxyWebsockets = true;
+      };
     };
   };
 }

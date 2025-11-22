@@ -33,7 +33,7 @@
       shr-adm = "root";
       ipr = "192.168.100.0/24,100.64.0.0/16=root";
       rproxy = -1;
-      xff-src = "192.168.100.0/24,100.64.0.0/16";
+      xff-src = "lan,100.64.0.0/16";
       # xff-hdr = "cf-connecting-ip";
       hist = "/etc/stacks/copyparty";
     };
@@ -69,13 +69,22 @@
     environmentFile = config.sops.secrets.cloudflare.path;
   };
 
-  services.nginx.virtualHosts."files.keyruu.de" = {
-    useACMEHost = "files.keyruu.de";
-    forceSSL = true;
+  services.nginx.virtualHosts = {
+    "files.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:3210";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:3210";
+        proxyWebsockets = true;
+      };
+    };
+
+    "files.keyruu.de" = {
+      useACMEHost = "files.keyruu.de";
+      forceSSL = true;
+
+      inherit (config.services.nginx.virtualHosts."files.lab.keyruu.de") locations;
     };
   };
 }

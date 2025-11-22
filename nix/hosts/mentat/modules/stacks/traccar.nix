@@ -80,23 +80,25 @@ in
     };
   };
 
-  services.nginx.virtualHosts."traccar.peeraten.net" = {
-    useACMEHost = "traccar.peeraten.net";
-    forceSSL = true;
+  services.nginx.virtualHosts = {
+    "traccar.peeraten.net" = {
+      useACMEHost = "traccar.peeraten.net";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:5785";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:5785";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."owntracks.peeraten.net" = {
-    useACMEHost = "owntracks.peeraten.net";
-    forceSSL = true;
+    "owntracks.peeraten.net" = {
+      useACMEHost = "owntracks.peeraten.net";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:5144";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:5144";
+        proxyWebsockets = true;
+      };
     };
   };
 }

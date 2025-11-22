@@ -1,13 +1,38 @@
+{ pkgs, ... }:
+let
+  noctalia-swaync = pkgs.writeShellScriptBin "noctalia-swaync" ''
+    count=$(${pkgs.swaynotificationcenter}/bin/swaync-client -c)
+    dnd=$(${pkgs.swaynotificationcenter}/bin/swaync-client -D)
+
+    if [ "$dnd" = "true" ]; then
+      icon="bell-off"
+      text=""
+    elif [ "$count" -eq 0 ]; then
+      icon="bell"
+      text=""
+    else
+      icon="bell"
+      text="$count"
+    fi
+
+    # Output JSON for noctalia
+    echo "{\"icon\": \"$icon\", \"text\": \"$text\"}"
+  '';
+in
 {
+  home.packages = [
+    noctalia-swaync
+  ];
+
   services.swaync = {
-    enable = true;
+    enable = false;
 
     settings = {
       positionX = "right";
       positionY = "top";
       layer = "overlay";
       control-center-layer = "top";
-      layer-shell = true;
+      layer-shell = false;
       cssPriority = "user";
       control-center-margin-top = 0;
       control-center-margin-bottom = 0;

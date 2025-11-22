@@ -1,82 +1,41 @@
-{ config, ... }:
-{
-  services.nginx.virtualHosts."hass.peeraten.net" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://100.64.0.1:8123";
-      proxyWebsockets = true;
-      extraConfig = ''
-        modsecurity on;
-        modsecurity_rules_file /etc/nginx/modsec/main.conf;
-      '';
+{ lib, ... }:
+let
+  proxyHosts = {
+    "hass.peeraten.net" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 8123;
     };
+    "traccar.peeraten.net" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 5785;
+    };
+    "owntracks.peeraten.net" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 5144;
+    };
+    "map.peeraten.net" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 3001;
+    };
+    "calendar.peeraten.net" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 5232;
+    };
+    "files.keyruu.de" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 3210;
+    };
+    # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
+    # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };
 
-  services.nginx.virtualHosts."traccar.peeraten.net" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://100.64.0.1:5785";
-      proxyWebsockets = true;
-      extraConfig = ''
-        modsecurity on;
-        modsecurity_rules_file /etc/nginx/modsec/main.conf;
-      '';
-    };
-  };
-
-  services.nginx.virtualHosts."owntracks.peeraten.net" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://100.64.0.1:5144";
-      proxyWebsockets = true;
-      extraConfig = ''
-        modsecurity on;
-        modsecurity_rules_file /etc/nginx/modsec/main.conf;
-      '';
-    };
-  };
-
-  services.nginx.virtualHosts."map.peeraten.net" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://100.64.0.1:3001";
-      proxyWebsockets = true;
-      extraConfig = ''
-        modsecurity on;
-        modsecurity_rules_file /etc/nginx/modsec/main.conf;
-      '';
-    };
-  };
-
-  services.nginx.virtualHosts."calendar.peeraten.net" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://100.64.0.1:5232";
-      proxyWebsockets = true;
-      extraConfig = ''
-        modsecurity on;
-        modsecurity_rules_file /etc/nginx/modsec/main.conf;
-      '';
-    };
-  };
-
-  services.nginx.virtualHosts."files.keyruu.de" = {
-    enableACME = true;
-    forceSSL = true;
-
-    locations = {
-      "/" = {
-        proxyPass = "http://100.64.0.1:3210";
+  mkProxyHost =
+    { proxyHost, proxyPort }:
+    {
+      enableACME = true;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://${proxyHost}:${toString proxyPort}";
         proxyWebsockets = true;
         extraConfig = ''
           modsecurity on;
@@ -84,22 +43,7 @@
         '';
       };
     };
-  };
-
-  # services.nginx.virtualHosts."immich.keyruu.de" = {
-  #   enableACME = true;
-  #   forceSSL = true;
-  #
-  #   locations."/" = {
-  #     proxyPass = "http://hati:2283";
-  #     proxyWebsockets = true;
-  #   };
-  # };
-
-  # services.nginx.virtualHosts."*.zimtix.de" = {
-  #   locations."/" = {
-  #     proxyPass = "http://192.168.100.32:80";
-  #     proxyWebsockets = true;
-  #   };
-  # };
+in
+{
+  services.nginx.virtualHosts = lib.mapAttrs (_: mkProxyHost) proxyHosts;
 }

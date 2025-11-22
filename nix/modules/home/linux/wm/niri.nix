@@ -794,6 +794,10 @@
 
       # Screenshot path (optional)
       screenshot-path = "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
+
+      debug = {
+        honor-xdg-activation-with-invalid-serial = [ ];
+      };
     };
   };
 }

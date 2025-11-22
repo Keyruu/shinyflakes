@@ -2,7 +2,7 @@
 {
   imports = [
     ./system.nix
-    ./caffeine.nix
+    # ./caffeine.nix
     ./notif.nix
     ./colorpicker.nix
   ];
