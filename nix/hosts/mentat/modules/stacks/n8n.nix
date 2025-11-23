@@ -22,7 +22,7 @@ in
         N8N_PORT = "5678";
         N8N_PROTOCOL = "https";
         N8N_HOST = "n8n.keyruu.de";
-        N8N_PATH = "";
+        N8N_PATH = "/";
         WEBHOOK_URL = "https://n8n.keyruu.de";
       };
       labels = [
