@@ -23,7 +23,7 @@ in
         N8N_PROTOCOL = "https";
         N8N_HOST = "n8n.keyruu.de";
         N8N_PATH = "";
-        WEBHOOK_URL = "https://n8n.lab.keyruu.de";
+        WEBHOOK_URL = "https://n8n.keyruu.de";
       };
       labels = [
         "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
