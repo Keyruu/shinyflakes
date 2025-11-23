@@ -25,10 +25,6 @@ let
       proxyHost = "100.64.0.1";
       proxyPort = 3210;
     };
-    "n8n.keyruu.de" = {
-      proxyHost = "100.64.0.1";
-      proxyPort = 5678;
-    };
     # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };

@@ -17,6 +17,5 @@
     ./radicale.nix
     # ./sftpgo.nix
     ./isponsorblocktv.nix
-    ./n8n.nix
   ];
 }
