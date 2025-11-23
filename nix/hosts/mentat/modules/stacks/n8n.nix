@@ -43,7 +43,7 @@ in
   };
 
   services.nginx.virtualHosts."n8n.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
+    useACMEHost = "n8n.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
