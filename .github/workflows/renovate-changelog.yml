@@ -59,9 +59,9 @@ jobs:
 
       - name: Check if changelog already exists
         id: check_changelog
+        env:
+          PR_BODY: ${{ steps.get_pr.outputs.body }}
         run: |
-          PR_BODY='${{ steps.get_pr.outputs.body }}'
-
           if [ "${{ github.event_name }}" = "issue_comment" ]; then
             echo "has_changelog=false" >> $GITHUB_OUTPUT
             echo "Manually triggered, running AI analysis"
