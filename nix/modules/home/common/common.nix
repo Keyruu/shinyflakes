@@ -77,7 +77,7 @@
     marp-cli
 
     # gui apps
-    gimp
+    # gimp
     obsidian
 
     # cli apps

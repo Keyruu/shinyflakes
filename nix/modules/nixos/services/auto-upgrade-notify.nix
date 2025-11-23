@@ -34,8 +34,10 @@ let
       STATUS_TEXT="Failed"
     fi
 
-    WARNINGS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} -n ${toString cfg.logLines} --no-pager | ${pkgs.gnugrep}/bin/grep -i "warning" || echo "No warnings")
-    ERRORS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} -n ${toString cfg.logLines} --no-pager | ${pkgs.gnugrep}/bin/grep -i "error" || echo "No errors")
+    START_TIME=$(${pkgs.systemd}/bin/systemctl show -p InactiveExitTimestamp ${cfg.upgradeServiceName} --value)
+    WARNINGS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} --since "$START_TIME" --no-pager | ${pkgs.gnugrep}/bin/grep -i "warning" || echo "No warnings")
+    ERRORS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} --since "$START_TIME" --no-pager | ${pkgs.gnugrep}/bin/grep -i "error" || echo "No errors")
+    ALL_LOGS=$(${pkgs.systemd}/bin/journalctl -u ${cfg.upgradeServiceName} --since "$START_TIME" --no-pager || echo "No logs available")
 
     TEXT_BODY=$(cat <<TEXT
     $STATUS_EMOJI ${cfg.emailSubjectPrefix} $STATUS_TEXT
@@ -56,6 +58,12 @@ let
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     $ERRORS
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    📋 FULL LOGS (from last invocation)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    $ALL_LOGS
     TEXT
     )
 
@@ -146,12 +154,6 @@ in
       type = lib.types.str;
       default = "NixOS Upgrade";
       description = "Prefix for email subject lines";
-    };
-
-    logLines = lib.mkOption {
-      type = lib.types.int;
-      default = 100;
-      description = "Number of log lines to include in the notification";
     };
   };
 
