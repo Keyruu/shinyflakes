@@ -1025,11 +1025,11 @@
         "systems": "systems_6"
       },
       "locked": {
-        "lastModified": 1763768455,
-        "narHash": "sha256-ZwqW2uH36vPUKrlbzDyz7NoFXKjJOT1Ijvlaz4sIp8E=",
+        "lastModified": 1763924051,
+        "narHash": "sha256-8+PLzmulDhKI8g5Eg+VRHMSaEIfEPUeq/dVhXvNc/j4=",
         "owner": "vicinaehq",
         "repo": "vicinae",
-        "rev": "5c965e0777dc4bcb01808c7f214dc56f997bd9c7",
+        "rev": "8edcf75457ae1316de1f1d65a3fbf6557971e8c6",
         "type": "github"
       },
       "original": {
