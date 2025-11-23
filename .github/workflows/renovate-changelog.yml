@@ -33,18 +33,6 @@ jobs:
       changelog_summary: ${{ steps.run_codex.outputs.final-message }}
       pr_number: ${{ steps.get_pr.outputs.number }}
     steps:
-      - name: React to comment (if manually triggered)
-        if: github.event_name == 'issue_comment'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: 'eyes'
-            });
-
       - name: Get PR details
         id: get_pr
         uses: actions/github-script@v7
