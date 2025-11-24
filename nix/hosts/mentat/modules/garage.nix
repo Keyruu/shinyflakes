@@ -24,7 +24,12 @@
     enable = true;
     package = pkgs.garage_2;
     settings = {
-      data_dir = [ "/main/data/s3" ];
+      data_dir = [
+        {
+          capacity = "200G";
+          path = "/main/data/s3";
+        }
+      ];
       rpc_bind_addr = "[::]:3901";
       rpc_secret_file = config.sops.secrets.garageRpcToken.path;
 
