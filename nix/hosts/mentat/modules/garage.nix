@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   sops.secrets = {
     garageAdminToken = {
@@ -22,6 +22,7 @@
 
   services.garage = {
     enable = true;
+    package = pkgs.garage_2;
     settings = {
       data_dir = [ "/main/data/s3" ];
       rpc_bind_addr = "[::]:3901";
