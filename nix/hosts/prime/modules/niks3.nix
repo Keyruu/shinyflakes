@@ -23,7 +23,6 @@ in
     s3 = {
       endpoint = "s3.keyruu.de";
       bucket = "nix-cache";
-      region = "garage";
       useSSL = true;
       accessKeyFile = config.sops.secrets.nixCacheAccessKey.path;
       secretKeyFile = config.sops.secrets.nixCacheSecretKey.path;
