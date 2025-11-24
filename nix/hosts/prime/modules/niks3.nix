@@ -11,10 +11,22 @@ in
 
   users.groups.niks3 = { };
   sops.secrets = {
-    nixCacheAccessKey.group = "niks3";
-    nixCacheSecretKey.group = "niks3";
-    niks3ApiToken.group = "niks3";
-    niks3SigningKey.group = "niks3";
+    nixCacheAccessKey = {
+      group = "niks3";
+      mode = "0440";
+    };
+    nixCacheSecretKey = {
+      group = "niks3";
+      mode = "0440";
+    };
+    niks3ApiToken = {
+      group = "niks3";
+      mode = "0440";
+    };
+    niks3SigningKey = {
+      group = "niks3";
+      mode = "0440";
+    };
   };
 
   services.niks3 = {
