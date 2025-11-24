@@ -24,7 +24,6 @@
   ];
 
   sops = {
-    defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
     };

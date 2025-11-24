@@ -27,8 +27,10 @@
     ./modules
   ];
 
-  # Niri overlay for niri-stable and niri-unstable packages
-  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    age.keyFile = "/home/lucas/.config/sops/age/keys.txt";
+  };
 
   fileSystems."/home".neededForBoot = true;
 

@@ -1,5 +1,4 @@
 {
-  config,
   inputs,
   flake,
   pkgs,
@@ -47,7 +46,6 @@
   users.groups.smtp.members = [ "root" ];
 
   sops = {
-    defaultSopsFile = ../../secrets.yaml;
     secrets = {
       cloudflare.owner = "root";
       resendApiKey = {

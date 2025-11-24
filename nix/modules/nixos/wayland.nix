@@ -1,9 +1,12 @@
 {
+  inputs,
   lib,
   pkgs,
   ...
 }:
 {
+  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+
   security.pam.services = {
     hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
   };

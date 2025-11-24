@@ -1,4 +1,4 @@
-name: nix build
+name: Build Nix Configurations
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   define-matrix:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'flake')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'build-required')
     outputs:
       matrix: ${{ steps.eval-matrix.outputs.matrix }}
 
