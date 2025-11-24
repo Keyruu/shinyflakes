@@ -63,5 +63,23 @@
       hide = "always";
       reveal_target = "center";
     }
+    {
+      label = "codex";
+      command = "codex";
+      shell = {
+        program = "sh";
+      };
+      hide = "always";
+      reveal_target = "center";
+    }
+    {
+      label = "opencode";
+      command = "opencode";
+      shell = {
+        program = "sh";
+      };
+      hide = "always";
+      reveal_target = "center";
+    }
   ];
 }

@@ -50,6 +50,8 @@ in
     pipx
     impala
     claude-code
+    codex
+    opencode
     biome
 
     pavucontrol

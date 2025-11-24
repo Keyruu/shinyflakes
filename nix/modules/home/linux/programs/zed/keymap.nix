@@ -70,6 +70,14 @@
           "task::Spawn"
           { task_name = "claude"; }
         ];
+        "space a x" = [
+          "task::Spawn"
+          { task_name = "codex"; }
+        ];
+        "space a o" = [
+          "task::Spawn"
+          { task_name = "opencode"; }
+        ];
         # Go to file with `gf`
         "g f" = "editor::OpenExcerpts";
 

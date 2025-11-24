@@ -12,5 +12,6 @@
     ./vicinae.nix
     ./zen.nix
     ./firefox.nix
+    ./opencode.nix
   ];
 }
