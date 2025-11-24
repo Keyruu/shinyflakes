@@ -9,11 +9,12 @@ in
     "d ${stackPath}/data 0755 root root"
   ];
 
+  users.groups.niks3 = { };
   sops.secrets = {
-    nixCacheAccessKey = { };
-    nixCacheSecretKey = { };
-    niks3ApiToken = { };
-    niks3SigningKey = { };
+    nixCacheAccessKey.group = "niks3";
+    nixCacheSecretKey.group = "niks3";
+    niks3ApiToken.group = "niks3";
+    niks3SigningKey.group = "niks3";
   };
 
   services.niks3 = {
