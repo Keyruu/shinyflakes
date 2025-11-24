@@ -55,17 +55,11 @@ jobs:
       - name: Build ${{ matrix.host }}
         run: |
           nix run nixpkgs#nixos-rebuild -- build --accept-flake-config --flake ".#${{ matrix.host }}"
-
-          # Store the build result path
           echo "RESULT_PATH=$(readlink -f result)" >> $GITHUB_ENV
 
       - name: Push to niks3 cache
         env:
           NIKS3_SERVER_URL: https://cache.keyruu.de
-          NIKS3_AUTH_TOKEN: ${{ secrets.NIKS3_AUTH_TOKEN }}
         run: |
-          # Install niks3
           nix profile install github:Mic92/niks3
-
-          # Push the built system closure to cache
-          niks3 push "$RESULT_PATH"
+          niks3 push "$RESULT_PATH" --auth-token ${{ secrets.NIKS3_AUTH_TOKEN }}

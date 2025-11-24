@@ -27,15 +27,15 @@
     ./modules
   ];
 
-  sops = {
-    defaultSopsFile = ../../secrets.yaml;
-    age.keyFile = "/home/lucas/.config/sops/age/keys.txt";
-  };
-
   fileSystems."/home".neededForBoot = true;
 
   networking.hostName = lib.mkForce "PCL2025101301";
   user.name = "lucas";
+
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
+  };
 
   networking.firewall.allowedTCPPorts = [ 57621 ];
   networking.firewall.allowedUDPPorts = [ 5353 ];

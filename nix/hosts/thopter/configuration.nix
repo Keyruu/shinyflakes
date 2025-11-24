@@ -24,6 +24,11 @@
   # Set the primary user name
   user.name = "lucas";
 
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
+  };
+
   services.xserver = {
     enable = true;
     xkb = {
