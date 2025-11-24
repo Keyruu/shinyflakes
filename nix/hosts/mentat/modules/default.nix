@@ -16,6 +16,5 @@
     ./sirberus.nix
     ./adguard.nix
     ./copyparty.nix
-    ./garage.nix
   ];
 }

@@ -200,7 +200,7 @@ in
       };
     };
 
-    systemd.timers.${lib.replaceStrings [".service"] [".timer"] cfg.upgradeServiceName} = {
+    systemd.timers.${lib.replaceStrings [ ".service" ] [ ".timer" ] cfg.upgradeServiceName} = {
       timerConfig = {
         # Skip if previous run is still active
         Unit = cfg.upgradeServiceName;

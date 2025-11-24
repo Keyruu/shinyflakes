@@ -25,6 +25,14 @@ let
       proxyHost = "100.64.0.1";
       proxyPort = 3210;
     };
+    "s3.keyruu.de" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 3900;
+    };
+    "garage.keyruu.de" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 3902;
+    };
     # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };
