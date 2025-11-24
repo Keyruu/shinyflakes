@@ -62,4 +62,4 @@ jobs:
           NIKS3_SERVER_URL: https://cache.keyruu.de
         run: |
           nix profile install github:Mic92/niks3
-          niks3 push "$RESULT_PATH" --auth-token ${{ secrets.NIKS3_AUTH_TOKEN }}
+          niks3 push --auth-token ${{ secrets.NIKS3_AUTH_TOKEN }} "$RESULT_PATH"
