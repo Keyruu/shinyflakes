@@ -3,6 +3,7 @@ name: nix build
 on:
   pull_request:
     types: [labeled, synchronize, opened, reopened]
+  workflow_dispatch:
 
 jobs:
   define-matrix:
