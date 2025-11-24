@@ -25,12 +25,12 @@ in
   };
 
   sops.templates."garage.toml" = {
-    restartUnits = [ "garage-main.service" ];
+    restartUnits = [ "garage.service" ];
     content = ''
       metadata_dir = "/var/lib/garage/meta"
       data_dir = "/var/lib/garage/data"
 
-      db_engine = "lmdb"
+      db_engine = "sqlite"
 
       replication_factor = 1
 
