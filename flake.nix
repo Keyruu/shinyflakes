@@ -41,6 +41,11 @@
     # infra
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
+    niks3 = {
+      url = "github:Mic92/niks3";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     comin = {
       url = "github:nlewo/comin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -108,9 +113,17 @@
   # Load the blueprint with custom prefix
   outputs =
     inputs:
-    inputs.blueprint {
-      inherit inputs;
-      nixpkgs.config.allowUnfree = true;
-      prefix = "nix";
+    let
+      blueprintOutputs = inputs.blueprint {
+        inherit inputs;
+        nixpkgs.config.allowUnfree = true;
+        prefix = "nix";
+      };
+    in
+    blueprintOutputs
+    // {
+      githubActions.matrix = {
+        host = builtins.attrNames blueprintOutputs.nixosConfigurations;
+      };
     };
 }
