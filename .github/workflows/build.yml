@@ -8,8 +8,7 @@ on:
 jobs:
   define-matrix:
     runs-on: ubuntu-latest
-    # Only run on PRs with the 'flake' label
-    if: contains(github.event.pull_request.labels.*.name, 'flake')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'flake')
     outputs:
       matrix: ${{ steps.eval-matrix.outputs.matrix }}
 
