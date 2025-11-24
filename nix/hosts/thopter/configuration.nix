@@ -12,13 +12,18 @@
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
+    inputs.lanzaboote.nixosModules.lanzaboote
+    flake.modules.nixos.secure-boot
+
     flake.modules.nixos.core
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
     flake.modules.nixos.laptop
+    flake.modules.nixos.hibernation
 
     ./hardware-configuration.nix
     ./disk.nix
+    ./modules
   ];
 
   # Set the primary user name
@@ -85,11 +90,6 @@
   programs = {
     firefox.enable = true;
     ydotool.enable = true;
-  };
-
-  services.kanata = {
-    enable = true;
-    keyboards.lenovo.configFile = ../../modules/home/common/kanata.kbd;
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
