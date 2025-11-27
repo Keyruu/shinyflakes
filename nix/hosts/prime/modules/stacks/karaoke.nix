@@ -21,7 +21,10 @@ in
         "-u"
         "https://${karaokeDomain}"
         "--admin-password"
-        "$KARAOKE_ADMIN_PASSWORD"
+        "$(cat /run/secrets/adminPassword)"
+      ];
+      volumes = [
+        "${config.sops.secrets.karaokeAdminPassword.path}:/run/secrets/adminPassword"
       ];
       environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
     };
