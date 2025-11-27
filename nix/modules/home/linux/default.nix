@@ -63,7 +63,7 @@ in
     calibre
     localsend
     element-desktop
-    chromium
+    # chromium - now managed by programs.chromium
     # firefox
     diebahn
     wtype
@@ -85,7 +85,8 @@ in
     teams-for-linux
     libreoffice-qt6-fresh
 
-    perSystem.self.librepods
+    perSystem.self.numr
+    # perSystem.self.librepods
     # inputs.sirberus.packages."${system}".default
   ];
 }

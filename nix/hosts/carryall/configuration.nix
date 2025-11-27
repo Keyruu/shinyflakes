@@ -10,6 +10,7 @@
   imports = [
     inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
     inputs.nixos-hardware.nixosModules.common-cpu-intel
+    inputs.nixos-hardware.nixosModules.common-gpu-intel
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
@@ -26,6 +27,8 @@
     ./disk.nix
     ./modules
   ];
+
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
   fileSystems."/home".neededForBoot = true;
 
@@ -94,6 +97,19 @@
     firefox.enable = true;
     ydotool.enable = true;
   };
+
+  # nixpkgs.config.packageOverrides = pkgs: {
+  #   intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
+  # };
+  # hardware.graphics = {
+  #   enable = true;
+  #   extraPackages = with pkgs; [
+  #     intel-media-driver
+  #     pkgs.intel-vaapi-driver.override
+  #     { enableHybridCodec = true; } # For older Intel (fallback)
+  #     libvdpau-va-gl
+  #   ];
+  # };
 
   nixpkgs.hostPlatform = "x86_64-linux";
   system.stateVersion = "24.11";

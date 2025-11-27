@@ -91,13 +91,10 @@
             };
             options = {
               nixos = {
-                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.sleipnir.options";
+                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.mentat.options";
               };
               home-manager = {
-                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").homeConfigurations.\"lucas@thopter\".options";
-              };
-              nix-darwin = {
-                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").darwinConfigurations.stern.options";
+                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []";
               };
             };
             diagnostic = {

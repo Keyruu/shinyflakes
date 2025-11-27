@@ -10,11 +10,8 @@
       lockTimeout = 5 * 60; # 300 seconds
       suspendTimeout = 15 * 60; # 900 seconds
 
-      screenLocker = lib.getExe pkgs.hyprlock;
-
-      # Use compositor-agnostic commands for screen power management
-      screenOn = "${lib.getExe pkgs.wlopm} --on '*'";
-      screenOff = "${lib.getExe pkgs.wlopm} --off '*'";
+      screenOn = "${lib.getExe' pkgs.niri-unstable "niri"} msg action power-on-monitors";
+      screenOff = "${lib.getExe' pkgs.niri-unstable "niri"} msg action power-off-monitors";
     in
     {
       enable = true;
