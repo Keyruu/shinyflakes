@@ -1,8 +1,13 @@
 { config, ... }:
 let
   karaokeDomain = "29112025.karaoke.keyruu.de";
+  stackPath = "/etc/stacks/pikaraoke";
 in
 {
+  systemd.tmpfiles.rules = [
+    "d ${stackPath}/songs 0750 root root"
+  ];
+
   sops.secrets.karaokeAdminPassword = { };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
@@ -21,10 +26,10 @@ in
         "-u"
         "https://${karaokeDomain}"
         "--admin-password"
-        "$(cat /run/secrets/adminPassword)"
+        "rasenschach"
       ];
       volumes = [
-        "${config.sops.secrets.karaokeAdminPassword.path}:/run/secrets/adminPassword"
+        "${stackPath}/songs:/app/pikaraoke-songs"
       ];
       environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
     };
