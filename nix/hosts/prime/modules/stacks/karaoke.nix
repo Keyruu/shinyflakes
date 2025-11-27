@@ -35,8 +35,19 @@ in
     };
   };
 
+  security.acme = {
+    certs = {
+      "keyruu.de" = {
+        extraDomainNames = [ "*.keyruu.de" ];
+        dnsProvider = "cloudflare";
+        dnsPropagationCheck = true;
+        environmentFile = config.sops.secrets.cloudflare.path;
+      };
+    };
+  };
+
   services.nginx.virtualHosts."${karaokeDomain}" = {
-    enableACME = true;
+    useACMEHost = "keyruu.de";
     forceSSL = true;
 
     locations."/" = {
