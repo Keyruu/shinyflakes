@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.services.autoUpgradeNotify;
-  serviceName = lib.replaceStrings ".service" cfg.upgradeServiceName;
+  serviceName = lib.replaceStrings [ ".service" ] [ "" ] cfg.upgradeServiceName;
 
   notificationScript = pkgs.writeShellScript "upgrade-notify" ''
     set -euo pipefail
