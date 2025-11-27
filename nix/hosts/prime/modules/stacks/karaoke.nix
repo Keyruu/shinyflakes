@@ -27,6 +27,8 @@ in
         "https://${karaokeDomain}"
         "--admin-password"
         "rasenschach"
+        "--limit-user-songs-by"
+        "3"
       ];
       volumes = [
         "${stackPath}/songs:/app/pikaraoke-songs"
