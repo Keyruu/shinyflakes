@@ -3,6 +3,7 @@ let
   karaokeDomain = "29112025.karaoke.keyruu.de";
 in
 {
+  sops.secrets.karaokeAdminPassword = { };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
       "pikaraoke.service"
