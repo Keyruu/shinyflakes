@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  karaokeDomain = "29112025.karaoke.keyruu.de";
+  karaokeDomain = "29112025-karaoke.keyruu.de";
   stackPath = "/etc/stacks/pikaraoke";
 in
 {
@@ -35,19 +35,8 @@ in
     };
   };
 
-  security.acme = {
-    certs = {
-      "karaoke.keyruu.de" = {
-        extraDomainNames = [ "*.karaoke.keyruu.de" ];
-        dnsProvider = "cloudflare";
-        dnsPropagationCheck = true;
-        environmentFile = config.sops.secrets.cloudflare.path;
-      };
-    };
-  };
-
   services.nginx.virtualHosts."${karaokeDomain}" = {
-    useACMEHost = "karaoke.keyruu.de";
+    enableACME = true;
     forceSSL = true;
 
     locations."/" = {
