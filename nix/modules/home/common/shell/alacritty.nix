@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.alacritty = {
     enable = true;
@@ -14,7 +14,7 @@
       };
       font = {
         normal = {
-          family = "JetBrainsMono Nerd Font";
+          family = config.user.font;
         };
         size = 12;
       };

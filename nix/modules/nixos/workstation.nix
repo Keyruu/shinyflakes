@@ -1,4 +1,4 @@
-{ flake, ... }:
+{ flake, lib, ... }:
 {
   imports = [
     flake.modules.nixos.systemd-boot

@@ -27,10 +27,11 @@
       edit_predictions = {
         mode = "subtle";
       };
-      ui_font_family = "JetBrainsMono Nerd Font";
+      buffer_font_family = config.user.font;
+      ui_font_family = config.user.font;
       terminal = {
         dock = "bottom";
-        font_family = "JetBrainsMono Nerd Font";
+        font_family = config.user.font;
       };
       icon_theme = "Material Icon Theme";
       features = {

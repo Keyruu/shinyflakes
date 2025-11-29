@@ -99,7 +99,7 @@
 	"terminal.integrated.defaultProfile.windows": "PowerShell",
 	"editor.lineNumbers": "relative",
 	"quarkus.tools.alwaysShowWelcomePage": false,
-	"editor.fontFamily": "JetBrainsMonoNL Nerd Font, monospace",
+	"editor.fontFamily": "Maple Mono Normal NL NF, monospace",
 	"editor.fontSize": 13,
 	"debug.console.fontSize": 13,
 	"terminal.integrated.fontSize": 13,

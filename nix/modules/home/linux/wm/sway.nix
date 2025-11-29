@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   ...
@@ -194,7 +195,7 @@
       };
 
       fonts = {
-        names = [ "pango:JetBrains Mono" ];
+        names = [ "pango:${config.user.font}" ];
         size = 10.0;
       };
 

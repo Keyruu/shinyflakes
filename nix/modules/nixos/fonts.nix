@@ -7,7 +7,7 @@
       defaultFonts = {
         emoji = [ "Twitter Color Emoji" ];
         monospace = [
-          "JetBrains Nerd Font Mono"
+          "Maple Mono Normal NL NF"
           "Sarasa Gothic"
         ];
         sansSerif = [
@@ -25,6 +25,7 @@
     };
 
     packages = with pkgs; [
+      maple-mono.NormalNL-NF
       nerd-fonts.jetbrains-mono
       cantarell-fonts
       twitter-color-emoji

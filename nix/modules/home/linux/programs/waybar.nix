@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   ...
@@ -252,7 +253,7 @@
         /* Global styles */
         * {
           border: none;
-          font-family: "JetBrainsMono Nerd Font";
+          font-family: "${config.user.font}";
           font-size: 14px;
           min-height: 0;
         }

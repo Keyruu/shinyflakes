@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   home.packages = with pkgs; [
     wl-kbptr
@@ -18,7 +18,7 @@
       unselectable_bg_color=#2226
       selectable_bg_color=#171a
       selectable_border_color=#040c
-      label_font_family=JetBrainsMono NF ExtraBold
+      label_font_family=${config.user.font}
       label_symbols=abcdefghijklmnopqrstuvwxyz
 
       [mode_click]

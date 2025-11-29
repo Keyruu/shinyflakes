@@ -2,6 +2,7 @@
   inputs,
   pkgs,
   perSystem,
+  flake,
   ...
 }:
 let
@@ -9,6 +10,7 @@ let
 in
 {
   imports = [
+    flake.modules.nixos.settings
     ../common/common.nix
     ../common/neovim
     ../common/shell

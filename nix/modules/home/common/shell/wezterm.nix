@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   programs.wezterm = {
     enable = true;
@@ -17,7 +18,7 @@
         return {
           hide_tab_bar_if_only_one_tab = true,
           font = wezterm.font_with_fallback({
-            "JetBrainsMono Nerd Font",
+            "${config.user.font}",
           }),
           harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
           front_end = "WebGpu",

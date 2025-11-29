@@ -139,8 +139,8 @@
         };
       };
       ui = {
-        fontDefault = "JetBrainsMono Nerd Font";
-        fontFixed = "JetBrainsMono Nerd Font";
+        fontDefault = config.user.font;
+        fontFixed = config.user.font;
         radiusRatio = 0.3;
       };
       # colorSchemes.predefinedScheme = "Noctalia (default)";

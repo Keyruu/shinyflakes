@@ -162,7 +162,7 @@ settings.theme = `
 /* Edit these variables for easy theme making */
 :root {
   /* Font */
-  --font: 'JetBrainsMono Nerd Font', Ubuntu, sans;
+  --font: 'Maple Mono Normal NL NF', Ubuntu, sans;
   --font-size: 14;
   --font-weight: bold;
 

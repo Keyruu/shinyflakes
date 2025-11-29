@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 {
   home.packages = with pkgs; [
     wlr-which-key
@@ -7,7 +7,7 @@
   home.file.".config/wlr-which-key/config.yaml".text = # yaml
     ''
       # Theming
-      font: JetBrainsMono Nerd Font 12
+      font: ${config.user.font} 12
       background: "#222222d0"
       color: "#cdd6f4"
       border: "#ffffff"

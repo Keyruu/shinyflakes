@@ -1,31 +1,24 @@
 { config, pkgs, ... }:
 {
-  # Enable v4l2loopback kernel module
-  boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
+  # 1. Enable ADB (Android Debug Bridge)
+  programs.adb.enable = true;
 
-  #  Loadmodule at boot with options
+  # 2. Install DroidCam and enable the virtual camera module
+  environment.systemPackages = [ pkgs.droidcam ];
+
+  # DroidCam needs a kernel module to create the video device
+  boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
   boot.kernelModules = [ "v4l2loopback" ];
+
+  # Optional: Label the DroidCam device so it's easy to find
   boot.extraModprobeConfig = ''
-    options v4l2loopback exclusive_caps=1 video_nr=10 card_label="Flipped Camera"
+    options v4l2loopback exclusive_caps=1 video_nr=9 card_label="DroidCam"
   '';
 
-  # Install necessary packages
-  environment.systemPackages = with pkgs; [
-    v4l-utils
-    ffmpeg
+  # 3. CRITICAL: Add your user to the 'adbusers' group
+  # Replace 'yourusername' with your actual login name
+  users.users.${config.user.name}.extraGroups = [
+    "adbusers"
+    "video"
   ];
-
-  systemd.services.webcam-flip = {
-    description = "Flipped Webcam Stream";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "multi-user.target" ];
-
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.ffmpeg}/bin/ffmpeg -f v4l2 -i /dev/video0 -vf hflip,format=yuv420p -f v4l2 /dev/video10";
-      Restart = "always";
-      RestartSec = "5";
-      User = config.user.name; # Replace with your actual username
-    };
-  };
 }
