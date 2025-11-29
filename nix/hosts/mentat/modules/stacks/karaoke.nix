@@ -21,7 +21,7 @@ in
   virtualisation.quadlet.containers.pikaraoke = {
     containerConfig = {
       image = "docker.io/vicwomg/pikaraoke:latest";
-      publishPorts = [ "127.0.0.1:5555:5555" ];
+      publishPorts = [ "100.64.0.1:5555:5555" ];
       exec = [
         "-u"
         "https://${karaokeDomain}"
