@@ -14,5 +14,6 @@
     ./firefox.nix
     ./chromium.nix
     ./opencode.nix
+    ./claude-code.nix
   ];
 }
