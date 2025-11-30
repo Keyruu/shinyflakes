@@ -8,12 +8,6 @@
         local theme = "Night Owl (Gogh)"
         local scheme = wezterm.color.get_builtin_schemes()[theme]
         scheme.background = "#100F0F"
-        local is_darwin = function()
-          return wezterm.target_triple:find("darwin") ~= nil
-        end
-
-        local decorations = is_darwin() and "RESIZE" or "NONE"
-        local fontSize = is_darwin() and 14.0 or 11.0
 
         return {
           hide_tab_bar_if_only_one_tab = true,
@@ -28,13 +22,13 @@
             target = "CursorColor",
           },
           audible_bell = "Disabled",
-          font_size = fontSize,
+          font_size = 11.0,
           color_schemes = {
             [theme] = scheme,
           },
           color_scheme = theme,
           -- window_background_opacity = 0.8,
-          window_decorations = decorations,
+          window_decorations = "NONE",
           inactive_pane_hsb = {
             saturation = 0.7,
             brightness = 0.5,

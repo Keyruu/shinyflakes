@@ -50,10 +50,7 @@ return {
                 expr = "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.sleipnir.options",
               },
               ["home-manager"] = {
-                expr = "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.stern.options.home-manager.users.type.getSubOptions []",
-              },
-              ["nix-darwin"] = {
-                expr = "(builtins.getFlake (builtins.toString ./.)).darwinConfigurations.stern.options",
+                expr = "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []",
               },
             },
           },

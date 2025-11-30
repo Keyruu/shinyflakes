@@ -1,7 +1,7 @@
 { ... }:
 {
   home.file.".config/bin" = {
-    source = ./bin;
+    source = ./scripts;
     recursive = true;
     executable = true;
   };

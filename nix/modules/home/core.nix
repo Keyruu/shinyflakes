@@ -2,15 +2,21 @@
   config,
   inputs,
   pkgs,
+  perSystem,
+  flake,
   ...
 }:
+let
+  pkgs-stable = import inputs.nixpkgs-stable { system = pkgs.system; };
+in
 {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
+    flake.modules.nixos.settings
   ];
 
   sops = {
-    defaultSopsFile = ../../../secrets.yaml;
+    defaultSopsFile = ../../secrets.yaml;
     age = {
       keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
       sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
@@ -19,6 +25,12 @@
       shellEnv.mode = "0400";
     };
   };
+
+  home.stateVersion = "24.11";
+
+  programs.home-manager.enable = true;
+
+  services.playerctld.enable = true;
 
   home.packages = with pkgs; [
     # development
@@ -53,7 +65,6 @@
     k6
     sops
     yaml-language-server
-    zig
     coursier
     metals
     hyperfine
@@ -78,14 +89,45 @@
     scalafmt
     nil
     marp-cli
+    jq
+    yq
+    gh # github cli
+    pkgs-stable.awscli2
+    kubernetes-helm
+    kubectx
+    kubectl
+    devspace
+    uv
+    pipx
+    impala
+    claude-code
+    codex
+    opencode
+    biome
 
     # gui apps
-    # gimp
     obsidian
+    pavucontrol
+    notion-app-enhanced
+    calibre
+    localsend
+    element-desktop
+    diebahn
+    wireguard-ui
+    discord
+    vesktop
+    slack
+    signal-desktop
+    thunderbird
+    vlc
+    fluffychat
+    flatpak
+    teams-for-linux
+    libreoffice-qt6-fresh
+    brave
 
     # cli apps
     glow # render markdown on the cli
-    # qmk
     act # run github actions locally
     ansible # automation
     aws-iam-authenticator # aws
@@ -96,7 +138,6 @@
     lsd # better ls
     gnumake
     postgresql
-    ripgrep
     sqlite
     starship
     oh-my-posh
@@ -108,6 +149,17 @@
     colmena
     harlequin
     cloudlens
+    lsof
+    wtype
+    wireguard-tools
+    espflash
+    isd
+    bluetui
+    aichat
+    vdhcoapp
+    rustc
+    cargo
+    clang
 
     # devops
     krew
@@ -129,7 +181,6 @@
     curl
     wget
     httpie
-    # playerctl broken :(
 
     # funny stuff
     asciiquarium
@@ -146,7 +197,6 @@
     aria2
     yadm
     rsync
-    rclone
     ffmpeg-full
     nix-diff
     p7zip
@@ -156,5 +206,7 @@
     kotlin-language-server
     terraform-ls
     stylua
+
+    perSystem.self.numr
   ];
 }

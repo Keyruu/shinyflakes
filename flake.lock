@@ -306,7 +306,7 @@
     "home-manager": {
       "inputs": {
         "nixpkgs": [
-          "nixpkgs-darwin"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -505,28 +505,6 @@
         "type": "github"
       }
     },
-    "nix-darwin": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs-darwin"
-        ]
-      },
-      "locked": {
-        "lastModified": 1763505477,
-        "narHash": "sha256-nJRd4LY2kT3OELfHqdgWjvToNZ4w+zKCMzS2R6z4sXE=",
-        "ref": "master",
-        "rev": "3bda9f6b14161becbd07b3c56411f1670e19b9b5",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/LnL7/nix-darwin"
-      },
-      "original": {
-        "ref": "master",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/LnL7/nix-darwin"
-      }
-    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1739444422,
@@ -612,23 +590,6 @@
         "id": "nixpkgs",
         "ref": "nixos-25.05",
         "type": "indirect"
-      }
-    },
-    "nixpkgs-darwin": {
-      "locked": {
-        "lastModified": 1763618868,
-        "narHash": "sha256-v5afmLjn/uyD9EQuPBn7nZuaZVV9r+JerayK/4wvdWA=",
-        "ref": "nixpkgs-unstable",
-        "rev": "a8d610af3f1a5fb71e23e08434d8d61a466fc942",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/NixOS/nixpkgs"
-      },
-      "original": {
-        "ref": "nixpkgs-unstable",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/NixOS/nixpkgs"
       }
     },
     "nixpkgs-lib": {
@@ -889,13 +850,11 @@
         "lanzaboote": "lanzaboote",
         "niks3": "niks3",
         "niri": "niri",
-        "nix-darwin": "nix-darwin",
         "nix-flatpak": "nix-flatpak",
         "nix-gaming": "nix-gaming",
         "nix-index-database": "nix-index-database",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_4",
-        "nixpkgs-darwin": "nixpkgs-darwin",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "noctalia": "noctalia",

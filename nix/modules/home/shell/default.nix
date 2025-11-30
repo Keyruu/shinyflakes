@@ -11,16 +11,15 @@ let
 in
 {
   imports = [
-    ./zsh.nix
-    ./yazi.nix
+    ./atuin.nix
+    ./fish.nix
     ./k9s.nix
     ./lazygit.nix
-    ./wezterm.nix
-    ./alacritty.nix
-    ./zellij.nix
-    ./fish.nix
-    ./tmux.nix
     ./television.nix
+    ./tmux.nix
+    ./yazi.nix
+    ./zellij.nix
+    ./zsh.nix
   ];
 
   # add environment variables
