@@ -3,7 +3,7 @@
   hardware = {
     bluetooth = {
       enable = true;
-      powerOnBoot = false;
+      powerOnBoot = true;
       package = pkgs.bluez5-experimental;
       settings.General = {
         Experimental = true;

@@ -1,7 +1,7 @@
 { flake, ... }:
 {
   imports = [
-    flake.homeModules.linux
+    flake.homeModules.default
   ];
 
   home.stateVersion = "24.11";
