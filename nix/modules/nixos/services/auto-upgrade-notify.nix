@@ -12,24 +12,28 @@ let
     set -euo pipefail
 
     STATUS=$1
-    STATE_FILE="/var/lib/nixos-upgrade-notify/last-generation"
+    STATE_FILE="/var/lib/nixos-upgrade-notify/last-revision"
 
     RESEND_API_KEY=$(cat ${cfg.resendApiKeyPath})
     HOSTNAME=$(${pkgs.nettools}/bin/hostname)
     GENERATION=$(${pkgs.coreutils}/bin/readlink -f /run/current-system || echo "unknown")
     TIMESTAMP=$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S %Z')
 
+    # Get flake revision
+    REVISION=$(${pkgs.nix}/bin/nix flake metadata ${cfg.flake} --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.revision // "unknown"' || echo "unknown")
+
+    # Check if we already notified about this revision
+    if [ -f "$STATE_FILE" ]; then
+      LAST_REVISION=$(${pkgs.coreutils}/bin/cat "$STATE_FILE")
+      if [ "$REVISION" = "$LAST_REVISION" ]; then
+        echo "Already notified about revision $REVISION, skipping notification"
+        exit 0
+      fi
+    fi
+
     if [ "$STATUS" = "success" ]; then
       STATUS_EMOJI="✅"
       STATUS_TEXT="Success"
-
-      if [ -f "$STATE_FILE" ]; then
-        LAST_GENERATION=$(${pkgs.coreutils}/bin/cat "$STATE_FILE")
-        if [ "$GENERATION" = "$LAST_GENERATION" ]; then
-          echo "No changes detected, skipping notification"
-          exit 0
-        fi
-      fi
     else
       STATUS_EMOJI="❌"
       STATUS_TEXT="Failed"
@@ -81,11 +85,10 @@ let
       -H "Content-Type: application/json" \
       -d @-
 
-    if [ "$STATUS" = "success" ]; then
-      ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$STATE_FILE")"
-      echo "$GENERATION" > "$STATE_FILE"
-      echo "Saved generation to state file"
-    fi
+    # Save the revision we just notified about
+    ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$STATE_FILE")"
+    echo "$REVISION" > "$STATE_FILE"
+    echo "Saved revision $REVISION to state file"
   '';
 in
 {
