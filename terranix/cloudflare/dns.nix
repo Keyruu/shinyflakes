@@ -21,7 +21,7 @@ in
               "n8n"
               "garage"
               "s3"
-              "29112025-karaoke"
+              "*"
             ];
           };
           coolify = {
