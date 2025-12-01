@@ -14,7 +14,7 @@ name: Fetch Changelog for Renovate PRs
 # - CUSTOM_AI_ENDPOINT: (Optional) Your AI provider's endpoint URL
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
   issue_comment:
     types: [created]
@@ -22,7 +22,7 @@ on:
 jobs:
   fetch_changelog:
     if: |
-      (github.event_name == 'pull_request' && (github.actor == 'renovate[bot]' || github.actor == 'renovate')) ||
+      (github.event_name == 'pull_request_target' && (github.actor == 'renovate[bot]' || github.actor == 'renovate')) ||
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/changelog'))
     runs-on: ubuntu-latest
     permissions:
@@ -40,7 +40,7 @@ jobs:
           script: |
             let prNumber, prBody;
 
-            if (context.eventName === 'pull_request') {
+            if (context.eventName === 'pull_request_target') {
               prNumber = context.payload.pull_request.number;
               prBody = context.payload.pull_request.body;
             } else if (context.eventName === 'issue_comment') {
