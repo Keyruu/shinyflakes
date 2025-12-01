@@ -12,7 +12,8 @@
   ];
 
   home.packages = with pkgs; [
-    perSystem.self.nirius
+    nirius
+    # perSystem.self.nirius
   ];
 
   programs.niri = {
@@ -746,6 +747,7 @@
         {
           matches = [
             { namespace = "^swaync-notification-window$"; }
+            { namespace = "^noctalia-notifications.*"; }
           ];
           block-out-from = "screencast";
         }

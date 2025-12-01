@@ -5,7 +5,7 @@
     ./wm
     ./shell
     ./programs
-    ./scripts.nix
+    ./scripts
     ./clipse.nix
     # ./dunst.nix
     # ./swaync.nix

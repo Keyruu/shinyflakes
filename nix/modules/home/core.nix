@@ -206,6 +206,7 @@ in
     kotlin-language-server
     terraform-ls
     stylua
+    nodePackages_latest.aws-cdk
 
     perSystem.self.numr
   ];
