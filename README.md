@@ -276,14 +276,6 @@ sudo nixos-rebuild switch --flake .#hostname
 nixos-rebuild build --flake .#hostname
 ```
 
-### Adding a New Service
-
-1. Create a new file in `nix/hosts/<hostname>/modules/stacks/<service>.nix`
-2. Follow the Quadlet patterns in `CLAUDE.md`
-3. Add any secrets you need to `nix/secrets.yaml`
-4. Make sure your service is imported in `nix/hosts/<hostname>/modules/default.nix`
-5. Deploy and pray (but it'll probably work because Nix)
-
 ## Why "Shinyflakes"?
 
 Because snowflakes are unique, and my setup is definitely... unique. Also "snowflake infrastructure" sounds way cooler than "my random server configs."
