@@ -55,6 +55,7 @@ let
 
   privateRepos = [
     "advent-of-code-2024"
+    "advent-of-code-2025"
     "buymeaspezi"
     "dialogger"
     "homepage"

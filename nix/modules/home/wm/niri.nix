@@ -12,7 +12,8 @@
   ];
 
   home.packages = with pkgs; [
-    perSystem.self.nirius
+    nirius
+    # perSystem.self.nirius
   ];
 
   programs.niri = {
