@@ -12,32 +12,35 @@ The secret sauce here is using [Quadlet](https://docs.podman.io/en/latest/markdo
 
 ### mentat - Main homelab server (x86_64-linux)
 The big boi running everything in my apartment:
-- **Media**: Jellyfin + the usual *arr suspects for *Linux ISOs*
-- **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT, and Wyoming for voice stuff
-- **AI Things**: LibreChat, Whishper, various MCP servers because AI is everywhere now apparently
-- **Self-hosted Goodness**: Immich (photos), Actual Budget (money tracking), Traccar (GPS stalking... I mean tracking)
-- **Monitoring**: Grafana, Prometheus, Loki, and Beszel because I need pretty graphs
-- **Storage**: NAS with Samba because apparently you need that
+- **Media**: Jellyfin, Navidrome, and the full *arr stack for *Linux ISOs* and music
+- **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT, Wyoming for voice stuff, and Music Assistant
+- **AI Things**: Ollama + Open WebUI, LibreChat, Perplexica, various MCP servers because AI is everywhere now apparently
+- **Self-hosted Goodness**: Immich (photos), Actual Budget (money tracking), Dawarich (location tracking), Mealie (recipes), N8N (automation), Copyparty (file sharing), and yes, even a karaoke server
+- **Monitoring**: Grafana, Prometheus, Loki, Beszel, WUD for keeping tabs on container updates
+- **Storage**: Garage (S3-compatible storage), NAS with Samba, ZFS for data integrity
 - **DNS**: AdGuard Home for blocking the internet's nonsense
 
 ### prime - Hetzner VPS (x86_64-linux)
 The public-facing server that makes everything accessible:
-- **Reverse Proxy**: Nginx with automatic SSL
+- **Reverse Proxy**: Nginx with automatic SSL via Cloudflare DNS
 - **Identity**: Kanidm for centralized auth (so I only forget one password)
 - **VPN**: Headscale for my Tailscale mesh network
 - **Databases**: PostgreSQL instances for apps that need them
+- **GitOps**: Comin for automatic deployments because manual deploys are so 2023
+
+### carryall - Lenovo ThinkPad T14s (x86_64-linux)
+My daily driver laptop:
+- **Desktop**: Sway/Niri because tiling WMs are life
+- **Development**: All the tools, all the compilers, all the debuggers
+- **Security**: Lanzaboote for secure boot with TPM because we're fancy now
+- **Boot**: Plymouth for those sick boot animations
+- **Extras**: Fingerprint auth, auto-rotation, distrobox for when Nix isn't enough
 
 ### thopter - Lenovo ThinkPad X1 Yoga 7th Gen (x86_64-linux)
-My daily driver laptop:
-- **Desktop**: Sway because tiling WMs are life
-- **Development**: All the tools, all the compilers, all the debuggers
-- **Gaming**: Steam + Lutris for Gaming, obviously
-
-### stern - MacBook (aarch64-darwin)
-The Mac for when I need to do Mac things:
-- **Package Management**: Homebrew for the stuff Nix can't/won't package
-- **Development**: Same CLI tools as my Linux machines because consistency
-- **Window Management**: Aerospace for tiling on macOS
+Backup laptop that shares config with carryall:
+- **Desktop**: Sway because consistency
+- **Development**: Same setup as carryall
+- **Gaming**: Steam + Lutris for procrastination
 
 ## The Good Stuff
 
@@ -77,6 +80,14 @@ Check out the nginx reverse proxy modules for examples of how this works.
 - **Prometheus** for metrics collection
 - **Loki** for log aggregation
 - **Beszel** for lightweight system monitoring
+- **WUD** (What's Up Docker) for tracking container updates
+
+### Infrastructure as Code
+
+- **Terranix** for managing Terraform with Nix because why have two config languages when you can have one?
+  - Cloudflare DNS records
+  - Hetzner Cloud resources
+  - S3 backend in Cloudflare R2 for state management
 
 ## How It's Structured (Blueprint Edition)
 
@@ -126,16 +137,24 @@ It's pretty neat. No more manually maintaining a giant `flake.nix` with all the 
 
 ## The Dependencies
 
-- **nixpkgs** (+ darwin/small variants) - The Nix packages, multiple channels for flexibility
+- **nixpkgs** (+ stable/small variants) - The Nix packages, multiple channels for flexibility
 - **blueprint** - Convention-based flake structure (the new hotness)
 - **quadlet-nix** - The star of the show, Podman containers as systemd services
 - **sops-nix** - Secrets management that doesn't suck
 - **home-manager** - User environment configuration
-- **nix-darwin** - macOS system configuration
 - **disko** - Declarative disk partitioning
+- **lanzaboote** - Secure boot for NixOS with TPM support
 - **zen-browser** - Privacy-focused Firefox fork
 - **nix-gaming** - Gaming optimizations and fixes
 - **vicinae** - Launcher - Raycast alternative for Linux (shoutout to the Vicinae project)
+- **niri** - Scrollable tiling Wayland compositor
+- **spicetify-nix** - Spotify theming because aesthetics matter
+- **nvf** - Neovim configuration framework
+- **iio-sway** - Auto-rotation for convertible laptops
+- **nix-flatpak** - Declarative Flatpak management
+- **comin** - GitOps for NixOS (automatic deployments)
+- **niks3** - S3 backend support for Nix binary caches
+- **copyparty** - Simple file sharing server
 - **sirberus** - My own project integration
 
 ## Secrets Management
@@ -184,6 +203,60 @@ sops.templates."my-service.env" = {
 
 Check out `CLAUDE.md` or any of the stack modules for more examples.
 
+## Secure Boot with Lanzaboote
+
+Because why not make your Linux boot process as complicated as possible? Lanzaboote gives you secure boot on NixOS with automatic signing of your kernel and initrd.
+
+### Initial Setup
+
+1. **Configure Lanzaboote in your host config:**
+```nix
+{
+  imports = [
+    inputs.lanzaboote.nixosModules.lanzaboote
+    flake.modules.nixos.secure-boot
+  ];
+
+  # Use systemd-boot instead of grub
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+}
+```
+
+2. **First deployment without secure boot:**
+```bash
+sudo nixos-rebuild switch --flake .#hostname
+```
+
+3. **Enroll your keys in UEFI:**
+This creates the secure boot keys and enrolls them in your system's firmware.
+```bash
+sudo sbctl create-keys
+sudo sbctl enroll-keys --microsoft
+```
+
+4. **Enable secure boot in BIOS/UEFI:**
+Reboot, enter your BIOS/UEFI settings, and enable secure boot. Your system should now boot with signed kernels.
+
+### TPM2 Disk Encryption (Optional but Cool)
+
+If you're using LUKS encryption and have a TPM2 chip, you can unlock your disk automatically on boot:
+
+```bash
+# Enroll your LUKS partition with TPM2
+# Replace /dev/nvme0n1p2 with your actual LUKS partition
+sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 --wipe-slot=tpm2 /dev/nvme0n1p2
+```
+
+**What those PCRs mean:**
+- PCR 0: UEFI firmware and settings
+- PCR 2: Boot loader code
+- PCR 7: Secure boot state
+- PCR 12: Kernel command line and initrd
+
+Now your disk unlocks automatically on boot, but only if secure boot is enabled and nothing in the boot chain has been tampered with. Pretty neat, right?
+
+**Warning:** If you change BIOS settings or disable secure boot, you'll need to manually enter your password again. Keep that recovery key handy.
+
 ## Actually Using This Thing
 
 ### Prerequisites
@@ -201,11 +274,6 @@ sudo nixos-rebuild switch --flake .#hostname
 
 # Test build without switching
 nixos-rebuild build --flake .#hostname
-```
-
-**nix-darwin (macOS):**
-```bash
-sudo darwin-rebuild switch --flake .#stern
 ```
 
 ### Adding a New Service
