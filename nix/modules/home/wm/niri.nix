@@ -747,6 +747,7 @@
         {
           matches = [
             { namespace = "^swaync-notification-window$"; }
+            { namespace = "^noctalia-notifications.*"; }
           ];
           block-out-from = "screencast";
         }
