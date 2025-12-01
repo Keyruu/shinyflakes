@@ -1,5 +1,117 @@
 # Shinyflakes Instructions
 
+## Project Structure
+
+This project uses [blueprint](https://github.com/numtide/blueprint) for convention-based flake structure. Blueprint automatically discovers and exposes Nix configurations based on folder structure, eliminating the need to manually maintain flake outputs.
+
+### Folder Structure
+
+```
+nix/
+├── hosts/              # Host configurations (auto-discovered)
+│   ├── mentat/        # NixOS host
+│   │   ├── configuration.nix  # → nixosConfigurations.mentat
+│   │   ├── hardware-configuration.nix
+│   │   └── modules/   # Host-specific modules
+│   │       ├── stacks/      # Quadlet container definitions
+│   │       ├── default.nix  # Imports all host modules
+│   │       └── *.nix
+│   ├── prime/         # NixOS host
+│   ├── carryall/      # NixOS host (laptop)
+│   └── thopter/       # NixOS host (laptop)
+├── modules/           # Shared modules (auto-discovered)
+│   ├── nixos/        # NixOS modules
+│   │   ├── core.nix
+│   │   ├── workstation.nix
+│   │   └── *.nix
+│   ├── home/         # Home Manager modules
+│   │   ├── linux/
+│   │   └── programs/
+│   └── services/     # Service-specific modules
+├── packages/         # Custom packages (auto-discovered)
+│   └── *.nix        # → packages.<name>
+└── secrets.yaml     # SOPS encrypted secrets
+```
+
+### How Blueprint Works
+
+In `flake.nix`:
+```nix
+outputs = inputs: inputs.blueprint {
+  inherit inputs;
+  prefix = "nix";  # All Nix code lives in nix/ folder
+};
+```
+
+Blueprint automatically:
+- Creates `nixosConfigurations.<hostname>` from `nix/hosts/*/configuration.nix`
+- Exposes `nixosModules.<name>` from `nix/modules/nixos/*.nix`
+- Exposes `homeModules.<name>` from `nix/modules/home/*.nix`
+- Creates `packages.<system>.<name>` from `nix/packages/*.nix`
+
+### Building and Deploying
+
+**Build a NixOS configuration:**
+```bash
+# Build without switching
+nixos-rebuild build --flake .#hostname
+
+# Build and switch
+sudo nixos-rebuild switch --flake .#hostname
+
+# Build and test (reverts on reboot)
+sudo nixos-rebuild test --flake .#hostname
+```
+
+### Adding a New Host
+
+1. Create `nix/hosts/<hostname>/configuration.nix`:
+```nix
+{ inputs, flake, config, pkgs, lib, ... }:
+{
+  imports = [
+    inputs.sops-nix.nixosModules.sops
+    flake.modules.nixos.core  # Shared core config
+    ./hardware-configuration.nix
+    ./modules  # Host-specific modules
+  ];
+
+  networking.hostName = "hostname";
+  user.name = "username";
+
+  nixpkgs.hostPlatform = "x86_64-linux";
+  system.stateVersion = "24.11";
+}
+```
+
+2. Generate hardware configuration:
+```bash
+nixos-generate-config --root /mnt --show-hardware-config > nix/hosts/<hostname>/hardware-configuration.nix
+```
+
+3. Create `nix/hosts/<hostname>/modules/default.nix` to import host-specific modules:
+```nix
+{ ... }:
+{
+  imports = [
+    ./nginx.nix
+    ./stacks
+  ];
+}
+```
+
+4. Blueprint automatically discovers it - just build!
+
+### Project Conventions
+
+- **Host-specific modules** go in `nix/hosts/<hostname>/modules/`
+- **Shared modules** go in `nix/modules/nixos/` or `nix/modules/home/`
+- **Container stacks** go in `nix/hosts/<hostname>/modules/stacks/`
+- **Secrets** are in `nix/secrets.yaml` and managed with SOPS
+- **Custom packages** go in `nix/packages/`
+- Use `flake.modules.nixos.<name>` to reference shared NixOS modules
+- Use `flake.modules.home.<name>` to reference shared Home Manager modules
+
 ## Quadlet Configuration Best Practices
 
 ### Key Notes
@@ -386,4 +498,3 @@ sops.secrets = {
 - **Critical**: Quadlet service names are just the container name + `.service` - NO `quadlet-` prefix!
 - Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.) instead of Docker Compose style `healthcheck` blocks
 - Use camelCase for SOPS secret names for consistency
-
