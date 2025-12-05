@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.esphome = {
     containerConfig = {
-      image = "ghcr.io/esphome/esphome:2025.11.3";
+      image = "ghcr.io/esphome/esphome:2025.11.4";
       environments = {
         TZ = "Europe/Berlin";
       };
