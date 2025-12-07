@@ -5,7 +5,7 @@
       direnv.enable = true;
       preview.glow.enable = true;
       snacks-nvim.enable = true;
-      yanky-nvim.enable = true;
+      yanky-nvim.enable = false;
       yazi-nvim.enable = true;
     };
     extraPlugins = with pkgs.vimPlugins; {

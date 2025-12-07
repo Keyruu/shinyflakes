@@ -21,5 +21,6 @@
     ./repos.nix
     ./ssh.nix
     ./tailscale.nix
+    ./gaming.nix
   ];
 }

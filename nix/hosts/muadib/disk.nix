@@ -1,9 +1,9 @@
 {
   disko.devices = {
     disk = {
-      nvme0n1 = {
+      main = {
         type = "disk";
-        device = "";
+        device = "/dev/disk/by-id/ata-Samsung_SSD_870_EVO_1TB_S75CNX0X516216Y";
         content = {
           type = "gpt";
           partitions = {
@@ -32,12 +32,6 @@
                   "--perf-no_read_workqueue"
                   "--perf-no_write_workqueue"
                 ];
-                # https://0pointer.net/blog/unlocking-luks2-volumes-with-tpm2-fido2-pkcs11-security-hardware-on-systemd-248.html
-                settings = {
-                  crypttabExtraOpts = [
-                    "tpm2-device=auto"
-                  ];
-                };
                 content = {
                   type = "btrfs";
                   extraArgs = [
@@ -103,3 +97,4 @@
   fileSystems."/persist".neededForBoot = true;
   fileSystems."/var/log".neededForBoot = true;
 }
+

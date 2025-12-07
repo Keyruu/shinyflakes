@@ -14,12 +14,13 @@
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
-    inputs.lanzaboote.nixosModules.lanzaboote
-    flake.modules.nixos.secure-boot
+    #    inputs.lanzaboote.nixosModules.lanzaboote
+    #    flake.modules.nixos.secure-boot
 
     flake.modules.nixos.core
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
+    flake.modules.nixos.gaming
 
     ./hardware-configuration.nix
     ./disk.nix

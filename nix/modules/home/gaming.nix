@@ -55,4 +55,17 @@
       obs-websocket
     ];
   };
+
+  # fix tmodloader steam join issue
+  xdg.desktopEntries.tmodloader = {
+    name = "tModLoader-fixed";
+    exec = "steam-run ./start-tModLoader.sh";
+    settings = {
+      Path = "/home/lucas/.local/share/Steam/steamapps/common/tModLoader";
+    };
+    terminal = false;
+    type = "Application";
+    categories = [ "Game" ];
+    icon = "terraria";
+  };
 }
