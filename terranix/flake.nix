@@ -35,10 +35,7 @@
             pkgs.writeShellScript "tofu-${name}" ''
               set -euo pipefail
 
-              if [ ! -f config.tf.json ] || [ ${terraformConfig} -nt config.tf.json ]; then
-                echo "Updating config.tf.json..."
-                cp ${terraformConfig} config.tf.json
-              fi
+              ln -sfn ${terraformConfig} config.tf.json
 
               if [ ! -d .terraform ]; then
                 echo "Initializing OpenTofu..."
@@ -64,6 +61,7 @@
               echo ""
               echo "Available commands:"
               echo "  nix run .#show    - Show generated config"
+              echo "  nix run .#update  - Update the terranix config"
               echo "  nix run .#plan    - Run tofu plan"
               echo "  nix run .#apply   - Run tofu apply"
               echo "  nix run .#destroy - Run tofu destroy"
@@ -88,13 +86,22 @@
               );
             };
 
+            update = {
+              type = "app";
+              program = toString (
+                pkgs.writeShellScript "tofu-init" ''
+                  set -euo pipefail
+                  ln -sfn ${terraformConfig} config.tf.json
+                ''
+              );
+            };
+
             init = {
               type = "app";
               program = toString (
                 pkgs.writeShellScript "tofu-init" ''
                   set -euo pipefail
-                  echo "Copying config and initializing..."
-                  cp -f ${terraformConfig} config.tf.json
+                  ln -sfn ${terraformConfig} config.tf.json
                   ${pkgs.opentofu}/bin/tofu init
                 ''
               );

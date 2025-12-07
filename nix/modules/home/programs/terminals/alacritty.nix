@@ -16,7 +16,7 @@
         normal = {
           family = config.user.font;
         };
-        size = 12;
+        size = 13;
       };
       colors = {
         primary = {

@@ -8,7 +8,9 @@
 }:
 {
   imports = [
-    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
+    # inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
+    # inputs.nixos-hardware.nixosModules.common-cpu-intel
+    # inputs.nixos-hardware.nixosModules.common-gpu-intel
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
@@ -18,20 +20,24 @@
     flake.modules.nixos.core
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
-    flake.modules.nixos.laptop
-    flake.modules.nixos.hibernation
 
     ./hardware-configuration.nix
     ./disk.nix
   ];
 
-  # Set the primary user name
+  boot.kernelPackages = pkgs.linuxPackages_zen;
+
+  fileSystems."/home".neededForBoot = true;
+
   user.name = "lucas";
 
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
+
+  networking.firewall.allowedTCPPorts = [ 57621 ];
+  networking.firewall.allowedUDPPorts = [ 5353 ];
 
   services.xserver = {
     enable = true;
@@ -77,9 +83,6 @@
   ];
 
   services.fprintd.enable = true;
-  services.fprintd.tod.enable = true;
-  services.fprintd.package = pkgs.fprintd;
-  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
 
   services.blueman.enable = true;
   services.libinput.enable = true;

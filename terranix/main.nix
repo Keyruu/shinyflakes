@@ -3,8 +3,6 @@
   imports = [
     ./hetzner
     ./cloudflare
-
-    # ./import-generated.nix
   ];
 
   terraform = {

@@ -34,11 +34,13 @@ pkgs.rustPlatform.buildRustPackage {
 
   postFixup = ''
     wrapProgram $out/bin/librepods \
-      --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath [
-        pkgs.wayland
-        pkgs.libxkbcommon
-        pkgs.vulkan-loader
-      ]}
+      --prefix LD_LIBRARY_PATH : ${
+        pkgs.lib.makeLibraryPath [
+          pkgs.wayland
+          pkgs.libxkbcommon
+          pkgs.vulkan-loader
+        ]
+      }
   '';
 
   meta = {

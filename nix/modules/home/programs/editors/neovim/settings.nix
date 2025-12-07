@@ -33,16 +33,6 @@
     statusline.lualine = {
       enable = true;
       globalStatus = true;
-      setupOpts = {
-        section_separators = {
-          left = "";
-          right = "";
-        };
-        component_separators = {
-          left = "";
-          right = "";
-        };
-      };
     };
 
     tabline.nvimBufferline = {
@@ -50,17 +40,6 @@
       setupOpts = {
         options = {
           numbers = "none";
-          # close_command = "bdelete! %d";
-          # right_mouse_command = "bdelete! %d";
-          # left_mouse_command = "buffer %d";
-          # middle_mouse_command = null;
-          # indicator = {
-          #   style = "icon";
-          #   icon = "▎";
-          # };
-          # buffer_close_icon = "󰅖";
-          # modified_icon = "●";
-          # close_icon = "";
           left_trunc_marker = "";
           right_trunc_marker = "";
           separator_style = "thin";

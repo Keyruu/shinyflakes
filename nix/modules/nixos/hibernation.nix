@@ -1,6 +1,6 @@
 {
   services.logind.settings.Login = {
-    HandleLidSwitch = "lock";
+    HandleLidSwitch = "suspend";
     HandlePowerKey = "suspend";
     HandlePowerKeyLongPress = "poweroff";
   };

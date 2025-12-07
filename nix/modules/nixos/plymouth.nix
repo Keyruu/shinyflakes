@@ -14,27 +14,29 @@ let
     unpackPhase = "true";
 
     installPhase = ''
-      mkdir -p $out/share/plymouth/themes/pixels
-      cp -r ${pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "pixels" ]; }}/share/plymouth/themes/pixels/* $out/share/plymouth/themes/pixels/
+            mkdir -p $out/share/plymouth/themes/pixels
+            cp -r ${
+              pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "pixels" ]; }
+            }/share/plymouth/themes/pixels/* $out/share/plymouth/themes/pixels/
 
-      # Make files writable
-      chmod -R +w $out/share/plymouth/themes/pixels
+            # Make files writable
+            chmod -R +w $out/share/plymouth/themes/pixels
 
-      ${pkgs.librsvg}/bin/rsvg-convert \
-        -w 400 \
-        -f png \
-        --keep-aspect-ratio \
-        ${nixos-logo-rainbow} \
-        -o $out/share/plymouth/themes/pixels/nixos-logo.png
+            ${pkgs.librsvg}/bin/rsvg-convert \
+              -w 400 \
+              -f png \
+              --keep-aspect-ratio \
+              ${nixos-logo-rainbow} \
+              -o $out/share/plymouth/themes/pixels/nixos-logo.png
 
-      cat >> $out/share/plymouth/themes/pixels/pixels.script << 'EOF'
-nixos_image = Image("nixos-logo.png");
-nixos_sprite = Sprite();
+            cat >> $out/share/plymouth/themes/pixels/pixels.script << 'EOF'
+      nixos_image = Image("nixos-logo.png");
+      nixos_sprite = Sprite();
 
-nixos_sprite.SetImage(nixos_image);
-nixos_sprite.SetX(Window.GetX() + (Window.GetWidth() / 2 - nixos_image.GetWidth() / 2)); # center the image horizontally
-nixos_sprite.SetY(Window.GetHeight() - nixos_image.GetHeight() - 50); # display just above the bottom of the screen
-EOF
+      nixos_sprite.SetImage(nixos_image);
+      nixos_sprite.SetX(Window.GetX() + (Window.GetWidth() / 2 - nixos_image.GetWidth() / 2)); # center the image horizontally
+      nixos_sprite.SetY(Window.GetHeight() - nixos_image.GetHeight() - 50); # display just above the bottom of the screen
+      EOF
     '';
   };
 in

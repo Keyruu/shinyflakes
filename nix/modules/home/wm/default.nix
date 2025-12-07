@@ -2,7 +2,7 @@
 {
   imports = [
     ./sway.nix
-    ./niri.nix
+    ./niri
     ./kanshi.nix
     ./lock.nix
     ./idle.nix

@@ -44,31 +44,34 @@
       editor = {
         # Enable evil mode (vim keybindings)
         evil = true;
-        
+
         # Visual and UI settings
-        color-modes = true;  # Evil-helix colors file types in statusline with this
+        color-modes = true; # Evil-helix colors file types in statusline with this
         cursorline = true;
         bufferline = "multiple";
         line-number = "relative";
-        rulers = [ 80 120 ];
-        
+        rulers = [
+          80
+          120
+        ];
+
         # Scrolloff matching your LazyVim config
         scrolloff = 999;
-        
+
         # Cursor shapes (vim conventions)
         cursor-shape = {
           insert = "bar";
           normal = "block";
           select = "underline";
         };
-        
+
         # Auto-save and formatting
         auto-save = {
           focus-lost = true;
           after-delay.enable = true;
         };
         auto-format = true;
-        
+
         # File picker settings
         file-picker = {
           hidden = false;
@@ -77,25 +80,25 @@
           git-global = true;
           git-exclude = true;
         };
-        
+
         # Indentation guides (evil-helix supports colored/rainbow guides)
         indent-guides = {
           render = true;
           character = "│";
           skip-levels = 1;
-          rainbow-option = "dim";  # Evil-helix rainbow indentation
+          rainbow-option = "dim"; # Evil-helix rainbow indentation
         };
-        
+
         # Soft wrap
         soft-wrap = {
           enable = true;
           wrap-at-text-width = true;
         };
-        
+
         # Diagnostics display
         end-of-line-diagnostics = "hint";
         inline-diagnostics.cursor-line = "warning";
-        
+
         # LSP features
         lsp = {
           display-messages = true;
@@ -104,13 +107,13 @@
           snippets = true;
           goto-reference-include-declaration = true;
         };
-        
+
         # Mouse support
         mouse = true;
-        
+
         # Smart tab disabled by default in evil-helix
         smart-tab.enable = false;
-        
+
         # Statusline configuration
         statusline = {
           left = [
@@ -134,16 +137,16 @@
           mode = {
             normal = "NOR";
             insert = "INS";
-            select = "VIS";  # Evil-helix renames SEL to VIS
+            select = "VIS"; # Evil-helix renames SEL to VIS
           };
         };
-        
+
         # Search configuration
         search = {
           smart-case = true;
           wrap-around = true;
         };
-        
+
         # Whitespace rendering
         whitespace = {
           render = {
@@ -173,7 +176,7 @@
             Q = ":quit!";
             x = ":write-quit";
             X = ":write-quit-all";
-            
+
             # File picker and search (LazyVim-like)
             f = {
               f = "file_picker";
@@ -186,7 +189,7 @@
               d = "diagnostics_picker";
               D = "workspace_diagnostics_picker";
             };
-            
+
             # LSP operations
             l = {
               r = "rename_symbol";
@@ -200,7 +203,7 @@
               R = "goto_references";
               f = ":format";
             };
-            
+
             # Git operations
             g = {
               s = ":toggle-option diff-gutter";
@@ -208,11 +211,11 @@
               n = "goto_next_change";
               p = "goto_prev_change";
             };
-            
+
             # Diagnostics
             e = "goto_next_diag";
             E = "goto_prev_diag";
-            
+
             # Toggle options
             o = {
               w = ":toggle soft-wrap.enable";
@@ -221,7 +224,7 @@
               i = ":toggle lsp.display-inlay-hints";
               d = ":toggle lsp.display-messages";
             };
-            
+
             # System clipboard (matching LazyVim)
             y = "yank_to_clipboard";
             p = "paste_clipboard_after";
@@ -237,13 +240,13 @@
             r = "goto_references";
             h = "hover";
           };
-          
+
           # Window navigation (keep these for muscle memory)
           C-h = "jump_view_left";
           C-j = "jump_view_down";
           C-k = "jump_view_up";
           C-l = "jump_view_right";
-          
+
           # Tab navigation for buffers
           tab = "goto_next_buffer";
           S-tab = "goto_previous_buffer";
@@ -254,11 +257,11 @@
           # Common vim escape sequences
           j.k = "normal_mode";
           j.j = "normal_mode";
-          
+
           # Clipboard in insert
           C-v = "paste_clipboard_after";
         };
-        
+
         # Visual/Select mode additions
         select = {
           # System clipboard in visual mode
@@ -274,7 +277,7 @@
         inherits = "kanagawa";
         "ui.background" = { };
       };
-      
+
       # Keep gruvbox as fallback
       gruvbox_community = {
         inherits = "gruvbox";

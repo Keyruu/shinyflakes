@@ -769,15 +769,16 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1762622004,
-        "narHash": "sha256-NpzzgaoMK8aRHnndHWbYNKLcZN0r1y6icCoJvGoBsoE=",
-        "owner": "notashelf",
+        "lastModified": 1764886722,
+        "narHash": "sha256-Zckxw7uUFbM8IIExWvIzc+RPpZeZoke1ZDid0oJ+6NY=",
+        "owner": "Keyruu",
         "repo": "nvf",
-        "rev": "09470524a214ed26633ddc2b6ec0c9bf31a8b909",
+        "rev": "9c4680a9bce6c23704e876e86cccc7c7c7a9c651",
         "type": "github"
       },
       "original": {
-        "owner": "notashelf",
+        "owner": "Keyruu",
+        "ref": "v0.8",
         "repo": "nvf",
         "type": "github"
       }

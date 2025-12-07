@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, ... }:
 {
   programs.nvf.settings.vim = {
     lsp = {
@@ -6,94 +6,30 @@
       formatOnSave = true;
       lightbulb.enable = false;
       trouble.enable = true;
-      lspSignature.enable = false;
+      lspSignature.enable = true;
+      inlayHints.enable = true;
 
       servers = {
         nixd = {
-          cmd = [ "nixd" ];
-          filetypes = [ "nix" ];
           extraOptions = {
             settings = {
               nixpkgs = {
                 expr = "import <nixpkgs> {}";
               };
-              formatting = {
-                command = [ "nixfmt" ];
-              };
-              options = {
-                nixos = {
-                  expr = "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.sleipnir.options";
+              options =
+                let
+                  flake = ''(builtins.getFlake "/home/${config.home.homeDirectory}/shinyflakes")'';
+                in
+                {
+                  nixos = {
+                    expr = "${flake}.nixosConfigurations.sleipnir.options";
+                  };
+                  home-manager = {
+                    expr = "${flake}.nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []";
+                  };
                 };
-                home-manager = {
-                  expr = "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []";
-                };
-              };
             };
           };
-        };
-
-        gopls = {
-          cmd = [ "gopls" ];
-          filetypes = [
-            "go"
-            "gomod"
-            "gowork"
-            "gotmpl"
-          ];
-        };
-
-        rust_analyzer = {
-          cmd = [ "rust-analyzer" ];
-          filetypes = [ "rust" ];
-        };
-
-        ts_ls = {
-          cmd = [
-            "typescript-language-server"
-            "--stdio"
-          ];
-          filetypes = [
-            "javascript"
-            "javascriptreact"
-            "typescript"
-            "typescriptreact"
-          ];
-          extraOptions = {
-            init_options = {
-              typescript = {
-                tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
-              };
-            };
-          };
-        };
-
-        bashls = {
-          cmd = [
-            "bash-language-server"
-            "start"
-          ];
-          filetypes = [
-            "sh"
-            "bash"
-          ];
-        };
-
-        tailwindcss = {
-          cmd = [
-            "tailwindcss-language-server"
-            "--stdio"
-          ];
-          filetypes = [
-            "html"
-            "css"
-            "scss"
-            "javascript"
-            "javascriptreact"
-            "typescript"
-            "typescriptreact"
-            "vue"
-            "svelte"
-          ];
         };
 
         jsonls = {
@@ -142,39 +78,20 @@
           };
         };
 
-        helm_ls = {
-          cmd = [
-            "helm_ls"
-            "serve"
-          ];
-          filetypes = [ "helm" ];
-        };
-
-        terraformls = {
-          cmd = [
-            "terraform-ls"
-            "serve"
-          ];
-          filetypes = [
-            "terraform"
-            "tf"
-          ];
-        };
-
-        astro = {
-          cmd = [
-            "astro-ls"
-            "--stdio"
-          ];
-          filetypes = [ "astro" ];
-          extraOptions = {
-            init_options = {
-              typescript = {
-                tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
-              };
-            };
-          };
-        };
+        # astro = {
+        #   cmd = [
+        #     "astro-ls"
+        #     "--stdio"
+        #   ];
+        #   filetypes = [ "astro" ];
+        #   extraOptions = {
+        #     init_options = {
+        #       typescript = {
+        #         tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
+        #       };
+        #     };
+        #   };
+        # };
 
         vuels = {
           cmd = [
@@ -183,30 +100,6 @@
           ];
           filetypes = [ "vue" ];
         };
-
-        svelte = {
-          cmd = [
-            "svelteserver"
-            "--stdio"
-          ];
-          filetypes = [ "svelte" ];
-        };
-
-        lua_ls = {
-          cmd = [ "lua-language-server" ];
-          filetypes = [ "lua" ];
-        };
-
-        marksman = {
-          cmd = [
-            "marksman"
-            "server"
-          ];
-          filetypes = [
-            "markdown"
-            "md"
-          ];
-        };
       };
     };
 
@@ -214,49 +107,38 @@
       enableTreesitter = true;
       enableFormat = true;
       enableExtraDiagnostics = true;
+      enableDAP = true;
 
-      nix.enable = true;
+      astro.enable = true;
+      java.enable = true;
+      kotlin.enable = true;
+      nix = {
+        enable = true;
+        format.type = [ "nixfmt" ];
+      };
       go.enable = true;
       rust.enable = true;
       ts.enable = true;
       bash.enable = true;
       css.enable = true;
       html.enable = true;
+      python.enable = true;
       tailwind.enable = true;
-      markdown.enable = true;
+      markdown = {
+        enable = true;
+        extensions.render-markdown-nvim.enable = true;
+      };
+      yaml.enable = true;
+      hcl.enable = true;
+      terraform.enable = true;
+      helm.enable = true;
+      scala.enable = true;
+      sql.enable = true;
+      svelte.enable = true;
     };
 
     formatter.conform-nvim = {
       enable = true;
-      setupOpts = {
-        formatters_by_ft = {
-          nix = [ "nixfmt" ];
-          markdown = [ "markdownlint" ];
-        };
-      };
     };
-
-    treesitter.grammars = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
-      regex
-      ini
-      yaml
-      toml
-      diff
-      go
-      rust
-      javascript
-      typescript
-      tsx
-      astro
-      vue
-      svelte
-      lua
-      json
-      bash
-      markdown
-      markdown_inline
-      helm
-      terraform
-    ];
   };
 }
