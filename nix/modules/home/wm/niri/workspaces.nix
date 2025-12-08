@@ -1,4 +1,5 @@
-{ ... }:
+_:
+# kdl
 ''
   workspace "browse"
   workspace "ide"

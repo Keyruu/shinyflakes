@@ -18,6 +18,9 @@
 
   zramSwap.enable = true;
 
+  # make #!/bin/bash possible
+  services.envfs.enable = true;
+
   # Tweaking the system's swap to take full advantage of zram.
   # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram
   boot.kernel.sysctl = lib.mkIf config.zramSwap.enable {

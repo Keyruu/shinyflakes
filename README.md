@@ -203,13 +203,130 @@ sops.templates."my-service.env" = {
 
 Check out `CLAUDE.md` or any of the stack modules for more examples.
 
+## Installing a New Host
+
+### Prerequisites
+
+- NixOS minimal ISO USB drive
+- Internet connection (Ethernet or WiFi)
+- Your disk partition scheme ready (check the disko configs in `nix/hosts/*/disko.nix`)
+
+### Installation Steps
+
+#### 1. Boot the Installer
+
+Boot from the NixOS minimal ISO and wait for the prompt.
+
+#### 2. Connect to Internet
+
+**Ethernet:** Should work automatically.
+
+**WiFi:**
+```bash
+# Start wpa_supplicant
+sudo systemctl start wpa_supplicant
+
+# Connect to WiFi
+wpa_cli
+> add_network
+> set_network 0 ssid "YourWiFiName"
+> set_network 0 psk "YourPassword"
+> enable_network 0
+> quit
+
+# Verify connection
+ping nixos.org
+```
+
+#### 3. Copy the flake
+
+```bash
+git clone https://github.com/Keyruu/shinyflakes.git
+cd shinyflakes
+```
+
+#### 4. Identify Your Disk
+
+Before partitioning, make sure you know which disk you're targeting:
+
+```bash
+# List all block devices with size and model info
+lsblk -f
+
+# List disks by ID (useful for disko configs)
+ls -l /dev/disk/by-id/
+```
+
+Update your disko configuration to use the correct disk path. Using `/dev/disk/by-id/` is recommended for consistency.
+
+#### 5. Partition with Disko
+
+**Warning:** This will erase your disk. Double-check you're targeting the right device!
+
+```bash
+# Run disko with your host's configuration
+sudo nix --experimental-features "nix-command flakes" run github:nix-community/disko -- \
+  --mode destroy,format,mount ./nix/hosts/hostname/disko.nix
+
+# Verify everything is mounted
+mount | grep /mnt
+df -h
+```
+
+#### 6. Generate Hardware Configuration
+
+```bash
+# Generate hardware config WITHOUT filesystem definitions (disko handles that)
+sudo nixos-generate-config --no-filesystems --root /mnt
+
+# This creates /mnt/etc/nixos/hardware-configuration.nix
+# Copy it to your host config directory
+sudo cp /mnt/etc/nixos/hardware-configuration.nix ./nix/hosts/hostname/
+```
+
+#### 7. Copy Configuration to System
+
+```bash
+# Copy the entire flake to the system partition
+sudo cp -r ./ /mnt/etc/nixos/
+
+# Verify it's there
+ls -la /mnt/etc/nixos/
+```
+
+#### 8. Install NixOS
+
+```bash
+sudo nixos-install --flake /mnt/etc/nixos#hostname
+```
+
+#### 9. Set User Password
+
+```bash
+# If needed, set your user password
+sudo nixos-enter --root /mnt
+passwd lucas
+exit
+```
+
+#### 10. Reboot
+
+```bash
+# Unmount and reboot
+sudo umount -R /mnt
+sudo reboot
+```
+
+Remove the USB drive when prompted. Your system should now boot into your configured NixOS installation, with the flake configuration already present in `/etc/nixos/`.
+
 ## Secure Boot with Lanzaboote
 
-Because why not make your Linux boot process as complicated as possible? Lanzaboote gives you secure boot on NixOS with automatic signing of your kernel and initrd.
+If you want secure boot (and who doesn't?), you can set it up after installation. Lanzaboote gives you secure boot on NixOS with automatic signing of your kernel and initrd.
 
-### Initial Setup
+### Prerequisites
 
-1. **Configure Lanzaboote in your host config:**
+Make sure your host config includes Lanzaboote:
+
 ```nix
 {
   imports = [
@@ -222,22 +339,41 @@ Because why not make your Linux boot process as complicated as possible? Lanzabo
 }
 ```
 
-2. **First deployment without secure boot:**
-```bash
-sudo nixos-rebuild switch --flake .#hostname
-```
+### Setup Steps
 
-3. **Enroll your keys in UEFI:**
-This creates the secure boot keys and enrolls them in your system's firmware.
+1. **Boot into your new NixOS system** and make sure Lanzaboote is configured.
+
+2. **Create secure boot keys:**
 ```bash
 sudo sbctl create-keys
+```
+
+3. **Put your system into Setup Mode:**
+   - Reboot and enter your BIOS/UEFI settings (usually F2, F10, F12, or Del during boot)
+   - Find the Secure Boot settings
+   - Clear all existing keys or enable "Setup Mode"
+   - Save and exit back to your system
+
+4. **Enroll your keys:**
+```bash
+# Check that you're in setup mode
+sudo sbctl status
+
+# Enroll keys (includes Microsoft's keys for compatibility)
 sudo sbctl enroll-keys --microsoft
 ```
 
-4. **Enable secure boot in BIOS/UEFI:**
-Reboot, enter your BIOS/UEFI settings, and enable secure boot. Your system should now boot with signed kernels.
+5. **Enable secure boot:**
+   - Reboot and enter BIOS/UEFI settings again
+   - Enable Secure Boot
+   - Save and reboot
 
-### TPM2 Disk Encryption (Optional but Cool)
+Your system should now boot with secure boot enabled. You can verify with:
+```bash
+sudo sbctl status
+```
+
+### TPM2 Disk Encryption
 
 If you're using LUKS encryption and have a TPM2 chip, you can unlock your disk automatically on boot:
 
@@ -253,19 +389,13 @@ sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 --wipe-slot=tpm
 - PCR 7: Secure boot state
 - PCR 12: Kernel command line and initrd
 
-Now your disk unlocks automatically on boot, but only if secure boot is enabled and nothing in the boot chain has been tampered with. Pretty neat, right?
+Now your disk unlocks automatically on boot, but only if secure boot is enabled and nothing in the boot chain has been tampered with.
 
-**Warning:** If you change BIOS settings or disable secure boot, you'll need to manually enter your password again. Keep that recovery key handy.
+**Warning:** If you change BIOS settings or disable secure boot, you'll need to manually enter your password. Keep that recovery key handy.
 
-## Actually Using This Thing
+## Deploying Updates
 
-### Prerequisites
-
-- Nix with flakes enabled
-- SOPS if you want to edit secrets
-- An age key if you want to decrypt stuff
-
-### Deploying
+Once you have a host installed, deploying changes is straightforward:
 
 **NixOS hosts:**
 ```bash
@@ -274,7 +404,15 @@ sudo nixos-rebuild switch --flake .#hostname
 
 # Test build without switching
 nixos-rebuild build --flake .#hostname
+
+# Test without making it permanent (reverts on reboot)
+sudo nixos-rebuild test --flake .#hostname
 ```
+
+**Prerequisites for managing the config:**
+- Nix with flakes enabled
+- SOPS if you want to edit secrets (see Secrets Management section)
+- An age key if you want to decrypt secrets
 
 ## Why "Shinyflakes"?
 
@@ -287,7 +425,8 @@ Do whatever you want with this. MIT? Apache? Unlicense? Pick your favorite. Just
 ## Shoutouts
 
 - [@SEIAROTg](https://github.com/SEIAROTg) for quadlet-nix and actually implementing features I requested
-- [@joinemm](https://github.com/joinemm) for having a great config to yoink from (seriously a lot of this has been copied from his conifg)
+- [@joinemm](https://github.com/joinemm) for having a great config to yoink from (seriously a lot of this has been copied from his conifg) and showing me NixOS!
+- [@Mic92](https://github.com/Mic92) for building what feels like half of the Nix ecosystem
 - The NixOS community for making this whole thing possible
 - Anyone who's contributed to the flakes I use
 

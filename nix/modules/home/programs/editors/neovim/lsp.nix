@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   programs.nvf.settings.vim = {
     lsp = {
@@ -140,5 +140,7 @@
     formatter.conform-nvim = {
       enable = true;
     };
+
+    treesitter.grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
   };
 }

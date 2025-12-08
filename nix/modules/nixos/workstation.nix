@@ -1,4 +1,5 @@
-{ flake, lib, ... }:
+{ flake, ... }:
+
 {
   imports = [
     flake.modules.nixos.systemd-boot
@@ -17,5 +18,6 @@
     flake.modules.nixos.voyager
     flake.modules.nixos.nice
     flake.modules.nixos.plymouth
+    flake.modules.nixos.podman
   ];
 }

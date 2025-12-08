@@ -12,6 +12,7 @@ let
     Alt+Shift+${toString n} hotkey-overlay-title=null { move-column-to-workspace ${toString n}; }
   '') (lib.range 1 9);
 in
+# kdl
 ''
   binds {
       // Media keys
@@ -65,6 +66,7 @@ in
       Super+Q hotkey-overlay-title="Close Window" { close-window; }
       Alt+T hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
       Alt+F hotkey-overlay-title="Maximize Column" { maximize-column; }
+      Alt+Shift+F hotkey-overlay-title="Fullscreen" { fullscreen-window; }
       Alt+Comma hotkey-overlay-title="Stack Window" { consume-window-into-column; }
       Alt+Period hotkey-overlay-title="Unstack Window" { expel-window-from-column; }
 

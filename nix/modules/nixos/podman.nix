@@ -2,7 +2,6 @@
 {
   networking.firewall.interfaces."podman+".allowedUDPPorts = [ 53 ];
 
-  virtualisation.quadlet.autoEscape = true;
   virtualisation.podman = {
     enable = true;
     autoPrune.enable = true;

@@ -21,6 +21,7 @@
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
     flake.modules.nixos.gaming
+    flake.modules.nixos.syncthing
 
     ./hardware-configuration.nix
     ./disk.nix

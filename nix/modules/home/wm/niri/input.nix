@@ -1,4 +1,5 @@
-{ ... }:
+_:
+# kdl
 ''
   input {
       keyboard {

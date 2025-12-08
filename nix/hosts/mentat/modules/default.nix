@@ -16,5 +16,6 @@
     ./sirberus.nix
     ./adguard.nix
     ./copyparty.nix
+    ./syncthing.nix
   ];
 }

@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   flake,
   pkgs,
@@ -16,6 +17,7 @@
     flake.modules.nixos.nginx
     flake.modules.nixos.podman
     flake.modules.nixos.beszel-agent
+    flake.modules.nixos.syncthing
 
     # Import local modules and services
     ./hardware-configuration.nix

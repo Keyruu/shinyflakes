@@ -172,7 +172,6 @@ in
     };
   };
 
-  # Khal configuration
   programs.khal = {
     enable = true;
     locale = {
