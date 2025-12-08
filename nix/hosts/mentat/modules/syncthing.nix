@@ -8,6 +8,7 @@
     guiPasswordFile = config.sops.secrets.syncthingAdminPassword.path;
     settings.gui = {
       user = "admin";
+      insecureSkipHostcheck = true;
     };
   };
 
