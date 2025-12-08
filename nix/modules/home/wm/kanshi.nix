@@ -16,13 +16,26 @@
           "${moveToMonitor workspace monitor} && ${moveWorkspaceToIndex workspace index}";
 
         moveAllWorkspaces =
+          mainMonitor: secondaryMonitor:
+          lib.concatStringsSep " && " [
+            (moveWorkspace "browse" mainMonitor 1)
+            (moveWorkspace "ide" mainMonitor 2)
+            (moveWorkspace "term" mainMonitor 3)
+            (moveWorkspace "media" secondaryMonitor 1)
+            (moveWorkspace "social" secondaryMonitor 2)
+          ];
+
+        moveAllWorkspacesToOne =
           monitor:
           lib.concatStringsSep " && " [
             (moveWorkspace "browse" monitor 1)
             (moveWorkspace "ide" monitor 2)
             (moveWorkspace "term" monitor 3)
+            (moveWorkspace "media" monitor 4)
+            (moveWorkspace "social" monitor 5)
           ];
 
+        homeMonitor = "Huawei Technologies Co., Inc. XWU-CBA 0x00000001";
         laptopMonitor = "eDP-1";
         laptopOutput = {
           criteria = laptopMonitor;
@@ -39,30 +52,26 @@
               laptopOutput
             ];
             exec = [
-              (moveAllWorkspaces laptopMonitor)
+              (moveAllWorkspacesToOne laptopMonitor)
             ];
           };
         }
         {
-          profile =
-            let
-              homeMonitor = "Huawei Technologies Co., Inc. XWU-CBA 0x00000001";
-            in
-            {
-              name = "laptop-home";
-              outputs = [
-                laptopOutput
-                {
-                  criteria = homeMonitor;
-                  mode = "2560x1440@143.972Hz";
-                  position = "-320,-1440";
-                  scale = 1.0;
-                }
-              ];
-              exec = [
-                (moveAllWorkspaces homeMonitor)
-              ];
-            };
+          profile = {
+            name = "laptop-home";
+            outputs = [
+              laptopOutput
+              {
+                criteria = homeMonitor;
+                mode = "2560x1440@143.972Hz";
+                position = "-320,-1440";
+                scale = 1.0;
+              }
+            ];
+            exec = [
+              (moveAllWorkspaces homeMonitor laptopMonitor)
+            ];
+          };
         }
         {
           profile =
@@ -81,7 +90,49 @@
                 }
               ];
               exec = [
-                (moveAllWorkspaces workMonitor)
+                (moveAllWorkspaces workMonitor laptopMonitor)
+              ];
+            };
+        }
+        {
+          profile = {
+            name = "desktop-home";
+            outputs = [
+              {
+                criteria = homeMonitor;
+                mode = "2560x1440@143.972Hz";
+                position = "0,0";
+                scale = 1.0;
+              }
+            ];
+            exec = [
+              (moveAllWorkspacesToOne homeMonitor)
+            ];
+          };
+        }
+        {
+          profile =
+            let
+              sideMonitor = "DP-2";
+            in
+            {
+              name = "desktop-home";
+              outputs = [
+                {
+                  criteria = homeMonitor;
+                  mode = "2560x1440@143.972Hz";
+                  position = "0,0";
+                  scale = 1.0;
+                }
+                {
+                  criteria = sideMonitor;
+                  mode = "1920x1080@60.042Hz";
+                  position = "2560,720";
+                  scale = 1.0;
+                }
+              ];
+              exec = [
+                (moveAllWorkspaces homeMonitor sideMonitor)
               ];
             };
         }
