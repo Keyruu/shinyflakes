@@ -17,6 +17,7 @@
         fairphone.id = "32BRNST-FVHJCGH-JJXLLZD-5B7DXEG-FJHOYKE-YJV7MCY-6I4NOB4-HJYBFA5";
         muadib.id = "2X36LHE-IOQZGKU-G7B53FJ-ILY6TMU-QXQSHLV-C7PIQ4U-JZUVITM-KV37FAB";
         mentat.id = "RR5NKJX-GZGJ22Z-OC5MA3P-HEAGZK6-QD7CHUK-TNARPTX-H7OCUBD-URI7MAO";
+        carryall.id = "C7SPVFW-QAJJ6NU-TJWCRVI-ACET27M-UB4N4PN-OVI37FN-AYCXGX7-IQYCAQH";
       };
 
       folders =
@@ -30,7 +31,7 @@
             devices = [
               "mentat"
               # "thopter"
-              # "carryall"
+              "carryall"
               "muadib"
               "fairphone"
             ];
@@ -42,7 +43,7 @@
             devices = [
               "mentat"
               # "thopter"
-              # "carryall"
+              "carryall"
               "muadib"
               "fairphone"
             ];
@@ -53,7 +54,7 @@
             devices = [
               "mentat"
               # "thopter"
-              # "carryall"
+              "carryall"
               "muadib"
             ];
             ignorePerms = false;
@@ -64,7 +65,7 @@
             devices = [
               "mentat"
               # "thopter"
-              # "carryall"
+              "carryall"
               "muadib"
               "fairphone"
             ];
