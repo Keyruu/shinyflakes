@@ -436,11 +436,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1764386278,
-        "narHash": "sha256-Vk+O8va1ZKvAIkOtjRjeJGU4jHE5bkPADpdsKUpaGbc=",
+        "lastModified": 1765078230,
+        "narHash": "sha256-UP1y+PDzg7nE8A8xFix2jpMJYQ80coixaf3QkUAMXm0=",
         "owner": "Mic92",
         "repo": "niks3",
-        "rev": "3407716abe49559188ce56ac6c29f17f48bf0cde",
+        "rev": "aa7b5477687bb80b9f4e2619664a238e795a9310",
         "type": "github"
       },
       "original": {
@@ -811,11 +811,11 @@
     },
     "process-compose": {
       "locked": {
-        "lastModified": 1763591764,
-        "narHash": "sha256-fWFTm4t/t44f0NAV2wsmMpqHOYKbAPxkwjtgxqcD1GE=",
+        "lastModified": 1764915241,
+        "narHash": "sha256-vTqn6IAkZhuuctvkxjhzI1EEybyzwaNd7HJvhF662O8=",
         "owner": "Platonic-Systems",
         "repo": "process-compose-flake",
-        "rev": "1a991178ac404862f002170b5f4228b49011f14e",
+        "rev": "36678818ecbd0e06a60740a291c55b683fec79dd",
         "type": "github"
       },
       "original": {
