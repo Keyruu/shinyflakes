@@ -39,7 +39,7 @@
     kernelParams = [ "net.ifnames=0" ];
   };
 
-  # boot.kernelPackages = pkgs.linuxPackages_6_16;
+  boot.kernelPackages = pkgs.linuxPackages_6_17;
 
   services.resolved.enable = false;
 
