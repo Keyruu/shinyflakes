@@ -1,15 +1,16 @@
 {
   imports = [
-    ./immich.nix
     ./arr
-    ./ai.nix
-    ./search
-    ./traccar.nix
     ./home-assistant
+    ./mcp
+    ./search
+
+    ./immich.nix
+    ./ai.nix
+    ./traccar.nix
     ./speedtest-tracker.nix
     ./wud.nix
     ./librechat
-    ./mcp
     ./karakeep.nix
     ./timetagger.nix
     ./pinchflat.nix
