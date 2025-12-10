@@ -77,6 +77,7 @@ in
 
         immich-redis = {
           containerConfig = {
+            # renovate: ignore
             image = "docker.io/library/redis:6.2-alpine@sha256:c5a607fb6e1bb15d32bbcf14db22787d19e428d59e31a5da67511b49bb0f1ccc";
             healthCmd = "redis-cli ping || exit 1";
             networks = [ networks.immich.ref ];
@@ -91,6 +92,7 @@ in
 
         immich-database = {
           containerConfig = {
+            # renovate: ignore
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0";
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
             environments = {

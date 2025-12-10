@@ -67,6 +67,7 @@ in
       containers = {
         rybbit-clickhouse = {
           containerConfig = {
+            # renovate: ignore
             image = "clickhouse/clickhouse-server:25.4.2";
             volumes = [
               "${stackPath}/clickhouse-data:/var/lib/clickhouse"
@@ -93,6 +94,7 @@ in
 
         rybbit-postgres = {
           containerConfig = {
+            # renovate: ignore
             image = "postgres:17.4";
             volumes = [ "${stackPath}/postgres-data:/var/lib/postgresql/data" ];
             environmentFiles = [ config.sops.templates."rybbit.env".path ];

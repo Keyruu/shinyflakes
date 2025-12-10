@@ -54,9 +54,9 @@
         filters = ''
           .headers = ${pkgs.aerc}/libexec/aerc/filters/colorize
           text/calendar = ${pkgs.gawk}/bin/awk -f ${pkgs.aerc}/libexec/aerc/filters/calendar
-          text/html = ${pkgs.aerc}/libexec/aerc/filters/html -o display_link_number=true | ${pkgs.aerc}/libexec/aerc/filters/colorize
+          text/html = ${pkgs.w3m}/bin/w3m -T text/html -dump -o display_link_number=1 | ${pkgs.aerc}/libexec/aerc/filters/colorize
           text/plain = ${pkgs.aerc}/libexec/aerc/filters/colorize
-          text/* = ${pkgs.bat}/bin/bat -fP --file-name="$AERC_FILENAME "
+          text/* = ${pkgs.bat}/bin/bat -fP --file-name="$AERC_FILENAME"
           message/delivery-status = ${pkgs.aerc}/libexec/aerc/filters/colorize
           message/rfc822 = ${pkgs.aerc}/libexec/aerc/filters/colorize
           application/pdf = ${pkgs.zathura}/bin/zathura -

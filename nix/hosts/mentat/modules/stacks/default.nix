@@ -19,5 +19,6 @@
     # ./n8n.nix
     ./garage.nix
     ./karaoke.nix
+    ./dawarich.nix
   ];
 }

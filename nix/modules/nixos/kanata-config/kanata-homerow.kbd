@@ -14,6 +14,8 @@
   )
   linux-dev-names-include (
     "AT Translated Set 2 keyboard"
+    "NuPhy NuPhy Air60 HE"
+    "NuPhy NuPhy Air60 HE Keyboard"
   )
 )
 (deflocalkeys-linux

@@ -35,7 +35,7 @@ in
       containers = {
         "${stackName}-api" = {
           containerConfig = {
-            image = "ghcr.io/danny-avila/librechat-dev-api:latest";
+            image = "ghcr.io/danny-avila/librechat-api:v0.8.1-rc2";
             publishPorts = [ "127.0.0.1:3080:3080" ];
             addHosts = [ "host.containers.internal:host-gateway" ];
             volumes = [
@@ -132,7 +132,7 @@ in
 
         "${stackName}-rag-api" = {
           containerConfig = {
-            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest";
+            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:86a9b2202f740c1e737b4587de28faa81a131c4c616f832259bcea77096dd6a0";
             environments = {
               DB_HOST = "${stackName}-vectordb";
               RAG_PORT = RAG_PORT;
@@ -140,9 +140,7 @@ in
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
             networkAliases = [ "rag_api" ];
-            labels = [
-              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
-            ];
+            labels = [ "wud.watch=false" ];
             autoUpdate = "registry";
           };
           serviceConfig = {

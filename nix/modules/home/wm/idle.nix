@@ -36,23 +36,11 @@
           resumeCommand = screenOn;
         }
       ];
-      events = [
-        {
-          event = "before-sleep";
-          command = "${lib.getExe' pkgs.systemd "loginctl"} lock-session";
-        }
-        {
-          event = "lock";
-          command = "${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call lockScreen lock";
-        }
-        {
-          event = "unlock";
-          command = screenOn;
-        }
-        {
-          event = "after-resume";
-          command = screenOn;
-        }
-      ];
+      events = {
+        before-sleep = "${lib.getExe' pkgs.systemd "loginctl"} lock-session";
+        lock = "${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call lockScreen lock";
+        unlock = screenOn;
+        after-resume = screenOn;
+      };
     };
 }
