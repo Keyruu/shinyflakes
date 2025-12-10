@@ -129,11 +129,6 @@ in
               "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
             ];
             networks = [ networks.dawarich.ref ];
-            healthCmd = "wget -qO - http://127.0.0.1:3000/api/v1/health | grep -q '\"status\"\\s*:\\s*\"ok\"'";
-            healthInterval = "10s";
-            healthTimeout = "10s";
-            healthRetries = 30;
-            healthStartPeriod = "30s";
           };
           serviceConfig = {
             Restart = "on-failure";
