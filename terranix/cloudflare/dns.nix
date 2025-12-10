@@ -47,19 +47,47 @@ in
             content = "protonmail3.domainkey.d4fe7cawhbkxd6tvmam7kymmpcxi4uqrn2rjc7oavfcgivkbtlssq.domains.proton.ch";
             proxied = false;
           };
+          "key1._domainkey" = {
+            content = "key1.keyruu.de._domainkey.migadu.com.";
+            proxied = false;
+          };
+          "key2._domainkey" = {
+            content = "key2.keyruu.de._domainkey.migadu.com.";
+            proxied = false;
+          };
+          "key3._domainkey" = {
+            content = "key3.keyruu.de._domainkey.migadu.com.";
+            proxied = false;
+          };
+          "autoconfig" = {
+            content = "autoconfig.migadu.com.";
+            proxied = false;
+          };
         };
 
         mx = {
           "@" = [
             {
-              content = "mail.protonmail.ch";
+              content = "aspmx1.migadu.com";
               priority = 10;
-              comment = "protonmail1";
+              comment = "10";
             }
             {
-              content = "mailsec.protonmail.ch";
+              content = "aspmx2.migadu.com";
               priority = 20;
-              comment = "protonmail2";
+              comment = "20";
+            }
+          ];
+          "*" = [
+            {
+              content = "aspmx1.migadu.com";
+              priority = 10;
+              comment = "mx1";
+            }
+            {
+              content = "aspmx2.migadu.com";
+              priority = 20;
+              comment = "mx2";
             }
           ];
           "send.lab" = [
@@ -77,8 +105,12 @@ in
               comment = "protonmail-verification";
             }
             {
-              content = "v=spf1 include:_spf.protonmail.ch ~all";
-              comment = "protonmail-spf";
+              content = "v=spf1 include:spf.migadu.com -all";
+              comment = "spf";
+            }
+            {
+              content = "hosted-email-verify=1wxdfhns";
+              comment = "migadu-verification";
             }
           ];
           "_dmarc" = [

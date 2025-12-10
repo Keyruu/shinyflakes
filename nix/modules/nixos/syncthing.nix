@@ -25,6 +25,18 @@
           dir = config.services.syncthing.dataDir;
         in
         {
+          shinyflakes = {
+            enable = lib.mkDefault true;
+            path = "${dir}/shinyflakes";
+            devices = [
+              "mentat"
+              # "thopter"
+              "carryall"
+              "muadib"
+              "fairphone"
+            ];
+            ignorePerms = false;
+          };
           git = {
             enable = lib.mkDefault true;
             path = "${dir}/git";

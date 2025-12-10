@@ -15,6 +15,7 @@
     ./themes/theme.nix
 
     ./calendar.nix
+    ./mail.nix
     ./gaming.nix
     ./mpv.nix
     ./nix-index-database.nix

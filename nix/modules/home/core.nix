@@ -175,7 +175,6 @@ in
 
     # tui
     spotify-player
-    aerc
 
     # http
     curl

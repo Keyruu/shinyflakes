@@ -248,19 +248,5 @@
         ];
       };
     }
-    # Sneak motion, refer https://github.com/zed-industries/zed/issues/22793/files#diff-90c0cb07588e2f309c31f0bb17096728b8f4e0bad71f3152d4d81ca867321c68
-    {
-      context = "vim_mode == normal || vim_mode == visual";
-      bindings = {
-        s = [
-          "vim::PushSneak"
-          { }
-        ];
-        S = [
-          "vim::PushSneakBackward"
-          { }
-        ];
-      };
-    }
   ];
 }

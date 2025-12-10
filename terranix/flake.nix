@@ -102,7 +102,7 @@
                 pkgs.writeShellScript "tofu-init" ''
                   set -euo pipefail
                   ln -sfn ${terraformConfig} config.tf.json
-                  ${pkgs.opentofu}/bin/tofu init
+                  ${pkgs.opentofu}/bin/tofu init "$@"
                 ''
               );
             };
