@@ -15,6 +15,7 @@ in
     "d ${stackPath}/mongodb/data 0770 root root"
     "d ${stackPath}/meilisearch/meili_data_v1.12 0770 root root"
     "d ${stackPath}/vectordb/pgdata2 0770 999 999"
+    "d /main/data/syncthing/obsidian/ai-conversations/librechat 0770 1000 1000"
   ];
 
   environment.etc."stacks/${stackName}/api/librechat.yaml".source = ./librechat.yaml;
@@ -43,6 +44,7 @@ in
               "${stackPath}/api/images:/app/client/public/images"
               "${stackPath}/api/uploads:/app/uploads"
               "${stackPath}/api/logs:/app/api/logs"
+              "/main/data/syncthing/obsidian:/obsidian"
             ];
             addCapabilities = [
               "CAP_NET_RAW"

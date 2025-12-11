@@ -140,6 +140,12 @@ mcpServers:
     url: http://host.containers.internal:30003/sse
   context7:
     url: http://host.containers.internal:30004/sse
+  obsidian:
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /obsidian/ai-conversations/librechat
 
 # Definition of custom endpoints
 endpoints:

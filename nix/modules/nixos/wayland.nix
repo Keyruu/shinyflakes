@@ -14,6 +14,54 @@
   services = {
     xserver.enable = lib.mkForce false;
 
+    greetd =
+      let
+        tuigreetTheme = {
+          border = "blue";
+          text = "cyan";
+          prompt = "white";
+          time = "white";
+          action = "white";
+          button = "cyan";
+          container = "darkgray";
+          input = "white";
+        };
+
+        themeString = lib.pipe tuigreetTheme [
+          (lib.mapAttrsToList (k: v: "${k}=${v}"))
+          (lib.concatStringsSep ";")
+        ];
+
+        tuigreetOptions = [
+          "--issue"
+          "--asterisks"
+          "--time"
+          "--user-menu"
+          "--greet-align left"
+          "--theme '${themeString}'"
+        ];
+
+        tuigreetCmd = lib.concatStringsSep " " ([ "${pkgs.tuigreet}/bin/tuigreet" ] ++ tuigreetOptions);
+      in
+      {
+        enable = true;
+        settings = {
+          terminal.vt = 1;
+          default_session = {
+            command = tuigreetCmd;
+            user = "greeter";
+          };
+        };
+      };
+
+    displayManager = {
+      sessionPackages = with pkgs; [
+        niri-unstable
+        sway
+      ];
+    };
+  };
+
   environment.variables = {
     XDG_SESSION_TYPE = "wayland";
     XDG_SESSION_DESKTOP = "niri";
@@ -66,54 +114,6 @@
 
       omarchy who?
     '';
-
-    greetd =
-      let
-      tuigreetTheme = {
-        border = "blue";
-        text = "cyan";
-        prompt = "white";
-        time = "white";
-        action = "white";
-        button = "cyan";
-        container = "darkgray";
-        input = "white";
-      };
-
-      themeString = lib.pipe tuigreetTheme [
-        (lib.mapAttrsToList (k: v: "${k}=${v}"))
-        (lib.concatStringsSep ";")
-      ];
-
-      tuigreetOptions = [
-        "--issue"
-        "--asterisks"
-        "--time"
-        "--user-menu"
-        "--greet-align left"
-        "--theme '${themeString}'"
-      ];
-
-      tuigreetCmd = lib.concatStringsSep " " ([ "${pkgs.tuigreet}/bin/tuigreet" ] ++ tuigreetOptions);
-    in
-    {
-      enable = true;
-      settings = {
-        terminal.vt = 1;
-        default_session = {
-          command = tuigreetCmd;
-          user = "greeter";
-        };
-      };
-    };
-
-    displayManager = {
-      sessionPackages = with pkgs; [
-        niri-unstable
-        sway
-      ];
-    };
-  };
 
   security.pam.services = {
     login.fprintAuth = false;
