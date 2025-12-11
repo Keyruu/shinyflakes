@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   sonarrPath = "/etc/stacks/sonarr";
 in

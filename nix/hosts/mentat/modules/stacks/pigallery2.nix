@@ -1,4 +1,4 @@
-{ config, ... }:
+_:
 let
   stackName = "pigallery2";
   stackPath = "/etc/stacks/${stackName}";

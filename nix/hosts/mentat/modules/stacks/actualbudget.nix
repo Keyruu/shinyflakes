@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   virtualisation.quadlet.containers.actualbudget = {
     containerConfig = {

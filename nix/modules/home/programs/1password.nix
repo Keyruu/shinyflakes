@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   xdg.desktopEntries."1password" = {
     name = "1Password";

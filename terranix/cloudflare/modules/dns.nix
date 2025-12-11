@@ -157,12 +157,12 @@ in
               zone_id = zone.zoneId;
               name = recordName;
               type = typeUpper;
-              content = record.content;
+              inherit (record) content;
               ttl = 1;
               proxied = shouldProxy typeUpper record;
             }
-            // lib.optionalAttrs (record.priority or null != null) { priority = record.priority; }
-            // lib.optionalAttrs (record.comment or null != null) { comment = record.comment; };
+            // lib.optionalAttrs (record.priority or null != null) { inherit (record) priority; }
+            // lib.optionalAttrs (record.comment or null != null) { inherit (record) comment; };
           in
           lib.nameValuePair resourceName baseRecord;
 

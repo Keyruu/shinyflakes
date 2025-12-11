@@ -1,17 +1,22 @@
 { pkgs, ... }:
 {
-  services.gvfs.enable = true;
-  services.udisks2.mountOnMedia = true;
-  services.tumbler.enable = true;
-  programs.xfconf.enable = true;
+  services = {
+    gvfs.enable = true;
+    udisks2.mountOnMedia = true;
+    tumbler.enable = true;
+  };
 
-  programs.thunar = {
-    enable = true;
-    plugins = with pkgs.xfce; [
-      thunar-archive-plugin
-      thunar-volman
-      thunar-media-tags-plugin
-    ];
+  programs = {
+    xfconf.enable = true;
+
+    thunar = {
+      enable = true;
+      plugins = with pkgs.xfce; [
+        thunar-archive-plugin
+        thunar-volman
+        thunar-media-tags-plugin
+      ];
+    };
   };
 
   environment.systemPackages = with pkgs; [

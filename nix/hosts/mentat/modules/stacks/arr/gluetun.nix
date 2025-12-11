@@ -29,93 +29,95 @@
     };
   };
 
-  services.nginx.virtualHosts."sonarr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+  services.nginx.virtualHosts = {
+    "sonarr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8989";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8989";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."radarr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "radarr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:7878";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:7878";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."bazarr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "bazarr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:6767";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:6767";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."qbittorrent.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "qbittorrent.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8080";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8080";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."prowlarr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "prowlarr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:9696";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:9696";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."flaresolverr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "flaresolverr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8191";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8191";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."rflood.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "rflood.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:7373";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:7373";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."slskd.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "slskd.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:5030";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:5030";
+        proxyWebsockets = true;
+      };
     };
-  };
 
-  services.nginx.virtualHosts."lidarr.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+    "lidarr.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8686";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8686";
+        proxyWebsockets = true;
+      };
     };
   };
 }

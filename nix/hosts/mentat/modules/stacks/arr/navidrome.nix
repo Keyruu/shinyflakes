@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   navidromePath = "/etc/stacks/navidrome/data";
 in

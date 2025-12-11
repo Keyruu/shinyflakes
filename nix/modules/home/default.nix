@@ -10,7 +10,6 @@
     # ./dunst.nix
     # ./swaync.nix
     # ./tofi.nix
-    # ./workstyle.nix
 
     ./themes/theme.nix
 

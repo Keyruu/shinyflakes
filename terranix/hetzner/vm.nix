@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   resource.hcloud_server = {
     sleipnir = {

@@ -1,4 +1,4 @@
-{ config, ... }:
+_:
 let
   musicAssistantPath = "/etc/stacks/music-assistant";
 in

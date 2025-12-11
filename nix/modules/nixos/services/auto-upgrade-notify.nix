@@ -172,41 +172,45 @@ in
         ;
     };
 
-    systemd.tmpfiles.rules = [
-      "d /var/lib/nixos-upgrade-notify 0755 root root"
-    ];
+    systemd = {
+      tmpfiles.rules = [
+        "d /var/lib/nixos-upgrade-notify 0755 root root"
+      ];
 
-    systemd.services."${serviceName}-notify-success" = {
-      description = "Notify on successful system upgrade";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${notificationScript} success";
+      services = {
+        "${serviceName}-notify-success" = {
+          description = "Notify on successful system upgrade";
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${notificationScript} success";
+          };
+        };
+
+        "${serviceName}-notify-failure" = {
+          description = "Notify on failed system upgrade";
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${notificationScript} failure";
+          };
+        };
+
+        ${serviceName} = {
+          unitConfig = {
+            OnSuccess = "${serviceName}-notify-success.service";
+            OnFailure = "${serviceName}-notify-failure.service";
+          };
+          serviceConfig = {
+            Type = "oneshot";
+          };
+        };
       };
+
+      # timers.${lib.replaceStrings [ ".service" ] [ ".timer" ] cfg.upgradeServiceName} = {
+      #   timerConfig = {
+      #     # Skip if previous run is still active
+      #     Unit = cfg.upgradeServiceName;
+      #   };
+      # };
     };
-
-    systemd.services."${serviceName}-notify-failure" = {
-      description = "Notify on failed system upgrade";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${notificationScript} failure";
-      };
-    };
-
-    systemd.services.${serviceName} = {
-      unitConfig = {
-        OnSuccess = "${serviceName}-notify-success.service";
-        OnFailure = "${serviceName}-notify-failure.service";
-      };
-      serviceConfig = {
-        Type = "oneshot";
-      };
-    };
-
-    # systemd.timers.${lib.replaceStrings [ ".service" ] [ ".timer" ] cfg.upgradeServiceName} = {
-    #   timerConfig = {
-    #     # Skip if previous run is still active
-    #     Unit = cfg.upgradeServiceName;
-    #   };
-    # };
   };
 }

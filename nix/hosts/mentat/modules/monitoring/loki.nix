@@ -48,12 +48,16 @@
     };
   };
 
-  users.groups.promtail = { };
-  users.groups.nginx = { };
-  users.users.promtail = {
-    isSystemUser = true;
-    group = "promtail";
-    extraGroups = [ "nginx" ];
+  users = {
+    groups = {
+      promtail = { };
+      nginx = { };
+    };
+    users.promtail = {
+      isSystemUser = true;
+      group = "promtail";
+      extraGroups = [ "nginx" ];
+    };
   };
 
   services.promtail = {

@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   radarrPath = "/etc/stacks/radarr";
 in

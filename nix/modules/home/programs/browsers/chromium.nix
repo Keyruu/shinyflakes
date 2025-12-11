@@ -1,7 +1,4 @@
 { pkgs, inputs, ... }:
-let
-  pkgs-stable = import inputs.nixpkgs-stable { system = pkgs.system; };
-in
 {
   programs.chromium = {
     enable = true;

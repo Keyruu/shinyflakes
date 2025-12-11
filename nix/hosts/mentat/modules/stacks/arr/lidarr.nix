@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   lidarrPath = "/etc/stacks/lidarr/config";
 in

@@ -41,12 +41,20 @@
   networking.firewall.allowedTCPPorts = [ 57621 ];
   networking.firewall.allowedUDPPorts = [ 5353 ];
 
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      options = "caps:escape";
+  services = {
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us";
+        options = "caps:escape";
+      };
     };
+
+    printing.enable = true;
+    fprintd.enable = true;
+    blueman.enable = true;
+    libinput.enable = true;
+    tailscale.enable = true;
   };
 
   # Faster rebuilding
@@ -58,8 +66,6 @@
     info.enable = false;
     nixos.enable = false;
   };
-
-  services.printing.enable = true;
 
   programs.fish.enable = true;
 
@@ -83,13 +89,6 @@
   nix.settings.trusted-users = [
     config.user.name
   ];
-
-  services.fprintd.enable = true;
-
-  services.blueman.enable = true;
-  services.libinput.enable = true;
-
-  services.tailscale.enable = true;
 
   programs = {
     firefox.enable = true;

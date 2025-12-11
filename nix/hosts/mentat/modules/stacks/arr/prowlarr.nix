@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   prowlarrPath = "/etc/stacks/prowlarr";
 in

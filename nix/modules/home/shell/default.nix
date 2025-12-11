@@ -1,7 +1,5 @@
 {
   config,
-  inputs,
-  pkgs,
   ...
 }:
 let
@@ -60,27 +58,30 @@ in
     deploy-prime = "nixos-rebuild --flake ~/shinyflakes#prime switch --target-host root@prime --build-host root@prime --fast";
   };
 
-  programs.starship = {
-    enable = true;
-    enableTransience = false;
-    enableFishIntegration = false;
+  programs = {
+    starship = {
+      enable = true;
+      enableTransience = false;
+      enableFishIntegration = false;
 
-    settings = {
-      right_format = "$time";
-      kubernetes = {
-        disabled = true;
-      };
-      time = {
-        disabled = false;
+      settings = {
+        right_format = "$time";
+        kubernetes = {
+          disabled = true;
+        };
+        time = {
+          disabled = false;
+        };
       };
     };
+
+    fzf.enable = true;
+    zoxide.enable = true;
+    lsd = {
+      enable = true;
+      enableFishIntegration = true;
+    };
+    bat.enable = true;
+    direnv.enable = true;
   };
-  programs.fzf.enable = true;
-  programs.zoxide.enable = true;
-  programs.lsd = {
-    enable = true;
-    enableFishIntegration = true;
-  };
-  programs.bat.enable = true;
-  programs.direnv.enable = true;
 }

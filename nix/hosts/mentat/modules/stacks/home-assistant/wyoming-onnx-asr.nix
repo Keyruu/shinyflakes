@@ -1,4 +1,4 @@
-{ config, ... }:
+_:
 let
   stackPath = "/etc/stacks/wyoming-onnx-asr";
 in

@@ -12,23 +12,25 @@
   ];
 
   # disable beeping motherboard speaker
-  boot.blacklistedKernelModules = [ "pcspkr" ];
+  boot = {
+    blacklistedKernelModules = [ "pcspkr" ];
 
-  boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+    kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+
+    # Tweaking the system's swap to take full advantage of zram.
+    # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram
+    kernel.sysctl = lib.mkIf config.zramSwap.enable {
+      "vm.swappiness" = 180;
+      "vm.watermark_boost_factor" = 0;
+      "vm.watermark_scale_factor" = 125;
+      "vm.page-cluster" = 0;
+    };
+  };
 
   zramSwap.enable = true;
 
   # make #!/bin/bash possible
   services.envfs.enable = true;
-
-  # Tweaking the system's swap to take full advantage of zram.
-  # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram
-  boot.kernel.sysctl = lib.mkIf config.zramSwap.enable {
-    "vm.swappiness" = 180;
-    "vm.watermark_boost_factor" = 0;
-    "vm.watermark_scale_factor" = 125;
-    "vm.page-cluster" = 0;
-  };
 
   hardware = {
     enableAllFirmware = true;

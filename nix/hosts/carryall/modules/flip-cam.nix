@@ -7,13 +7,15 @@
   environment.systemPackages = [ pkgs.droidcam ];
 
   # DroidCam needs a kernel module to create the video device
-  boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
-  boot.kernelModules = [ "v4l2loopback" ];
+  boot = {
+    extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
+    kernelModules = [ "v4l2loopback" ];
 
-  # Optional: Label the DroidCam device so it's easy to find
-  boot.extraModprobeConfig = ''
-    options v4l2loopback exclusive_caps=1 video_nr=9 card_label="DroidCam"
-  '';
+    # Optional: Label the DroidCam device so it's easy to find
+    extraModprobeConfig = ''
+      options v4l2loopback exclusive_caps=1 video_nr=9 card_label="DroidCam"
+    '';
+  };
 
   # 3. CRITICAL: Add your user to the 'adbusers' group
   # Replace 'yourusername' with your actual login name

@@ -1,0 +1,7 @@
+repos:
+  - repo: https://github.com/astro/deadnix
+    rev: 67e5094c79b81b3084ababac4c81f22c26e11df5 # frozen: v1.3.1
+    hooks:
+      - id: deadnix
+        args: [--edit]
+        stages: [commit]

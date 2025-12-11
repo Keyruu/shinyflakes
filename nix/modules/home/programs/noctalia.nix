@@ -1,8 +1,6 @@
 {
   config,
-  pkgs,
   inputs,
-  perSystem,
   ...
 }:
 {
@@ -162,38 +160,41 @@
     };
   };
 
-  xdg.desktopEntries.caffeine = {
-    name = "Caffeine";
-    exec = "noctalia-shell ipc call idleInhibitor toggle";
-    terminal = false;
-    type = "Application";
-    categories = [ "Utility" ];
-    icon = "caffeine";
-  };
+  xdg.desktopEntries = {
+    caffeine = {
+      name = "Caffeine";
+      exec = "noctalia-shell ipc call idleInhibitor toggle";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "caffeine";
+    };
 
-  xdg.desktopEntries.notification-center = {
-    name = "Notification Center";
-    exec = "noctalia-shell ipc call notifications toggleHistory";
-    terminal = false;
-    type = "Application";
-    categories = [ "Utility" ];
-    icon = "notifications";
-  };
+    notification-center = {
+      name = "Notification Center";
+      exec = "noctalia-shell ipc call notifications toggleHistory";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "notifications";
+    };
 
-  xdg.desktopEntries.clear-notification = {
-    name = "Clear Notifications";
-    exec = "noctalia-shell ipc call notifications clear";
-    terminal = false;
-    type = "Application";
-    categories = [ "Utility" ];
-    icon = "notification-disabled";
-  };
-  xdg.desktopEntries.do-not-disturb = {
-    name = "Toggle DND";
-    exec = "noctalia-shell ipc call notifications toggleDND";
-    terminal = false;
-    type = "Application";
-    categories = [ "Utility" ];
-    icon = "notification-disabled";
+    clear-notification = {
+      name = "Clear Notifications";
+      exec = "noctalia-shell ipc call notifications clear";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "notification-disabled";
+    };
+
+    do-not-disturb = {
+      name = "Toggle DND";
+      exec = "noctalia-shell ipc call notifications toggleDND";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "notification-disabled";
+    };
   };
 }

@@ -9,9 +9,11 @@ in
     "d ${mqttPath} 0755 root root"
   ];
 
-  sops.secrets.z2mNetworkKey.owner = "root";
-  sops.secrets.z2mPanId.owner = "root";
-  sops.secrets.z2mExtraPanId.owner = "root";
+  sops.secrets = {
+    z2mNetworkKey.owner = "root";
+    z2mPanId.owner = "root";
+    z2mExtraPanId.owner = "root";
+  };
 
   sops.templates."z2mConfiguration.yaml" = {
     restartUnits = [ "zigbee2mqtt.service" ];

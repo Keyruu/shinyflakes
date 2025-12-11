@@ -1,6 +1,6 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
-  modsecurity-crs = pkgs.modsecurity-crs.overrideAttrs (oldAttrs: {
+  modsecurity-crs = pkgs.modsecurity-crs.overrideAttrs (_oldAttrs: {
     version = "4.16.0";
     src = pkgs.fetchFromGitHub {
       owner = "coreruleset";

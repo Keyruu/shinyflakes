@@ -34,12 +34,27 @@
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
 
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      options = "caps:escape";
+  services = {
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us";
+        options = "caps:escape";
+      };
     };
+
+    printing.enable = true;
+
+    fprintd = {
+      enable = true;
+      tod.enable = true;
+      package = pkgs.fprintd;
+      tod.driver = pkgs.libfprint-2-tod1-goodix;
+    };
+
+    blueman.enable = true;
+    libinput.enable = true;
+    tailscale.enable = true;
   };
 
   # Faster rebuilding
@@ -51,8 +66,6 @@
     info.enable = false;
     nixos.enable = false;
   };
-
-  services.printing.enable = true;
 
   programs.fish.enable = true;
 
@@ -76,16 +89,6 @@
   nix.settings.trusted-users = [
     config.user.name
   ];
-
-  services.fprintd.enable = true;
-  services.fprintd.tod.enable = true;
-  services.fprintd.package = pkgs.fprintd;
-  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
-
-  services.blueman.enable = true;
-  services.libinput.enable = true;
-
-  services.tailscale.enable = true;
 
   programs = {
     firefox.enable = true;

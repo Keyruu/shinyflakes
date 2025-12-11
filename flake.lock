@@ -411,6 +411,27 @@
         "type": "github"
       }
     },
+    "librepods": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765440162,
+        "narHash": "sha256-qr2vMENiORG8ABziP5UwScDJvLHmWiyhGd7JqZ7Vp+s=",
+        "owner": "SophiaH67",
+        "repo": "librepods",
+        "rev": "45b84c0e74ad3dafb4565555d905060b4c49cddf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SophiaH67",
+        "ref": "linux/rust",
+        "repo": "librepods",
+        "type": "github"
+      }
+    },
     "mnw": {
       "locked": {
         "lastModified": 1758834834,
@@ -849,6 +870,7 @@
         "home-manager": "home-manager",
         "iio-sway": "iio-sway",
         "lanzaboote": "lanzaboote",
+        "librepods": "librepods",
         "niks3": "niks3",
         "niri": "niri",
         "nix-flatpak": "nix-flatpak",

@@ -11,7 +11,8 @@
     hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
   };
 
-  services.xserver.enable = lib.mkForce false;
+  services = {
+    xserver.enable = lib.mkForce false;
 
   environment.variables = {
     XDG_SESSION_TYPE = "wayland";
@@ -66,8 +67,8 @@
       omarchy who?
     '';
 
-  services.greetd =
-    let
+    greetd =
+      let
       tuigreetTheme = {
         border = "blue";
         text = "cyan";
@@ -106,11 +107,12 @@
       };
     };
 
-  services.displayManager = {
-    sessionPackages = with pkgs; [
-      niri-unstable
-      sway
-    ];
+    displayManager = {
+      sessionPackages = with pkgs; [
+        niri-unstable
+        sway
+      ];
+    };
   };
 
   security.pam.services = {

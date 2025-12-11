@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   bazarrPath = "/etc/stacks/bazarr";
 in

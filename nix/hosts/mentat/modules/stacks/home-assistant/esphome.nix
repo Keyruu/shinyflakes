@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   esphomePath = "/etc/stacks/esphome/config";
 in

@@ -4,14 +4,34 @@
     ./samba.nix
   ];
 
-  boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs = {
-    package = pkgs.zfs_unstable;
-    forceImportRoot = false;
-    extraPools = [ "main" ];
+  boot = {
+    supportedFilesystems = [ "zfs" ];
+    zfs = {
+      package = pkgs.zfs_unstable;
+      forceImportRoot = false;
+      extraPools = [ "main" ];
+    };
   };
+
   networking.hostId = "7dddaca4";
-  services.zfs.autoScrub.enable = true;
+
+  services = {
+    zfs.autoScrub.enable = true;
+
+    nginx.virtualHosts."scrutiny.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:6333";
+        proxyWebsockets = true;
+      };
+    };
+
+    smartd = {
+      enable = true;
+    };
+  };
 
   virtualisation.quadlet.containers.scrutiny = {
     containerConfig = {
@@ -33,20 +53,6 @@
     serviceConfig = {
       Restart = "always";
     };
-  };
-
-  services.nginx.virtualHosts."scrutiny.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:6333";
-      proxyWebsockets = true;
-    };
-  };
-
-  services.smartd = {
-    enable = true;
   };
 
   systemd.services.beszel-agent.environment.EXTRA_FILESYSTEMS =

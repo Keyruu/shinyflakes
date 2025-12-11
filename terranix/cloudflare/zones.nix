@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   account_id = "e1c020aa1f59e7dd11541054c6e712e3";
 in

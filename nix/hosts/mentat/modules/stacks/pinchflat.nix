@@ -1,4 +1,4 @@
-{ config, ... }:
+_:
 let
   stackPath = "/etc/stacks/pinchflat";
 in

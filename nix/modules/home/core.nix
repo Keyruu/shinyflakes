@@ -7,7 +7,7 @@
   ...
 }:
 let
-  pkgs-stable = import inputs.nixpkgs-stable { system = pkgs.system; };
+  pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs) system; };
 in
 {
   imports = [
@@ -208,5 +208,6 @@ in
     nodePackages_latest.aws-cdk
 
     perSystem.self.numr
+    perSystem.librepods.default
   ];
 }

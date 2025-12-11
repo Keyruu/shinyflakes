@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   sleipnirIp = "\${hcloud_server.sleipnir.ipv4_address}";
   pegasusIp = "\${hcloud_server.pegasus.ipv4_address}";

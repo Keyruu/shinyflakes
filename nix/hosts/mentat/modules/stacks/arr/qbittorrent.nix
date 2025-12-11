@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   qbittorrentPath = "/etc/stacks/qbittorrent";
 in

@@ -1,11 +1,11 @@
-{ pkgs, username, ... }:
+{ pkgs, ... }:
 {
   programs.yazi = {
     enable = true;
     enableZshIntegration = true;
     plugins = with pkgs.yaziPlugins; {
-      smart-enter = smart-enter;
-      starship = starship;
+      inherit smart-enter;
+      inherit starship;
     };
     keymap = {
       mgr.prepend_keymap = [

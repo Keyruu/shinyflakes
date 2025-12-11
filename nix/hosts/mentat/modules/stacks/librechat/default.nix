@@ -135,7 +135,7 @@ in
             image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:86a9b2202f740c1e737b4587de28faa81a131c4c616f832259bcea77096dd6a0";
             environments = {
               DB_HOST = "${stackName}-vectordb";
-              RAG_PORT = RAG_PORT;
+              inherit RAG_PORT;
             };
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];

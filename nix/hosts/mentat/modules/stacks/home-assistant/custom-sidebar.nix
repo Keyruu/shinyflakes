@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   environment.etc."stacks/home-assistant/config/configuration.yaml".text = # yaml
     ''
