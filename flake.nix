@@ -109,7 +109,7 @@
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     nvf = {
-      url = "github:Keyruu/nvf/v0.8";
+      url = "github:Keyruu/nvf/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

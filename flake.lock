@@ -447,6 +447,24 @@
         "type": "github"
       }
     },
+    "ndg": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_5"
+      },
+      "locked": {
+        "lastModified": 1765435293,
+        "narHash": "sha256-HRp4g6qBCb8vpJ17s2FacMRXRszM73uBiR56aILMELA=",
+        "owner": "feel-co",
+        "repo": "ndg",
+        "rev": "65bf834b332d5f8b28d95ea14c7974be7c272971",
+        "type": "github"
+      },
+      "original": {
+        "owner": "feel-co",
+        "repo": "ndg",
+        "type": "github"
+      }
+    },
     "niks3": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -729,6 +747,22 @@
     },
     "nixpkgs_5": {
       "locked": {
+        "lastModified": 1764242076,
+        "narHash": "sha256-sKoIWfnijJ0+9e4wRvIgm/HgE27bzwQxcEmo2J/gNpI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2fad6eac6077f03fe109c4d4eb171cf96791faa4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_6": {
+      "locked": {
         "lastModified": 1764950072,
         "narHash": "sha256-BmPWzogsG2GsXZtlT+MTcAWeDK5hkbGRZTeZNW42fwA=",
         "owner": "NixOS",
@@ -743,7 +777,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_7": {
       "locked": {
         "lastModified": 1762111121,
         "narHash": "sha256-4vhDuZ7OZaZmKKrnDpxLZZpGIJvAeMtK6FKLJYUtAdw=",
@@ -784,22 +818,23 @@
         "flake-compat": "flake-compat_2",
         "flake-parts": "flake-parts_4",
         "mnw": "mnw",
+        "ndg": "ndg",
         "nixpkgs": [
           "nixpkgs"
         ],
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1764886722,
-        "narHash": "sha256-Zckxw7uUFbM8IIExWvIzc+RPpZeZoke1ZDid0oJ+6NY=",
+        "lastModified": 1765548742,
+        "narHash": "sha256-oDA5CrPg4jLChOeZ1QkLkWJmrYamsN2xZxfaDkNQ1Ng=",
         "owner": "Keyruu",
         "repo": "nvf",
-        "rev": "9c4680a9bce6c23704e876e86cccc7c7c7a9c651",
+        "rev": "3c4d92cf11dde038ffa68ec683b949cdfecaf750",
         "type": "github"
       },
       "original": {
         "owner": "Keyruu",
-        "ref": "v0.8",
+        "ref": "main",
         "repo": "nvf",
         "type": "github"
       }
@@ -954,7 +989,7 @@
     },
     "spicetify-nix": {
       "inputs": {
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_6",
         "systems": "systems_5"
       },
       "locked": {
@@ -1084,7 +1119,7 @@
     },
     "vicinae": {
       "inputs": {
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_7",
         "systems": "systems_6"
       },
       "locked": {
