@@ -18,6 +18,7 @@
         muadib.id = "2X36LHE-IOQZGKU-G7B53FJ-ILY6TMU-QXQSHLV-C7PIQ4U-JZUVITM-KV37FAB";
         mentat.id = "RR5NKJX-GZGJ22Z-OC5MA3P-HEAGZK6-QD7CHUK-TNARPTX-H7OCUBD-URI7MAO";
         carryall.id = "C7SPVFW-QAJJ6NU-TJWCRVI-ACET27M-UB4N4PN-OVI37FN-AYCXGX7-IQYCAQH";
+        thopter.id = "IEVVE6U-4ET2LTU-XB7GIYC-JFNJBCD-YUBVE6B-65XQH2Q-MKJX7RD-K4F3LQI";
       };
 
       folders =
@@ -30,7 +31,7 @@
             path = "${dir}/shinyflakes";
             devices = [
               "mentat"
-              # "thopter"
+              "thopter"
               "carryall"
               "muadib"
               "fairphone"
@@ -42,7 +43,7 @@
             path = "${dir}/git";
             devices = [
               "mentat"
-              # "thopter"
+              "thopter"
               "carryall"
               "muadib"
               "fairphone"
@@ -54,7 +55,7 @@
             path = "${dir}/documents";
             devices = [
               "mentat"
-              # "thopter"
+              "thopter"
               "carryall"
               "muadib"
               "fairphone"
@@ -65,7 +66,7 @@
             path = "${dir}/work";
             devices = [
               "mentat"
-              # "thopter"
+              "thopter"
               "carryall"
               "muadib"
             ];
@@ -76,7 +77,7 @@
             path = "${dir}/obsidian";
             devices = [
               "mentat"
-              # "thopter"
+              "thopter"
               "carryall"
               "muadib"
               "fairphone"
