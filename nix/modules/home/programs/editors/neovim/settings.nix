@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.nvf.settings.vim = {
     options = {
       shiftwidth = 2;
@@ -58,6 +57,11 @@ _:
       enable = true;
       setupOpts = {
         completion.completeopt = "menu,menuone,noselect";
+      };
+      mappings = {
+        next = "<C-n>";
+        previous = "<C-p>";
+        confirm = "<C-y>";
       };
     };
 

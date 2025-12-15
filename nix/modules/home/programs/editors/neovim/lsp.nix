@@ -11,23 +11,33 @@
 
       servers = {
         nixd = {
-          extraOptions = {
-            settings = {
-              nixpkgs = {
-                expr = "import <nixpkgs> {}";
-              };
+          settings = {
+            nixd = {
               options =
                 let
-                  flake = ''(builtins.getFlake "/home/${config.home.homeDirectory}/shinyflakes")'';
+                  flake = ''(builtins.getFlake "${config.home.homeDirectory}/shinyflakes")'';
                 in
                 {
                   nixos = {
-                    expr = "${flake}.nixosConfigurations.sleipnir.options";
+                    expr = "${flake}.nixosConfigurations.mentat.options";
                   };
-                  home-manager = {
-                    expr = "${flake}.nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []";
+                  home_manager = {
+                    expr = "${flake}.nixosConfigurations.muadib.options.home-manager.users.type.getSubOptions []";
+                  };
+                  tofunix = {
+                    expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes/tofunix\").packages.x86_64-linux.tofunix.module.options";
                   };
                 };
+            };
+          };
+        };
+        nil = {
+          settings = {
+            nix = {
+              flake = {
+                autoArchive = true;
+                autoEvalInputs = true;
+              };
             };
           };
         };
@@ -114,6 +124,10 @@
       kotlin.enable = true;
       nix = {
         enable = true;
+        lsp.servers = [
+          "nixd"
+          # "nil"
+        ];
         format.type = [ "nixfmt" ];
       };
       go.enable = true;

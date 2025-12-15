@@ -84,22 +84,21 @@
       lsp = {
         nixd = {
           settings = {
-            nixpkgs = {
-              expr = "import <nixpkgs> {}";
-            };
-            formatting = {
-              command = "nixfmt";
-            };
-            options = {
-              nixos = {
-                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.mentat.options";
+            nixd = {
+              options = {
+                nixos = {
+                  expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.mentat.options";
+                };
+                home_manager = {
+                  expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.muadib.options.home-manager.users.type.getSubOptions []";
+                };
+                tofunix = {
+                  expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes/tofunix\").packages.x86_64-linux.tofunix.module.options";
+                };
               };
-              home-manager = {
-                expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.carryall.options.home-manager.users.type.getSubOptions []";
+              diagnostic = {
+                suppress = [ "sema-extra-with" ];
               };
-            };
-            diagnostic = {
-              suppress = [ "sema-extra-with" ];
             };
           };
         };

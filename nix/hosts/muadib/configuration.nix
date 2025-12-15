@@ -39,8 +39,6 @@
   };
 
   networking.firewall.allowedTCPPorts = [ 57621 ];
-  networking.firewall.allowedUDPPorts = [ 5353 ];
-
   services = {
     xserver = {
       enable = true;
@@ -50,7 +48,18 @@
       };
     };
 
-    printing.enable = true;
+    printing = {
+      enable = true;
+      drivers = with pkgs; [
+        cups-filters
+        cups-browsed
+      ];
+    };
+    avahi = {
+      enable = true;
+      nssmdns4 = true;
+      openFirewall = true;
+    };
     fprintd.enable = true;
     blueman.enable = true;
     libinput.enable = true;
