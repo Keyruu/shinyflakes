@@ -1,11 +1,13 @@
 { pkgs, ... }:
 let
+  # renovate: datasource=github-releases depName=coreruleset/coreruleset
+  crsVersion = "v4.16.0";
   modsecurity-crs = pkgs.modsecurity-crs.overrideAttrs (_oldAttrs: {
-    version = "4.16.0";
+    version = crsVersion;
     src = pkgs.fetchFromGitHub {
       owner = "coreruleset";
       repo = "coreruleset";
-      tag = "v4.16.0";
+      tag = crsVersion;
       hash = "sha256-RYCv5ujnzLua26OtGBi1r5+8qZKddmKb/8No4cfIhTE=";
     };
   });
@@ -27,7 +29,7 @@ let
 
     cp -L -r ${modsecurity-crs}/rules $out/rules
     chmod -R +w $out/rules
-    rm -f $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    rm $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
   '';
 in
 {

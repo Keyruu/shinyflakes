@@ -1,0 +1,30 @@
+name: Update Nix Hashes
+on:
+  pull_request:
+    paths:
+      - 'nix/hosts/prime/modules/nginx.nix'
+
+jobs:
+  update-hashes:
+    runs-on: ubuntu-latest
+    if: github.actor == 'renovate[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: cachix/install-nix-action@v24
+
+      - name: Update hashes
+        run: |
+          nix run nixpkgs#update-nix-fetchgit -- \
+            nix/hosts/prime/modules/nginx.nix
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nix/hosts/prime/modules/nginx.nix
+          git diff --cached --quiet || git commit -m "chore: update nix hashes"
+          git push
