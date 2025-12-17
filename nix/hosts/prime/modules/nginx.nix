@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=github-releases depName=coreruleset/coreruleset
-  crsVersion = "v4.16.0";
+  crsVersion = "v4.21.0";
   modsecurity-crs = pkgs.modsecurity-crs.overrideAttrs (_oldAttrs: {
     version = crsVersion;
     src = pkgs.fetchFromGitHub {
