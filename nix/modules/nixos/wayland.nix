@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -47,6 +48,10 @@
         enable = true;
         settings = {
           terminal.vt = 1;
+          initial_session = {
+            command = "${pkgs.niri-unstable}/bin/niri-session";
+            user = "${config.user.name}";
+          };
           default_session = {
             command = tuigreetCmd;
             user = "greeter";

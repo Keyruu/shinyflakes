@@ -32,12 +32,6 @@
                   "--perf-no_read_workqueue"
                   "--perf-no_write_workqueue"
                 ];
-                # https://0pointer.net/blog/unlocking-luks2-volumes-with-tpm2-fido2-pkcs11-security-hardware-on-systemd-248.html
-                settings = {
-                  crypttabExtraOpts = [
-                    "tpm2-device=auto"
-                  ];
-                };
                 content = {
                   type = "btrfs";
                   extraArgs = [

@@ -56,6 +56,8 @@ in
   # Quadlet configuration
   virtualisation.quadlet =
     let
+      # renovate: datasource=docker depName=ghcr.io/rybbit-io/rybbit-backend
+      rybbitVersion = "v2.2.4";
       inherit (config.virtualisation.quadlet) networks;
     in
     {
@@ -113,7 +115,7 @@ in
 
         rybbit-backend = {
           containerConfig = {
-            image = "ghcr.io/rybbit-io/rybbit-backend:latest";
+            image = "ghcr.io/rybbit-io/rybbit-backend:${rybbitVersion}";
             publishPorts = [ "127.0.0.1:3001:3001" ];
             environments = {
               NODE_ENV = "production";
@@ -150,7 +152,7 @@ in
 
         rybbit-client = {
           containerConfig = {
-            image = "ghcr.io/rybbit-io/rybbit-client:latest";
+            image = "ghcr.io/rybbit-io/rybbit-client:${rybbitVersion}";
             publishPorts = [ "127.0.0.1:3002:3002" ];
             environments = {
               NODE_ENV = "production";
