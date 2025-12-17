@@ -8,7 +8,7 @@ let
       owner = "coreruleset";
       repo = "coreruleset";
       tag = crsVersion;
-      hash = "sha256-RYCv5ujnzLua26OtGBi1r5+8qZKddmKb/8No4cfIhTE=";
+      hash = "sha256-mItipTFsRug0y7dyRCkWcqaWDcDetT35SiSKG/RDsII=";
     };
   });
 
