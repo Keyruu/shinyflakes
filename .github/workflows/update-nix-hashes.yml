@@ -17,7 +17,7 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: cachix/install-nix-action@v24
+      - uses: cachix/install-nix-action@v31
 
       - name: Update hashes
         run: |
