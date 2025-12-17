@@ -9,6 +9,25 @@ let
       hash = "sha256-RYCv5ujnzLua26OtGBi1r5+8qZKddmKb/8No4cfIhTE=";
     };
   });
+
+  mainConf = pkgs.writeText "main.conf" ''
+    Include /etc/nginx/modsec/modsecurity.conf
+    Include /etc/nginx/modsec/crs-setup.conf
+    Include /etc/nginx/modsec/rules/*.conf
+  '';
+
+  modsec = pkgs.runCommand "modsec" { } ''
+    mkdir -p $out
+
+    cp ${mainConf} $out/main.conf
+    cp ${pkgs.libmodsecurity}/share/modsecurity/modsecurity.conf-recommended $out/modsecurity.conf
+    ${pkgs.gnused}/bin/sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' $out/modsecurity.conf
+    cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
+    cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
+    cp -r ${modsecurity-crs}/rules $out/rules
+
+    rm /etc/nginx/modsec/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+  '';
 in
 {
   environment.systemPackages = [
@@ -16,29 +35,11 @@ in
     modsecurity-crs
   ];
 
-  environment.etc."nginx/modsec/main.conf" = {
+  environment.etc."nginx/modsec" = {
     user = "nginx";
     group = "nginx";
-    text = ''
-      Include /etc/nginx/modsec/modsecurity.conf
-      Include /etc/nginx/modsec/crs-setup.conf
-      Include /etc/nginx/modsec/rules/*.conf
-    '';
+    source = modsec;
   };
-
-  # Copy ModSecurity rules to /etc
-  system.activationScripts.modsecurity-rules = # sh
-    ''
-      mkdir -p /etc/nginx/modsec
-      cp -f ${pkgs.libmodsecurity}/share/modsecurity/modsecurity.conf-recommended /etc/nginx/modsec/modsecurity.conf
-      ${pkgs.gnused}/bin/sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/nginx/modsec/modsecurity.conf
-      cp -f ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping /etc/nginx/modsec/unicode.mapping
-      cp -f ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example /etc/nginx/modsec/crs-setup.conf
-      rm -rf /etc/nginx/modsec/rules
-      cp -rf ${modsecurity-crs}/rules /etc/nginx/modsec/rules
-      rm /etc/nginx/modsec/rules/REQUEST-949-BLOCKING-EVALUATION.conf
-      chown -R nginx:nginx /etc/nginx/modsec
-    '';
 
   services.nginx = {
     clientMaxBodySize = "500M";

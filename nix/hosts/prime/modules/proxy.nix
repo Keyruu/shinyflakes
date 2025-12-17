@@ -37,6 +37,10 @@ let
       proxyHost = "100.64.0.1";
       proxyPort = 5555;
     };
+    "atuin.keyruu.de" = {
+      proxyHost = "100.64.0.1";
+      proxyPort = 8888;
+    };
     # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };
@@ -49,10 +53,10 @@ let
       locations."/" = {
         proxyPass = "http://${proxyHost}:${toString proxyPort}";
         proxyWebsockets = true;
-        extraConfig = ''
-          modsecurity on;
-          modsecurity_rules_file /etc/nginx/modsec/main.conf;
-        '';
+        # extraConfig = ''
+        #   modsecurity on;
+        #   modsecurity_rules_file /etc/nginx/modsec/main.conf;
+        # '';
       };
     };
 in
