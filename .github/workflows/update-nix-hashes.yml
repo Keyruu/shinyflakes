@@ -23,7 +23,9 @@ jobs:
         run: |
           VERSION=$(grep 'crsVersion = ' nix/hosts/prime/modules/nginx.nix | cut -d'"' -f2)
           echo "Version: $VERSION"
-          HASH=$(nix run nixpkgs#nix-prefetch-github -- coreruleset coreruleset --rev "$VERSION" | jq -r .hash)
+          URL="https://github.com/coreruleset/coreruleset/archive/$VERSION.tar.gz"
+          RAW_HASH=$(nix-prefetch-url --unpack --type sha256 "$URL" 2>/dev/null | head -1)
+          HASH=$(nix hash to-sri --type sha256 "$RAW_HASH")
           echo "Hash: $HASH"
           sed -i "s|hash = \"sha256-.*\"|hash = \"$HASH\"|" nix/hosts/prime/modules/nginx.nix
           echo "Updated file:"
