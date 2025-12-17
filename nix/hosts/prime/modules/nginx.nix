@@ -24,9 +24,9 @@ let
     ${pkgs.gnused}/bin/sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' $out/modsecurity.conf
     cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
-    cp -L -r ${modsecurity-crs}/rules $out/rules
+    cp -r ${modsecurity-crs}/rules $out/rules
 
-    rm $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    rm -f $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
   '';
 in
 {
