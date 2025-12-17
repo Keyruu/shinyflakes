@@ -21,8 +21,9 @@ jobs:
 
       - name: Update hashes
         run: |
-          nix run nixpkgs#update-nix-fetchgit -- \
-            nix/hosts/prime/modules/nginx.nix
+          VERSION=$(grep 'crsVersion = ' nix/hosts/prime/modules/nginx.nix | cut -d'"' -f2)
+          HASH=$(nix-prefetch-github coreruleset coreruleset --rev "$VERSION" | jq -r .hash)
+          sed -i "s|hash = \"sha256-.*\"|hash = \"$HASH\"|" nix/hosts/prime/modules/nginx.nix
 
       - name: Commit changes
         run: |
