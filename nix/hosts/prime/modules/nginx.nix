@@ -26,7 +26,7 @@ let
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
     cp -r ${modsecurity-crs}/rules $out/rules
 
-    rm /etc/nginx/modsec/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    rm $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
   '';
 in
 {
@@ -44,5 +44,9 @@ in
   services.nginx = {
     clientMaxBodySize = "500M";
     additionalModules = with pkgs.nginxModules; [ modsecurity ];
+    appendHttpConfig = ''
+      modsecurity on;
+      modsecurity_rules_file /etc/nginx/modsec/main.conf;
+    '';
   };
 }
