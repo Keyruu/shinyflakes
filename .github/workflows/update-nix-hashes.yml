@@ -2,12 +2,15 @@ name: Update Nix Hashes
 on:
   pull_request:
     paths:
-      - 'nix/hosts/prime/modules/nginx.nix'
+      - "nix/hosts/prime/modules/nginx.nix"
 
 jobs:
   update-hashes:
     runs-on: ubuntu-latest
     if: github.actor == 'renovate[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
