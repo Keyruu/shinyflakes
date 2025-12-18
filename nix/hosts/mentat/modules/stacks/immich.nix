@@ -93,7 +93,7 @@ in
         immich-database = {
           containerConfig = {
             # renovate: ignore
-            image = "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0";
+            image = "ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.2.0";
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
             environments = {
               POSTGRES_INITDB_ARGS = "--data-checksums";
