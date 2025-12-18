@@ -97,7 +97,7 @@ in
         rybbit-postgres = {
           containerConfig = {
             # renovate: ignore
-            image = "postgres:17.4";
+            image = "postgres:18.1";
             volumes = [ "${stackPath}/postgres-data:/var/lib/postgresql/data" ];
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
             healthCmd = "pg_isready -U frog -d analytics";
