@@ -12,7 +12,7 @@ in
     let
       UPLOAD_LOCATION = "/main/immich";
       # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-      IMMICH_VERSION = "v2.3.1";
+      IMMICH_VERSION = "v2.4.0";
       inherit (config.virtualisation.quadlet) networks;
     in
     {
