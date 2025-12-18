@@ -138,7 +138,7 @@ mcpServers:
     url: http://host.containers.internal:30002/sse
   searxng:
     url: http://host.containers.internal:30003/sse
-  context7:
+  kagi:
     url: http://host.containers.internal:30004/sse
   obsidian:
     command: npx
