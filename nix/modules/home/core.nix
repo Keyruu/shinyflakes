@@ -206,6 +206,8 @@ in
     terraform-ls
     stylua
     nodePackages_latest.aws-cdk
+    bubblewrap
+    socat
 
     perSystem.self.numr
     perSystem.librepods.default
