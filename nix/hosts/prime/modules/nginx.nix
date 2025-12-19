@@ -34,7 +34,7 @@ let
 
     cp -L -r ${modsecurity-crs}/rules $out/rules
     chmod -R +w $out/rules
-    rm $out/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
 in
 {
