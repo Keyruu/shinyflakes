@@ -46,13 +46,11 @@ in
 
   services.nginx = {
     clientMaxBodySize = "500M";
+    package = pkgs.nginxMainline;
     additionalModules = with pkgs.nginxModules; [ modsecurity ];
     appendHttpConfig = ''
       modsecurity on;
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
     '';
   };
-
-  systemd.services.nginx.serviceConfig.SystemCallFilter =
-    lib.mkForce "~@cpu-emulation @debug @keyring @mount @obsolete @privileged @setuid";
 }
