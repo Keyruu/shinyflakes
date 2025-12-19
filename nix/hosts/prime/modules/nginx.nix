@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   # renovate: datasource=github-releases depName=coreruleset/coreruleset
   crsVersion = "v4.21.0";
@@ -52,4 +52,7 @@ in
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
     '';
   };
+
+  systemd.services.nginx.serviceConfig.SystemCallFilter =
+    lib.mkForce "~@cpu-emulation @debug @keyring @mount @obsolete @privileged @setuid";
 }
