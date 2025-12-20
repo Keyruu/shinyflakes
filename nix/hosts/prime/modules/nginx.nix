@@ -15,7 +15,7 @@ let
   mainConf = pkgs.writeText "main.conf" ''
     Include /etc/nginx/modsec/modsecurity.conf
     Include /etc/nginx/modsec/crs-setup.conf
-    Include /etc/nginx/modsec/rules/*.conf
+    # Include /etc/nginx/modsec/rules/*.conf
   '';
 
   modsec = pkgs.runCommand "modsec" { } ''
