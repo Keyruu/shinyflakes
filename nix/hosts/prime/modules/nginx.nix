@@ -29,7 +29,7 @@ let
     ${pkgs.gnused}/bin/sed -i 's/SecPcreMatchLimit 1000/SecPcreMatchLimit 500000/g' $out/modsecurity.conf
     ${pkgs.gnused}/bin/sed -i 's/SecPcreMatchLimitRecursion 1000/SecPcreMatchLimitRecursion 500000/g' $out/modsecurity.conf
     ${pkgs.gnused}/bin/sed -i 's/SecDebugLogLevel 0/SecDebugLogLevel 9/g' $out/modsecurity.conf
-    ${pkgs.gnused}/bin/sed -i 's|#SecDebugLog|SecDebugLog /var/log/modsec_debug.log|g' $out/modsecurity.conf
+    ${pkgs.gnused}/bin/sed -i 's|#SecDebugLog|SecDebugLog /var/log/modsec/debug.log|g' $out/modsecurity.conf
 
     cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
@@ -40,6 +40,10 @@ let
   '';
 in
 {
+  systemd.tmpfiles.rules = [
+    "d /var/log/modsec 0755 nginx nginx -"
+  ];
+
   environment.systemPackages = [
     pkgs.libmodsecurity
     modsecurity-crs
