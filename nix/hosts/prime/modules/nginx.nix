@@ -53,8 +53,10 @@ in
     clientMaxBodySize = "500M";
     package = pkgs.nginxMainline;
     additionalModules = with pkgs.nginxModules; [ modsecurity ];
-    appendHttpConfig = ''
+    appendConfig = ''
       pcre_jit off;
+    '';
+    appendHttpConfig = ''
       modsecurity on;
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
     '';
