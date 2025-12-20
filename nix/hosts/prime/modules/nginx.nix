@@ -32,11 +32,9 @@ let
     cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
 
-    cp -L -r ${modsecurity-crs}/rules $out/rules
-    chmod -R +w $out/rules
-    rm $out/rules/*-BLOCKING-EVALUATION.conf
-    rm $out/rules/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
-    rm $out/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf
+    # cp -L -r ${modsecurity-crs}/rules $out/rules
+    # chmod -R +w $out/rules
+    # rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
 in
 {
