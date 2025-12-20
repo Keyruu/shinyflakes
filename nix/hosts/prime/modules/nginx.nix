@@ -15,7 +15,7 @@ let
   mainConf = pkgs.writeText "main.conf" ''
     Include /etc/nginx/modsec/modsecurity.conf
     Include /etc/nginx/modsec/crs-setup.conf
-    # Include /etc/nginx/modsec/rules/*.conf
+    Include /etc/nginx/modsec/rules/*.conf
   '';
 
   modsec = pkgs.runCommand "modsec" { } ''
@@ -32,9 +32,9 @@ let
     cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
 
-    # cp -L -r ${modsecurity-crs}/rules $out/rules
-    # chmod -R +w $out/rules
-    # rm $out/rules/*-BLOCKING-EVALUATION.conf
+    cp -L -r ${modsecurity-crs}/rules $out/rules
+    chmod -R +w $out/rules
+    rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
 in
 {
@@ -54,6 +54,7 @@ in
     package = pkgs.nginxMainline;
     additionalModules = with pkgs.nginxModules; [ modsecurity ];
     appendHttpConfig = ''
+      pcre_jit off;
       modsecurity on;
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
     '';
