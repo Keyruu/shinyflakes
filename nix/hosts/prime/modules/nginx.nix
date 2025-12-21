@@ -19,11 +19,13 @@ let
   });
 
   # Create custom package set with JIT-disabled libmodsecurity
-  customPkgs = pkgs.extend (final: prev: {
-    libmodsecurity = prev.libmodsecurity.override {
-      pcre2 = pcre2-no-jit;
-    };
-  });
+  customPkgs = pkgs.extend (
+    final: prev: {
+      libmodsecurity = prev.libmodsecurity.override {
+        pcre2 = pcre2-no-jit;
+      };
+    }
+  );
 
   mainConf = pkgs.writeText "main.conf" ''
     Include /etc/nginx/modsec/modsecurity.conf
@@ -61,15 +63,15 @@ in
 
   services.nginx = {
     clientMaxBodySize = "500M";
-    package = customPkgs.nginxMainline;
-    additionalModules = with customPkgs.nginxModules; [ modsecurity ];
+    package = pkgs.nginxMainline;
+    # additionalModules = with customPkgs.nginxModules; [ modsecurity ];
     # fixes segfaults in workers, this might be related https://github.com/nginx/nginx/issues/1027
-    appendConfig = ''
-      pcre_jit off;
-    '';
-    appendHttpConfig = ''
-      modsecurity on;
-      modsecurity_rules_file /etc/nginx/modsec/main.conf;
-    '';
+    # appendConfig = ''
+    #   pcre_jit off;
+    # '';
+    # appendHttpConfig = ''
+    #   modsecurity on;
+    #   modsecurity_rules_file /etc/nginx/modsec/main.conf;
+    # '';
   };
 }
