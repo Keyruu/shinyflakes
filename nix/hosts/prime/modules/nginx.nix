@@ -53,6 +53,7 @@ in
     clientMaxBodySize = "500M";
     package = pkgs.nginxMainline;
     additionalModules = with pkgs.nginxModules; [ modsecurity ];
+    # fixes segfaults in workers, this might be related https://github.com/nginx/nginx/issues/1027
     appendConfig = ''
       pcre_jit off;
     '';
