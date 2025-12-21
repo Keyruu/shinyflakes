@@ -57,7 +57,6 @@ in
     kubie
     nixpacks
     bun
-    nixos-rebuild
     deploy-rs
     sshs
     termshark

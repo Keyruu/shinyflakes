@@ -1,4 +1,4 @@
-_:
+{ ref, ... }:
 let
   account_id = "e1c020aa1f59e7dd11541054c6e712e3";
 in
@@ -31,13 +31,13 @@ in
 
   output = {
     zone_keyruu_de_id = {
-      value = "\${cloudflare_zone.keyruu-de.id}";
+      value = ref.cloudflare_zone.keyruu-de.id;
     };
     zone_peeraten_net_id = {
-      value = "\${cloudflare_zone.peeraten-net.id}";
+      value = ref.cloudflare_zone.peeraten-net.id;
     };
     zone_buymeaspezi_com_id = {
-      value = "\${cloudflare_zone.buymeaspezi-com.id}";
+      value = ref.cloudflare_zone.buymeaspezi-com.id;
     };
   };
 }

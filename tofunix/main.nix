@@ -1,4 +1,4 @@
-{ ... }:
+{ ref, ... }:
 {
   imports = [
     ./hetzner
@@ -6,17 +6,6 @@
   ];
 
   terraform = {
-    required_providers = {
-      cloudflare = {
-        source = "cloudflare/cloudflare";
-        version = "~> 5";
-      };
-      hcloud = {
-        source = "hetznercloud/hcloud";
-        version = "~> 1.45";
-      };
-    };
-
     backend.s3 = {
       bucket = "terraform-state";
       key = "shinyflakes/terraform.tfstate";
@@ -36,19 +25,21 @@
 
   variable = {
     hcloud_token = {
+      type = "string";
       sensitive = true;
     };
     cloudflare_api_token = {
+      type = "string";
       sensitive = true;
     };
   };
 
   provider = {
-    cloudflare = {
-      api_token = "\${var.cloudflare_api_token}";
+    cloudflare.default = {
+      api_token = ref.var.cloudflare_api_token;
     };
-    hcloud = {
-      token = "\${var.hcloud_token}";
+    hcloud.default = {
+      token = ref.var.hcloud_token;
     };
   };
 }

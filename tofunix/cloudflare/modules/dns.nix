@@ -1,9 +1,16 @@
 { lib, config, ... }:
 let
+  # Type that accepts strings or anything with __toString (like ref.x.y.z)
+  refOrStrType = lib.types.mkOptionType {
+    name = "refOrStr";
+    description = "string or reference";
+    check = val: builtins.isString val || val ? __toString;
+  };
+
   singleValueRecordOptions = {
     content = lib.mkOption {
-      type = lib.types.str;
-      description = "DNS record content/value";
+      type = refOrStrType;
+      description = "DNS record content/value (string or reference)";
     };
 
     proxied = lib.mkOption {
@@ -21,8 +28,8 @@ let
 
   multiValueRecordOptions = {
     content = lib.mkOption {
-      type = lib.types.str;
-      description = "DNS record content/value";
+      type = refOrStrType;
+      description = "DNS record content/value (string or reference)";
     };
 
     proxied = lib.mkOption {
@@ -36,12 +43,6 @@ let
       default = null;
       description = "Priority for MX and SRV records";
     };
-
-    comment = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "Comment for the DNS record";
-    };
   };
 in
 {
@@ -50,8 +51,8 @@ in
       lib.types.submodule {
         options = {
           zoneId = lib.mkOption {
-            type = lib.types.str;
-            description = "Cloudflare zone ID reference";
+            type = refOrStrType;
+            description = "Cloudflare zone ID (string or reference)";
           };
 
           records = lib.mkOption {
@@ -77,7 +78,7 @@ in
 
                 mx = lib.mkOption {
                   type = lib.types.attrsOf (
-                    lib.types.listOf (lib.types.submodule { options = multiValueRecordOptions; })
+                    lib.types.attrsOf (lib.types.submodule { options = multiValueRecordOptions; })
                   );
                   default = { };
                   description = "MX records (mail servers)";
@@ -85,7 +86,7 @@ in
 
                 txt = lib.mkOption {
                   type = lib.types.attrsOf (
-                    lib.types.listOf (lib.types.submodule { options = multiValueRecordOptions; })
+                    lib.types.attrsOf (lib.types.submodule { options = multiValueRecordOptions; })
                   );
                   default = { };
                   description = "TXT records";
@@ -93,7 +94,7 @@ in
 
                 ns = lib.mkOption {
                   type = lib.types.attrsOf (
-                    lib.types.listOf (lib.types.submodule { options = multiValueRecordOptions; })
+                    lib.types.attrsOf (lib.types.submodule { options = multiValueRecordOptions; })
                   );
                   default = { };
                   description = "NS records (nameservers)";
@@ -101,7 +102,7 @@ in
 
                 srv = lib.mkOption {
                   type = lib.types.attrsOf (
-                    lib.types.listOf (lib.types.submodule { options = multiValueRecordOptions; })
+                    lib.types.attrsOf (lib.types.submodule { options = multiValueRecordOptions; })
                   );
                   default = { };
                   description = "SRV records";
@@ -187,22 +188,27 @@ in
 
         mkSingleValueRecords =
           domain: zone: recordType: records:
-          lib.flatten (
-            lib.mapAttrsToList (
+          lib.pipe records [
+            (lib.mapAttrsToList (
               recordName: record:
               [ (mkRecord domain zone recordType recordName record) ]
               ++ (mkCnameAliases domain zone recordName record)
-            ) records
-          );
+            ))
+            lib.flatten
+          ];
 
         mkMultiValueRecords =
           domain: zone: recordType: records:
-          lib.flatten (
-            lib.mapAttrsToList (
-              recordName: recordList:
-              lib.map (record: mkRecord domain zone recordType recordName record) recordList
-            ) records
-          );
+          lib.pipe records [
+            (lib.mapAttrsToList (
+              recordName: recordAttrs:
+              lib.mapAttrsToList (
+                recordKey: record:
+                mkRecord domain zone recordType recordName (record // { comment = recordKey; })
+              ) recordAttrs
+            ))
+            lib.flatten
+          ];
 
         mkZoneRecords =
           domain: zone:

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, ref, ... }:
 let
   ipv4Txt = builtins.fetchurl {
     url = "https://www.cloudflare.com/ips-v4";
@@ -67,6 +67,6 @@ in
   };
 
   output.firewall_cloudflare_https_id = {
-    value = "\${hcloud_firewall.cloudflare-https.id}";
+    value = ref.hcloud_firewall.cloudflare-https.id;
   };
 }
