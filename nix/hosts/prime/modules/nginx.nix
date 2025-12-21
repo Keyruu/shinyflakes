@@ -45,9 +45,16 @@ let
     rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
 
-  modsecurityModule = pkgs.nginxModules.modsecurity.override {
-    libmodsecurity = libmodsecurity-no-jit;
-  };
+  # Custom nginx with JIT-disabled libmodsecurity
+  customNginx = (pkgs.nginxMainline.override {
+    modules = [
+      (pkgs.nginxModules.modsecurity.overrideAttrs (oldAttrs: {
+        buildInputs = builtins.map
+          (dep: if lib.hasAttr "pname" dep && dep.pname == "libmodsecurity" then libmodsecurity-no-jit else dep)
+          oldAttrs.buildInputs;
+      }))
+    ];
+  });
 in
 {
   environment.systemPackages = [
@@ -63,8 +70,12 @@ in
 
   services.nginx = {
     clientMaxBodySize = "500M";
-    package = pkgs.nginxMainline;
-    additionalModules = [ modsecurityModule ];
+    package = customNginx;
+    additionalModules = [ ];
+    # fixes segfaults in workers, this might be related https://github.com/nginx/nginx/issues/1027
+    appendConfig = ''
+      pcre_jit off;
+    '';
     appendHttpConfig = ''
       modsecurity on;
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
