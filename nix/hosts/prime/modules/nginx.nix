@@ -12,6 +12,17 @@ let
     };
   });
 
+  # Override pcre2 to disable JIT to fix segfaults in sljit_free_exec during worker shutdown
+  # See: https://github.com/PCRE2Project/pcre2/issues/399
+  pcre2-no-jit = pkgs.pcre2.overrideAttrs (oldAttrs: {
+    configureFlags = (oldAttrs.configureFlags or [ ]) ++ [ "--disable-jit" ];
+  });
+
+  # Rebuild libmodsecurity with JIT-disabled pcre2
+  libmodsecurity-no-jit = pkgs.libmodsecurity.override {
+    pcre2 = pcre2-no-jit;
+  };
+
   mainConf = pkgs.writeText "main.conf" ''
     Include /etc/nginx/modsec/modsecurity.conf
     Include /etc/nginx/modsec/crs-setup.conf
@@ -22,24 +33,25 @@ let
     mkdir -p $out
 
     cp ${mainConf} $out/main.conf
-    cp ${pkgs.libmodsecurity}/share/modsecurity/modsecurity.conf-recommended $out/modsecurity.conf
+    cp ${libmodsecurity-no-jit}/share/modsecurity/modsecurity.conf-recommended $out/modsecurity.conf
 
     # ${pkgs.gnused}/bin/sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' $out/modsecurity.conf
-    # increase pcre limits because of segfaults produces by the complex owasp rules
-    ${pkgs.gnused}/bin/sed -i 's/SecPcreMatchLimit 1000/SecPcreMatchLimit 500000/g' $out/modsecurity.conf
-    ${pkgs.gnused}/bin/sed -i 's/SecPcreMatchLimitRecursion 1000/SecPcreMatchLimitRecursion 500000/g' $out/modsecurity.conf
 
-    cp ${pkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
+    cp ${libmodsecurity-no-jit}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
 
     cp -L -r ${modsecurity-crs}/rules $out/rules
     chmod -R +w $out/rules
     rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
+
+  modsecurityModule = pkgs.nginxModules.modsecurity.override {
+    libmodsecurity = libmodsecurity-no-jit;
+  };
 in
 {
   environment.systemPackages = [
-    pkgs.libmodsecurity
+    libmodsecurity-no-jit
     modsecurity-crs
   ];
 
@@ -52,11 +64,7 @@ in
   services.nginx = {
     clientMaxBodySize = "500M";
     package = pkgs.nginxMainline;
-    additionalModules = with pkgs.nginxModules; [ modsecurity ];
-    # fixes segfaults in workers, this might be related https://github.com/nginx/nginx/issues/1027
-    appendConfig = ''
-      pcre_jit off;
-    '';
+    additionalModules = [ modsecurityModule ];
     appendHttpConfig = ''
       modsecurity on;
       modsecurity_rules_file /etc/nginx/modsec/main.conf;
