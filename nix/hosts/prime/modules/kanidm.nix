@@ -113,13 +113,12 @@
     "/run/secrets"
   ];
 
-  services.nginx.virtualHosts."auth.peeraten.net" = {
-    useACMEHost = "auth.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "https://${toString config.services.kanidm.serverSettings.bindaddress}";
-      proxyWebsockets = true;
-    };
-  };
+  services.caddy.virtualHosts."auth.peeraten.net".extraConfig = ''
+    reverse_proxy https://${toString config.services.kanidm.serverSettings.bindaddress} {
+      transport http {
+        tls
+        tls_server_name auth.peeraten.net
+      }
+    }
+  '';
 }

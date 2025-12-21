@@ -4,8 +4,9 @@
 
     ./headscale.nix
     ./kanidm.nix
-    ./nginx.nix
-    ./niks3.nix
+    ./caddy.nix
+    # ./nginx.nix
+    # ./niks3.nix
     ./postgres.nix
     ./proxy.nix
   ];

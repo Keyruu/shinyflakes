@@ -14,7 +14,7 @@
     flake.modules.nixos.core
     flake.modules.nixos.server
     flake.modules.nixos.locale
-    flake.modules.nixos.nginx
+    # flake.modules.nixos.nginx
     flake.modules.nixos.podman
     flake.modules.nixos.beszel-agent
 

@@ -54,13 +54,4 @@ in
       randomizedDelaySec = 1800;
     };
   };
-
-  services.nginx.virtualHosts."cache.keyruu.de" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:5751";
-      proxyWebsockets = true;
-    };
-  };
 }

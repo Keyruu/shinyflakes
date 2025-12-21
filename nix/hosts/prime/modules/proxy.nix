@@ -48,18 +48,21 @@ let
   mkProxyHost =
     { proxyHost, proxyPort }:
     {
-      enableACME = true;
-      forceSSL = true;
-      locations."/" = {
-        proxyPass = "http://${proxyHost}:${toString proxyPort}";
-        proxyWebsockets = true;
-        # extraConfig = ''
-        #   modsecurity on;
-        #   modsecurity_rules_file /etc/nginx/modsec/main.conf;
-        # '';
-      };
+      extraConfig = ''
+        coraza_waf {
+          load_owasp_crs
+          directives `
+            SecRuleEngine On
+            Include @coraza.conf-recommended
+            Include @crs-setup.conf.example
+            Include @owasp_crs/*.conf
+          `
+        }
+
+        reverse_proxy http://${proxyHost}:${toString proxyPort}
+      '';
     };
 in
 {
-  services.nginx.virtualHosts = lib.mapAttrs (_: mkProxyHost) proxyHosts;
+  services.caddy.virtualHosts = lib.mapAttrs (_: mkProxyHost) proxyHosts;
 }

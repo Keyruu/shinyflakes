@@ -3,7 +3,6 @@ let
   stackPath = "/etc/stacks/rybbit";
 in
 {
-  # Directory creation
   systemd.tmpfiles.rules = [
     "d ${stackPath}/clickhouse-data 0755 root root"
     "d ${stackPath}/postgres-data 0755 root root"
@@ -11,7 +10,6 @@ in
 
   environment.etc."stacks/rybbit/clickhouse_config".source = ./rybbit-clickhouse;
 
-  # SOPS secrets
   sops.secrets = {
     resendApiKey = { };
     rybbitBetterAuthSecret = { };
@@ -19,7 +17,6 @@ in
     rybbitPostgresPassword = { };
   };
 
-  # Environment template
   sops.templates."rybbit.env" = {
     restartUnits = [
       "rybbit-backend.service"
@@ -53,7 +50,6 @@ in
     '';
   };
 
-  # Quadlet configuration
   virtualisation.quadlet =
     let
       # renovate: datasource=docker depName=ghcr.io/rybbit-io/rybbit-backend
@@ -175,31 +171,34 @@ in
       };
     };
 
-  # Nginx reverse proxy
-  services.nginx.virtualHosts = {
-    "rybbit.keyruu.de" = {
-      enableACME = true;
-      forceSSL = true;
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:3002";
-        proxyWebsockets = true;
-      };
-      locations."/api/" = {
-        proxyPass = "http://127.0.0.1:3001";
-        proxyWebsockets = true;
-      };
-    };
-    "sorryihavetodothis.keyruu.de" = {
-      enableACME = true;
-      forceSSL = true;
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:3002";
-        proxyWebsockets = true;
-      };
-      locations."/api/" = {
-        proxyPass = "http://127.0.0.1:3001";
-        proxyWebsockets = true;
-      };
-    };
+  services.caddy.virtualHosts = {
+    "rybbit.keyruu.de".extraConfig = ''
+      coraza_waf {
+        load_owasp_crs
+        directives `
+          SecRuleEngine On
+          Include @coraza.conf-recommended
+          Include @crs-setup.conf.example
+          Include @owasp_crs/*.conf
+        `
+      }
+
+      reverse_proxy http://127.0.0.1:3002
+      reverse_proxy /api/* http://127.0.0.1:3001
+    '';
+    "sorryihavetodothis.keyruu.de".extraConfig = ''
+      coraza_waf {
+        load_owasp_crs
+        directives `
+          SecRuleEngine On
+          Include @coraza.conf-recommended
+          Include @crs-setup.conf.example
+          Include @owasp_crs/*.conf
+        `
+      }
+
+      reverse_proxy http://127.0.0.1:3002
+      reverse_proxy /api/* http://127.0.0.1:3001
+    '';
   };
 }

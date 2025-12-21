@@ -128,20 +128,9 @@ in
       ];
     };
 
-    nginx.virtualHosts."headscale.peeraten.net" = {
-      enableACME = true;
-      forceSSL = true;
-
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${toString config.services.headscale.port}";
-          proxyWebsockets = true;
-        };
-        "/admin" = {
-          proxyPass = "http://127.0.0.1:3000";
-          proxyWebsockets = true;
-        };
-      };
-    };
+    caddy.virtualHosts."headscale.peeraten.net".extraConfig = ''
+      reverse_proxy http://127.0.0.1:${toString config.services.headscale.port}
+      reverse_proxy /admin* http://127.0.0.1:3000
+    '';
   };
 }

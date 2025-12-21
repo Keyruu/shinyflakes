@@ -17,6 +17,7 @@
               "n8n"
               "garage"
               "s3"
+              "atuin"
               "*"
             ];
           };
@@ -32,19 +33,19 @@
 
         cname = {
           "key1._domainkey" = {
-            content = "key1.keyruu.de._domainkey.migadu.com.";
+            content = "key1.keyruu.de._domainkey.migadu.com";
             proxied = false;
           };
           "key2._domainkey" = {
-            content = "key2.keyruu.de._domainkey.migadu.com.";
+            content = "key2.keyruu.de._domainkey.migadu.com";
             proxied = false;
           };
           "key3._domainkey" = {
-            content = "key3.keyruu.de._domainkey.migadu.com.";
+            content = "key3.keyruu.de._domainkey.migadu.com";
             proxied = false;
           };
           "autoconfig" = {
-            content = "autoconfig.migadu.com.";
+            content = "autoconfig.migadu.com";
             proxied = false;
           };
         };
