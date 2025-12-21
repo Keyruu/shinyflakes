@@ -18,10 +18,12 @@ let
     configureFlags = (oldAttrs.configureFlags or [ ]) ++ [ "--disable-jit" ];
   });
 
-  # Rebuild libmodsecurity with JIT-disabled pcre2
-  libmodsecurity-no-jit = pkgs.libmodsecurity.override {
-    pcre2 = pcre2-no-jit;
-  };
+  # Create custom package set with JIT-disabled libmodsecurity
+  customPkgs = pkgs.extend (final: prev: {
+    libmodsecurity = prev.libmodsecurity.override {
+      pcre2 = pcre2-no-jit;
+    };
+  });
 
   mainConf = pkgs.writeText "main.conf" ''
     Include /etc/nginx/modsec/modsecurity.conf
@@ -33,32 +35,21 @@ let
     mkdir -p $out
 
     cp ${mainConf} $out/main.conf
-    cp ${libmodsecurity-no-jit}/share/modsecurity/modsecurity.conf-recommended $out/modsecurity.conf
+    cp ${customPkgs.libmodsecurity}/share/modsecurity/modsecurity.conf-recommended $out/modsecurity.conf
 
     # ${pkgs.gnused}/bin/sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' $out/modsecurity.conf
 
-    cp ${libmodsecurity-no-jit}/share/modsecurity/unicode.mapping $out/unicode.mapping
+    cp ${customPkgs.libmodsecurity}/share/modsecurity/unicode.mapping $out/unicode.mapping
     cp ${modsecurity-crs}/share/modsecurity-crs/crs-setup.conf.example $out/crs-setup.conf
 
     cp -L -r ${modsecurity-crs}/rules $out/rules
     chmod -R +w $out/rules
     rm $out/rules/*-BLOCKING-EVALUATION.conf
   '';
-
-  # Custom nginx with JIT-disabled libmodsecurity
-  customNginx = (pkgs.nginxMainline.override {
-    modules = [
-      (pkgs.nginxModules.modsecurity.overrideAttrs (oldAttrs: {
-        buildInputs = builtins.map
-          (dep: if lib.hasAttr "pname" dep && dep.pname == "libmodsecurity" then libmodsecurity-no-jit else dep)
-          oldAttrs.buildInputs;
-      }))
-    ];
-  });
 in
 {
   environment.systemPackages = [
-    libmodsecurity-no-jit
+    customPkgs.libmodsecurity
     modsecurity-crs
   ];
 
@@ -70,8 +61,8 @@ in
 
   services.nginx = {
     clientMaxBodySize = "500M";
-    package = customNginx;
-    additionalModules = [ ];
+    package = customPkgs.nginxMainline;
+    additionalModules = with customPkgs.nginxModules; [ modsecurity ];
     # fixes segfaults in workers, this might be related https://github.com/nginx/nginx/issues/1027
     appendConfig = ''
       pcre_jit off;
