@@ -207,6 +207,7 @@ in
     nodePackages_latest.aws-cdk
     bubblewrap
     socat
+    orca-slicer
 
     perSystem.self.numr
     perSystem.librepods.default

@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   config,
+  lib,
   ...
 }:
 let
@@ -21,6 +22,14 @@ let
       env LD_PRELOAD=$LD_PRELOAD_SAVED \
       "$@"
   '';
+
+  # fixes https://github.com/nixos/nixpkgs/issues/471331
+  xone-firmware = pkgs.xow_dongle-firmware.overrideAttrs (old: {
+    installPhase = ''
+      install -Dm644 xow_dongle.bin $out/lib/firmware/xow_dongle.bin
+      install -Dm644 xow_dongle_045e_02e6.bin $out/lib/firmware/xone_dongle_02e6.bin
+    '';
+  });
 in
 {
   imports = [
@@ -78,6 +87,9 @@ in
 
     # Xbox wireless controller driver
     xone.enable = true;
+
+    # Include xone firmware with correct filename
+    firmware = [ xone-firmware ];
   };
 
   programs.gpu-screen-recorder.enable = true;
