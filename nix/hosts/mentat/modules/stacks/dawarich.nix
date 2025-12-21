@@ -9,7 +9,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/db-data 0770 999 999"
+    "d ${stackPath}/db-data 0770 root root"
     "d ${stackPath}/shared 0755 root root"
     "d ${stackPath}/public 0755 root root"
     "d ${stackPath}/watched 0755 root root"
