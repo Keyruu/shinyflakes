@@ -9,7 +9,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/db-data 0770 root root"
+    "d ${stackPath}/db-data 0700 999 999"
     "d ${stackPath}/shared 0755 root root"
     "d ${stackPath}/public 0755 root root"
     "d ${stackPath}/watched 0755 root root"
@@ -75,7 +75,7 @@ in
             };
             environmentFiles = [ config.sops.templates."dawarich.env".path ];
             volumes = [
-              "${stackPath}/db-data:/var/lib/postgresql/data"
+              "${stackPath}/db-data:/var/lib/postgresql/data:Z"
               "${stackPath}/shared:/var/shared"
             ];
             networks = [ networks.dawarich.ref ];
