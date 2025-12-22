@@ -14,7 +14,7 @@
     enable = true;
     package = pkgs.caddy.withPlugins {
       plugins = [
-        "github.com/corazawaf/coraza-caddy/v2@5d280fbd812859e8f5a947a0b1c6b1b9b555c6d5"
+        "github.com/corazawaf/coraza-caddy/v2@v2.1.1-0.20251210234215-5d280fbd8128"
       ];
       hash = "sha256-zGUfWcobpf4r9/7HKomsSvrjijsDwnj+YHW30TT6WlQ=";
     };
