@@ -9,7 +9,7 @@ in
 
   sops = {
     secrets = {
-      mqttPasswordFile.owner = "root";
+      mqttPasswordFile.mode = "0700";
     };
     templates."mqtt.conf" = {
       restartUnits = [ "mqtt.service" ];
