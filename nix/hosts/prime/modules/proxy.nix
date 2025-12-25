@@ -64,5 +64,5 @@ let
     };
 in
 {
-  services.caddy.virtualHosts = lib.mapAttrs (_: mkProxyHost) proxyHosts;
+  services.caddy.virtualHostsWithDefaults = lib.mapAttrs (_: mkProxyHost) proxyHosts;
 }

@@ -128,7 +128,7 @@ in
       ];
     };
 
-    caddy.virtualHosts."headscale.peeraten.net".extraConfig = ''
+    caddy.virtualHostsWithDefaults."headscale.peeraten.net".extraConfig = ''
       reverse_proxy http://127.0.0.1:${toString config.services.headscale.port}
       reverse_proxy /admin* http://127.0.0.1:3000
     '';

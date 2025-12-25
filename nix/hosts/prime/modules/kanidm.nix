@@ -113,7 +113,7 @@
     "/run/secrets"
   ];
 
-  services.caddy.virtualHosts."auth.peeraten.net".extraConfig = ''
+  services.caddy.virtualHostsWithDefaults."auth.peeraten.net".extraConfig = ''
     reverse_proxy https://${toString config.services.kanidm.serverSettings.bindaddress} {
       transport http {
         tls

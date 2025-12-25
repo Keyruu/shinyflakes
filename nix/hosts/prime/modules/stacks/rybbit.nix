@@ -171,34 +171,19 @@ in
       };
     };
 
-  services.caddy.virtualHosts = {
-    "rybbit.keyruu.de".extraConfig = ''
-      coraza_waf {
-        load_owasp_crs
-        directives `
-          SecRuleEngine On
-          Include @coraza.conf-recommended
-          Include @crs-setup.conf.example
-          Include @owasp_crs/*.conf
-        `
-      }
-
-      reverse_proxy http://127.0.0.1:3002
-      reverse_proxy /api/* http://127.0.0.1:3001
-    '';
-    "sorryihavetodothis.keyruu.de".extraConfig = ''
-      coraza_waf {
-        load_owasp_crs
-        directives `
-          SecRuleEngine On
-          Include @coraza.conf-recommended
-          Include @crs-setup.conf.example
-          Include @owasp_crs/*.conf
-        `
-      }
-
-      reverse_proxy http://127.0.0.1:3002
-      reverse_proxy /api/* http://127.0.0.1:3001
-    '';
-  };
+  services.caddy.virtualHostsWithDefaults =
+    let
+      extraConfig = ''
+        reverse_proxy http://127.0.0.1:3002
+        reverse_proxy /api/* http://127.0.0.1:3001
+      '';
+    in
+    {
+      "rybbit.keyruu.de" = {
+        inherit extraConfig;
+      };
+      "sorryihavetodothis.keyruu.de" = {
+        inherit extraConfig;
+      };
+    };
 }

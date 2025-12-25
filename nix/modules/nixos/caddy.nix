@@ -1,5 +1,9 @@
 { pkgs, ... }:
 {
+  imports = [
+    ./services/caddy.nix
+  ];
+
   networking.firewall.allowedTCPPorts = [
     80
     443

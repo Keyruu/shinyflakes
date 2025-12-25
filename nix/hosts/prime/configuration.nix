@@ -17,6 +17,7 @@
     # flake.modules.nixos.nginx
     flake.modules.nixos.podman
     flake.modules.nixos.beszel-agent
+    flake.modules.nixos.caddy
 
     # Import local modules and services
     flake.modules.services.monitoring
