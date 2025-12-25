@@ -50,7 +50,6 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.mqtt.networkConfig.driver = "bridge";
       containers = {
         zigbee2mqtt = {
           containerConfig = {
@@ -84,16 +83,6 @@ in
         };
       };
     };
-
-  services.nginx.virtualHosts."mqtt.port.peeraten.net" = {
-    useACMEHost = "port.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:9001";
-      proxyWebsockets = true;
-    };
-  };
 
   services.nginx.virtualHosts."z2m.port.peeraten.net" = {
     useACMEHost = "port.peeraten.net";
