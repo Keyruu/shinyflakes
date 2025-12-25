@@ -49,16 +49,6 @@ let
     { proxyHost, proxyPort }:
     {
       extraConfig = ''
-        coraza_waf {
-          load_owasp_crs
-          directives `
-            SecRuleEngine On
-            Include @coraza.conf-recommended
-            Include @crs-setup.conf.example
-            Include @owasp_crs/*.conf
-          `
-        }
-
         reverse_proxy http://${proxyHost}:${toString proxyPort}
       '';
     };
