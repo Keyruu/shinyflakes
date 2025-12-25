@@ -2,6 +2,8 @@
 let
   mqttPath = "/etc/stacks/mqtt/data";
   z2mPath = "/etc/stacks/z2m/data";
+
+  zbt2 = "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00";
 in
 {
   systemd.tmpfiles.rules = [
@@ -27,8 +29,10 @@ in
           user: mqtt
           password: ${config.sops.placeholder.mqttPassword}
         serial:
-          port: /dev/ttyUSB0
-          adapter: zstack
+          adapter: ember
+          port: ${zbt2}
+          baudrate: 460800
+          rtscts: true
         advanced:
           channel: 11
           network_key: ${config.sops.placeholder.z2mNetworkKey}
@@ -71,7 +75,7 @@ in
             ];
             devices = [
               "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyUSB0"
-              "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00"
+              zbt2
             ];
           };
           serviceConfig = {
