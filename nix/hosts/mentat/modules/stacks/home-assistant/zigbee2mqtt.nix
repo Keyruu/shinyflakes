@@ -71,6 +71,7 @@ in
             ];
             devices = [
               "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyUSB0"
+              "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00"
             ];
           };
           serviceConfig = {

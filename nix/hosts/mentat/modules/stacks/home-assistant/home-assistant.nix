@@ -86,6 +86,9 @@ in
         "NET_ADMIN"
         "NET_RAW"
       ];
+      devices = [
+        "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00"
+      ];
       volumes = [
         "${homeAssistantPath}/config:/config"
         "${homeAssistantPath}/config/configuration.yaml:/config/configuration.yaml:ro"
