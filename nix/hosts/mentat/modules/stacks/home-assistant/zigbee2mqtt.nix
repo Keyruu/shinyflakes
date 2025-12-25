@@ -27,10 +27,8 @@ in
           user: mqtt
           password: ${config.sops.placeholder.mqttPassword}
         serial:
-          adapter: ember
-          port: /dev/ttyACM1
-          baudrate: 460800
-          rtscts: true
+          adapter: zstack
+          port: /dev/ttyACM0
         advanced:
           channel: 11
           network_key: ${config.sops.placeholder.z2mNetworkKey}
@@ -72,8 +70,7 @@ in
               "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
             ];
             devices = [
-              "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyUSB0"
-              "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00:/dev/ttyACM1"
+              "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
             ];
           };
           serviceConfig = {
