@@ -13,6 +13,7 @@ in
     z2mNetworkKey.owner = "root";
     z2mPanId.owner = "root";
     z2mExtraPanId.owner = "root";
+    mqttPassword.owner = "root";
   };
 
   sops.templates."z2mConfiguration.yaml" = {
@@ -23,6 +24,8 @@ in
         mqtt:
           base_topic: zigbee2mqtt
           server: mqtt://mqtt
+          user: mqtt
+          password: ${config.sops.placeholder.mqttPassword}
         serial:
           port: /dev/ttyUSB0
           adapter: zstack
@@ -49,28 +52,6 @@ in
     {
       networks.mqtt.networkConfig.driver = "bridge";
       containers = {
-        mqtt = {
-          containerConfig = {
-            image = "eclipse-mosquitto:2.0.22";
-            publishPorts = [
-              "127.0.0.1:1883:1883"
-              "192.168.100.7:1883:1883"
-              "127.0.0.1:9001:9001"
-            ];
-            volumes = [
-              "${mqttPath}:/mosquitto"
-            ];
-            exec = "mosquitto -c /mosquitto-no-auth.conf";
-            networks = [ networks.mqtt.ref ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-        };
-
         zigbee2mqtt = {
           containerConfig = {
             image = "koenkk/zigbee2mqtt:2.7.1";
