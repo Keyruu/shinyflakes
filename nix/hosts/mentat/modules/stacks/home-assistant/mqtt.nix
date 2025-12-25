@@ -21,6 +21,7 @@ in
       mqttPasswordFile = {
         owner = "mosquitto";
         group = "mosquitto";
+        restartUnits = [ "mqtt.service" ];
       };
     };
     templates."mqtt.conf" = {

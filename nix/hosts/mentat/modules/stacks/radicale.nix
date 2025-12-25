@@ -3,7 +3,6 @@ let
   stackPath = "/etc/stacks/radicale";
 in
 {
-  # Directory creation
   systemd.tmpfiles.rules = [
     "d ${stackPath}/data 0750 2999 2999"
     "d ${stackPath}/config 0750 2999 2999"
@@ -35,7 +34,6 @@ in
     filesystem_folder = /data/collections
   '';
 
-  # Quadlet configuration
   virtualisation.quadlet.containers = {
     radicale = {
       containerConfig = {
@@ -72,7 +70,6 @@ in
     };
   };
 
-  # Nginx reverse proxy
   services.nginx.virtualHosts."calendar.peeraten.net" = {
     useACMEHost = "calendar.peeraten.net";
     forceSSL = true;
