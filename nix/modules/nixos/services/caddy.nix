@@ -32,8 +32,6 @@ in
             Include @owasp_crs/*.conf
           `
         }
-
-        encode gzip
       '';
     };
   };
