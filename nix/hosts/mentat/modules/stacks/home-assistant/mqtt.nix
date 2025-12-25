@@ -10,8 +10,8 @@ in
   sops = {
     secrets = {
       mqttPasswordFile = {
-        owner = 1833;
-        group = 1883;
+        owner = "mosquitto";
+        group = "mosquitto";
       };
     };
     templates."mqtt.conf" = {
