@@ -45,7 +45,7 @@ in
         dawarich-redis = {
           containerConfig = {
             # renovate: ignore
-            image = "redis:7.4-alpine";
+            image = "redis:8.4-alpine";
             exec = "redis-server";
             volumes = [
               "${stackPath}/shared:/data"
