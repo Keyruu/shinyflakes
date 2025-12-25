@@ -5,6 +5,7 @@
     geminiKey.owner = "root";
     openaiKey.owner = "root";
     openrouterKey.owner = "root";
+    scalewayKey.owner = "root";
     mistralKey.owner = "root";
     librechatCredsKey.owner = "root";
     librechatCredsIv.owner = "root";
@@ -91,6 +92,7 @@
 
         MISTRAL_API_KEY=${config.sops.placeholder.mistralKey}
         OPENROUTER_KEY=${config.sops.placeholder.openrouterKey}
+        SCALEWAY_KEY=${config.sops.placeholder.scalewayKey}
 
         #============#
         # Anthropic  #

@@ -207,6 +207,19 @@ endpoints:
         fetch: true # fetching list of models is not supported
       titleConvo: true
       titleModel: "current_model"
+    - name: "Scaleway"
+      # For `apiKey` and `baseURL`, you can use environment variables that you define.
+      # recommended environment variables:
+      apiKey: "${SCALEWAY_KEY}" # NOT OPENROUTER_API_KEY
+      baseURL: "https://api.scaleway.ai/28f14df5-01a1-40d6-b09f-046cadfaf4c9/v1"
+      models:
+        default: ["gpt-oss-120b"]
+        fetch: true
+      titleConvo: true
+      titleModel: "gpt-oss-120b"
+      # Recommended: Drop the stop parameter from the request as Openrouter models use a variety of stop tokens.
+      dropParams: ["stop"]
+      modelDisplayLabel: "Scaleway"
 # fileConfig:
 #   endpoints:
 #     assistants:

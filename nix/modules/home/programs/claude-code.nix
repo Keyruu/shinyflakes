@@ -69,7 +69,10 @@ let
   '';
 in
 {
-  home.packages = [ exportToObsidian ];
+  home.packages = with pkgs; [
+    exportToObsidian
+    claude-code-router
+  ];
 
   programs.claude-code = {
     enable = true;
