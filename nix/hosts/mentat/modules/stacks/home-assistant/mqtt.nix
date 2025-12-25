@@ -7,6 +7,15 @@ in
     "d ${mqttPath} 0755 root root"
   ];
 
+  users = {
+    users.mosquitto = {
+      uid = 1883;
+      isSystemUser = true;
+      group = "mosquitto";
+    };
+    groups.mosquitto.gid = 1883;
+  };
+
   sops = {
     secrets = {
       mqttPasswordFile = {
