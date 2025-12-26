@@ -9,7 +9,7 @@
     ./ai.nix
     ./traccar.nix
     ./speedtest-tracker.nix
-    ./wud.nix
+    # ./wud.nix
     ./librechat
     ./karakeep.nix
     ./timetagger.nix
