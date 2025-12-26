@@ -106,7 +106,6 @@ in
         mediamanager-server = {
           containerConfig = {
             image = "ghcr.io/maxdorninger/mediamanager/mediamanager:1.11.1";
-            publishPorts = [ "127.0.0.1:8000:8000" ];
             volumes = [
               "${stackPath}/data:/data"
               "${stackPath}/config:/app/config"
