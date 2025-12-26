@@ -13,7 +13,7 @@
         "127.0.0.1:8989:8989"
         "127.0.0.1:7878:7878"
         "127.0.0.1:6767:6767"
-        "127.0.0.1:8080:8080"
+        # "127.0.0.1:8080:8080"
         "127.0.0.1:8191:8191"
         "127.0.0.1:9696:9696"
         "127.0.0.1:7373:3000"
@@ -60,15 +60,15 @@
       };
     };
 
-    "qbittorrent.lab.keyruu.de" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
+    # "qbittorrent.lab.keyruu.de" = {
+    #   useACMEHost = "lab.keyruu.de";
+    #   forceSSL = true;
 
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:8080";
-        proxyWebsockets = true;
-      };
-    };
+    #   locations."/" = {
+    #     proxyPass = "http://127.0.0.1:8080";
+    #     proxyWebsockets = true;
+    #   };
+    # };
 
     "prowlarr.lab.keyruu.de" = {
       useACMEHost = "lab.keyruu.de";
