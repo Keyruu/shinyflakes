@@ -87,7 +87,7 @@ in
           containerConfig = {
             image = "docker.io/library/postgres:17";
             volumes = [ "${stackPath}/postgres:/var/lib/postgresql/data" ];
-            environmentFile = config.sops.templates."mediamanagerDb.env".path;
+            environmentFiles = [ config.sops.templates."mediamanagerDb.env".path ];
             healthCmd = "pg_isready -d MediaManager -U MediaManager";
             healthInterval = "10s";
             healthTimeout = "5s";
