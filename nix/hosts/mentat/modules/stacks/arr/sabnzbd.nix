@@ -34,7 +34,7 @@ in
       };
     };
     torrent-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:8022:8080"
+      "8022:8080"
     ];
   };
 
