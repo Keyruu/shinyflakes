@@ -11,6 +11,8 @@ in
 
   sops = {
     secrets = {
+      sabnzbdKey = { };
+      prowlarrKey = { };
       mediamanagerDbPassword = { };
       mediamanagerTokenSecret = { };
     };
