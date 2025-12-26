@@ -6,7 +6,7 @@
     ./radarr.nix
     ./bazarr.nix
     ./prowlarr.nix
-    ./qbittorrent.nix
+    # ./qbittorrent.nix
     ./flaresolverr.nix
     ./jellyfin.nix
     ./navidrome.nix
