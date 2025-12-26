@@ -16,10 +16,9 @@
 
   imports = [
     ./github.nix
-    ./fetch.nix
     ./atlassian.nix
     ./searxng.nix
     ./kagi.nix
-    # ./context7.nix
+    ./context7.nix
   ];
 }

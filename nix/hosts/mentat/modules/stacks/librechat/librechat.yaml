@@ -132,8 +132,8 @@ registration:
 mcpServers:
   github:
     url: http://host.containers.internal:30000/sse
-  fetch:
-    url: http://host.containers.internal:30001/sse
+  context7:
+    url: https://mcp.context7.com/mcp
   atlassian:
     url: http://host.containers.internal:30002/sse
   searxng:

@@ -12,5 +12,7 @@
     ./navidrome.nix
     ./recyclarr.nix
     ./lidarr.nix
+    ./sabnzbd.nix
+    ./nzbhydra2.nix
   ];
 }

@@ -27,6 +27,14 @@
       edit_predictions = {
         mode = "subtle";
       };
+      agent_servers = {
+        claude = {
+          env = {
+            ANTHROPIC_BASE_URL = "http://localhost:3456";
+            ANTHROPIC_AUTH_TOKEN = "dummy-key-for-router";
+          };
+        };
+      };
       buffer_font_family = config.user.font;
       ui_font_family = config.user.font;
       terminal = {

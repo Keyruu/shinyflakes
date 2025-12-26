@@ -8,6 +8,9 @@
 let
   ssePort = 30002;
   oapiPort = 30102;
+
+  # renovate: datasource=docker depName=ghcr.io/sooperset/mcp-atlassian
+  mcpVersion = "0.11.10";
 in
 {
   sops.secrets = {
@@ -50,7 +53,7 @@ in
         -e JIRA_URL \
         -e JIRA_USERNAME \
         -e JIRA_API_TOKEN \
-        ghcr.io/sooperset/mcp-atlassian:latest
+        ghcr.io/sooperset/mcp-atlassian:${mcpVersion}
       '';
       User = "root";
       Group = "root";
@@ -71,7 +74,7 @@ in
         -e JIRA_URL \
         -e JIRA_USERNAME \
         -e JIRA_API_TOKEN \
-        ghcr.io/sooperset/mcp-atlassian:latest
+        ghcr.io/sooperset/mcp-atlassian:${mcpVersion}
       '';
       User = "root";
       Group = "root";
