@@ -19,6 +19,5 @@
     ./atlassian.nix
     ./searxng.nix
     ./kagi.nix
-    ./context7.nix
   ];
 }
