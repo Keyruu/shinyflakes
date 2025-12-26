@@ -34,7 +34,7 @@ in
       };
     };
     torrent-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:8085:8085"
+      "127.0.0.1:8022:8080"
     ];
   };
 
@@ -44,7 +44,7 @@ in
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:8085";
+        proxyPass = "http://127.0.0.1:8022";
         proxyWebsockets = true;
       };
     };
