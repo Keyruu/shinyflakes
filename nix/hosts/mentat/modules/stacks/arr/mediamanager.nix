@@ -112,6 +112,7 @@ in
             ];
             environments = {
               CONFIG_DIR = "/app/config";
+              PORT = "8001";
             };
             networks = [
               "torrent-gluetun.container"
@@ -126,7 +127,7 @@ in
           };
         };
         torrent-gluetun.containerConfig.publishPorts = [
-          "127.0.0.1:8000:8000"
+          "127.0.0.1:8001:8001"
         ];
       };
     };
@@ -135,7 +136,7 @@ in
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8000";
+      proxyPass = "http://127.0.0.1:8001";
       proxyWebsockets = true;
     };
   };
