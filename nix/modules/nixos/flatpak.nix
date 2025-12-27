@@ -7,6 +7,7 @@
     enable = true;
     packages = [
       "io.kinvolk.Headlamp"
+      "com.stremio.Stremio"
     ];
     uninstallUnmanaged = true;
   };
