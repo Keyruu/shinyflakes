@@ -18,7 +18,7 @@ in
     };
 
     templates."mediamanager.toml" = {
-      restartUnits = [ "mediamanager.service" ];
+      restartUnits = [ "mediamanager-server.service" ];
       content = # ini
         ''
           [misc]
