@@ -72,8 +72,8 @@ in
       restartUnits = [ "mediamanager-db.service" ];
       content = # env
         ''
-          POSTGRES_USER="MediaManager"
-          POSTGRES_DB="MediaManager"
+          POSTGRES_USER=MediaManager
+          POSTGRES_DB=MediaManager
           POSTGRES_PASSWORD=${config.sops.placeholder.mediamanagerDbPassword}
         '';
     };
