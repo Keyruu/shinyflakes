@@ -35,7 +35,7 @@ in
           path = "/data/Anime"
 
           [database]
-          host = "127.0.0.1"
+          host = "localhost"
           port = 5432
           user = "MediaManager"
           password = "${config.sops.placeholder.mediamanagerDbPassword}"
@@ -107,8 +107,9 @@ in
           containerConfig = {
             image = "ghcr.io/maxdorninger/mediamanager/mediamanager:1.11.1";
             volumes = [
-              "${stackPath}/data:/data"
+              "/main/media:/data"
               "${stackPath}/config:/app/config"
+              "${config.sops.templates."mediamanager.toml".path}:/app/config/config.toml:ro"
             ];
             environments = {
               CONFIG_DIR = "/app/config";
