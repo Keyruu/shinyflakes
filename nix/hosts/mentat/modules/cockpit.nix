@@ -1,11 +1,11 @@
-_:
+{ pkgs, ... }:
 {
   services.cockpit = {
     enable = true;
     port = 9090;
     plugins = with pkgs; [
       cockpit-zfs
-    ]
+    ];
     settings = {
       WebService = {
         ProtocolHeader = "X-Forwarded-Proto";
