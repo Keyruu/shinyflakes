@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.torrent-lidarr = {
     containerConfig = {
-      image = "ghcr.io/hotio/lidarr:release";
+      image = "ghcr.io/hotio/lidarr:release-3.1.0.4875";
       environments = {
         PUID = "0";
         PGID = "0";

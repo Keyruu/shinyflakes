@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.torrent-radarr = {
     containerConfig = {
-      image = "ghcr.io/hotio/radarr:release";
+      image = "ghcr.io/hotio/radarr:release-6.0.4.10291";
       environments = {
         PUID = "0";
         PGID = "0";

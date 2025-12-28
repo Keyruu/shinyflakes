@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.torrent-sonarr = {
     containerConfig = {
-      image = "ghcr.io/hotio/sonarr:release";
+      image = "ghcr.io/hotio/sonarr:release-4.0.16.2944";
       environments = {
         PUID = "0";
         PGID = "0";

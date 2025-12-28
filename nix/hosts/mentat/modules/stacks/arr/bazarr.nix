@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.torrent-bazarr = {
     containerConfig = {
-      image = "ghcr.io/hotio/bazarr:release";
+      image = "ghcr.io/hotio/bazarr:release-1.5.3";
       environments = {
         PUID = "0";
         PGID = "0";
