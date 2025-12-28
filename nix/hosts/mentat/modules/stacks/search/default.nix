@@ -25,7 +25,7 @@ in
       containers = {
         "searxng-gluetun" = {
           containerConfig = {
-            image = "ghcr.io/qdm12/gluetun:v3.40.3";
+            image = "ghcr.io/qdm12/gluetun:v3.41.0";
             addCapabilities = [ "NET_ADMIN" ];
             devices = [ "/dev/net/tun:/dev/net/tun" ];
             environmentFiles = [ config.sops.secrets.searxngGluetunEnv.path ];
