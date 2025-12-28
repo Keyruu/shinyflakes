@@ -1,50 +1,51 @@
 _:
 let
-  sabnzbdPath = "/etc/stacks/sabnzbd";
+  radarrPath = "/etc/stacks/radarr";
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${sabnzbdPath}/config 0755 root root"
+    "d ${radarrPath}/config 0755 root root"
   ];
 
   virtualisation.quadlet.containers = {
-    torrent-sabnzbd = {
+    media-radarr = {
       containerConfig = {
-        image = "lscr.io/linuxserver/sabnzbd:4.5.5";
+        image = "ghcr.io/hotio/radarr:release-6.0.4.10291";
         environments = {
           PUID = "0";
           PGID = "0";
+          UMASK = "022";
           TZ = "Europe/Berlin";
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${sabnzbdPath}/config:/config"
-          "/main/media/downloads:/data/downloads"
+          "${radarrPath}/config:/config"
+          "/main/media:/data"
         ];
         networks = [
-          "torrent-gluetun.container"
+          "media-gluetun.container"
         ];
       };
       serviceConfig = {
         Restart = "always";
       };
       unitConfig = {
-        After = [ "torrent-gluetun.service" ];
-        Requires = [ "torrent-gluetun.service" ];
+        After = [ "media-gluetun.service" ];
+        Requires = [ "media-gluetun.service" ];
       };
     };
-    torrent-gluetun.containerConfig.publishPorts = [
-      "8022:8085"
+    media-gluetun.containerConfig.publishPorts = [
+      "127.0.0.1:7878:7878"
     ];
   };
 
   services.nginx.virtualHosts = {
-    "sabnzbd.lab.keyruu.de" = {
+    "radarr.lab.keyruu.de" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:8022";
+        proxyPass = "http://127.0.0.1:7878";
         proxyWebsockets = true;
       };
     };

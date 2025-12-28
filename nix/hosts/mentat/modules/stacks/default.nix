@@ -1,6 +1,6 @@
 {
   imports = [
-    ./arr
+    ./media
     ./home-assistant
     ./mcp
     ./search

@@ -8,7 +8,7 @@ in
   ];
 
   virtualisation.quadlet.containers = {
-    torrent-nzbhydra2 = {
+    media-nzbhydra2 = {
       containerConfig = {
         image = "lscr.io/linuxserver/nzbhydra2:8.1.2";
         environments = {
@@ -22,18 +22,18 @@ in
           "/main/media/downloads:/data/downloads"
         ];
         networks = [
-          "torrent-gluetun.container"
+          "media-gluetun.container"
         ];
       };
       serviceConfig = {
         Restart = "always";
       };
       unitConfig = {
-        After = [ "torrent-gluetun.service" ];
-        Requires = [ "torrent-gluetun.service" ];
+        After = [ "media-gluetun.service" ];
+        Requires = [ "media-gluetun.service" ];
       };
     };
-    torrent-gluetun.containerConfig.publishPorts = [
+    media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:5076:5076"
     ];
   };

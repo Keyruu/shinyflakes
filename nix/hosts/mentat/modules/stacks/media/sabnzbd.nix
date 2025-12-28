@@ -1,0 +1,52 @@
+_:
+let
+  sabnzbdPath = "/etc/stacks/sabnzbd";
+in
+{
+  systemd.tmpfiles.rules = [
+    "d ${sabnzbdPath}/config 0755 root root"
+  ];
+
+  virtualisation.quadlet.containers = {
+    media-sabnzbd = {
+      containerConfig = {
+        image = "lscr.io/linuxserver/sabnzbd:4.5.5";
+        environments = {
+          PUID = "0";
+          PGID = "0";
+          TZ = "Europe/Berlin";
+        };
+        volumes = [
+          "/etc/localtime:/etc/localtime:ro"
+          "${sabnzbdPath}/config:/config"
+          "/main/media/downloads:/data/downloads"
+        ];
+        networks = [
+          "media-gluetun.container"
+        ];
+      };
+      serviceConfig = {
+        Restart = "always";
+      };
+      unitConfig = {
+        After = [ "media-gluetun.service" ];
+        Requires = [ "media-gluetun.service" ];
+      };
+    };
+    media-gluetun.containerConfig.publishPorts = [
+      "8022:8085"
+    ];
+  };
+
+  services.nginx.virtualHosts = {
+    "sabnzbd.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8022";
+        proxyWebsockets = true;
+      };
+    };
+  };
+}
