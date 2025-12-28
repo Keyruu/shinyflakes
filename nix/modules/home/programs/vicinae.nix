@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   perSystem,
   ...
@@ -10,45 +11,83 @@
 
   services.vicinae = {
     enable = true;
-    autoStart = true;
-    useLayerShell = true;
+    systemd = {
+      enable = true; # default: false
+      autoStart = true; # default: false
+      environment = {
+        USE_LAYER_SHELL = 1;
+      };
+    };
     package = perSystem.vicinae.default;
-    extensions = [
-      # (inputs.vicinae.mkVicinaeExtension.${pkgs.system} {
-      #   inherit pkgs;
-      #   name = "vicinae-bluetooth";
-      #   src = pkgs.fetchgit {
-      #     url = "https://codeberg.org/gelei/vicinae-bluetooth";
-      #     rev = "16204787e0ac3925e7e466df38f3a959294b440f";
-      #     hash = "sha256-xOemsBLnXKfcCVOZew2vm0mlylfFvcX4s/AnpjF3kBo=";
-      #   };
-      # })
-      # (inputs.vicinae.mkVicinaeExtension.${pkgs.system} {
-      #   inherit pkgs;
-      #   name = "wifi-commander";
-      #   src =
-      #     pkgs.fetchFromGitHub {
-      #       owner = "dagimg-dot";
-      #       repo = "j-vicinae-extensions";
-      #       rev = "ec83fde026b856e52b1c8835a923e8dd168d9e3f";
-      #       sha256 = "sha256-yirdUhHEJ9tNQoPubMJHUBwOpXFOevjqyaJlcW3+d5I=";
-      #     }
-      #     + "/extensions/wifi-commander";
-      # })
+    extensions = with perSystem.vicinae-extensions; [
+      bluetooth
+      nix
+      # systemd
+      wifi-commander
+      case-converter
+      pulseaudio
+      process-manager
+      port-killer
+      niri
     ];
     settings = {
-      faviconService = "twenty"; # twenty | google | none
-      font.size = 11;
-      popToRootOnClose = false;
-      rootSearch.searchFiles = false;
-      theme = {
-        name = "vicinae-dark";
-        iconTheme = "Papirus";
+      favicon_service = "twenty";
+      font.normal = {
+        size = 11;
+        normal = config.user.font;
       };
-      window = {
-        csd = true;
-        opacity = 1;
-        rounding = 10;
+      pop_to_root_on_close = false;
+      search_files_in_root = false;
+      close_on_focus_loss = true;
+      theme = {
+        dark = {
+          name = "vicinae-dark";
+          icon_theme = "Papirus";
+        };
+      };
+      launcher_window = {
+        opacity = 0.98;
+      };
+      providers = {
+        clipboard = {
+          entrypoints = {
+            history = {
+              preferences = {
+                defaultAction = "copy";
+              };
+            };
+          };
+        };
+        power = {
+          entrypoints = {
+            power-off = {
+              alias = "shutdown";
+            };
+          };
+        };
+        applications = {
+          entrypoints = {
+            clear-notification = {
+              alias = "cn";
+            };
+            notification-center = {
+              alias = "nc";
+            };
+          };
+        };
+        "@knoopx/nix-0" = {
+          entrypoints = {
+            home-manager-options = {
+              alias = "nh";
+            };
+            options = {
+              alias = "no";
+            };
+            packages = {
+              alias = "np";
+            };
+          };
+        };
       };
     };
   };

@@ -3,14 +3,20 @@ _:
   services.cockpit = {
     enable = true;
     port = 9090;
+    plugins = with pkgs; [
+      cockpit-zfs
+    ]
     settings = {
       WebService = {
         ProtocolHeader = "X-Forwarded-Proto";
+        ForwardedForHeader = "X-Forwarded-For";
+        # Allow HTTP connections from nginx reverse proxy
+        AllowUnencrypted = true;
       };
     };
   };
 
-  services.nginx.virtualHosts."highwind.lab.keyruu.de" = {
+  services.nginx.virtualHosts."mentat.lab.keyruu.de" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 

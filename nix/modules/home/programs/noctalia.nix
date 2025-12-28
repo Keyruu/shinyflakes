@@ -12,10 +12,6 @@
     enable = true;
     systemd.enable = true;
 
-    # package = perSystem.noctalia.default.override {
-    #   quickshell = perSystem.noctalia.quickshell;
-    # };
-
     colors = {
       mError = "#f38ba8"; # red from waybar critical state
       mOnError = "#111111";

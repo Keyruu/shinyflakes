@@ -113,13 +113,15 @@ in
       };
     };
 
-  services.nginx.virtualHosts."immich.lab.keyruu.de" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
+  services = {
+    nginx.virtualHosts."immich.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
 
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:2283";
-      proxyWebsockets = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:2283";
+        proxyWebsockets = true;
+      };
     };
   };
 }

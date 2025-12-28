@@ -170,7 +170,7 @@ in
     hcloud # hetzner cloud
     rclone
     opentofu # terraform sucks
-    terragrunt
+    # terragrunt
 
     # tui
     spotify-player
@@ -210,6 +210,7 @@ in
     orca-slicer
 
     perSystem.self.numr
+    perSystem.self.glide-browser
     perSystem.librepods.default
   ];
 }
