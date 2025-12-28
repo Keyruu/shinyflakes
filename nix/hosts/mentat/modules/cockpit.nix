@@ -9,7 +9,7 @@
     ];
     settings = {
       WebService = {
-        Origins = "https://mentat.lab.keyruu.de wss://mentat.lab.keyruu.de";
+        Origins = lib.mkForce "https://mentat.lab.keyruu.de wss://mentat.lab.keyruu.de";
         ProtocolHeader = "X-Forwarded-Proto";
         ForwardedForHeader = "X-Forwarded-For";
         # Allow HTTP connections from nginx reverse proxy
