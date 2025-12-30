@@ -43,7 +43,7 @@ in
 
         searxng-redis = {
           containerConfig = {
-            image = "docker.io/valkey/valkey:8-alpine";
+            image = "docker.io/valkey/valkey:9-alpine";
             exec = "valkey-server --save 30 1 --loglevel warning";
             volumes = [
               "${searxngPath}/valkey:/data:z"
