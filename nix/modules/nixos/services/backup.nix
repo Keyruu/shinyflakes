@@ -6,31 +6,48 @@
 }:
 let
   cfg = config.services.restic;
-  backupsType = options.services.restic.backups.type;
-  backupType = backupsType.elemType;
+  backupType = options.services.restic.backups.type.nestedTypes.elemType;
 in
 {
-  options = {
-    services.restic.backupsWithDefaults = lib.mkOption {
+  options.services.restic = {
+    backupDefault = lib.mkOption {
       type = backupType;
-      description = ''
-        Backups with our own defaults applied.
-      '';
       default = { };
+      description = "Default backup configuration applied to all backups";
     };
 
-    services.restic.backupDefault = lib.mkOption {
-      type = backupType;
-      description = ''
-        Define default options for every backup.
-      '';
+    backupsWithDefaults = lib.mkOption {
+      type = with lib.types; attrsOf backupType;
       default = { };
+      description = ''
+        Backups with our own defaults applied.
+        Automatically adds: hostname and backup name tags, --host flag, retention-based pruning.
+      '';
     };
   };
 
   config = {
     services.restic.backups = lib.mapAttrs (
-      _key: backup: lib.recursiveUpdate cfg.backupDefault backup
+      name: backup:
+      with lib;
+      recursiveUpdate (recursiveUpdate {
+        initialize = true;
+        pruneOpts = [
+          "--tag ${name}"
+          "--keep-daily 5"
+          "--keep-weekly 3"
+          "--keep-monthly 2"
+        ];
+        extraBackupArgs = [
+          "--host ${config.networking.hostName}"
+          "--tag ${name}"
+        ];
+        timerConfig = {
+          OnCalendar = "04:00";
+          RandomizedDelaySec = "1h";
+        };
+        passwordFile = config.sops.secrets.resticPassword;
+      } cfg.backupDefault) backup
     ) cfg.backupsWithDefaults;
   };
 }

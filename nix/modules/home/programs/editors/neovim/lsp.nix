@@ -126,7 +126,7 @@
         enable = true;
         lsp.servers = [
           "nixd"
-          # "nil"
+          "nil"
         ];
         format.type = [ "nixfmt" ];
       };
@@ -155,6 +155,13 @@
       enable = true;
     };
 
-    treesitter.grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
+    treesitter = {
+      autotagHtml = true;
+      grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
+      context = {
+        enable = true;
+        setupOpts.separator = "—";
+      };
+    };
   };
 }

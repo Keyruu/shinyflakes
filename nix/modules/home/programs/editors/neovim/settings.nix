@@ -24,7 +24,7 @@ _: {
 
     visuals = {
       nvim-web-devicons.enable = true;
-      indent-blankline.enable = true;
+      indent-blankline.enable = false;
       highlight-undo.enable = true;
       nvim-cursorline.enable = false;
     };
@@ -34,8 +34,12 @@ _: {
       globalStatus = true;
     };
 
-    tabline.nvimBufferline = {
+    dashboard.dashboard-nvim = {
       enable = true;
+    };
+
+    tabline.nvimBufferline = {
+      enable = false;
       setupOpts = {
         options = {
           numbers = "none";
@@ -45,6 +49,10 @@ _: {
           # always_show_bufferline = true;
         };
       };
+    };
+
+    mini = {
+      tabline.enable = true;
     };
 
     theme = {
@@ -57,6 +65,11 @@ _: {
       enable = true;
       setupOpts = {
         completion.completeopt = "menu,menuone,noselect";
+      };
+      sources = {
+        buffer = "[Buffer]";
+        nvim-cmp = null;
+        path = "[Path]";
       };
       mappings = {
         next = "<C-n>";
@@ -81,7 +94,7 @@ _: {
       gitsigns.enable = true;
     };
 
-    telescope.enable = true;
+    telescope.enable = false;
 
     ui = {
       borders = {
@@ -99,10 +112,6 @@ _: {
     binds = {
       whichKey.enable = true;
       cheatsheet.enable = false;
-    };
-    terminal.toggleterm = {
-      enable = true; # toggleable terminal(s)
-      lazygit.enable = true; # spawn LazyGit via toggleterm
     };
   };
 }

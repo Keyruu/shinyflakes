@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/immich";
 in
@@ -122,6 +122,20 @@ in
         proxyPass = "http://127.0.0.1:2283";
         proxyWebsockets = true;
       };
+    };
+
+    restic.backupsWithDefaults.immich-stack = {
+      backupPrepareCommand = # sh
+        ''
+          ${pkgs.systemd}/bin/systemctl stop immich-*
+        '';
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = # sh
+        ''
+          ${pkgs.systemd}/bin/systemctl start immich-*
+        '';
     };
   };
 }

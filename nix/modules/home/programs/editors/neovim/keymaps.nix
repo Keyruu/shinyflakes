@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.nvf.settings.vim.keymaps = [
     {
       key = ";;";
@@ -10,42 +9,61 @@ _:
 
     {
       key = "<C-h>";
-      mode = [
-        "n"
-        "t"
-      ];
+      mode = "n";
       action = "<C-w>h";
       desc = "Move to left window";
       silent = true;
     }
     {
+      key = "<C-h>";
+      mode = "t";
+      action = "<C-\\><C-n><C-w>h";
+      desc = "Move to left window from terminal";
+      silent = true;
+    }
+
+    {
       key = "<C-j>";
-      mode = [
-        "n"
-        "t"
-      ];
+      mode = "n";
       action = "<C-w>j";
       desc = "Move to bottom window";
       silent = true;
     }
     {
+      key = "<C-j>";
+      mode = "t";
+      action = "<C-\\><C-n><C-w>j";
+      desc = "Move to bottom window from terminal";
+      silent = true;
+    }
+
+    {
       key = "<C-k>";
-      mode = [
-        "n"
-        "t"
-      ];
+      mode = "n";
       action = "<C-w>k";
       desc = "Move to top window";
       silent = true;
     }
     {
+      key = "<C-k>";
+      mode = "t";
+      action = "<C-\\><C-n><C-w>k";
+      desc = "Move to top window from terminal";
+      silent = true;
+    }
+
+    {
       key = "<C-l>";
-      mode = [
-        "n"
-        "t"
-      ];
+      mode = "n";
       action = "<C-w>l";
       desc = "Move to right window";
+      silent = true;
+    }
+    {
+      key = "<C-l>";
+      mode = "t";
+      action = "<C-\\><C-n><C-w>l";
+      desc = "Move to right window from terminal";
       silent = true;
     }
 
@@ -64,10 +82,11 @@ _:
       silent = true;
     }
     {
-      key = "<leader>bd";
+      key = "<leader>gg";
       mode = "n";
-      action = ":bdelete<CR>";
-      desc = "Delete buffer";
+      action = "function() Snacks.lazygit() end";
+      lua = true;
+      desc = "Lazygit";
       silent = true;
     }
     {
@@ -139,76 +158,54 @@ _:
     }
 
     {
-      key = "<leader>e";
+      key = "<leader><space>";
       mode = "n";
-      action = ":Neotree toggle<CR>";
-      desc = "Toggle Neo-tree (cwd)";
+      action = "function() Snacks.picker.smart() end";
+      desc = "Smart Find Files";
       silent = true;
+      lua = true;
     }
     {
-      key = "<leader>E";
+      key = "<leader>ff";
       mode = "n";
-      action = ":Neotree toggle<CR>";
-      desc = "Toggle Neo-tree (root)";
+      action = "function() Snacks.picker.files() end";
+      desc = "Smart Find Files";
       silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>fg";
+      mode = "n";
+      action = "function() Snacks.picker.grep() end";
+      desc = "Smart Find Files";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>fb";
+      mode = "n";
+      action = "function() Snacks.picker.buffers() end";
+      desc = "Smart Find Files";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>e";
+      mode = "n";
+      action = "function() Snacks.explorer() end";
+      desc = "File Explorer";
+      silent = true;
+      lua = true;
     }
 
-    # {
-    #   key = "<leader>tf";
-    #   mode = "n";
-    #   action = "open_fish_terminal";
-    #   lua = true;
-    #   desc = "Open fish terminal";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tt";
-    #   mode = "n";
-    #   action = "open_fish_terminal_bottom";
-    #   lua = true;
-    #   desc = "Open terminal (bottom)";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tv";
-    #   mode = "n";
-    #   action = "open_fish_terminal_vsplit";
-    #   lua = true;
-    #   desc = "Open terminal (vertical split)";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tk";
-    #   mode = "n";
-    #   action = "open_k9s_terminal";
-    #   lua = true;
-    #   desc = "Open k9s terminal";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tao";
-    #   mode = "n";
-    #   action = "open_opencode_terminal";
-    #   lua = true;
-    #   desc = "Open OpenCode terminal";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tas";
-    #   mode = "n";
-    #   action = "open_opencode_sst_terminal";
-    #   lua = true;
-    #   desc = "Open OpenCode SST terminal";
-    #   silent = true;
-    # }
-    # {
-    #   key = "<leader>tac";
-    #   mode = "n";
-    #   action = "open_claude_terminal";
-    #   lua = true;
-    #   desc = "Open Claude Code terminal";
-    #   silent = true;
-    # }
+    {
+      key = "<leader>tt";
+      mode = "n";
+      action = "function() Snacks.terminal() end";
+      desc = "Toggle Terminal";
+      silent = true;
+      lua = true;
+    }
 
     {
       key = "<leader>bc";
@@ -227,14 +224,6 @@ _:
       mode = "n";
       action = "]cyic";
       desc = "Yank inner of next fenced code block";
-    }
-
-    {
-      key = "<leader>xx";
-      mode = "n";
-      action = ":Trouble diagnostics toggle<CR>";
-      desc = "Toggle diagnostics";
-      silent = true;
     }
   ];
 }

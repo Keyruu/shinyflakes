@@ -17,5 +17,6 @@
     ./adguard.nix
     ./copyparty.nix
     ./syncthing.nix
+    ./backup.nix
   ];
 }

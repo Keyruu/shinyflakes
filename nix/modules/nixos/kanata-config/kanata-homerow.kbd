@@ -8,15 +8,6 @@
 
 (defcfg
   process-unmapped-keys yes
-  macos-dev-names-include (
-    "Apple Internal Keyboard / Trackpad"
-    "Magic Keyboard with Numeric Keypad"
-  )
-  linux-dev-names-include (
-    "AT Translated Set 2 keyboard"
-    "NuPhy NuPhy Air60 HE"
-    "NuPhy NuPhy Air60 HE Keyboard"
-  )
 )
 (deflocalkeys-linux
   fn 143

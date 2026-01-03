@@ -15,7 +15,7 @@
     flake.modules.nixos.kanata
     flake.modules.nixos.flatpak
     flake.modules.nixos.thunar
-    flake.modules.nixos.voyager
+    flake.modules.nixos.keyboards
     flake.modules.nixos.nice
     flake.modules.nixos.plymouth
     flake.modules.nixos.podman
