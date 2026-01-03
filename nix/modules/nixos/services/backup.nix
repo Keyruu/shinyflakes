@@ -27,6 +27,7 @@ in
   };
 
   config = {
+    sops.secrets.resticPassword = { };
     services.restic.backups = lib.mapAttrs (
       name: backup:
       with lib;
