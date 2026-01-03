@@ -10,7 +10,7 @@ let
 in
 {
   options.services.restic = {
-    backupDefault = lib.mkOption {
+    hostDefault = lib.mkOption {
       type = backupType;
       default = { };
       description = "Default backup configuration applied to all backups";
@@ -30,25 +30,35 @@ in
     sops.secrets.resticPassword = { };
     services.restic.backups = lib.mapAttrs (
       name: backup:
-      with lib;
-      recursiveUpdate (recursiveUpdate {
-        initialize = true;
-        pruneOpts = [
-          "--tag ${name}"
-          "--keep-daily 5"
-          "--keep-weekly 3"
-          "--keep-monthly 2"
-        ];
-        extraBackupArgs = [
-          "--host ${config.networking.hostName}"
-          "--tag ${name}"
-        ];
-        timerConfig = {
-          OnCalendar = "04:00";
-          RandomizedDelaySec = "1h";
+      let
+        globalDefaults = {
+          initialize = lib.mkDefault true;
+          passwordFile = lib.mkDefault config.sops.secrets.resticPassword.path;
+          pruneOpts = [
+            "--tag ${name}"
+            "--keep-daily 5"
+            "--keep-weekly 3"
+            "--keep-monthly 2"
+          ];
+          extraBackupArgs = [
+            "--host ${config.networking.hostName}"
+            "--tag ${name}"
+          ];
+          timerConfig = lib.mkDefault {
+            OnCalendar = "04:00";
+            RandomizedDelaySec = "1h";
+          };
         };
-        passwordFile = config.sops.secrets.resticPassword;
-      } cfg.backupDefault) backup
+
+        defaults = lib.mkMerge [
+          globalDefaults
+          (lib.mapAttrs (_: lib.mkDefault) cfg.hostDefault)
+        ];
+      in
+      lib.mkMerge [
+        defaults
+        backup
+      ]
     ) cfg.backupsWithDefaults;
   };
 }

@@ -1,5 +1,5 @@
 _: {
-  services.restic.backupDefault = {
+  services.restic.hostDefault = {
     repository = "/main/restic/backup";
   };
 }
