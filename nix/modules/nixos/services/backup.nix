@@ -52,6 +52,7 @@ in
   };
 
   config = {
+    sops.secrets.resticPassword = { };
     services.restic.backups = config.services.restic.backupsWithDefaults;
   };
 }
