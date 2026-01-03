@@ -1,3 +1,3 @@
 _: {
-  services.restic.defaultRepo = "/main/restic/backup";
+  services.restic.defaultRepo = "/main/backup/restic";
 }
