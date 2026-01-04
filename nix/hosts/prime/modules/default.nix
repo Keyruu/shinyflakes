@@ -2,7 +2,7 @@
   imports = [
     ./stacks
 
-    ./headscale.nix
+    # ./headscale.nix
     ./kanidm.nix
     # ./niks3.nix
     ./postgres.nix
