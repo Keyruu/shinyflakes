@@ -89,17 +89,17 @@ in
           override_local_dns = false;
           base_domain = "hafen.peeraten.net";
           magic_dns = true;
-          nameservers.split = {
-            "lab.keyruu.de" = [
-              "100.64.0.1"
-            ];
-            "home.zimtix.de" = [
-              "100.64.0.1"
-            ];
-            "port.peeraten.net" = [
-              "100.64.0.1"
-            ];
-          };
+          # nameservers.split = {
+          #   "lab.keyruu.de" = [
+          #     "100.64.0.1"
+          #   ];
+          #   "home.zimtix.de" = [
+          #     "100.64.0.1"
+          #   ];
+          #   "port.peeraten.net" = [
+          #     "100.64.0.1"
+          #   ];
+          # };
         };
         oidc = {
           only_start_if_oidc_is_available = true;
