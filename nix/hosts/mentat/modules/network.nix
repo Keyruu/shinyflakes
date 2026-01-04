@@ -33,7 +33,7 @@
   };
 
   services.tailscale = {
-    enable = true;
+    enable = false;
     useRoutingFeatures = "both";
     authKeyFile = config.sops.secrets.headscaleAuthKey.path;
     extraUpFlags = [
