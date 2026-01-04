@@ -123,7 +123,7 @@ in
       useRoutingFeatures = "client";
       authKeyFile = config.sops.secrets.headscaleAuthKey.path;
       extraUpFlags = [
-        "--login-server=https://headscale.peeraten.net"
+        "--login-server=http://127.0.0.1:8085"
         "--accept-routes=true"
       ];
     };
