@@ -33,12 +33,12 @@
   services.monitoring = {
     metrics = {
       enable = true;
-      interface = "tailscale0";
+      interface = "portal0";
     };
     logs = {
       enable = true;
       nginx = true;
-      lokiAddress = "http://mentat:3030";
+      lokiAddress = "http://100.67.0.2:3030";
     };
   };
 

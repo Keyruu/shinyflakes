@@ -308,7 +308,7 @@ services.nginx.virtualHosts."service.peeraten.net" = {
   enableACME = true;
   forceSSL = true;
   locations."/" = {
-    proxyPass = "http://100.64.0.1:PORT";  # Tailscale IP
+    proxyPass = "http://100.67.0.2:PORT";  # Tailscale IP
     proxyWebsockets = true;
   };
 };

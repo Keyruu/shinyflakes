@@ -17,7 +17,7 @@
 
   networking.firewall.interfaces = {
     "eth0".allowedTCPPorts = [ config.services.copyparty.settings.p ];
-    "tailscale0".allowedTCPPorts = [ config.services.copyparty.settings.p ];
+    "portal0".allowedTCPPorts = [ config.services.copyparty.settings.p ];
   };
 
   services.copyparty = {

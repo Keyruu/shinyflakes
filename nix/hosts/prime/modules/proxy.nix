@@ -42,7 +42,7 @@ let
       proxyHost = mentat;
       proxyPort = 8888;
     };
-    # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
+    # "immich.keyruu.de" = { proxyHost = "100.67.0.2"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };
 

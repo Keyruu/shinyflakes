@@ -37,7 +37,7 @@ in
 
   networking.firewall.interfaces = {
     librechat.allowedTCPPorts = [ ssePort ];
-    tailscale0.allowedTCPPorts = [ ssePort ];
+    portal0.allowedTCPPorts = [ ssePort ];
     ai.allowedTCPPorts = [ oapiPort ];
   };
 

@@ -6,7 +6,7 @@
 {
   networking.firewall.interfaces = {
     "eth0".allowedTCPPorts = [ config.services.loki.configuration.server.http_listen_port ];
-    "tailscale0".allowedTCPPorts = [ config.services.loki.configuration.server.http_listen_port ];
+    "portal0".allowedTCPPorts = [ config.services.loki.configuration.server.http_listen_port ];
   };
 
   services.loki = {

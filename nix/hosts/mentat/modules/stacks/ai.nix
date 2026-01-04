@@ -57,7 +57,7 @@ in
   networking.firewall.interfaces.librechat.allowedTCPPorts = [
     11434
   ];
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
+  networking.firewall.interfaces.portal0.allowedTCPPorts = [
     11434
   ];
 

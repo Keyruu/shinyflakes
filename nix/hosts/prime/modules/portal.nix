@@ -7,7 +7,6 @@
   };
 
   networking.firewall = {
-    enable = true;
     allowedUDPPorts = [ 51234 ];
 
     extraCommands = ''
