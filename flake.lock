@@ -1178,11 +1178,11 @@
         "vicinae": "vicinae_2"
       },
       "locked": {
-        "lastModified": 1766776299,
-        "narHash": "sha256-dGG+X2yBzvUmz5bCxuTw04xIZneJF8fl7bMtOkYvVbI=",
+        "lastModified": 1766947351,
+        "narHash": "sha256-Tqd5BOxfCtVWY19Gl32Fq5xsV3sTepItub20OQYgPmU=",
         "owner": "vicinaehq",
         "repo": "extensions",
-        "rev": "a7283005afd38c3aa937498d8fa214cc4eee0476",
+        "rev": "62f81e63d0420d6a310092746a96d7c105f7a53e",
         "type": "github"
       },
       "original": {
