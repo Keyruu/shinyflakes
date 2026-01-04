@@ -73,7 +73,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
-              "prime:3021"
+              "100.67.0.1:3021"
             ];
           }
         ];
@@ -84,7 +84,7 @@
           {
             targets = [
               "127.0.0.1:${toString config.services.cadvisor.port}"
-              "prime:3022"
+              "100.67.0.1:3022"
             ];
           }
         ];
@@ -119,16 +119,16 @@
           }
         ];
       }
-      {
-        job_name = "headscale";
-        static_configs = [
-          {
-            targets = [
-              "100.64.0.6:8095"
-            ];
-          }
-        ];
-      }
+      # {
+      #   job_name = "headscale";
+      #   static_configs = [
+      #     {
+      #       targets = [
+      #         "100.64.0.6:8095"
+      #       ];
+      #     }
+      #   ];
+      # }
       {
         job_name = "systemd";
         static_configs = [
