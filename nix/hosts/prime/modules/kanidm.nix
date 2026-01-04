@@ -66,21 +66,21 @@
         traccar_users = { };
       };
       systems.oauth2 = {
-        headscale = {
-          present = true;
-          displayName = "headscale.peeraten.net";
-          allowInsecureClientDisablePkce = true;
-          basicSecretFile = config.sops.secrets.headscaleOidc.path;
-          originUrl = "https://headscale.peeraten.net/oidc/callback";
-          originLanding = "https://headscale.peeraten.net/";
-          scopeMaps = {
-            headscale_users = [
-              "openid"
-              "email"
-              "profile"
-            ];
-          };
-        };
+        # headscale = {
+        #   present = true;
+        #   displayName = "headscale.peeraten.net";
+        #   allowInsecureClientDisablePkce = true;
+        #   basicSecretFile = config.sops.secrets.headscaleOidc.path;
+        #   originUrl = "https://headscale.peeraten.net/oidc/callback";
+        #   originLanding = "https://headscale.peeraten.net/";
+        #   scopeMaps = {
+        #     headscale_users = [
+        #       "openid"
+        #       "email"
+        #       "profile"
+        #     ];
+        #   };
+        # };
         traccar = {
           present = true;
           displayName = "traccar.peeraten.net";
