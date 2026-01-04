@@ -75,8 +75,10 @@ in
       enable = true;
       port = 8085;
       settings = {
-        server_url = "https://headscale.peeraten.net:443";
+        server_url = "https://headscale.peeraten.net";
         metrics_listen_addr = "0.0.0.0:8095";
+        tls_cert_path = null;
+        tls_key_path = null;
         prefixes = {
           v4 = "100.64.0.0/10";
           v6 = "fd7a:115c:a1e0::/48";

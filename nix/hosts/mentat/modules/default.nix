@@ -18,5 +18,6 @@
     ./copyparty.nix
     ./syncthing.nix
     ./backup.nix
+    ./portal.nix
   ];
 }

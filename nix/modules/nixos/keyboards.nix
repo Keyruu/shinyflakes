@@ -13,12 +13,8 @@
     '';
 
     packages = with pkgs; [
-      qmk
-      qmk-udev-rules # the only relevant
-      qmk_hid
-      via
-      vial
-    ]; # packages
+      qmk-udev-rules
+    ];
   };
 
   users.groups.plugdev = { };

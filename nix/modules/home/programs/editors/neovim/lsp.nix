@@ -147,7 +147,8 @@
       terraform.enable = true;
       helm.enable = true;
       scala.enable = true;
-      sql.enable = true;
+      # broken
+      sql.enable = false;
       svelte.enable = true;
     };
 

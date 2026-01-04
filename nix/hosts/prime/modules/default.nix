@@ -7,5 +7,6 @@
     # ./niks3.nix
     ./postgres.nix
     ./proxy.nix
+    ./portal.nix
   ];
 }

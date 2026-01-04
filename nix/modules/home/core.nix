@@ -8,6 +8,7 @@
 }:
 let
   pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs) system; };
+  pkgs-small = import inputs.nixpkgs-small { inherit (pkgs) system; };
 in
 {
   imports = [
@@ -114,7 +115,7 @@ in
     diebahn
     wireguard-ui
     discord
-    vesktop
+    pkgs-small.vesktop
     slack
     signal-desktop
     thunderbird
@@ -208,6 +209,7 @@ in
     bubblewrap
     socat
     orca-slicer
+    wireguard-tools
 
     perSystem.self.numr
     perSystem.self.glide-browser

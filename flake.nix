@@ -20,7 +20,7 @@
 
   inputs = {
     # nixpkgs
-    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&rev=cad22e7d996aea55ecab064e84834289143e44a0";
+    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
     nixpkgs-stable.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-25.05";
 
@@ -110,8 +110,10 @@
 
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
+    nvf-nixpkgs.url = "github:nixos/nixpkgs/c0b0e0fddf73fd517c3471e546c0df87a42d53f4";
     nvf = {
-      url = "github:Keyruu/nvf/main";
+      url = "github:thamenato/nvf/fix-nvim-treesitter";
+      # currently broken bc of treesitter main
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

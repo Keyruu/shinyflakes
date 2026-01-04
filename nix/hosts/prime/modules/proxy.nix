@@ -1,44 +1,45 @@
 { lib, ... }:
 let
+  mentat = "100.67.0.2";
   proxyHosts = {
     "hass.peeraten.net" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 8123;
     };
     "traccar.peeraten.net" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 5785;
     };
     "owntracks.peeraten.net" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 5144;
     };
     "map.peeraten.net" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 3001;
     };
     "calendar.peeraten.net" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 5232;
     };
     "files.keyruu.de" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 3210;
     };
     "s3.keyruu.de" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 3900;
     };
     "garage.keyruu.de" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 3902;
     };
     "29112025karaoke.keyruu.de" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 5555;
     };
     "atuin.keyruu.de" = {
-      proxyHost = "100.64.0.1";
+      proxyHost = mentat;
       proxyPort = 8888;
     };
     # "immich.keyruu.de" = { proxyHost = "100.64.0.1"; proxyPort = 3210; };
