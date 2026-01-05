@@ -96,6 +96,13 @@ _: {
       desc = "Delete buffer";
       silent = true;
     }
+    {
+      key = "<leader>bD";
+      mode = "n";
+      action = '':%bdelete|edit #|normal`"<CR>'';
+      desc = "Delete all other buffers except the current one";
+      silent = true;
+    }
 
     {
       key = "<leader>y";

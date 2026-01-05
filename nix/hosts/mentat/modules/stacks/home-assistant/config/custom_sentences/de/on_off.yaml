@@ -1,0 +1,10 @@
+language: "de"
+intents:
+  HassTurnOn:
+    data:
+      - sentences:
+          - "{name} an"
+  HassTurnOff:
+    data:
+      - sentences:
+          - "{name} aus"

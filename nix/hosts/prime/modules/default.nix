@@ -8,6 +8,5 @@
     ./postgres.nix
     ./proxy.nix
     ./portal.nix
-    ./dsnet.nix
   ];
 }

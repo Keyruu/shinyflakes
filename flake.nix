@@ -74,6 +74,8 @@
 
     copyparty.url = "github:9001/copyparty";
 
+    pog.url = "github:jpetrucciani/pog";
+
     # workstation
     home-manager = {
       url = "github:nix-community/home-manager/master";
