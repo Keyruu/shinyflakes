@@ -43,27 +43,6 @@
         port = 9633;
         listenAddress = "127.0.0.1";
       };
-      nginxlog = {
-        enable = true;
-        port = 3024;
-        user = "nginx";
-        settings = {
-          namespaces = [
-            {
-              name = "nginx";
-              source.files = [
-                "/var/log/nginx/access.log"
-              ];
-
-              format = ''$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'';
-
-              labels = {
-                app = "default";
-              };
-            }
-          ];
-        };
-      };
     };
 
     scrapeConfigs = [

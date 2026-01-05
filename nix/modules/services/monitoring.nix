@@ -16,6 +16,11 @@ in
     logs = {
       enable = lib.mkEnableOption "Push logs";
       nginx = lib.mkEnableOption "Enable Nginx logs";
+      instance = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = "instance label to identify machine";
+      };
 
       lokiAddress = lib.mkOption {
         type = lib.types.str;

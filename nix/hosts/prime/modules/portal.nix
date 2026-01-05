@@ -1,9 +1,10 @@
 { config, ... }:
-
 {
   sops.secrets.primePortalKey = {
     mode = "0600";
   };
+
+  networking.firewall.allowedUDPPorts = [ 51234 ];
 
   networking.wg-quick.interfaces = {
     portal0 = {
