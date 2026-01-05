@@ -1,7 +1,6 @@
 {
   imports = [
     ./home-assistant.nix
-    ./custom-sidebar.nix
 
     ./zigbee2mqtt.nix
     ./mqtt.nix
