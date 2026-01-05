@@ -37,7 +37,6 @@
     };
     logs = {
       enable = true;
-      nginx = true;
       instance = "100.67.0.1";
       lokiAddress = "http://100.67.0.2:3030";
     };
@@ -48,6 +47,8 @@
     wget
     busybox
     ethtool
+    dsnet
+    kanidm
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
