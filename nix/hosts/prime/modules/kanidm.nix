@@ -16,6 +16,7 @@
 
   security.acme = {
     certs."auth.peeraten.net" = {
+      group = "kanidm";
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
