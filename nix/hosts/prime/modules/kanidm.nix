@@ -6,7 +6,6 @@
     group = "kanidm";
     extraGroups = [
       "headscale"
-      "nginx"
     ];
   };
 
@@ -17,7 +16,6 @@
 
   security.acme = {
     certs."auth.peeraten.net" = {
-      group = "nginx";
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
