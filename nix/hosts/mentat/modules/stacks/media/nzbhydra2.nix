@@ -10,7 +10,7 @@ in
   virtualisation.quadlet.containers = {
     media-nzbhydra2 = {
       containerConfig = {
-        image = "lscr.io/linuxserver/nzbhydra2:8.2.0";
+        image = "lscr.io/linuxserver/nzbhydra2:8.2.1";
         environments = {
           PUID = "0";
           PGID = "0";
