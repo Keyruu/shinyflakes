@@ -210,6 +210,7 @@ in
     socat
     orca-slicer
     wireguard-tools
+    tree-sitter
 
     perSystem.self.numr
     perSystem.self.glide-browser

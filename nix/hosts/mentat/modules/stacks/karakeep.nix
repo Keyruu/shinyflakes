@@ -75,7 +75,7 @@ in
         karakeep-chrome = {
           containerConfig = {
             # renovate: ignore
-            image = "gcr.io/zenika-hub/alpine-chrome:123";
+            image = "gcr.io/zenika-hub/alpine-chrome:124";
             exec = "--no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --hide-scrollbars";
             networks = [ networks.karakeep.ref ];
             networkAliases = [ "chrome" ];
