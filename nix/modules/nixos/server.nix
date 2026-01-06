@@ -6,7 +6,8 @@
     flake.modules.nixos.ssh-access
     flake.modules.nixos.podman
     flake.modules.nixos.quadlet
-    ./services/backup.nix
+
+    flake.modules.services.backup
   ];
 
   user.name = "root";

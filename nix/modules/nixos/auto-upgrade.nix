@@ -1,10 +1,11 @@
 {
+  flake,
   config,
   ...
 }:
 {
   imports = [
-    ./services/auto-upgrade-notify.nix
+    flake.modules.services.auto-upgrade-notify
   ];
 
   sops.secrets.resendApiKey = { };

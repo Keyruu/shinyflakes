@@ -4,6 +4,11 @@
     mode = "0600";
   };
 
+  boot.kernel.sysctl = {
+    "net.ipv4.ip_forward" = 1;
+    "net.ipv6.conf.all.forwarding" = 1;
+  };
+
   networking.firewall.allowedUDPPorts = [ 51234 ];
 
   networking.wg-quick.interfaces = {

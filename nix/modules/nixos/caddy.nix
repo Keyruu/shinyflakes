@@ -1,7 +1,7 @@
-{ pkgs, ... }:
+{ flake, pkgs, ... }:
 {
   imports = [
-    ./services/caddy.nix
+    flake.modules.services.caddy
   ];
 
   networking.firewall.allowedTCPPorts = [
