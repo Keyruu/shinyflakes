@@ -36,5 +36,6 @@
     swayidle
     pamixer
     wlopm
+    gcr
   ];
 }

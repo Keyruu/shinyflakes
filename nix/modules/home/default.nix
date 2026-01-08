@@ -22,5 +22,6 @@
     ./ssh.nix
     ./tailscale.nix
     ./gaming.nix
+    ./element.nix
   ];
 }

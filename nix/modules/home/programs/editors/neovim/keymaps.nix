@@ -92,7 +92,14 @@ _: {
     {
       key = "<S-q>";
       mode = "n";
-      action = ":bdelete<CR>";
+      action = ''
+        function()                                                                          
+          local current_buf = vim.api.nvim_get_current_buf()                                         
+          vim.cmd('bprevious')
+          vim.api.nvim_buf_delete(current_buf, {})                                                   
+         end
+      '';
+      lua = true;
       desc = "Delete buffer";
       silent = true;
     }
@@ -102,6 +109,46 @@ _: {
       action = '':%bdelete|edit #|normal`"<CR>'';
       desc = "Delete all other buffers except the current one";
       silent = true;
+    }
+    {
+      key = "<leader>,";
+      mode = "n";
+      action = "function() Snacks.picker.buffers() end";
+      desc = "Buffers";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>/";
+      mode = "n";
+      action = "function() Snacks.picker.grep() end";
+      desc = "Grep";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>:";
+      mode = "n";
+      action = "function() Snacks.picker.command_history() end";
+      desc = "Command History";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>n";
+      mode = "n";
+      action = "function() Snacks.picker.notifications() end";
+      desc = "Notification History";
+      silent = true;
+      lua = true;
+    }
+    {
+      key = "<leader>,";
+      mode = "n";
+      action = "function() Snacks.picker.buffers() end";
+      desc = "Buffers";
+      silent = true;
+      lua = true;
     }
 
     {

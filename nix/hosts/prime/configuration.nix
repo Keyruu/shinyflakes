@@ -19,7 +19,6 @@
     flake.modules.nixos.beszel-agent
     flake.modules.nixos.caddy
 
-    # Import local modules and services
     flake.modules.services.monitoring
     ./modules
   ];
@@ -30,15 +29,18 @@
     };
   };
 
-  services.monitoring = {
-    metrics = {
-      enable = true;
-      interface = "portal0";
-    };
-    logs = {
-      enable = true;
-      instance = "100.67.0.1";
-      lokiAddress = "http://100.67.0.2:3030";
+  services = {
+    mesh.server.enable = true;
+    monitoring = {
+      metrics = {
+        enable = true;
+        interface = "portal0";
+      };
+      logs = {
+        enable = true;
+        instance = "100.67.0.1";
+        lokiAddress = "http://100.67.0.2:3030";
+      };
     };
   };
 

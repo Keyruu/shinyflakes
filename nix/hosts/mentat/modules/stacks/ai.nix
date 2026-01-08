@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   openwebuiStackPath = "/etc/stacks/openwebui";
 in
@@ -60,6 +60,30 @@ in
   networking.firewall.interfaces.portal0.allowedTCPPorts = [
     11434
   ];
+
+  systemd = {
+    services.ollama-keepalive = {
+      description = "Keep Ollama qwen3:8b model loaded";
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = # sh
+          ''
+            ${pkgs.systemd}/bin/systemctl is-active ollama.service && \
+            "${pkgs.curl} -s http://127.0.0.1:11434/api/generate -d '{\"model\": \"qwen3:8b\", \"keep_alive\": -1}'" || true
+          '';
+      };
+    };
+
+    timers.ollama-keepalive = {
+      description = "Timer for Ollama model keepalive";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnBootSec = "5min";
+        OnUnitActiveSec = "10min";
+        Unit = "ollama-keepalive.service";
+      };
+    };
+  };
 
   services.nginx.virtualHosts = {
     "ollama.lab.keyruu.de" = {
