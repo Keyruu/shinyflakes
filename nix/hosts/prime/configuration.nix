@@ -34,7 +34,7 @@
     monitoring = {
       metrics = {
         enable = true;
-        interface = "portal0";
+        interface = "mesh0";
       };
       logs = {
         enable = true;
