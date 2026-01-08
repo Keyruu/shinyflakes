@@ -1,8 +1,16 @@
-_:
+{ config, ... }:
 let
+  cfg = config.services.my.jellyfin;
   jellyfinPath = "/etc/stacks/jellyfin";
 in
 {
+  services.my.jellyfin = {
+    enable = true;
+    port = 8096;
+    domain = "jellyfin.lab.keyruu.de";
+    access = [ "lucas" ];
+  };
+
   systemd.tmpfiles.rules = [
     "d ${jellyfinPath}/config 0770 root root"
     "d ${jellyfinPath}/cache 0770 root root"
@@ -19,10 +27,7 @@ in
         "/main/media:/media"
       ];
       publishPorts = [
-        "127.0.0.1:8096:8096"
-      ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
+        "127.0.0.1:${cfg.port}:${cfg.port}"
       ];
     };
     serviceConfig = {
@@ -30,12 +35,12 @@ in
     };
   };
 
-  services.nginx.virtualHosts."jellyfin.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${cfg.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8096";
+      proxyPass = "http://127.0.0.1:${cfg.port}";
       proxyWebsockets = true;
     };
   };

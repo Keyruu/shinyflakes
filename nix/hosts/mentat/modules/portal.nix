@@ -4,6 +4,8 @@
     mode = "0600";
   };
 
+  services.mesh.interface = "portal0";
+
   networking.wg-quick.interfaces = {
     portal0 = {
       address = [ "100.67.0.2/24" ];

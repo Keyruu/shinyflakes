@@ -2,6 +2,7 @@
   config,
   inputs,
   perSystem,
+  lib,
   ...
 }:
 {
@@ -29,6 +30,17 @@
       process-manager
       port-killer
       niri
+      # doesnt work for some reason
+      # (perSystem.vicinae.mkRayCastExtension {
+      #   name = "karakeep";
+      #   sha256 = "sha256-DAfDI2wxZ7mkpbQ+C0Y2xEaWZ98SiEPj6S/q8xlyRC8=";
+      #   rev = "3f7bf4d8f11dda61d1da77ddd4c0e67eb997d099";
+      # })
+      (perSystem.vicinae.mkRayCastExtension {
+        name = "password-generator";
+        sha256 = "sha256-VbC6h6TuvPlnPvVGs23pefw4a4musuZI+wTUg9v+9jk=";
+        rev = "3f7bf4d8f11dda61d1da77ddd4c0e67eb997d099";
+      })
     ];
     settings = {
       favicon_service = "twenty";
