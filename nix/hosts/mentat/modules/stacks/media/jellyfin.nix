@@ -27,7 +27,7 @@ in
         "/main/media:/media"
       ];
       publishPorts = [
-        "127.0.0.1:${cfg.port}:${cfg.port}"
+        "127.0.0.1:${toString cfg.port}:${toString cfg.port}"
       ];
     };
     serviceConfig = {
@@ -40,7 +40,7 @@ in
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:${cfg.port}";
+      proxyPass = "http://127.0.0.1:${toString cfg.port}";
       proxyWebsockets = true;
     };
   };
