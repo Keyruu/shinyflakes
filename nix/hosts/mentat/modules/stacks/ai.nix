@@ -66,11 +66,12 @@ in
       description = "Keep Ollama qwen3:8b model loaded";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = # sh
-          ''
-            ${pkgs.systemd}/bin/systemctl is-active ollama.service && \
-            "${pkgs.curl} -s http://127.0.0.1:11434/api/generate -d '{\"model\": \"qwen3:8b\", \"keep_alive\": -1}'" || true
-          '';
+        ExecStart =
+          pkgs.writeShellScript "preload" # sh
+            ''
+              ${pkgs.systemd}/bin/systemctl is-active ollama.service && \
+              ${pkgs.curl} -s http://127.0.0.1:11434/api/generate -d '{\"model\": \"qwen3:8b\", \"keep_alive\": -1}' || true
+            '';
       };
     };
 
