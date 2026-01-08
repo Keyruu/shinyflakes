@@ -29,7 +29,8 @@ in
             inherit (peer) publicKey;
             allowedIPs = [
               "${peer.ip}/32"
-            ];
+            ]
+            ++ peer.allowedIPs;
             persistentKeepalive = 25;
           }) (concatMap attrValues (attrValues cfg.people));
       };
