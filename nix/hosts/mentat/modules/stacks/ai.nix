@@ -70,7 +70,7 @@ in
           pkgs.writeShellScript "preload" # sh
             ''
               ${pkgs.systemd}/bin/systemctl is-active ollama.service && \
-              ${pkgs.curl}/bin/curl -s http://127.0.0.1:11434/api/generate -d '{"model": "qwen3:8b", "keep_alive": -1}' || true
+              ${pkgs.curl}/bin/curl -s http://127.0.0.1:11434/api/generate -d '{"model": "qwen3:8b", "keep_alive": -1, "options": { "num_ctx": 40000 }}' || true
             '';
       };
     };
