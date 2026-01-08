@@ -8,7 +8,7 @@ let
   inherit (config.services) mesh;
 in
 {
-  config = {
+  config = lib.mkIf (cfg != { }) {
     networking.firewall.extraCommands =
       let
         mkIPs =
