@@ -16,6 +16,7 @@
             default = "tcp";
           };
           domain = lib.mkOption { type = lib.types.str; };
+          public = lib.mkEnableOption "internet accessible service";
         };
       });
     default = { };
