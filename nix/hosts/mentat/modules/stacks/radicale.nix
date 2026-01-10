@@ -1,6 +1,8 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/radicale";
+  mesh = config.services.mesh;
+  my = config.my.radicale;
 in
 {
   systemd.tmpfiles.rules = [
@@ -21,9 +23,18 @@ in
     group = "radicale";
   };
 
+  services.my.radicale = {
+    enable = true;
+    port = 5232;
+  };
+
+  networking.firewall.interfaces = {
+    "${mesh.interface}".allowedTCPPorts = [ my.port ];
+  };
+
   environment.etc."stacks/radicale/config/config".text = ''
     [server]
-    hosts = 0.0.0.0:5232
+    hosts = 0.0.0.0:${toString my.port}
 
     [auth]
     type = htpasswd
@@ -39,8 +50,8 @@ in
       containerConfig = {
         image = "tomsquest/docker-radicale:3.5.10.0";
         publishPorts = [
-          "127.0.0.1:5232:5232"
-          "${config.services.mesh.ip}:5232:5232"
+          "127.0.0.1:${toString my.port}:${toString my.port}"
+          "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
         ];
         volumes = [
           "${stackPath}/data:/data"
@@ -74,7 +85,7 @@ in
     useACMEHost = "calendar.peeraten.net";
     forceSSL = true;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:5232";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

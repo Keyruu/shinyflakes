@@ -57,7 +57,7 @@ in
 
   networking.wg-quick.interfaces = {
     "${mesh.interface}" = {
-      address = [ "${config.services.mesh.ip}/24" ];
+      address = [ "${mesh.ip}/24" ];
       privateKeyFile = config.sops.secrets.mentatPortalKey.path;
 
       peers = [

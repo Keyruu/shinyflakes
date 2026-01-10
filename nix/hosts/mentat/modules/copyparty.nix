@@ -16,7 +16,6 @@
   sops.secrets.copypartyPassword = { };
 
   networking.firewall.interfaces = {
-    "eth0".allowedTCPPorts = [ config.services.copyparty.settings.p ];
     "${config.services.mesh.interface}".allowedTCPPorts = [ config.services.copyparty.settings.p ];
   };
 
