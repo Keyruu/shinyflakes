@@ -65,7 +65,7 @@ in
           user = "65534"; # nobody user
           environmentFiles = [ config.sops.templates."redlib.env".path ];
           noNewPrivileges = true;
-          readOnly = true;
+          # readOnly = true;
           healthCmd = "wget --no-verbose --tries=1 --spider --quiet http://localhost:8080/settings";
           healthInterval = "5m";
           healthTimeout = "3s";
