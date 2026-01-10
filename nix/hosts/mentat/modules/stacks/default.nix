@@ -21,5 +21,6 @@
     ./garage.nix
     ./karaoke.nix
     ./dawarich.nix
+    ./redlib.nix
   ];
 }

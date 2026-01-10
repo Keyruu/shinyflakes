@@ -1,35 +1,57 @@
 { config, ... }:
 let
-  stackPath = "/etc/stacks/redlib";
+  subscriptions = [
+    "selfhosted"
+    "homelab"
+    "homeassistant"
+    "jellyfin"
+    "linux"
+    "ProgrammerHumor"
+    "Steam"
+    "Programming"
+    "BuyFromEU"
+    "LocalLLaMA"
+    "niri"
+    "ObsidianMD"
+    "rust"
+    "go"
+    "neovim"
+    "dumbphones"
+    "Piracy"
+    "Hetzner"
+    "devops"
+    "attackontitan"
+    "immich"
+    "unixporn"
+    "NixOS"
+    "commandline"
+  ];
 in
 {
-  # 1. Sops secrets for redlib environment variables
-  sops.secrets = {
-    redlibConfig = {
-      restartUnits = [ "redlib.service" ];
-    };
-  };
-
-  # 2. Directory creation
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/config 0755 root root"
-  ];
-
-  # 3. Environment template for redlib
   sops.templates."redlib.env" = {
     restartUnits = [ "redlib.service" ];
     content = ''
-      # Redlib Configuration
-      REDLIB_CONFIG=${config.sops.placeholder.redlibConfig}
+      REDLIB_SFW_ONLY=on
+      REDLIB_ROBOTS_DISABLE_INDEXING=off
+      REDLIB_PUSHSHIFT_FRONTEND=undelete.pullpush.io
 
-      # Optional settings (add as needed)
-      # REDLIB_DEFAULT_TRENDING_SUB=all
-      # REDLIB_DEFAULT_POST_SORT=hot
-      # REDLIB_DEFAULT_SUB_SORT=hot
-      # REDLIB_DEFAULT_SHOW_NSFW=on
-      # REDLIB_DEFAULT_USE_HLS=on
-      # REDLIB_DEFAULT_HIDE_HLS_NOTIFICATION=on
+      REDLIB_DEFAULT_THEME=dark
+      REDLIB_DEFAULT_FRONT_PAGE=default
+      REDLIB_DEFAULT_LAYOUT=card
+      REDLIB_DEFAULT_WIDE=off
+      REDLIB_DEFAULT_POST_SORT=hot
+      REDLIB_DEFAULT_COMMENT_SORT=confidence
+      REDLIB_DEFAULT_BLUR_SPOILER=on
+      REDLIB_DEFAULT_SHOW_NSFW=off
+      REDLIB_DEFAULT_BLUR_NSFW=on
+      REDLIB_DEFAULT_AUTOPLAY_VIDEOS=off
+      REDLIB_DEFAULT_SUBSCRIPTIONS=${builtins.concatStringsSep "+" subscriptions}
+      REDLIB_DEFAULT_FILTERS=
+      REDLIB_DEFAULT_HIDE_AWARDS=on
+      REDLIB_DEFAULT_HIDE_SIDEBAR_AND_SUMMARY=off
+      REDLIB_DEFAULT_DISABLE_VISIT_REDDIT_CONFIRMATION=off
+      REDLIB_DEFAULT_HIDE_SCORE=off
+      REDLIB_DEFAULT_FIXED_NAVBAR=on
     '';
   };
 
@@ -39,21 +61,11 @@ in
       redlib = {
         containerConfig = {
           image = "quay.io/redlib/redlib:latest";
-          publishPorts = [ "127.0.0.1:8080:8080" ];
+          publishPorts = [ "127.0.0.1:8033:8080" ];
           user = "65534"; # nobody user
-          volumes = [
-            "${stackPath}/data:/data:ro"
-          ];
           environmentFiles = [ config.sops.templates."redlib.env".path ];
-          labels = [
-            "wud.tag.include=^\d+\.\d+\.\d+$"
-          ];
-
-          # Security settings
           noNewPrivileges = true;
           readOnly = true;
-
-          # Health check
           healthCmd = "wget --no-verbose --tries=1 --spider --quiet http://localhost:8080/settings";
           healthInterval = "5m";
           healthTimeout = "3s";
@@ -64,31 +76,16 @@ in
         serviceConfig = {
           Restart = "always";
         };
-
-        unitConfig = {
-          Description = "Redlib - Privacy-focused Reddit frontend";
-          Documentation = "https://github.com/redlib-org/redlib";
-        };
       };
     };
   };
 
-  # 5. ACME certificate for reverse proxy
-  security.acme = {
-    certs."redlib.lab.keyruu.de" = {
-      dnsProvider = "cloudflare";
-      dnsPropagationCheck = true;
-      environmentFile = config.sops.secrets.cloudflare.path;
-    };
-  };
-
-  # 6. Nginx reverse proxy configuration
   services.nginx.virtualHosts."redlib.lab.keyruu.de" = {
-    useACMEHost = "redlib.lab.keyruu.de";
+    useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8080";
+      proxyPass = "http://127.0.0.1:8033";
       proxyWebsockets = true;
     };
   };
