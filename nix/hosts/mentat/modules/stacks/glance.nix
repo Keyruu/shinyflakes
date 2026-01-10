@@ -151,7 +151,7 @@ in
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${cfg.settings.server.port}";
+        proxyPass = "http://127.0.0.1:${toString cfg.settings.server.port}";
         proxyWebsockets = true;
       };
     };
