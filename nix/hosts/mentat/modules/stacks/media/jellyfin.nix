@@ -8,7 +8,6 @@ in
     enable = true;
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
-    access = [ "lucas" ];
   };
 
   systemd.tmpfiles.rules = [
