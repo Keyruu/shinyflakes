@@ -22,7 +22,6 @@ in
         address = [ "100.67.0.1/24" ]; # VPN subnet
         listenPort = 51234;
         privateKeyFile = config.sops.secrets.meshServerKey.path;
-        # peers = with builtins; concatMap attrValues (attrValues cfg.people);
         peers =
           with builtins;
           map (peer: {

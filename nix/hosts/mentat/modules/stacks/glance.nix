@@ -1,24 +1,33 @@
 { config, ... }:
 let
   cfg = config.services.glance;
-  subreddits = [
-    "selfhosted"
-    "homelab"
-    "homeassistant"
-    "linux"
-    "NixOS"
-    "commandline"
-    "ProgrammerHumor"
-    "Steam"
-    "Programming"
-    "niri"
-    "rust"
-    "go"
-    "neovim"
-    "dumbphones"
-    "Piracy"
-    "unixporn"
-  ];
+  subreddits = {
+    self-hosted = [
+      "selfhosted"
+      "homelab"
+      "homeassistant"
+      "immich"
+      "NixOS"
+    ];
+    linux = [
+      "linux"
+      "niri"
+      "unixporn"
+      "commandline"
+    ];
+    coding = [
+      "neovim"
+      "Programming"
+      "ProgrammerHumor"
+      "rust"
+      "go"
+    ];
+    tech = [
+      "Piracy"
+      "dumbphones"
+      "Steam"
+    ];
+  };
 
   youtubers = {
     theprimetime = "UCUyeluBRhGPCW4rPe_UvBZQ";
@@ -30,6 +39,7 @@ let
     ct3003 = "UC1t9VFj-O6YUDPQxaVg-NkQ";
     jeff-geerling = "UCR-DXc1voovS8nhAvccRZhg";
     everthing-smart-home = "UCrVLgIniVg6jW38uVqDRIiQ";
+    hardware-haven = "UCgdTVe88YVSrOZ9qKumhULQ";
   };
 in
 {
@@ -76,9 +86,10 @@ in
                 widgets = [
                   {
                     type = "group";
-                    widgets = map (subreddit: {
+                    widgets = builtins.mapAttrs (category: subreddits: {
                       type = "reddit";
-                      inherit subreddit;
+                      title = category;
+                      subreddit = builtins.concatStringsSep "+" subreddits;
                       show-thumbnails = true;
                     }) subreddits;
                   }
