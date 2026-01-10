@@ -28,10 +28,6 @@ in
     port = 5232;
   };
 
-  networking.firewall.interfaces = {
-    "${mesh.interface}".allowedTCPPorts = [ my.port ];
-  };
-
   environment.etc."stacks/radicale/config/config".text = ''
     [server]
     hosts = 0.0.0.0:${toString my.port}
