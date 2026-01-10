@@ -36,7 +36,7 @@ in
       };
     };
 
-    services.caddy.virtualHostsWithDefaults = {
+    services.caddy.virtualHosts = {
       "mesh.peeraten.net" = {
         extraConfig = ''
           reverse_proxy 127.0.0.1:51234{
