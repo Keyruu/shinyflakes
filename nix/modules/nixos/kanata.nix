@@ -4,7 +4,10 @@
     keyboards = {
       homerow = {
         configFile = ./kanata-config/kanata-homerow.kbd;
-        devices = [ "/dev/input/by-id/usb-ROYUAN_MonsGeek_Keyboard-event-kbd" ];
+        devices = [
+          "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+          "/dev/input/event0"
+        ];
       };
       common = {
         configFile = ./kanata-config/kanata-common.kbd;

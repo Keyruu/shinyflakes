@@ -1,6 +1,6 @@
 {
   imports = [
     ./options.nix
-    ./firewall.nix
+    # ./firewall.nix
   ];
 }
