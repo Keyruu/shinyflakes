@@ -9,6 +9,7 @@
         a = {
           sleipnir = {
             content = ref.hcloud_server.sleipnir.ipv4_address;
+            proxied = false;
             cnames = [
               "sorryihavetodothis"
               "rybbit"
@@ -94,18 +95,24 @@
 
     "peeraten.net" = {
       zoneId = ref.cloudflare_zone.peeraten-net.id;
-      records.cname.sleipnir = {
-        content = "sleipnir.keyruu.de";
-        cnames = [
-          "auth"
-          "calendar"
-          "hass"
-          "headscale"
-          "map"
-          "traccar"
-          "owntracks"
-          "mesh"
-        ];
+      records.cname = {
+        sleipnir = {
+          content = "sleipnir.keyruu.de";
+          proxied = false;
+          cnames = [
+            "auth"
+            "calendar"
+            "hass"
+            "headscale"
+            "map"
+            "traccar"
+            "owntracks"
+          ];
+        };
+        mesh = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
       };
     };
 

@@ -182,7 +182,7 @@ in
               type = "CNAME";
               content = "${recordName}.${domain}";
               ttl = 1;
-              proxied = shouldProxy "CNAME" record;
+              proxied = true;
             }
           ) (record.cnames or [ ]);
 
@@ -203,8 +203,7 @@ in
             (lib.mapAttrsToList (
               recordName: recordAttrs:
               lib.mapAttrsToList (
-                recordKey: record:
-                mkRecord domain zone recordType recordName (record // { comment = recordKey; })
+                recordKey: record: mkRecord domain zone recordType recordName (record // { comment = recordKey; })
               ) recordAttrs
             ))
             lib.flatten
