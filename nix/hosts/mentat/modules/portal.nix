@@ -55,7 +55,7 @@ in
     ip = "100.67.0.2";
   };
 
-  networking.firewall.checkReversePath = "loose";
+  networking.firewall.trustedInterfaces = [ mesh.interface ];
 
   networking.wg-quick.interfaces = {
     "${mesh.interface}" = {
