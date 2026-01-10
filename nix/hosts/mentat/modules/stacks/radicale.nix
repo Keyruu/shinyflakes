@@ -1,8 +1,8 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/radicale";
-  mesh = config.services.mesh;
-  my = config.my.radicale;
+  inherit (config.services) mesh;
+  my = config.services.my.radicale;
 in
 {
   systemd.tmpfiles.rules = [
