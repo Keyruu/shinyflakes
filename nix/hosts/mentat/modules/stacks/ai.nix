@@ -54,12 +54,14 @@ in
       };
     };
 
-  networking.firewall.interfaces.librechat.allowedTCPPorts = [
-    11434
-  ];
-  networking.firewall.interfaces.portal0.allowedTCPPorts = [
-    11434
-  ];
+  networking.firewall.interfaces = {
+    librechat.allowedTCPPorts = [
+      11434
+    ];
+    "${config.services.mesh.interface}".allowedTCPPorts = [
+      11434
+    ];
+  };
 
   systemd = {
     services.ollama-keepalive = {

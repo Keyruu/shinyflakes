@@ -1,4 +1,5 @@
 {
+  config,
   perSystem,
   pkgs,
   lib,
@@ -14,7 +15,7 @@ in
 {
   networking.firewall.interfaces = {
     librechat.allowedTCPPorts = [ ssePort ];
-    portal0.allowedTCPPorts = [ ssePort ];
+    "${config.services.mesh.interface}".allowedTCPPorts = [ ssePort ];
     ai.allowedTCPPorts = [ oapiPort ];
   };
 

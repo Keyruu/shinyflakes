@@ -16,10 +16,6 @@
             default = "tcp";
           };
           domain = lib.mkOption { type = lib.types.str; };
-          access = lib.mkOption {
-            type = with lib.types; listOf str;
-            default = [ "lucas" ];
-          };
         };
       });
     default = { };

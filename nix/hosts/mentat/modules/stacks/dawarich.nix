@@ -98,7 +98,7 @@ in
             exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
             publishPorts = [
               "127.0.0.1:3001:3000"
-              "100.67.0.2:3001:3000"
+              "${config.services.mesh.ip}:3001:3000"
             ];
             volumes = [
               "${stackPath}/public:/var/app/public"

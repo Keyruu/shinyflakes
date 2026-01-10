@@ -1,6 +1,6 @@
-{ lib, ... }:
+{ lib, config, ... }:
 let
-  mentat = "100.67.0.2";
+  mentat = config.services.mesh.people.lucas.devices.mentat.ip;
   proxyHosts = {
     "hass.peeraten.net" = {
       proxyHost = mentat;

@@ -17,4 +17,6 @@
   environment.systemPackages = with pkgs; [
     isd
   ];
+
+  networking.firewall.allowPing = true;
 }

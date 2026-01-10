@@ -18,7 +18,7 @@ in
       3900
       3902
     ];
-    portal0.allowedTCPPorts = [
+    "${config.services.mesh.interface}".allowedTCPPorts = [
       3900
       3902
     ];
@@ -60,8 +60,8 @@ in
       publishPorts = [
         "127.0.0.1:3900:3900"
         "127.0.0.1:3902:3902"
-        "100.67.0.2:3900:3900"
-        "100.67.0.2:3902:3902"
+        "${config.services.mesh.ip}:3900:3900"
+        "${config.services.mesh.ip}:3902:3902"
         "3901:3901"
         "127.0.0.1:3903:3903"
       ];

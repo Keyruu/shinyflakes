@@ -28,7 +28,7 @@ in
       ];
       publishPorts = [
         "127.0.0.1:${toString cfg.port}:${toString cfg.port}"
-        "100.67.0.2:${toString cfg.port}:${toString cfg.port}"
+        "${config.services.mesh.ip}:${toString cfg.port}:${toString cfg.port}"
       ];
     };
     serviceConfig = {

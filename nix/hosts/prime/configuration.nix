@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   flake,
   pkgs,
@@ -29,20 +30,24 @@
     };
   };
 
-  services = {
-    mesh.server.enable = true;
-    monitoring = {
-      metrics = {
-        enable = true;
-        interface = "mesh0";
-      };
-      logs = {
-        enable = true;
-        instance = "100.67.0.1";
-        lokiAddress = "http://100.67.0.2:3030";
+  services =
+    let
+      inherit (config.services) mesh;
+    in
+    {
+      mesh.server.enable = true;
+      monitoring = {
+        metrics = {
+          enable = true;
+          inherit (mesh) interface;
+        };
+        logs = {
+          enable = true;
+          instance = "100.67.0.1";
+          lokiAddress = "http://${mesh.people.lucas.devices.mentat.ip}:3030";
+        };
       };
     };
-  };
 
   environment.systemPackages = with pkgs; [
     vim

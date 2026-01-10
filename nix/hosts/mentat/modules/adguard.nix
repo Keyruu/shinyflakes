@@ -20,7 +20,7 @@
         dns = {
           bind_hosts = [
             "192.168.100.7"
-            "100.67.0.2"
+            "${config.services.mesh.ip}"
           ];
           port = 53;
           upstream_dns = [

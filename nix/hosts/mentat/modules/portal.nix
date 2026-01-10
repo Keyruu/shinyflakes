@@ -40,8 +40,6 @@ let
       '';
 
   allRules = lib.concatMapStrings deviceRules allDevices;
-
-  wgSubnet = "100.67.0.0/24";
 in
 {
   boot.kernel.sysctl = {
@@ -53,17 +51,19 @@ in
     mode = "0600";
   };
 
-  services.mesh.interface = "portal0";
+  services.mesh = {
+    ip = "100.67.0.2";
+  };
 
   networking.wg-quick.interfaces = {
-    portal0 = {
-      address = [ "100.67.0.2/24" ];
+    "${mesh.interface}" = {
+      address = [ "${config.services.mesh.ip}/24" ];
       privateKeyFile = config.sops.secrets.mentatPortalKey.path;
 
       peers = [
         {
           publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
-          allowedIPs = [ wgSubnet ];
+          allowedIPs = [ mesh.subnet ];
           endpoint = "168.119.225.165:51234";
           persistentKeepalive = 25;
         }
@@ -80,14 +80,14 @@ in
         ${allRules}
 
         iptables -A wireguard-forward -m state --state ESTABLISHED,RELATED -j ACCEPT
-        iptables -t nat -A POSTROUTING -s ${wgSubnet} -o ${lanInterface} -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s ${mesh.wgSubnet} -o ${lanInterface} -j MASQUERADE
       '';
 
       postDown = ''
         iptables -D FORWARD -j wireguard-forward 2>/dev/null || true
         iptables -F wireguard-forward 2>/dev/null || true
         iptables -X wireguard-forward 2>/dev/null || true
-        iptables -t nat -D POSTROUTING -s ${wgSubnet} -o ${lanInterface} -j MASQUERADE 2>/dev/null || true
+        iptables -t nat -D POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE 2>/dev/null || true
       '';
     };
   };

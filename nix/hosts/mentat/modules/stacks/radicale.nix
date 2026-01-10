@@ -40,7 +40,7 @@ in
         image = "tomsquest/docker-radicale:3.5.10.0";
         publishPorts = [
           "127.0.0.1:5232:5232"
-          "100.67.0.2:5232:5232"
+          "${config.services.mesh.ip}:5232:5232"
         ];
         volumes = [
           "${stackPath}/data:/data"
