@@ -32,7 +32,7 @@ in
             ]
             ++ peer.allowedIPs;
             persistentKeepalive = 25;
-          }) (concatMap attrValues (attrValues cfg.people));
+          }) (concatMap (person: attrValues person.devices) (attrValues cfg.people));
       };
     };
   };
