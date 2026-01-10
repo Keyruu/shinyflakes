@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   cfg = config.services.glance;
   subreddits = {
@@ -86,7 +86,7 @@ in
                 widgets = [
                   {
                     type = "group";
-                    widgets = builtins.mapAttrs (category: subreddits: {
+                    widgets = lib.mapAttrsToList (category: subreddits: {
                       type = "reddit";
                       title = category;
                       subreddit = builtins.concatStringsSep "+" subreddits;
