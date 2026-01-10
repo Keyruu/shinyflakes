@@ -80,7 +80,7 @@ in
         ${allRules}
 
         iptables -A wireguard-forward -m state --state ESTABLISHED,RELATED -j ACCEPT
-        iptables -t nat -A POSTROUTING -s ${mesh.wgSubnet} -o ${lanInterface} -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE
       '';
 
       postDown = ''
