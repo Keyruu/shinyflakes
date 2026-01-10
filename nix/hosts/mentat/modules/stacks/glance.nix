@@ -1,5 +1,6 @@
 { config, ... }:
 let
+  cfg = config.services.glance;
   subreddits = [
     "selfhosted"
     "homelab"
@@ -28,118 +29,131 @@ let
   ];
 in
 {
-  services.glance = {
-    enable = true;
-    settings = {
-      pages = [
-        {
-          name = "Home";
-          columns = [
-            {
-              size = "small";
-              widgets = [
-                {
-                  type = "calendar";
-                  first-day-of-week = "monday";
-                }
-                {
-                  type = "rss";
-                  limit = 10;
-                  collapse-after = 3;
-                  cache = "12h";
-                  feeds = [
-                    {
-                      url = "https://selfh.st/rss/";
-                      title = "selfh.st";
-                      limit = 4;
-                    }
-                    {
-                      url = "https://ciechanow.ski/atom.xml";
-                    }
-                    {
-                      url = "https://www.joshwcomeau.com/rss.xml";
-                      title = "Josh Comeau";
-                    }
-                    {
-                      url = "https://samwho.dev/rss.xml";
-                    }
-                    {
-                      url = "https://ishadeed.com/feed.xml";
-                      title = "Ahmad Shadeed";
-                    }
-                  ];
-                }
-                {
-                  type = "twitch-channels";
-                  channels = [
-                    "theprimeagen"
-                    "j_blow"
-                    "piratesoftware"
-                    "cohhcarnage"
-                    "christitustech"
-                    "EJ_SA"
-                  ];
-                }
-              ];
-            }
-            {
-              size = "full";
-              widgets = [
-                {
-                  type = "group";
-                  widgets = map (subreddit: {
-                    type = "reddit";
-                    inherit subreddit;
-                    show-thumbnails = true;
-                  }) subreddits;
-                }
-                {
-                  type = "videos";
-                  channels = [
-                    "UCXuqSBlHAE6Xw-yeJA0Tunw"
-                    "UCR-DXc1voovS8nhAvccRZhg"
-                    "UCsBjURrPoezykLs9EqgamOA"
-                    "UCBJycsmduvYEL83R_U4JriQ"
-                    "UCHnyfMqiRRG1u-2MsSQLbXA"
-                  ];
-                }
-                {
-                  type = "group";
-                  widgets = [
-                    {
-                      type = "hacker-news";
-                    }
-                    {
-                      type = "lobsters";
-                    }
-                  ];
-                }
-              ];
-            }
-            {
-              size = "small";
-              widgets = [
-                {
-                  type = "weather";
-                  location = "Munich, Germany";
-                  units = "metric";
-                  hour-format = "24h";
-                }
-                {
-                  type = "releases";
-                  cache = "1d";
-                  repositories = [
-                    "glanceapp/glance"
-                    "go-gitea/gitea"
-                    "immich-app/immich"
-                    "syncthing/syncthing"
-                  ];
-                }
-              ];
-            }
-          ];
-        }
-      ];
+  services = {
+    glance = {
+      enable = true;
+      settings = {
+        server.host = "127.0.0.1";
+        pages = [
+          {
+            name = "Home";
+            columns = [
+              {
+                size = "small";
+                widgets = [
+                  {
+                    type = "calendar";
+                    first-day-of-week = "monday";
+                  }
+                  {
+                    type = "rss";
+                    limit = 10;
+                    collapse-after = 3;
+                    cache = "12h";
+                    feeds = [
+                      {
+                        url = "https://selfh.st/rss/";
+                        title = "selfh.st";
+                        limit = 4;
+                      }
+                      {
+                        url = "https://ciechanow.ski/atom.xml";
+                      }
+                      {
+                        url = "https://www.joshwcomeau.com/rss.xml";
+                        title = "Josh Comeau";
+                      }
+                      {
+                        url = "https://samwho.dev/rss.xml";
+                      }
+                      {
+                        url = "https://ishadeed.com/feed.xml";
+                        title = "Ahmad Shadeed";
+                      }
+                    ];
+                  }
+                  {
+                    type = "twitch-channels";
+                    channels = [
+                      "theprimeagen"
+                      "j_blow"
+                      "piratesoftware"
+                      "cohhcarnage"
+                      "christitustech"
+                      "EJ_SA"
+                    ];
+                  }
+                ];
+              }
+              {
+                size = "full";
+                widgets = [
+                  {
+                    type = "group";
+                    widgets = map (subreddit: {
+                      type = "reddit";
+                      inherit subreddit;
+                      show-thumbnails = true;
+                    }) subreddits;
+                  }
+                  {
+                    type = "videos";
+                    channels = [
+                      "UCXuqSBlHAE6Xw-yeJA0Tunw"
+                      "UCR-DXc1voovS8nhAvccRZhg"
+                      "UCsBjURrPoezykLs9EqgamOA"
+                      "UCBJycsmduvYEL83R_U4JriQ"
+                      "UCHnyfMqiRRG1u-2MsSQLbXA"
+                    ];
+                  }
+                  {
+                    type = "group";
+                    widgets = [
+                      {
+                        type = "hacker-news";
+                      }
+                      {
+                        type = "lobsters";
+                      }
+                    ];
+                  }
+                ];
+              }
+              {
+                size = "small";
+                widgets = [
+                  {
+                    type = "weather";
+                    location = "Munich, Germany";
+                    units = "metric";
+                    hour-format = "24h";
+                  }
+                  {
+                    type = "releases";
+                    cache = "1d";
+                    repositories = [
+                      "glanceapp/glance"
+                      "go-gitea/gitea"
+                      "immich-app/immich"
+                      "syncthing/syncthing"
+                    ];
+                  }
+                ];
+              }
+            ];
+          }
+        ];
+      };
+    };
+
+    nginx.virtualHosts."glance.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${cfg.settings.server.port}";
+        proxyWebsockets = true;
+      };
     };
   };
 }
