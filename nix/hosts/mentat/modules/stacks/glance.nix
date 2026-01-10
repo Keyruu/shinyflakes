@@ -5,28 +5,32 @@ let
     "selfhosted"
     "homelab"
     "homeassistant"
-    "jellyfin"
     "linux"
+    "NixOS"
+    "commandline"
     "ProgrammerHumor"
     "Steam"
     "Programming"
-    "BuyFromEU"
-    "LocalLLaMA"
     "niri"
-    "ObsidianMD"
     "rust"
     "go"
     "neovim"
     "dumbphones"
     "Piracy"
-    "Hetzner"
-    "devops"
-    "attackontitan"
-    "immich"
     "unixporn"
-    "NixOS"
-    "commandline"
   ];
+
+  youtubers = {
+    theprimetime = "UCUyeluBRhGPCW4rPe_UvBZQ";
+    primeagen = "UC8ENHE5xdFSwx71u3fDH5Xw";
+    tom-delalande = "UCYuQjtwffrSIzfswH3V24mQ";
+    spielundzeug = "UCM1jNA8DM90LE4ywxBe8RmA";
+    ben-davis = "UCFvPgPdb_emE_bpMZq6hmJQ";
+    fireship = "UCsBjURrPoezykLs9EqgamOA";
+    ct3003 = "UC1t9VFj-O6YUDPQxaVg-NkQ";
+    jeff-geerling = "UCR-DXc1voovS8nhAvccRZhg";
+    everthing-smart-home = "UCrVLgIniVg6jW38uVqDRIiQ";
+  };
 in
 {
   services = {
@@ -54,33 +58,15 @@ in
                       {
                         url = "https://selfh.st/rss/";
                         title = "selfh.st";
-                        limit = 4;
                       }
                       {
-                        url = "https://ciechanow.ski/atom.xml";
+                        url = "https://console.dev/rss.xml";
+                        title = "console.dev";
                       }
                       {
-                        url = "https://www.joshwcomeau.com/rss.xml";
-                        title = "Josh Comeau";
+                        url = "https://joinemm.dev/rss.xml";
+                        title = "Joinemm";
                       }
-                      {
-                        url = "https://samwho.dev/rss.xml";
-                      }
-                      {
-                        url = "https://ishadeed.com/feed.xml";
-                        title = "Ahmad Shadeed";
-                      }
-                    ];
-                  }
-                  {
-                    type = "twitch-channels";
-                    channels = [
-                      "theprimeagen"
-                      "j_blow"
-                      "piratesoftware"
-                      "cohhcarnage"
-                      "christitustech"
-                      "EJ_SA"
                     ];
                   }
                 ];
@@ -98,13 +84,7 @@ in
                   }
                   {
                     type = "videos";
-                    channels = [
-                      "UCXuqSBlHAE6Xw-yeJA0Tunw"
-                      "UCR-DXc1voovS8nhAvccRZhg"
-                      "UCsBjURrPoezykLs9EqgamOA"
-                      "UCBJycsmduvYEL83R_U4JriQ"
-                      "UCHnyfMqiRRG1u-2MsSQLbXA"
-                    ];
+                    channels = builtins.attrValues youtubers;
                   }
                   {
                     type = "group";
