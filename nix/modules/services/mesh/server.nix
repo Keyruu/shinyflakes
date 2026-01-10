@@ -35,5 +35,17 @@ in
           }) (concatMap (person: attrValues person.devices) (attrValues cfg.people));
       };
     };
+
+    services.caddy.virtualHostsWithDefaults = {
+      "mesh.peeraten.net" = {
+        extraConfig = ''
+          reverse_proxy 127.0.0.1:51234{
+            transport http {
+              versions h3
+            }
+          }
+        '';
+      };
+    };
   };
 }

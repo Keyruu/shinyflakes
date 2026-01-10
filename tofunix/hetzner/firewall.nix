@@ -55,10 +55,34 @@ let
     ];
   };
 
-  allRules = httpsRules ++ [
-    sshRule
-    icmpRule
+  wgRules = [
+    {
+      direction = "in";
+      protocol = "udp";
+      port = "51234";
+      source_ips = [
+        "0.0.0.0/0"
+        "::/0"
+      ];
+    }
+    {
+      direction = "in";
+      protocol = "tcp";
+      port = "51234";
+      source_ips = [
+        "0.0.0.0/0"
+        "::/0"
+      ];
+    }
   ];
+
+  allRules =
+    httpsRules
+    ++ wgRules
+    ++ [
+      sshRule
+      icmpRule
+    ];
 in
 {
   resource.hcloud_firewall.cloudflare-https = {

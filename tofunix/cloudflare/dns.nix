@@ -104,6 +104,7 @@
           "map"
           "traccar"
           "owntracks"
+          "mesh"
         ];
       };
     };
