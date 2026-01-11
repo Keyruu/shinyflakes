@@ -1,11 +1,17 @@
 { config, pkgs, ... }:
 let
   openwebuiStackPath = "/etc/stacks/openwebui";
+  my = config.services.my.openwebui;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${openwebuiStackPath}/data 0755 root root"
   ];
+
+  services.my.openwebui = {
+    port = 3004;
+    domain = "ai.lab.keyruu.de";
+  };
 
   virtualisation.quadlet =
     let
@@ -39,7 +45,7 @@ in
         openwebui = {
           containerConfig = {
             image = "ghcr.io/open-webui/open-webui:0.7.2";
-            publishPorts = [ "127.0.0.1:3004:8080" ];
+            publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
             volumes = [ "${openwebuiStackPath}/data:/app/backend/data" ];
             labels = [
               "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
@@ -63,31 +69,6 @@ in
     ];
   };
 
-  systemd = {
-    services.ollama-keepalive = {
-      description = "Keep Ollama qwen3:8b model loaded";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart =
-          pkgs.writeShellScript "preload" # sh
-            ''
-              ${pkgs.systemd}/bin/systemctl is-active ollama.service && \
-              ${pkgs.curl}/bin/curl -s http://127.0.0.1:11434/api/generate -d '{"model": "qwen3:8b", "keep_alive": -1, "options": { "num_ctx": 40000 }}' || true
-            '';
-      };
-    };
-
-    timers.ollama-keepalive = {
-      description = "Timer for Ollama model keepalive";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnBootSec = "5min";
-        OnUnitActiveSec = "10min";
-        Unit = "ollama-keepalive.service";
-      };
-    };
-  };
-
   services.nginx.virtualHosts = {
     "ollama.lab.keyruu.de" = {
       useACMEHost = "lab.keyruu.de";
@@ -99,12 +80,12 @@ in
       };
     };
 
-    "ai.lab.keyruu.de" = {
+    "${my.domain}" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:3004";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };

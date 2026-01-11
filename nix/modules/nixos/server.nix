@@ -9,7 +9,6 @@
 
     flake.modules.services.backup
     flake.modules.services.my
-    flake.modules.services.mesh
   ];
 
   user.name = "root";

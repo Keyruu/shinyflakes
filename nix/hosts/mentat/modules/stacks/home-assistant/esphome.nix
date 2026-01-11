@@ -1,11 +1,17 @@
-_:
+{ config, ... }:
 let
   esphomePath = "/etc/stacks/esphome/config";
+  my = config.services.my.esphome;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${esphomePath} 0755 root root"
   ];
+
+  services.my.esphome = {
+    port = 6052;
+    domain = "esphome.port.peeraten.net";
+  };
 
   virtualisation.quadlet.containers.esphome = {
     containerConfig = {
@@ -34,12 +40,12 @@ in
     };
   };
 
-  services.nginx.virtualHosts."esphome.port.peeraten.net" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "port.peeraten.net";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:6052";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

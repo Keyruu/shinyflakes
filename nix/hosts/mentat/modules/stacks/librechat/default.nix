@@ -2,6 +2,7 @@
 let
   stackName = "librechat";
   stackPath = "/etc/stacks/${stackName}";
+  my = config.services.my.librechat;
 in
 {
   imports = [
@@ -20,6 +21,11 @@ in
 
   environment.etc."stacks/${stackName}/api/librechat.yaml".source = ./librechat.yaml;
 
+  services.my.librechat = {
+    port = 3080;
+    domain = "chat.lab.keyruu.de";
+  };
+
   virtualisation.quadlet =
     let
       RAG_PORT = "8000";
@@ -37,7 +43,7 @@ in
         "${stackName}-api" = {
           containerConfig = {
             image = "ghcr.io/danny-avila/librechat-api:v0.8.2-rc2";
-            publishPorts = [ "127.0.0.1:3080:3080" ];
+            publishPorts = [ "127.0.0.1:${toString my.port}:3080" ];
             addHosts = [ "host.containers.internal:host-gateway" ];
             volumes = [
               "${stackPath}/api/librechat.yaml:/app/librechat.yaml"
@@ -156,12 +162,12 @@ in
       };
     };
 
-  services.nginx.virtualHosts."chat.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:3080";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

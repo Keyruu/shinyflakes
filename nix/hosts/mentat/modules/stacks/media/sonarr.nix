@@ -1,11 +1,17 @@
-_:
+{ config, ... }:
 let
   sonarrPath = "/etc/stacks/sonarr";
+  my = config.services.my.sonarr;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${sonarrPath}/config 0755 root root"
   ];
+
+  services.my.sonarr = {
+    port = 8989;
+    domain = "sonarr.lab.keyruu.de";
+  };
 
   virtualisation.quadlet.containers = {
     media-sonarr = {
@@ -35,17 +41,17 @@ in
       };
     };
     media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:8989:8989"
+      "127.0.0.1:${toString my.port}:8989"
     ];
   };
 
   services.nginx.virtualHosts = {
-    "sonarr.lab.keyruu.de" = {
+    "${my.domain}" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:8989";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };

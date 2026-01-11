@@ -1,11 +1,17 @@
-_:
+{ config, ... }:
 let
   sabnzbdPath = "/etc/stacks/sabnzbd";
+  my = config.services.my.sabnzbd;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${sabnzbdPath}/config 0755 root root"
   ];
+
+  services.my.sabnzbd = {
+    port = 8022;
+    domain = "sabnzbd.lab.keyruu.de";
+  };
 
   virtualisation.quadlet.containers = {
     media-sabnzbd = {
@@ -34,17 +40,17 @@ in
       };
     };
     media-gluetun.containerConfig.publishPorts = [
-      "8022:8085"
+      "${toString my.port}:8085"
     ];
   };
 
   services.nginx.virtualHosts = {
-    "sabnzbd.lab.keyruu.de" = {
+    "${my.domain}" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:8022";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };

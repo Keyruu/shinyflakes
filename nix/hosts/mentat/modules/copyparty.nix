@@ -4,6 +4,9 @@
   perSystem,
   ...
 }:
+let
+  my = config.services.my.scrutiny;
+in
 {
   systemd.tmpfiles.rules = [
     "d /etc/stacks/copyparty 0770 root root"
@@ -19,50 +22,57 @@
     "${config.services.mesh.interface}".allowedTCPPorts = [ config.services.copyparty.settings.p ];
   };
 
-  services.copyparty = {
-    enable = true;
-    package = perSystem.copyparty.default;
-    user = "root";
-    group = "root";
-
-    settings = {
-      i = "0.0.0.0";
-      p = 3210;
-      shr = "/shared";
-      shr-adm = "root";
-      ipr = "192.168.100.0/24,100.64.0.0/16=root";
-      rproxy = -1;
-      xff-src = "lan,100.64.0.0/16";
-      # xff-hdr = "cf-connecting-ip";
-      hist = "/etc/stacks/copyparty";
+  services = {
+    my.copyparty = {
+      enable = true;
+      port = 3210;
+      domain = "files.keyruu.de";
     };
+    copyparty = {
+      enable = true;
+      package = perSystem.copyparty.default;
+      user = "root";
+      group = "root";
 
-    accounts = {
-      "root" = {
-        passwordFile = config.sops.secrets.copypartyPassword.path;
+      settings = {
+        i = "0.0.0.0";
+        p = my.port;
+        shr = "/shared";
+        shr-adm = "root";
+        ipr = "192.168.100.0/24,100.64.0.0/16=root";
+        rproxy = -1;
+        xff-src = "lan,100.64.0.0/16";
+        # xff-hdr = "cf-connecting-ip";
+        hist = "/etc/stacks/copyparty";
       };
-    };
 
-    volumes = {
-      "/" = {
-        path = "/main";
-        access = {
-          rw = [ "root" ];
+      accounts = {
+        "root" = {
+          passwordFile = config.sops.secrets.copypartyPassword.path;
         };
       };
-      "/public" = {
-        path = "/main/dav/public";
-        access = {
-          r = "*";
-          rw = [ "root" ];
+
+      volumes = {
+        "/" = {
+          path = "/main";
+          access = {
+            rw = [ "root" ];
+          };
+        };
+        "/public" = {
+          path = "/main/dav/public";
+          access = {
+            r = "*";
+            rw = [ "root" ];
+          };
         };
       };
-    };
 
-    openFilesLimit = 8192;
+      openFilesLimit = 8192;
+    };
   };
 
-  security.acme.certs."files.keyruu.de" = {
+  security.acme.certs."${my.domain}" = {
     dnsProvider = "cloudflare";
     dnsPropagationCheck = true;
     environmentFile = config.sops.secrets.cloudflare.path;
@@ -79,8 +89,8 @@
       };
     };
 
-    "files.keyruu.de" = {
-      useACMEHost = "files.keyruu.de";
+    "${my.domain}" = {
+      useACMEHost = "${my.domain}";
       forceSSL = true;
 
       inherit (config.services.nginx.virtualHosts."files.lab.keyruu.de") locations;

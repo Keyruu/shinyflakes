@@ -1,6 +1,7 @@
 { config, ... }:
 let
   homeAssistantPath = "/etc/stacks/home-assistant";
+  my = config.services.my.home-assistant;
 in
 {
   imports = [
@@ -20,6 +21,11 @@ in
     51827
   ];
   networking.firewall.allowedUDPPorts = [ 5353 ];
+
+  services.my.home-assistant = {
+    port = 8123;
+    domain = "hass.peeraten.net";
+  };
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
@@ -65,19 +71,19 @@ in
   };
 
   security.acme = {
-    certs."hass.peeraten.net" = {
+    certs."${my.domain}" = {
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
     };
   };
 
-  services.nginx.virtualHosts."hass.peeraten.net" = {
-    useACMEHost = "hass.peeraten.net";
+  services.nginx.virtualHosts."${my.domain}" = {
+    useACMEHost = my.domain;
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8123";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

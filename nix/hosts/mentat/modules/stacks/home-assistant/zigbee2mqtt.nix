@@ -2,6 +2,7 @@
 let
   mqttPath = "/etc/stacks/mqtt/data";
   z2mPath = "/etc/stacks/z2m/data";
+  my = config.services.my.adguardhome;
 in
 {
   systemd.tmpfiles.rules = [
@@ -45,6 +46,11 @@ in
       '';
   };
 
+  services.my.z2m = {
+    port = 3845;
+    domain = "z2m.port.peeraten.net";
+  };
+
   virtualisation.quadlet =
     let
       inherit (config.virtualisation.quadlet) networks;
@@ -58,7 +64,7 @@ in
               TZ = "Europe/Berlin";
             };
             publishPorts = [
-              "127.0.0.1:3845:8080"
+              "127.0.0.1:${toString my.port}:8080"
             ];
             volumes = [
               "${z2mPath}:/app/data"
@@ -66,9 +72,6 @@ in
               "/run/udev:/run/udev:ro"
             ];
             networks = [ networks.mqtt.ref ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
             devices = [
               "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
             ];
@@ -84,12 +87,12 @@ in
       };
     };
 
-  services.nginx.virtualHosts."z2m.port.peeraten.net" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "port.peeraten.net";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:3845";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

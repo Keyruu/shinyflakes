@@ -1,6 +1,7 @@
 { config, ... }:
 let
   searxngPath = "/etc/stacks/searxng";
+  my = config.services.my.searxng;
 in
 {
   systemd.tmpfiles.rules = [
@@ -17,6 +18,11 @@ in
     source = ./settings.yml;
   };
 
+  services.my.searxng = {
+    port = 4899;
+    domain = "search.lab.keyruu.de";
+  };
+
   virtualisation.quadlet =
     let
       inherit (config.virtualisation.quadlet) containers;
@@ -30,10 +36,7 @@ in
             devices = [ "/dev/net/tun:/dev/net/tun" ];
             environmentFiles = [ config.sops.secrets.searxngGluetunEnv.path ];
             publishPorts = [
-              "127.0.0.1:4899:8080"
-            ];
-            labels = [
-              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
+              "127.0.0.1:${toString my.port}:8080"
             ];
           };
           serviceConfig = {
@@ -73,9 +76,6 @@ in
               "${searxngPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
             ];
             networks = [ containers."searxng-gluetun".ref ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+-.*$"
-            ];
           };
           serviceConfig = {
             Restart = "always";
@@ -95,12 +95,12 @@ in
       };
     };
 
-  services.nginx.virtualHosts."search.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:4899";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

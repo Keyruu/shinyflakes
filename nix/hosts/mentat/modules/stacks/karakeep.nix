@@ -1,6 +1,7 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/karakeep";
+  my = config.services.my.karakeep;
 in
 {
   sops.secrets = {
@@ -28,6 +29,11 @@ in
       '';
   };
 
+  services.my.karakeep = {
+    port = 3000;
+    domain = "karakeep.lab.keyruu.de";
+  };
+
   virtualisation.quadlet =
     let
       inherit (config.virtualisation.quadlet) networks;
@@ -42,7 +48,7 @@ in
         karakeep-web = {
           containerConfig = {
             image = "ghcr.io/karakeep-app/karakeep:0.30.0";
-            publishPorts = [ "127.0.0.1:3000:3000" ];
+            publishPorts = [ "127.0.0.1:${my.port}:3000" ];
             volumes = [
               "${stackPath}/data:/data"
             ];
@@ -108,12 +114,12 @@ in
       };
     };
 
-  services.nginx.virtualHosts."karakeep.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:3000";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

@@ -1,4 +1,7 @@
 { config, ... }:
+let
+  my = config.services.my.adguardhome;
+in
 {
   networking.firewall = {
     allowedTCPPorts = [ 53 ];
@@ -8,13 +11,13 @@
   services = {
     my.adguardhome = {
       enable = true;
-      port = 53;
-      proto = "both";
+      port = 3053;
+      domain = "adguard.port.peeraten.net";
     };
     adguardhome = {
       enable = true;
       host = "127.0.0.1";
-      port = 3053;
+      inherit (my) port;
 
       settings = {
         dns = {
@@ -148,12 +151,12 @@
         ];
       };
     };
-    nginx.virtualHosts."adguard.port.peeraten.net" = {
+    nginx.virtualHosts."${my.domain}" = {
       useACMEHost = "port.peeraten.net";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString config.services.adguardhome.port}";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };

@@ -1,11 +1,17 @@
-_:
+{ config, ... }:
 let
   lidarrPath = "/etc/stacks/lidarr/config";
+  my = config.services.my.lidarr;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${lidarrPath}/config 0755 root root"
   ];
+
+  services.my.lidarr = {
+    port = 8686;
+    domain = "lidarr.lab.keyruu.de";
+  };
 
   virtualisation.quadlet.containers = {
     media-lidarr = {
@@ -35,7 +41,19 @@ in
       };
     };
     media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:8686:8686"
+      "127.0.0.1:${toString my.port}:8686"
     ];
+  };
+
+  services.nginx.virtualHosts = {
+    "${my.domain}" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${toString my.port}";
+        proxyWebsockets = true;
+      };
+    };
   };
 }

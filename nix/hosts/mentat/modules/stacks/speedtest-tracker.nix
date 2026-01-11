@@ -1,6 +1,7 @@
 { config, ... }:
 let
   speedtestTrackerPath = "/etc/stacks/speedtest-tracker/config";
+  my = config.services.my.speedtest-tracker;
 in
 {
   systemd.tmpfiles.rules = [
@@ -19,9 +20,14 @@ in
     };
   };
 
+  services.my.speedtest-tracker = {
+    port = 9122;
+    domain = "speedtest.lab.keyruu.de";
+  };
+
   virtualisation.quadlet.containers.speedtest-tracker = {
     containerConfig = {
-      image = "lscr.io/linuxserver/speedtest-tracker:latest";
+      image = "lscr.io/linuxserver/speedtest-tracker:v1.13.5";
       environments = {
         TZ = "Europe/Berlin";
         PUID = "1000";
@@ -32,7 +38,7 @@ in
         config.sops.templates."speedtest-tracker.env".path
       ];
       publishPorts = [
-        "127.0.0.1:9122:80"
+        "127.0.0.1:${toString my.port}:80"
       ];
       volumes = [
         "${speedtestTrackerPath}:/config"
@@ -43,12 +49,12 @@ in
     };
   };
 
-  services.nginx.virtualHosts."speedtest.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:9122";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

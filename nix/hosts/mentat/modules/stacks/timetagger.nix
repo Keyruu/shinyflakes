@@ -1,19 +1,17 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/timetagger";
+  my = config.services.my.timetagger;
 in
 {
-  # Sops secrets
   sops.secrets = {
     timetaggerCreds = { };
   };
 
-  # Directory creation
   systemd.tmpfiles.rules = [
     "d ${stackPath}/data 0755 root root"
   ];
 
-  # Environment template
   sops.templates."timetagger.env" = {
     restartUnits = [ "timetagger.service" ];
     content = ''
@@ -21,13 +19,17 @@ in
     '';
   };
 
-  # Quadlet configuration
+  services.my.timetagger = {
+    port = 8085;
+    domain = "timetagger.lab.keyruu.de";
+  };
+
   virtualisation.quadlet = {
     containers = {
       timetagger = {
         containerConfig = {
           image = "ghcr.io/almarklein/timetagger";
-          publishPorts = [ "127.0.0.1:8085:80" ];
+          publishPorts = [ "127.0.0.1:${toString my.port}:80" ];
           volumes = [ "${stackPath}/data:/root/_timetagger" ];
           environments = {
             TIMETAGGER_BIND = "0.0.0.0:80";
@@ -43,12 +45,11 @@ in
     };
   };
 
-  # Nginx reverse proxy
-  services.nginx.virtualHosts."timetagger.lab.keyruu.de" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "lab.keyruu.de";
     forceSSL = true;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8085";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

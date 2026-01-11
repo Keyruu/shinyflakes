@@ -1,11 +1,17 @@
-_:
+{ config, ... }:
 let
   nzbhydra2 = "/etc/stacks/nzbhydra2";
+  my = config.services.my.nzbhydra2;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${nzbhydra2}/config 0755 root root"
   ];
+
+  services.my.nzbhydra2 = {
+    port = 5076;
+    domain = "nzbhydra2.lab.keyruu.de";
+  };
 
   virtualisation.quadlet.containers = {
     media-nzbhydra2 = {
@@ -34,17 +40,17 @@ in
       };
     };
     media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:5076:5076"
+      "127.0.0.1:${my.port}:5076"
     ];
   };
 
   services.nginx.virtualHosts = {
-    "nzbhydra2.lab.keyruu.de" = {
+    "${my.domain}" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:5076";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };

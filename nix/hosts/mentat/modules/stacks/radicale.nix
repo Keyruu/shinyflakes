@@ -26,6 +26,7 @@ in
   services.my.radicale = {
     enable = true;
     port = 5232;
+    domain = "calendar.peeraten.net";
   };
 
   environment.etc."stacks/radicale/config/config".text = ''
@@ -70,15 +71,15 @@ in
   };
 
   security.acme = {
-    certs."calendar.peeraten.net" = {
+    certs."${my.domain}" = {
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
     };
   };
 
-  services.nginx.virtualHosts."calendar.peeraten.net" = {
-    useACMEHost = "calendar.peeraten.net";
+  services.nginx.virtualHosts."${my.domain}" = {
+    useACMEHost = "${my.domain}";
     forceSSL = true;
     locations."/" = {
       proxyPass = "http://127.0.0.1:${toString my.port}";

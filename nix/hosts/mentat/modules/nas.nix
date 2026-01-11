@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
+let
+  my = config.services.my.scrutiny;
+in
 {
   imports = [
     ./samba.nix
@@ -18,18 +21,14 @@
   services = {
     zfs.autoScrub.enable = true;
 
-    nginx.virtualHosts."scrutiny.lab.keyruu.de" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:6333";
-        proxyWebsockets = true;
-      };
-    };
-
     smartd = {
       enable = true;
+    };
+
+    my.scrutiny = {
+      enable = true;
+      port = 6333;
+      domain = "scrutiny.lab.keyruu.de";
     };
   };
 
@@ -46,12 +45,22 @@
         "/dev/disk/by-id/ata-CT1000BX500SSD1_2436E98B10D6"
       ];
       publishPorts = [
-        "127.0.0.1:6333:8080"
+        "127.0.0.1:${toString my.port}:8080"
         "127.0.0.1:6334:8086"
       ];
     };
     serviceConfig = {
       Restart = "always";
+    };
+  };
+
+  services.nginx.virtualHosts."${my.domain}" = {
+    useACMEHost = "lab.keyruu.de";
+    forceSSL = true;
+
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${toString my.port}";
+      proxyWebsockets = true;
     };
   };
 

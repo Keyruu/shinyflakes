@@ -1,6 +1,7 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/dawarich";
+  my = config.services.my.dawarich;
 in
 {
   sops.secrets = {
@@ -27,6 +28,11 @@ in
       DATABASE_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
       SECRET_KEY_BASE=${config.sops.placeholder.dawarichSecretKeyBase}
     '';
+  };
+
+  services.my.dawarich = {
+    port = 3001;
+    domain = "map.peeraten.net";
   };
 
   virtualisation.quadlet =
@@ -97,8 +103,8 @@ in
             image = "freikin/dawarich:${DAWARICH_VERSION}";
             exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
             publishPorts = [
-              "127.0.0.1:3001:3000"
-              "${config.services.mesh.ip}:3001:3000"
+              "127.0.0.1:${toString my.port}:3000"
+              "${config.services.mesh.ip}:${toString my.port}:3000"
             ];
             volumes = [
               "${stackPath}/public:/var/app/public"
@@ -200,19 +206,19 @@ in
     };
 
   security.acme = {
-    certs."map.peeraten.net" = {
+    certs."${my.domain}" = {
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
       environmentFile = config.sops.secrets.cloudflare.path;
     };
   };
 
-  services.nginx.virtualHosts."map.peeraten.net" = {
-    useACMEHost = "map.peeraten.net";
+  services.nginx.virtualHosts."${my.domain}" = {
+    useACMEHost = "${my.domain}";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:3001";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };

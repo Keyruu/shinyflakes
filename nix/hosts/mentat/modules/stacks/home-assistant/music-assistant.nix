@@ -1,6 +1,7 @@
-_:
+{ config, ... }:
 let
   musicAssistantPath = "/etc/stacks/music-assistant";
+  my = config.services.my.music-assistant;
 in
 {
   systemd.tmpfiles.rules = [
@@ -8,6 +9,11 @@ in
   ];
 
   networking.firewall.allowedTCPPorts = [ 8097 ];
+
+  services.my.music-assistant = {
+    port = 8097;
+    domain = "music.port.peeraten.net";
+  };
 
   virtualisation.quadlet.containers.music-assistant = {
     containerConfig = {
@@ -24,21 +30,18 @@ in
       networks = [
         "host"
       ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-      ];
     };
     serviceConfig = {
       Restart = "always";
     };
   };
 
-  services.nginx.virtualHosts."music.port.peeraten.net" = {
+  services.nginx.virtualHosts."${my.domain}" = {
     useACMEHost = "port.peeraten.net";
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8095";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };
