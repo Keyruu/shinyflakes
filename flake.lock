@@ -506,11 +506,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765435293,
-        "narHash": "sha256-HRp4g6qBCb8vpJ17s2FacMRXRszM73uBiR56aILMELA=",
+        "lastModified": 1765720983,
+        "narHash": "sha256-tWtukpABmux6EC/FuCJEgA1kmRjcRPtED44N+GGPq+4=",
         "owner": "feel-co",
         "repo": "ndg",
-        "rev": "65bf834b332d5f8b28d95ea14c7974be7c272971",
+        "rev": "f399ace8bb8e1f705dd8942b24d207aa4d75c936",
         "type": "github"
       },
       "original": {
@@ -879,11 +879,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1767502401,
-        "narHash": "sha256-5XJhFSzF5KAfHN9roSR0B/mIhogkM0kehrdI/NNBGVQ=",
+        "lastModified": 1767628834,
+        "narHash": "sha256-qiPFYDicHq4/ji0/9QxVM8hhjspsJrYcMR/S3zKlfjQ=",
         "owner": "thamenato",
         "repo": "nvf",
-        "rev": "3e372f0c2a09673c686605b9f69e337b9ad7d6a9",
+        "rev": "7161c8d857cf7c641433cc750a1a3666f82a3ff0",
         "type": "github"
       },
       "original": {
