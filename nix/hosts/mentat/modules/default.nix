@@ -18,6 +18,7 @@
     ./copyparty.nix
     ./syncthing.nix
     ./backup.nix
-    ./portal.nix
+    ./mesh.nix
+    ./glance.nix
   ];
 }

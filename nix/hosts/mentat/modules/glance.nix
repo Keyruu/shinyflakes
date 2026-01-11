@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  cfg = config.services.glance;
+  my = config.services.my.glance;
   subreddits = {
     self-hosted = [
       "selfhosted"
@@ -44,10 +44,18 @@ let
 in
 {
   services = {
-    glance = {
+    my.glance = {
       enable = true;
+      port = 5678;
+      domain = "glance.lab.keyruu.de";
+    };
+    glance = {
+      inherit (my) enable;
       settings = {
-        server.host = "127.0.0.1";
+        server = {
+          host = "127.0.0.1";
+          inherit (my) port;
+        };
         pages = [
           {
             name = "Home";
@@ -137,12 +145,12 @@ in
       };
     };
 
-    nginx.virtualHosts."glance.lab.keyruu.de" = {
+    nginx.virtualHosts."${my.domain}" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
 
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString cfg.settings.server.port}";
+        proxyPass = "http://127.0.0.1:${toString my.port}";
         proxyWebsockets = true;
       };
     };
