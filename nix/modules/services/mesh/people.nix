@@ -83,6 +83,10 @@
             ip = "100.67.0.3";
             publicKey = "7FBclS8OV86p7IYYAKHnjm0dl+e9ImvMvh7+lLnOCyk=";
           };
+          thopter = {
+            ip = "100.67.0.4";
+            publicKey = "PL5/3dK1BeIxoJufy51QHjMFQOq7SFR7WZ0sLmjqZW4=";
+          };
         };
       };
     };

@@ -6,6 +6,9 @@
   lib,
   ...
 }:
+let
+  inherit (config.services) mesh;
+in
 {
   imports = [
     inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
@@ -54,7 +57,24 @@
 
     blueman.enable = true;
     libinput.enable = true;
-    tailscale.enable = true;
+    tailscale.enable = false;
+  };
+
+  networking.wg-quick.interfaces = {
+    "${mesh.interface}" = {
+      address = [ "${mesh.ip}/24" ];
+      privateKeyFile = config.sops.secrets.thopterMeshKey.path;
+      autostart = false;
+
+      peers = [
+        {
+          publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
+          allowedIPs = [ mesh.subnet ];
+          endpoint = "mesh.peeraten.net:51234";
+          persistentKeepalive = 25;
+        }
+      ];
+    };
   };
 
   # Faster rebuilding
