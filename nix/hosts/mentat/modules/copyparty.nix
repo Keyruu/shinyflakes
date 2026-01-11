@@ -5,7 +5,7 @@
   ...
 }:
 let
-  my = config.services.my.scrutiny;
+  my = config.services.my.copyparty;
 in
 {
   systemd.tmpfiles.rules = [
