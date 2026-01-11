@@ -47,7 +47,7 @@ in
     "net.ipv6.conf.all.forwarding" = 1;
   };
 
-  sops.secrets.mentatPortalKey = {
+  sops.secrets.mentatMeshKey = {
     mode = "0600";
   };
 
