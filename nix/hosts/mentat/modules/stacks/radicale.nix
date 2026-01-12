@@ -47,8 +47,8 @@ in
       containerConfig = {
         image = "tomsquest/docker-radicale:3.5.10.0";
         publishPorts = [
-          "127.0.0.1:${toString my.port}:${toString my.port}"
-          "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
+          "127.0.0.1:${toString my.port}:5232"
+          "${config.services.mesh.ip}:${toString my.port}:5232"
         ];
         volumes = [
           "${stackPath}/data:/data"

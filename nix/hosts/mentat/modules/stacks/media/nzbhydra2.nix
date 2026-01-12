@@ -40,7 +40,7 @@ in
       };
     };
     media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:${my.port}:5076"
+      "127.0.0.1:${toString my.port}:5076"
     ];
   };
 
