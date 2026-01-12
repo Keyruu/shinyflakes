@@ -11,7 +11,7 @@ in
   virtualisation.quadlet.containers.actualbudget = {
     containerConfig = {
       image = "docker.io/actualbudget/actual-server:latest";
-      publishPorts = [ "127.0.0.1:${toString my.port}:${toString my.port}" ];
+      publishPorts = [ "127.0.0.1:${toString my.port}:5006" ];
       mounts = [
         "type=bind,source=/etc/stacks/actualbudget/data,destination=/data"
       ];
@@ -23,7 +23,7 @@ in
     forceSSL = true;
 
     locations."/" = {
-      proxyPass = "http://127.0.0.1:5006";
+      proxyPass = "http://127.0.0.1:${toString my.port}";
       proxyWebsockets = true;
     };
   };
