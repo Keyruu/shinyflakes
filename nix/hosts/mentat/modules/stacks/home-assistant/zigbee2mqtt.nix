@@ -2,7 +2,7 @@
 let
   mqttPath = "/etc/stacks/mqtt/data";
   z2mPath = "/etc/stacks/z2m/data";
-  my = config.services.my.adguardhome;
+  my = config.services.my.z2m;
 in
 {
   systemd.tmpfiles.rules = [
