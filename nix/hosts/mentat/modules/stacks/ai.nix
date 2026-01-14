@@ -26,7 +26,7 @@ in
       containers = {
         ollama = {
           containerConfig = {
-            image = "ollama/ollama:0.13.5";
+            image = "ollama/ollama:0.14.1";
             devices = [ "nvidia.com/gpu=all" ];
             publishPorts = [ "11434:11434" ];
             volumes = [ "/root/.ollama:/root/.ollama" ];
