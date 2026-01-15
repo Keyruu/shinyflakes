@@ -8,10 +8,10 @@ in
     "d ${musicAssistantPath}/data 0755 root root"
   ];
 
-  networking.firewall.interfaces.eth0.allowedTCPPorts = [ my.port ];
+  networking.firewall.interfaces.eth0.allowedTCPPorts = [ 8097 ];
 
   services.my.music-assistant = {
-    port = 8097;
+    port = 8095;
     domain = "music.port.peeraten.net";
     proxy = {
       enable = true;
