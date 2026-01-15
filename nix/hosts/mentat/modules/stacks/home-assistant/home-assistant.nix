@@ -22,17 +22,21 @@ in
   ];
   networking.firewall.allowedUDPPorts = [ 5353 ];
 
-  services.my.home-assistant = {
-    port = 8123;
-    domain = "hass.peeraten.net";
-    proxy = {
-      enable = true;
-      cert = {
-        provided = false;
-        host = my.domain;
+  services.my.home-assistant =
+    let
+      domain = "hass.peeraten.net";
+    in
+    {
+      port = 8123;
+      inherit domain;
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = domain;
+        };
       };
     };
-  };
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {

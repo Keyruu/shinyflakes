@@ -23,18 +23,22 @@ in
   };
 
   services = {
-    my.copyparty = {
-      enable = true;
-      port = 3210;
-      domain = "files.keyruu.de";
-      proxy = {
+    my.copyparty =
+      let
+        domain = "files.keyruu.de";
+      in
+      {
         enable = true;
-        cert = {
-          provided = false;
-          host = my.domain;
+        port = 3210;
+        inherit domain;
+        proxy = {
+          enable = true;
+          cert = {
+            provided = false;
+            host = domain;
+          };
         };
       };
-    };
 
     copyparty = {
       enable = true;
@@ -78,12 +82,6 @@ in
 
       openFilesLimit = 8192;
     };
-  };
-
-  security.acme.certs."${my.domain}" = {
-    dnsProvider = "cloudflare";
-    dnsPropagationCheck = true;
-    environmentFile = config.sops.secrets.cloudflare.path;
   };
 
   services.nginx.virtualHosts = {

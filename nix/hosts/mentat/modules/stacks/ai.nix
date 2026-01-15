@@ -37,7 +37,7 @@ in
           containerConfig = {
             image = "ollama/ollama:0.13.5";
             devices = [ "nvidia.com/gpu=all" ];
-            publishPorts = [ "${ollama.port}:11434" ];
+            publishPorts = [ "${toString ollama.port}:11434" ];
             volumes = [ "/root/.ollama:/root/.ollama" ];
             securityLabelDisable = true;
             networks = [ networks.ai.ref ];

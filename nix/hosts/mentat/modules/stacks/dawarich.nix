@@ -30,17 +30,21 @@ in
     '';
   };
 
-  services.my.dawarich = {
-    port = 3001;
-    domain = "map.peeraten.net";
-    proxy = {
-      enable = true;
-      cert = {
-        provided = false;
-        host = my.domain;
+  services.my.dawarich =
+    let
+      domain = "map.peeraten.net";
+    in
+    {
+      port = 3001;
+      inherit domain;
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = domain;
+        };
       };
     };
-  };
 
   virtualisation.quadlet =
     let

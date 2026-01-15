@@ -48,6 +48,7 @@ in
       enable = true;
       port = 5678;
       domain = "glance.lab.keyruu.de";
+      proxy.enable = true;
     };
     glance = {
       inherit (my) enable;
@@ -142,16 +143,6 @@ in
             ];
           }
         ];
-      };
-    };
-
-    nginx.virtualHosts."${my.domain}" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
       };
     };
   };

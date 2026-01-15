@@ -22,18 +22,22 @@ in
     group = "radicale";
   };
 
-  services.my.radicale = {
-    enable = true;
-    port = 5232;
-    domain = "calendar.peeraten.net";
-    proxy = {
+  services.my.radicale =
+    let
+      domain = "calendar.peeraten.net";
+    in
+    {
       enable = true;
-      cert = {
-        provided = false;
-        host = my.domain;
+      port = 5232;
+      inherit domain;
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = domain;
+        };
       };
     };
-  };
 
   environment.etc."stacks/radicale/config/config".text = ''
     [server]
