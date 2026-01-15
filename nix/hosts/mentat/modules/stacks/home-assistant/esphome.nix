@@ -11,6 +11,10 @@ in
   services.my.esphome = {
     port = 6052;
     domain = "esphome.port.peeraten.net";
+    proxy = {
+      enable = true;
+      cert.host = "port.peeraten.net";
+    };
   };
 
   virtualisation.quadlet.containers.esphome = {
@@ -31,22 +35,9 @@ in
       networks = [
         "host"
       ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-      ];
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "port.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

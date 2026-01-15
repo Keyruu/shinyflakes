@@ -11,6 +11,7 @@ in
   services.my.sonarr = {
     port = 8989;
     domain = "sonarr.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers = {
@@ -43,17 +44,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:8989"
     ];
-  };
-
-  services.nginx.virtualHosts = {
-    "${my.domain}" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
-      };
-    };
   };
 }

@@ -13,6 +13,10 @@ in
       enable = true;
       port = 3053;
       domain = "adguard.port.peeraten.net";
+      proxy = {
+        enable = true;
+        cert.host = "port.peeraten.net";
+      };
     };
     adguardhome = {
       enable = true;
@@ -149,15 +153,6 @@ in
             id = 8;
           }
         ];
-      };
-    };
-    nginx.virtualHosts."${my.domain}" = {
-      useACMEHost = "port.peeraten.net";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
       };
     };
   };

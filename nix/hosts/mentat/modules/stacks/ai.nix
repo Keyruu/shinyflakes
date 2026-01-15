@@ -1,16 +1,25 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   openwebuiStackPath = "/etc/stacks/openwebui";
-  my = config.services.my.openwebui;
+  inherit (config.services.my) openwebui;
+  inherit (config.services.my) ollama;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${openwebuiStackPath}/data 0755 root root"
   ];
 
-  services.my.openwebui = {
-    port = 3004;
-    domain = "ai.lab.keyruu.de";
+  services.my = {
+    ollama = {
+      port = 11434;
+      domain = "ollama.lab.keyruu.de";
+      proxy.enable = true;
+    };
+    openwebui = {
+      port = 3004;
+      domain = "ai.lab.keyruu.de";
+      proxy.enable = true;
+    };
   };
 
   virtualisation.quadlet =
@@ -28,11 +37,8 @@ in
           containerConfig = {
             image = "ollama/ollama:0.13.5";
             devices = [ "nvidia.com/gpu=all" ];
-            publishPorts = [ "11434:11434" ];
+            publishPorts = [ "${ollama.port}:11434" ];
             volumes = [ "/root/.ollama:/root/.ollama" ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
             securityLabelDisable = true;
             networks = [ networks.ai.ref ];
             networkAliases = [ "ollama" ];
@@ -45,11 +51,8 @@ in
         openwebui = {
           containerConfig = {
             image = "ghcr.io/open-webui/open-webui:0.7.2";
-            publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
+            publishPorts = [ "127.0.0.1:${toString openwebui.port}:8080" ];
             volumes = [ "${openwebuiStackPath}/data:/app/backend/data" ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
             networks = [ networks.ai.ref ];
             networkAliases = [ "openwebui" ];
           };
@@ -62,32 +65,10 @@ in
 
   networking.firewall.interfaces = {
     librechat.allowedTCPPorts = [
-      11434
+      ollama.port
     ];
     "${config.services.mesh.interface}".allowedTCPPorts = [
-      11434
+      ollama.port
     ];
-  };
-
-  services.nginx.virtualHosts = {
-    "ollama.lab.keyruu.de" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:11434";
-        proxyWebsockets = true;
-      };
-    };
-
-    "${my.domain}" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
-      };
-    };
   };
 }

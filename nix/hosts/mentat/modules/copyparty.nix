@@ -27,7 +27,15 @@ in
       enable = true;
       port = 3210;
       domain = "files.keyruu.de";
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = my.domain;
+        };
+      };
     };
+
     copyparty = {
       enable = true;
       package = perSystem.copyparty.default;
@@ -82,18 +90,7 @@ in
     "files.lab.keyruu.de" = {
       useACMEHost = "lab.keyruu.de";
       forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:3210";
-        proxyWebsockets = true;
-      };
-    };
-
-    "${my.domain}" = {
-      useACMEHost = "${my.domain}";
-      forceSSL = true;
-
-      inherit (config.services.nginx.virtualHosts."files.lab.keyruu.de") locations;
+      inherit (config.services.nginx.virtualHosts."${my.domain}") locations;
     };
   };
 }

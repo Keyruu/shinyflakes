@@ -14,6 +14,7 @@ in
       enable = true;
       port = 9090;
       domain = "mentat.lab.keyruu.de";
+      proxy.enable = true;
     };
     cockpit = {
       inherit (my) enable;

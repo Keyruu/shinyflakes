@@ -11,6 +11,7 @@ in
   services.my.navidrome = {
     port = 4533;
     domain = "navidrome.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers.navidrome = {
@@ -30,16 +31,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

@@ -8,11 +8,15 @@ in
     "d ${musicAssistantPath}/data 0755 root root"
   ];
 
-  networking.firewall.allowedTCPPorts = [ 8097 ];
+  networking.firewall.interfaces.eth0.allowedTCPPorts = [ my.port ];
 
   services.my.music-assistant = {
     port = 8097;
     domain = "music.port.peeraten.net";
+    proxy = {
+      enable = true;
+      cert.host = "port.peeraten.net";
+    };
   };
 
   virtualisation.quadlet.containers.music-assistant = {
@@ -33,16 +37,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "port.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

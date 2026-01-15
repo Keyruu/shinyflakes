@@ -33,6 +33,13 @@ in
   services.my.dawarich = {
     port = 3001;
     domain = "map.peeraten.net";
+    proxy = {
+      enable = true;
+      cert = {
+        provided = false;
+        host = my.domain;
+      };
+    };
   };
 
   virtualisation.quadlet =
@@ -204,22 +211,4 @@ in
         };
       };
     };
-
-  security.acme = {
-    certs."${my.domain}" = {
-      dnsProvider = "cloudflare";
-      dnsPropagationCheck = true;
-      environmentFile = config.sops.secrets.cloudflare.path;
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "${my.domain}";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
-    };
-  };
 }

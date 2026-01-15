@@ -11,6 +11,7 @@ in
   services.my.radarr = {
     port = 7878;
     domain = "radarr.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers = {
@@ -43,18 +44,6 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:7878"
     ];
-  };
-
-  services.nginx.virtualHosts = {
-    "${my.domain}" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
-      };
-    };
   };
 }
 

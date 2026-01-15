@@ -23,6 +23,7 @@ in
   services.my.speedtest-tracker = {
     port = 9122;
     domain = "speedtest.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers.speedtest-tracker = {
@@ -46,16 +47,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

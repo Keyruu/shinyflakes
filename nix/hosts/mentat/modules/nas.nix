@@ -29,6 +29,7 @@ in
       enable = true;
       port = 6333;
       domain = "scrutiny.lab.keyruu.de";
+      proxy.enable = true;
     };
   };
 
@@ -51,16 +52,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 

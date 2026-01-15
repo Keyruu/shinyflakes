@@ -1,12 +1,19 @@
 { config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/immich";
+  my = config.services.my.immich;
 in
 {
   systemd.tmpfiles.rules = [
     "d ${stackPath}/pgdata 0770 999 999"
     "d ${stackPath}/model-cache 0770 root root"
   ];
+
+  services.my.immich = {
+    port = 2283;
+    domain = "immich.lab.keyruu.de";
+    proxy.enable = true;
+  };
 
   virtualisation.quadlet =
     let
@@ -26,7 +33,7 @@ in
           containerConfig = {
             image = "ghcr.io/immich-app/immich-server:${IMMICH_VERSION}";
             publishPorts = [
-              "127.0.0.1:2283:2283"
+              "127.0.0.1:${toString my.port}:2283"
             ];
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
@@ -34,9 +41,6 @@ in
               "/main:/usr/src/app/extra-main"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
-            labels = [
-              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
-            ];
             networks = [ networks.immich.ref ];
           };
           serviceConfig = {
@@ -114,16 +118,6 @@ in
     };
 
   services = {
-    nginx.virtualHosts."immich.lab.keyruu.de" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:2283";
-        proxyWebsockets = true;
-      };
-    };
-
     restic.backupsWithDefaults.immich-stack = {
       backupPrepareCommand = # sh
         ''

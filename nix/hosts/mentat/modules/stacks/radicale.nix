@@ -1,7 +1,6 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/radicale";
-  inherit (config.services) mesh;
   my = config.services.my.radicale;
 in
 {
@@ -27,6 +26,13 @@ in
     enable = true;
     port = 5232;
     domain = "calendar.peeraten.net";
+    proxy = {
+      enable = true;
+      cert = {
+        provided = false;
+        host = my.domain;
+      };
+    };
   };
 
   environment.etc."stacks/radicale/config/config".text = ''
@@ -67,23 +73,6 @@ in
           "${config.environment.etc."stacks/radicale/config/config".source}"
         ];
       };
-    };
-  };
-
-  security.acme = {
-    certs."${my.domain}" = {
-      dnsProvider = "cloudflare";
-      dnsPropagationCheck = true;
-      environmentFile = config.sops.secrets.cloudflare.path;
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "${my.domain}";
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

@@ -11,6 +11,7 @@ in
   services.my.sabnzbd = {
     port = 8022;
     domain = "sabnzbd.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers = {
@@ -42,17 +43,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "${toString my.port}:8085"
     ];
-  };
-
-  services.nginx.virtualHosts = {
-    "${my.domain}" = {
-      useACMEHost = "lab.keyruu.de";
-      forceSSL = true;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString my.port}";
-        proxyWebsockets = true;
-      };
-    };
   };
 }

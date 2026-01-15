@@ -1,13 +1,13 @@
 { config, ... }:
 let
-  cfg = config.services.my.jellyfin;
+  my = config.services.my.jellyfin;
   jellyfinPath = "/etc/stacks/jellyfin";
 in
 {
   services.my.jellyfin = {
-    enable = true;
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   systemd.tmpfiles.rules = [
@@ -26,22 +26,12 @@ in
         "/main/media:/media"
       ];
       publishPorts = [
-        "127.0.0.1:${toString cfg.port}:${toString cfg.port}"
-        "${config.services.mesh.ip}:${toString cfg.port}:${toString cfg.port}"
+        "127.0.0.1:${toString my.port}:${toString my.port}"
+        "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
       ];
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.nginx.virtualHosts."${cfg.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString cfg.port}";
-      proxyWebsockets = true;
     };
   };
 }

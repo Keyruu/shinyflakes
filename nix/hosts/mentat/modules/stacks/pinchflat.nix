@@ -11,6 +11,7 @@ in
   services.my.pinchflat = {
     port = 8945;
     domain = "pinchflat.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet = {
@@ -34,15 +35,6 @@ in
           Restart = "unless-stopped";
         };
       };
-    };
-  };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
     };
   };
 }

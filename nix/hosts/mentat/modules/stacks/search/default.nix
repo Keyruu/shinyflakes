@@ -21,6 +21,7 @@ in
   services.my.searxng = {
     port = 4899;
     domain = "search.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet =
@@ -94,14 +95,4 @@ in
         };
       };
     };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "lab.keyruu.de";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
-    };
-  };
 }

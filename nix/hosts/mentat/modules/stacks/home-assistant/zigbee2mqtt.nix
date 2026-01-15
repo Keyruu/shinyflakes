@@ -49,6 +49,10 @@ in
   services.my.z2m = {
     port = 3845;
     domain = "z2m.port.peeraten.net";
+    proxy = {
+      enable = true;
+      cert.host = "port.peeraten.net";
+    };
   };
 
   virtualisation.quadlet =
@@ -86,14 +90,4 @@ in
         };
       };
     };
-
-  services.nginx.virtualHosts."${my.domain}" = {
-    useACMEHost = "port.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString my.port}";
-      proxyWebsockets = true;
-    };
-  };
 }
