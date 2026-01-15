@@ -11,6 +11,7 @@ in
   services.my.nzbhydra2 = {
     port = 5076;
     domain = "nzbhydra2.lab.keyruu.de";
+    proxy.enable = true;
   };
 
   virtualisation.quadlet.containers = {
