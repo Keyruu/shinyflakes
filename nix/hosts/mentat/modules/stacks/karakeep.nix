@@ -95,7 +95,7 @@ in
         karakeep-meilisearch = {
           containerConfig = {
             # renovate: ignore
-            image = "getmeili/meilisearch:v1.13.3";
+            image = "getmeili/meilisearch:v1.32.2";
             environments = {
               MEILI_NO_ANALYTICS = "true";
             };
