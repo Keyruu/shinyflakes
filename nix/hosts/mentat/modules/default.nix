@@ -6,7 +6,7 @@
     ./cert.nix
     ./cockpit.nix
     ./disk-config.nix
-    ./gpu.nix
+    # ./gpu.nix
     ./homepage.nix
     ./nas.nix
     ./network.nix

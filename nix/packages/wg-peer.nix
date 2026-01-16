@@ -16,7 +16,7 @@ perSystem.pog.pog.pog {
       name = "allowed-ips";
       short = "a";
       description = "allowed IPs (comma-sep)";
-      default = "0.0.0.0/0, ::/0";
+      default = "100.67.0.0/24, 192.168.100.0/24";
       argument = "IPS";
     }
     {
@@ -30,6 +30,7 @@ perSystem.pog.pog.pog {
       name = "dns";
       short = "d";
       description = "DNS servers (comma-sep)";
+      default = "100.67.0.2";
       argument = "DNS";
     }
     {

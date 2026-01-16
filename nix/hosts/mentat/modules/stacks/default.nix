@@ -6,7 +6,7 @@
     ./search
 
     ./immich.nix
-    ./ai.nix
+    # ./ai.nix
     ./traccar.nix
     ./speedtest-tracker.nix
     # ./wud.nix
@@ -14,7 +14,7 @@
     ./karakeep.nix
     ./timetagger.nix
     ./pinchflat.nix
-    ./pigallery2.nix
+    # ./pigallery2.nix
     ./radicale.nix
     ./isponsorblocktv.nix
     # ./n8n.nix
