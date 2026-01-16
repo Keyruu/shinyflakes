@@ -4,7 +4,7 @@ let
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
+    "d ${stackPath}/data 0755 1000 1000"
   ];
 
   sops.secrets.hytaleServerPassword = { };
