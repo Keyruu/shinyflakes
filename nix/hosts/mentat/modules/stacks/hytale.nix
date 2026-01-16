@@ -21,6 +21,7 @@ in
       HYTALE_COMPRESSION=false
       HYTALE_WORLD=petershausen
       HYTALE_GAMEMODE=Adventure
+      HYTALE_ALLOW_OP=TRUE
     '';
   };
 
