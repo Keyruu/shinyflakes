@@ -41,6 +41,9 @@ in
         TZ = "Europe/Amsterdam";
         CACHE = "TRUE";
       };
+      podmanArgs = [
+        "-a=stdin"
+      ];
     };
     serviceConfig = {
       Restart = "always";
