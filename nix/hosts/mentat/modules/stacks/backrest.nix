@@ -11,6 +11,17 @@ in
     "d ${stackPath}/tmp 0755 root root"
   ];
 
+  sops = {
+    templates."backrest.env" = {
+      restartUnits = [
+        "backrest.service"
+      ];
+      content = ''
+        RESTIC_PASSWORD=${config.sops.placeholder.resticPassword}
+      '';
+    };
+  };
+
   services.my.backrest = {
     port = 9898;
     domain = "backrest.lab.keyruu.de";
@@ -21,6 +32,7 @@ in
     containerConfig = {
       image = "ghcr.io/garethgeorge/backrest:v1.11.1";
       publishPorts = [ "127.0.0.1:${toString my.port}:9898" ];
+      environmentFiles = [ config.sops.templates."backrest.env".path ];
       environments = {
         BACKREST_DATA = "/data";
         BACKREST_CONFIG = "/config/config.json";
