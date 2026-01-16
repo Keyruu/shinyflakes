@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  radarrPath = "/etc/stacks/radarr";
+  stackPath = "/etc/stacks/radarr";
   my = config.services.my.radarr;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${radarrPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.radarr = {
@@ -26,7 +26,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${radarrPath}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media:/data"
         ];
         networks = [
@@ -45,5 +45,14 @@ in
       "127.0.0.1:${toString my.port}:7878"
     ];
   };
-}
 
+  services.restic.backupsWithDefaults = {
+    radarr = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-radarr";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-radarr";
+    };
+  };
+}

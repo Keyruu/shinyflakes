@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/radicale";
   my = config.services.my.radicale;
@@ -77,6 +77,16 @@ in
           "${config.environment.etc."stacks/radicale/config/config".source}"
         ];
       };
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    radicale = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop radicale";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start radicale";
     };
   };
 }

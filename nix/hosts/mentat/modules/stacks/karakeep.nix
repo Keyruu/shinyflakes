@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/karakeep";
   my = config.services.my.karakeep;
@@ -114,4 +114,14 @@ in
         };
       };
     };
+
+  services.restic.backupsWithDefaults = {
+    karakeep = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop karakeep-*";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start karakeep-*";
+    };
+  };
 }

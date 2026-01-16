@@ -1,10 +1,10 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  mqttPath = "/etc/stacks/mqtt/data";
+  stackPath = "/etc/stacks/mqtt/data";
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${mqttPath} 0755 root root"
+    "d ${stackPath} 0755 root root"
   ];
 
   users = {
@@ -56,7 +56,7 @@ in
               "127.0.0.1:9001:9001"
             ];
             volumes = [
-              "${mqttPath}:/mosquitto"
+              "${stackPath}:/mosquitto"
               "${config.sops.templates."mqtt.conf".path}:/mosquitto/config/mqtt.conf:ro"
               "${config.sops.secrets.mqttPasswordFile.path}:/mosquitto/config/pwfile:ro"
             ];
@@ -80,6 +80,16 @@ in
     locations."/" = {
       proxyPass = "http://127.0.0.1:9001";
       proxyWebsockets = true;
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    mqtt = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop eclipse-mosquitto";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start eclipse-mosquitto";
     };
   };
 }

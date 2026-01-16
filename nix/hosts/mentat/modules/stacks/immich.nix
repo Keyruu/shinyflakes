@@ -118,18 +118,19 @@ in
     };
 
   services = {
-    restic.backupsWithDefaults.immich-stack = {
-      backupPrepareCommand = # sh
-        ''
-          ${pkgs.systemd}/bin/systemctl stop immich-*
-        '';
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = # sh
-        ''
-          ${pkgs.systemd}/bin/systemctl start immich-*
-        '';
+    restic.backupsWithDefaults = {
+      immich-stack = {
+        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop immich-*";
+        paths = [
+          stackPath
+        ];
+        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start immich-*";
+      };
+      immich-photos = {
+        paths = [
+          "/main/immich"
+        ];
+      };
     };
   };
 }

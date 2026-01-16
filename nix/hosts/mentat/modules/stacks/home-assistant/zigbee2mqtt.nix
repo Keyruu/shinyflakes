@@ -1,13 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  mqttPath = "/etc/stacks/mqtt/data";
-  z2mPath = "/etc/stacks/z2m/data";
+  stackPath = "/etc/stacks/z2m/data";
   my = config.services.my.z2m;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${z2mPath} 0755 root root"
-    "d ${mqttPath} 0755 root root"
+    "d ${stackPath} 0755 root root"
   ];
 
   sops.secrets = {
@@ -71,7 +69,7 @@ in
               "127.0.0.1:${toString my.port}:8080"
             ];
             volumes = [
-              "${z2mPath}:/app/data"
+              "${stackPath}:/app/data"
               "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
               "/run/udev:/run/udev:ro"
             ];
@@ -90,4 +88,14 @@ in
         };
       };
     };
+
+  services.restic.backupsWithDefaults = {
+    zigbee2mqtt = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop zigbee2mqtt";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start zigbee2mqtt";
+    };
+  };
 }

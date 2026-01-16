@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  sabnzbdPath = "/etc/stacks/sabnzbd";
+  stackPath = "/etc/stacks/sabnzbd";
   my = config.services.my.sabnzbd;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${sabnzbdPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.sabnzbd = {
@@ -25,7 +25,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${sabnzbdPath}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media/downloads:/data/downloads"
         ];
         networks = [
@@ -43,5 +43,15 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "${toString my.port}:8085"
     ];
+  };
+
+  services.restic.backupsWithDefaults = {
+    sabnzbd = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-sabnzbd";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-sabnzbd";
+    };
   };
 }

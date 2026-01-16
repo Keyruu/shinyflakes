@@ -1,6 +1,6 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  homeAssistantPath = "/etc/stacks/home-assistant";
+  stackPath = "/etc/stacks/home-assistant";
   my = config.services.my.home-assistant;
 in
 {
@@ -13,7 +13,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${homeAssistantPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   networking.firewall.allowedTCPPorts = [
@@ -59,8 +59,8 @@ in
         "/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D90B9F28-if00"
       ];
       volumes = [
-        "${homeAssistantPath}/config:/config"
-        "${homeAssistantPath}/config/configuration.yaml:/config/configuration.yaml:ro"
+        "${stackPath}/config:/config"
+        "${stackPath}/config/configuration.yaml:/config/configuration.yaml:ro"
         "/run/dbus:/run/dbus:ro"
         "/etc/localtime:/etc/localtime:ro"
       ];
@@ -78,6 +78,16 @@ in
       X-RestartTrigger = [
         "${config.environment.etc."stacks/home-assistant/config/configuration.yaml".source}"
       ];
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    home-assistant = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop home-assistant";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start home-assistant";
     };
   };
 }

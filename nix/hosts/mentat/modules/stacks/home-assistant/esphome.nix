@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  esphomePath = "/etc/stacks/esphome/config";
+  stackPath = "/etc/stacks/esphome/config";
   my = config.services.my.esphome;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${esphomePath} 0755 root root"
+    "d ${stackPath} 0755 root root"
   ];
 
   services.my.esphome = {
@@ -30,7 +30,7 @@ in
         "CAP_NET_RAW"
       ];
       volumes = [
-        "${esphomePath}:/config"
+        "${stackPath}:/config"
       ];
       networks = [
         "host"
@@ -38,6 +38,16 @@ in
     };
     serviceConfig = {
       Restart = "always";
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    esphome = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop esphome";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start esphome";
     };
   };
 }

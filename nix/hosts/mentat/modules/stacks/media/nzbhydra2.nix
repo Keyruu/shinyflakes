@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  nzbhydra2 = "/etc/stacks/nzbhydra2";
+  stackPath = "/etc/stacks/nzbhydra2";
   my = config.services.my.nzbhydra2;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${nzbhydra2}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.nzbhydra2 = {
@@ -25,7 +25,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${nzbhydra2}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media/downloads:/data/downloads"
         ];
         networks = [
@@ -43,5 +43,15 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:5076"
     ];
+  };
+
+  services.restic.backupsWithDefaults = {
+    nzbhydra2 = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-nzbhydra2";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-nzbhydra2";
+    };
   };
 }

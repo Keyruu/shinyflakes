@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  musicAssistantPath = "/etc/stacks/music-assistant";
+  stackPath = "/etc/stacks/music-assistant";
   my = config.services.my.music-assistant;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${musicAssistantPath}/data 0755 root root"
+    "d ${stackPath}/data 0755 root root"
   ];
 
   networking.firewall.interfaces.eth0.allowedTCPPorts = [
@@ -32,7 +32,7 @@ in
         "8095"
       ];
       volumes = [
-        "${musicAssistantPath}/data:/data"
+        "${stackPath}/data:/data"
       ];
       networks = [
         "host"
@@ -42,4 +42,15 @@ in
       Restart = "always";
     };
   };
+
+  services.restic.backupsWithDefaults = {
+    music-assistant = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop music-assistant";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start music-assistant";
+    };
+  };
+
 }

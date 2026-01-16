@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/timetagger";
   my = config.services.my.timetagger;
@@ -45,4 +45,15 @@ in
       };
     };
   };
+
+  services.restic.backupsWithDefaults = {
+    timetagger = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop timetagger";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start timetagger";
+    };
+  };
+
 }

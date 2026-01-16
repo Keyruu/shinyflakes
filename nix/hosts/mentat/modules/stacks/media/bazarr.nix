@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  bazarrPath = "/etc/stacks/bazarr";
+  stackPath = "/etc/stacks/bazarr";
   my = config.services.my.bazarr;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${bazarrPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.bazarr = {
@@ -27,7 +27,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${bazarrPath}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media:/data"
         ];
         networks = [
@@ -46,4 +46,15 @@ in
       "127.0.0.1:${toString my.port}:6767"
     ];
   };
+
+  services.restic.backupsWithDefaults = {
+    bazarr = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-bazarr";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-bazarr";
+    };
+  };
+
 }

@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  lidarrPath = "/etc/stacks/lidarr/config";
+  stackPath = "/etc/stacks/lidarr/config";
   my = config.services.my.lidarr;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${lidarrPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.lidarr = {
@@ -26,7 +26,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${lidarrPath}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media:/data"
         ];
         networks = [
@@ -44,5 +44,15 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:8686"
     ];
+  };
+
+  services.restic.backupsWithDefaults = {
+    lidarr = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-lidarr";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-lidarr";
+    };
   };
 }

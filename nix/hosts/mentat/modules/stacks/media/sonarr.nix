@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  sonarrPath = "/etc/stacks/sonarr";
+  stackPath = "/etc/stacks/sonarr";
   my = config.services.my.sonarr;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${sonarrPath}/config 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   services.my.sonarr = {
@@ -26,7 +26,7 @@ in
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
-          "${sonarrPath}/config:/config"
+          "${stackPath}/config:/config"
           "/main/media:/data"
         ];
         networks = [
@@ -44,5 +44,15 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:8989"
     ];
+  };
+
+  services.restic.backupsWithDefaults = {
+    sonarr = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop sonarr";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start sonarr";
+    };
   };
 }

@@ -1,19 +1,19 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   my = config.services.my.jellyfin;
-  jellyfinPath = "/etc/stacks/jellyfin";
+  stackPath = "/etc/stacks/jellyfin";
 in
 {
+  systemd.tmpfiles.rules = [
+    "d ${stackPath}/config 0770 root root"
+    "d ${stackPath}/cache 0770 root root"
+  ];
+
   services.my.jellyfin = {
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
     proxy.enable = true;
   };
-
-  systemd.tmpfiles.rules = [
-    "d ${jellyfinPath}/config 0770 root root"
-    "d ${jellyfinPath}/cache 0770 root root"
-  ];
 
   virtualisation.quadlet.containers.jellyfin = {
     containerConfig = {
@@ -21,8 +21,8 @@ in
       environments = {
       };
       volumes = [
-        "${jellyfinPath}/config:/config"
-        "${jellyfinPath}/cache:/cache"
+        "${stackPath}/config:/config"
+        "${stackPath}/cache:/cache"
         "/main/media:/media"
       ];
       publishPorts = [
@@ -32,6 +32,16 @@ in
     };
     serviceConfig = {
       Restart = "always";
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    jellyfin = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop jellyfin";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start jellyfin";
     };
   };
 }

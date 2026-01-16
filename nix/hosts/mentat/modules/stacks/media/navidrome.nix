@@ -1,11 +1,11 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
-  navidromePath = "/etc/stacks/navidrome/data";
+  stackPath = "/etc/stacks/navidrome/data";
   my = config.services.my.navidrome;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${navidromePath} 0755 root root"
+    "d ${stackPath} 0755 root root"
   ];
 
   services.my.navidrome = {
@@ -22,7 +22,7 @@ in
         ND_BASEURL = "https://navidrome.lab.keyruu.de";
       };
       volumes = [
-        "${navidromePath}:/data"
+        "${stackPath}:/data"
         "/main/media/Music/library:/music:ro"
       ];
       publishPorts = [
@@ -31,6 +31,16 @@ in
     };
     serviceConfig = {
       Restart = "always";
+    };
+  };
+
+  services.restic.backupsWithDefaults = {
+    navidrome = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop navidrome";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start navidrome";
     };
   };
 }

@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackName = "librechat";
   stackPath = "/etc/stacks/${stackName}";
@@ -162,4 +162,14 @@ in
         };
       };
     };
+
+  services.restic.backupsWithDefaults = {
+    librechat = {
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop librechat-*";
+      paths = [
+        stackPath
+      ];
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start librechat-*";
+    };
+  };
 }
