@@ -19,7 +19,7 @@ in
       HYTALE_MAX_PLAYERS=1000
       HYTALE_MAX_VIEW_RADIUS=32
       HYTALE_COMPRESSION=false
-      HYTALE_WORLD=default
+      HYTALE_WORLD=petershausen
       HYTALE_GAMEMODE=Adventure
     '';
   };
