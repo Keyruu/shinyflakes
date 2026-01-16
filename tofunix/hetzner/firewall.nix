@@ -36,26 +36,27 @@ let
   ];
   httpsRules = map createPortRule httpsPorts;
 
-  sshRule = {
-    direction = "in";
-    protocol = "tcp";
-    port = "22";
-    source_ips = [
-      "0.0.0.0/0"
-      "::/0"
-    ];
-  };
-
-  icmpRule = {
-    direction = "in";
-    protocol = "icmp";
-    source_ips = [
-      "0.0.0.0/0"
-      "::/0"
-    ];
-  };
-
-  wgRules = [
+  otherRules = [
+    # ssh
+    {
+      direction = "in";
+      protocol = "tcp";
+      port = "22";
+      source_ips = [
+        "0.0.0.0/0"
+        "::/0"
+      ];
+    }
+    # ping
+    {
+      direction = "in";
+      protocol = "icmp";
+      source_ips = [
+        "0.0.0.0/0"
+        "::/0"
+      ];
+    }
+    # wg
     {
       direction = "in";
       protocol = "udp";
@@ -74,15 +75,19 @@ let
         "::/0"
       ];
     }
+    # hytale
+    {
+      direction = "in";
+      protocol = "udp";
+      port = "5520";
+      source_ips = [
+        "0.0.0.0/0"
+        "::/0"
+      ];
+    }
   ];
 
-  allRules =
-    httpsRules
-    ++ wgRules
-    ++ [
-      sshRule
-      icmpRule
-    ];
+  allRules = httpsRules ++ otherRules;
 in
 {
   resource.hcloud_firewall.cloudflare-https = {

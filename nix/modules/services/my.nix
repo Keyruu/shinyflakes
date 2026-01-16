@@ -44,7 +44,7 @@
     security.acme.certs = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf (serviceCfg.enable && serviceCfg.proxy.enable && !serviceCfg.proxy.cert.provided) {
+        lib.mkIf (serviceCfg.proxy.enable && !serviceCfg.proxy.cert.provided) {
           ${serviceCfg.proxy.cert.host} = {
             dnsProvider = "cloudflare";
             dnsPropagationCheck = true;
@@ -57,7 +57,7 @@
     services.nginx.virtualHosts = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf (serviceCfg.enable && serviceCfg.proxy.enable) {
+        lib.mkIf serviceCfg.proxy.enable {
           ${serviceCfg.domain} = {
             useACMEHost = serviceCfg.proxy.cert.host;
             forceSSL = true;
