@@ -8,7 +8,10 @@ in
     "d ${musicAssistantPath}/data 0755 root root"
   ];
 
-  networking.firewall.interfaces.eth0.allowedTCPPorts = [ 8097 ];
+  networking.firewall.interfaces.eth0.allowedTCPPorts = [
+    8095
+    8097
+  ];
 
   services.my.music-assistant = {
     port = 8095;
