@@ -67,8 +67,8 @@
       nas = "192.168.100.7/32";
     };
     people = {
-      canAccess = [ "nas" ];
       simon = {
+        canAccess = [ "nas" ];
         pc = {
           publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
           ip = "100.67.0.5";
