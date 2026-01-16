@@ -69,9 +69,11 @@
     people = {
       simon = {
         canAccess = [ "nas" ];
-        pc = {
-          publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
-          ip = "100.67.0.5";
+        devices = {
+          pc = {
+            publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
+            ip = "100.67.0.5";
+          };
         };
       };
       # nadine = {
