@@ -112,7 +112,7 @@
 
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
-    nvf-nixpkgs.url = "github:nixos/nixpkgs/c0b0e0fddf73fd517c3471e546c0df87a42d53f4";
+    nvf-nixpkgs.url = "github:nixos/nixpkgs/8e13ad6266acf92aa1c61d006f51a30c53d43851";
     nvf = {
       url = "github:thamenato/nvf/fix-nvim-treesitter";
       # currently broken bc of treesitter main
