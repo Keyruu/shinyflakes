@@ -211,6 +211,7 @@ in
     orca-slicer
     wireguard-tools
     tree-sitter
+    zerotierone
 
     perSystem.self.numr
     perSystem.self.glide-browser

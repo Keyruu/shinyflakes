@@ -38,7 +38,19 @@
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
 
-  networking.firewall.allowedTCPPorts = [ 57621 ];
+  networking.firewall = {
+    allowedTCPPorts = [
+      57621
+      # hytale
+      52133
+      5520
+    ];
+    allowedUDPPorts = [
+      # hytale
+      52133
+      5520
+    ];
+  };
   services = {
     xserver = {
       enable = true;
