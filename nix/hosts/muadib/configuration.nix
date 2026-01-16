@@ -41,38 +41,39 @@ in
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
 
-  networking.firewall = {
-    allowedTCPPorts = [
-      57621
-      # hytale
-      52133
-      5520
-    ];
-    allowedUDPPorts = [
-      # hytale
-      52133
-      5520
-    ];
-  };
-
   sops.secrets.muadibMeshKey = { };
   services.mesh.ip = mesh.people.lucas.devices.muadib.ip;
-  networking.wg-quick.interfaces = {
-    "${mesh.interface}" = {
-      address = [ "${mesh.ip}/24" ];
-      privateKeyFile = config.sops.secrets.muadibMeshKey.path;
-      autostart = true;
-
-      peers = [
+  networking = {
+    firewall = {
+      interfaces."${mesh.interface}".allowedUDPPortRanges = [
+        # hytale
         {
-          publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
-          allowedIPs = [
-            mesh.subnet
-          ];
-          endpoint = "mesh.peeraten.net:51234";
-          persistentKeepalive = 25;
+          from = 30000;
+          to = 55000;
         }
       ];
+      allowedTCPPorts = [
+        57621
+      ];
+    };
+
+    wg-quick.interfaces = {
+      "${mesh.interface}" = {
+        address = [ "${mesh.ip}/24" ];
+        privateKeyFile = config.sops.secrets.muadibMeshKey.path;
+        autostart = true;
+
+        peers = [
+          {
+            publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
+            allowedIPs = [
+              mesh.subnet
+            ];
+            endpoint = "mesh.peeraten.net:51234";
+            persistentKeepalive = 25;
+          }
+        ];
+      };
     };
   };
 

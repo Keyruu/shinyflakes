@@ -71,8 +71,8 @@
         canAccess = [ "nas" ];
         devices = {
           pc = {
-            publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
             ip = "100.67.0.5";
+            publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
           };
         };
       };
@@ -95,8 +95,8 @@
             publicKey = "PL5/3dK1BeIxoJufy51QHjMFQOq7SFR7WZ0sLmjqZW4=";
           };
           muadib = {
-            publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
             ip = "100.67.0.6";
+            publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
           };
         };
       };
