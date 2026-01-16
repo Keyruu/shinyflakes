@@ -22,5 +22,6 @@
     ./karaoke.nix
     ./dawarich.nix
     ./hytale.nix
+    ./backrest.nix
   ];
 }

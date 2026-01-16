@@ -130,7 +130,6 @@ in
         ''
           ${pkgs.systemd}/bin/systemctl start immich-*
         '';
-      pruneOpts = [ "test" ];
     };
   };
 }
