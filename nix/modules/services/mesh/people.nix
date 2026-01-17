@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, config, ... }:
 {
   options.services.mesh = {
     networks = lib.mkOption {
@@ -61,49 +61,65 @@
     };
   };
 
-  config.services.mesh = {
-    networks = {
-      home = "192.168.100.0/24";
-      nas = "192.168.100.7/32";
-    };
-    people = {
-      simon = {
-        canAccess = [ "nas" ];
-        devices = {
-          pc = {
-            ip = "100.67.0.5";
-            publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
+  config =
+    let
+      allIPs =
+        with builtins;
+        map (peer: peer.ip) (
+          concatMap (person: attrValues person.devices) (attrValues config.services.mesh.people)
+        );
+    in
+    {
+      assertions = [
+        {
+          assertion = allIPs == lib.unique allIPs;
+          message = "Duplicate IPs detected in the mesh!";
+        }
+      ];
+      services.mesh = {
+        networks = {
+          home = "192.168.100.0/24";
+          nas = "192.168.100.7/32";
+        };
+        people = {
+          simon = {
+            canAccess = [ "nas" ];
+            devices = {
+              pc = {
+                ip = "100.67.0.5";
+                publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
+              };
+              pc2 = {
+                ip = "100.67.0.7";
+                publicKey = "LFFnUgPpO34BYNULUBaHmC4esZae0MXU4KsJ8txXsHU=";
+              };
+            };
           };
-          pc2 = {
-            ip = "100.67.0.7";
-            publicKey = "LFFnUgPpO34BYNULUBaHmC4esZae0MXU4KsJ8txXsHU=";
+          # nadine = {
+          # };
+          lucas = {
+            canAccess = [ "home" ];
+            devices = {
+              mentat = {
+                ip = "100.67.0.2";
+                publicKey = "nDCk5Y9nEaoV51hLDGCjzlRyglAx/UcH9v1W9F9/imw=";
+                allowedIPs = [ "192.168.100.0/24" ];
+              };
+              phone = {
+                ip = "100.67.0.3";
+                publicKey = "7FBclS8OV86p7IYYAKHnjm0dl+e9ImvMvh7+lLnOCyk=";
+              };
+              thopter = {
+                ip = "100.67.0.4";
+                publicKey = "PL5/3dK1BeIxoJufy51QHjMFQOq7SFR7WZ0sLmjqZW4=";
+              };
+              muadib = {
+                ip = "100.67.0.6";
+                publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
+              };
+            };
           };
         };
       };
-      # nadine = {
-      # };
-      lucas = {
-        canAccess = [ "home" ];
-        devices = {
-          mentat = {
-            ip = "100.67.0.2";
-            publicKey = "nDCk5Y9nEaoV51hLDGCjzlRyglAx/UcH9v1W9F9/imw=";
-            allowedIPs = [ "192.168.100.0/24" ];
-          };
-          phone = {
-            ip = "100.67.0.3";
-            publicKey = "7FBclS8OV86p7IYYAKHnjm0dl+e9ImvMvh7+lLnOCyk=";
-          };
-          thopter = {
-            ip = "100.67.0.4";
-            publicKey = "PL5/3dK1BeIxoJufy51QHjMFQOq7SFR7WZ0sLmjqZW4=";
-          };
-          muadib = {
-            ip = "100.67.0.6";
-            publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
-          };
-        };
-      };
     };
-  };
 }

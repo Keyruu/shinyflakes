@@ -1,4 +1,19 @@
 { config, lib, ... }:
+let
+  servicesWithPorts = lib.mapAttrsToList (name: svc: {
+    inherit name;
+    inherit (svc) port;
+  }) config.services.my;
+
+  groupedByPort = lib.groupBy (svc: toString svc.port) servicesWithPorts;
+  duplicatePorts = lib.filterAttrs (_port: services: builtins.length services > 1) groupedByPort;
+
+  formatDuplicates = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (
+      port: services: "  Port ${port}: ${lib.concatMapStringsSep ", " (s: s.name) services}"
+    ) duplicatePorts
+  );
+in
 {
   options.services.my = lib.mkOption {
     type =
@@ -41,6 +56,17 @@
   };
 
   config = {
+    assertions = [
+      {
+        assertion = duplicatePorts == { };
+        message = ''
+          Duplicate ports found in services.my configuration!
+          The following ports are used by multiple services:
+          ${formatDuplicates}
+        '';
+      }
+    ];
+
     security.acme.certs = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
