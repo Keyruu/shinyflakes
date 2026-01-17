@@ -15,7 +15,7 @@ in
     content = ''
       HYTALE_SERVER_NAME=Der Server
       HYTALE_MOTD=Was geht ab, ihr Oberloser?
-      HYTALE_PASSWORD=${config.sops.placeholder.hytaleServerPassword}
+      HYTALE_PASSWORD=
       HYTALE_MAX_PLAYERS=1000
       HYTALE_MAX_VIEW_RADIUS=32
       HYTALE_COMPRESSION=false
