@@ -34,11 +34,12 @@ in
                   extraBackupArgs = [
                     "--host ${config.networking.hostName}"
                     "--tag ${name}"
+                    "--lock-wait 30m"
                   ];
 
                   timerConfig = lib.mkDefault {
                     OnCalendar = "04:00";
-                    RandomizedDelaySec = "1h";
+                    RandomizedDelaySec = "2h";
                   };
                 };
               }

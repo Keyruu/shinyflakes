@@ -89,6 +89,7 @@
     ryzen-monitor-ng
     isd
     nvtopPackages.nvidia
+    rustic
   ];
 
   system.stateVersion = "24.11";
