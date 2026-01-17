@@ -48,11 +48,11 @@ in
 
   services.restic.backupsWithDefaults = {
     sonarr = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop sonarr";
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-sonarr";
       paths = [
         stackPath
       ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start sonarr";
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-sonarr";
     };
   };
 }
