@@ -49,7 +49,7 @@ in
         # hytale
         {
           from = 30000;
-          to = 55000;
+          to = 60000;
         }
       ];
       allowedTCPPorts = [

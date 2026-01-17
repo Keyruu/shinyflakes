@@ -27,7 +27,7 @@ in
 
   virtualisation.quadlet.containers.hytale-server = {
     containerConfig = {
-      image = "docker.io/deinfreu/hytale-server:experimental-alpine-0.1.3";
+      image = "docker.io/deinfreu/hytale-server:experimental-0.1.3";
       publishPorts = [ "5520:5520/udp" ];
       volumes = [
         "${stackPath}/data:/home/container"
