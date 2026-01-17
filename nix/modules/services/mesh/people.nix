@@ -74,6 +74,10 @@
             ip = "100.67.0.5";
             publicKey = "oE4JGoMZgRzPChGqaXCSl9K2O82M15p00Xe65hwKMi8=";
           };
+          pc2 = {
+            ip = "100.67.0.7";
+            publicKey = "LFFnUgPpO34BYNULUBaHmC4esZae0MXU4KsJ8txXsHU=";
+          };
         };
       };
       # nadine = {
