@@ -85,11 +85,11 @@ in
 
   services.restic.backupsWithDefaults = {
     mqtt = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop eclipse-mosquitto";
+      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop mqtt";
       paths = [
         stackPath
       ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start eclipse-mosquitto";
+      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start mqtt";
     };
   };
 }
