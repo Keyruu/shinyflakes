@@ -41,6 +41,14 @@ in
         DEBUG = "FALSE";
         TZ = "Europe/Amsterdam";
         CACHE = "TRUE";
+        HYTALE_SERVER_NAME = "Der Server";
+        HYTALE_MOTD = "Was geht ab, ihr Oberloser?";
+        HYTALE_MAX_PLAYERS = "1000";
+        HYTALE_MAX_VIEW_RADIUS = "32";
+        HYTALE_COMPRESSION = "false";
+        HYTALE_WORLD = "petershausen";
+        HYTALE_GAMEMODE = "Adventure";
+        HYTALE_ALLOW_OP = "TRUE";
       };
     };
     serviceConfig = {
