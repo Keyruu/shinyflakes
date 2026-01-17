@@ -34,12 +34,11 @@ in
                   extraBackupArgs = [
                     "--host ${config.networking.hostName}"
                     "--tag ${name}"
-                    "--lock-wait 30m"
                   ];
 
                   timerConfig = lib.mkDefault {
                     OnCalendar = "04:00";
-                    RandomizedDelaySec = "2h";
+                    # RandomizedDelaySec = "2h";
                   };
                 };
               }
@@ -52,8 +51,21 @@ in
     };
   };
 
-  config = {
-    sops.secrets.resticPassword = { };
-    services.restic.backups = config.services.restic.backupsWithDefaults;
-  };
+  config =
+    let
+      backupNames = lib.attrNames config.services.restic.backupsWithDefaults;
+    in
+    {
+      sops.secrets.resticPassword = { };
+      services.restic.backups = config.services.restic.backupsWithDefaults;
+
+      systemd.services = lib.listToAttrs (
+        lib.imap0 (
+          i: name:
+          lib.nameValuePair "restic-backups-${name}" {
+            after = lib.optional (i > 0) "restic-backups-${lib.elemAt backupNames (i - 1)}.service";
+          }
+        ) backupNames
+      );
+    };
 }
