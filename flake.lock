@@ -1251,11 +1251,11 @@
         "vicinae": "vicinae_2"
       },
       "locked": {
-        "lastModified": 1767678555,
-        "narHash": "sha256-/Yx97SOwvJXPxvv6e81j+ID87J9DQGq0QGYnmsWKoz8=",
+        "lastModified": 1768470100,
+        "narHash": "sha256-nRP6YI1lGWgyYdm67dEiQaSMMYaPZ7AUpDFZNTD1TKI=",
         "owner": "vicinaehq",
         "repo": "extensions",
-        "rev": "e01fe274f037e4d2b7436718258fa898f80dc4b2",
+        "rev": "843ccf48a23dd16925f1dddb61f08efeb085f89e",
         "type": "github"
       },
       "original": {
