@@ -50,6 +50,10 @@ let
     { proxyHost, proxyPort }:
     {
       extraConfig = ''
+        log {
+          output stdout
+          level DEBUG
+        }
         reverse_proxy http://${proxyHost}:${toString proxyPort} 
       '';
     };
