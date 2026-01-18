@@ -15,8 +15,7 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
-    - 100.67.0.0/24
-    # Cloudflare IPv4 ranges
+    - 100.67.0.1
     - 173.245.48.0/20
     - 103.21.244.0/22
     - 103.22.200.0/22
