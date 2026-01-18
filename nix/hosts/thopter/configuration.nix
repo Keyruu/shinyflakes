@@ -29,7 +29,6 @@ in
     ./disk.nix
   ];
 
-  # Set the primary user name
   user.name = "lucas";
 
   sops = {

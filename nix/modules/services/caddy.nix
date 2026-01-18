@@ -30,6 +30,9 @@ in
             Include @coraza.conf-recommended
             Include @crs-setup.conf.example
             Include @owasp_crs/*.conf
+
+            # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
+            SecRuleRemoveById 949000-949999
           `
         }
       '';
