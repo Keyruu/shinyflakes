@@ -37,10 +37,6 @@ in
             SecRuleRemoveById 920420
           `
         }
-
-        {
-          debug
-        }
       '';
     };
   };
