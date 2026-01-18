@@ -33,8 +33,8 @@ in
 
             # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
             SecRuleRemoveById 949000-949999
-            # This rule blocks HTTP3, which Caddy 2.6+ supports just fine
-            SecRuleRemoveById 920430
+            # somehow this blocks some http protocol, idfk 
+            SecRuleRemoveById 920420
           `
         }
       '';
