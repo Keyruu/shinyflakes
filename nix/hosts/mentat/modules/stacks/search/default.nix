@@ -1,12 +1,12 @@
 { config, ... }:
 let
-  searxngPath = "/etc/stacks/searxng";
+  stackPath = "/etc/stacks/searxng";
   my = config.services.my.searxng;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${searxngPath}/valkey 0775 999 1000"
-    "d ${searxngPath}/data 0755 root root"
+    "d ${stackPath}/valkey 0775 999 1000"
+    "d ${stackPath}/data 0755 root root"
   ];
 
   sops.secrets = {
@@ -22,6 +22,11 @@ in
     port = 4899;
     domain = "search.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "searxng-*";
+    };
   };
 
   virtualisation.quadlet =
@@ -50,7 +55,7 @@ in
             image = "docker.io/valkey/valkey:8-alpine";
             exec = "valkey-server --save 30 1 --loglevel warning";
             volumes = [
-              "${searxngPath}/valkey:/data:z"
+              "${stackPath}/valkey:/data:z"
             ];
             networks = [ containers."searxng-gluetun".ref ];
           };
@@ -74,7 +79,7 @@ in
             };
             environmentFiles = [ config.sops.secrets.searxngEnv.path ];
             volumes = [
-              "${searxngPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
+              "${stackPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
             ];
             networks = [ containers."searxng-gluetun".ref ];
           };

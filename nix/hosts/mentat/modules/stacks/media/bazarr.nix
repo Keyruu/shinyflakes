@@ -12,6 +12,11 @@ in
     port = 6767;
     domain = "bazarr.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-bazarr";
+    };
   };
 
   virtualisation.quadlet.containers = {
@@ -46,15 +51,4 @@ in
       "127.0.0.1:${toString my.port}:6767"
     ];
   };
-
-  services.restic.backupsWithDefaults = {
-    bazarr = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-bazarr";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-bazarr";
-    };
-  };
-
 }

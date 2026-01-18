@@ -13,6 +13,11 @@ in
     port = 2283;
     domain = "immich.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "immich-*";
+    };
   };
 
   virtualisation.quadlet =
@@ -117,20 +122,11 @@ in
       };
     };
 
-  services = {
-    restic.backupsWithDefaults = {
-      immich-stack = {
-        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop immich-*";
-        paths = [
-          stackPath
-        ];
-        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start immich-*";
-      };
-      immich-photos = {
-        paths = [
-          "/main/immich"
-        ];
-      };
+  services.restic.backupsWithDefaults = {
+    immich-photos = {
+      paths = [
+        "/main/immich"
+      ];
     };
   };
 }

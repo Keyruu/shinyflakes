@@ -37,6 +37,10 @@ in
           host = domain;
         };
       };
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+      };
     };
 
   environment.etc."stacks/radicale/config/config".text = ''
@@ -77,16 +81,6 @@ in
           "${config.environment.etc."stacks/radicale/config/config".source}"
         ];
       };
-    };
-  };
-
-  services.restic.backupsWithDefaults = {
-    radicale = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop radicale";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start radicale";
     };
   };
 }

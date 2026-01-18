@@ -20,6 +20,10 @@ in
       enable = true;
       cert.host = "port.peeraten.net";
     };
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet.containers.music-assistant = {
@@ -42,15 +46,4 @@ in
       Restart = "always";
     };
   };
-
-  services.restic.backupsWithDefaults = {
-    music-assistant = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop music-assistant";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start music-assistant";
-    };
-  };
-
 }

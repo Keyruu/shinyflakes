@@ -12,6 +12,11 @@ in
     port = 5076;
     domain = "nzbhydra2.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-nzbhydra2";
+    };
   };
 
   virtualisation.quadlet.containers = {
@@ -43,15 +48,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:5076"
     ];
-  };
-
-  services.restic.backupsWithDefaults = {
-    nzbhydra2 = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-nzbhydra2";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-nzbhydra2";
-    };
   };
 }

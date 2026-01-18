@@ -25,6 +25,11 @@ in
     port = 3080;
     domain = "chat.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "librechat-*";
+    };
   };
 
   virtualisation.quadlet =
@@ -162,14 +167,4 @@ in
         };
       };
     };
-
-  services.restic.backupsWithDefaults = {
-    librechat = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop librechat-*";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start librechat-*";
-    };
-  };
 }

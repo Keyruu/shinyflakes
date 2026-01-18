@@ -44,6 +44,11 @@ in
           host = domain;
         };
       };
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+        systemd.unit = "dawarich-*";
+      };
     };
 
   virtualisation.quadlet =

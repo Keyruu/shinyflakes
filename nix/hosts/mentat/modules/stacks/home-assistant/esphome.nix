@@ -15,6 +15,10 @@ in
       enable = true;
       cert.host = "port.peeraten.net";
     };
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet.containers.esphome = {
@@ -38,16 +42,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.restic.backupsWithDefaults = {
-    esphome = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop esphome";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start esphome";
     };
   };
 }

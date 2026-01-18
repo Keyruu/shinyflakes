@@ -36,6 +36,10 @@ in
           host = domain;
         };
       };
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+      };
     };
 
   virtualisation.quadlet.containers.home-assistant = {
@@ -78,16 +82,6 @@ in
       X-RestartTrigger = [
         "${config.environment.etc."stacks/home-assistant/config/configuration.yaml".source}"
       ];
-    };
-  };
-
-  services.restic.backupsWithDefaults = {
-    home-assistant = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop home-assistant";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start home-assistant";
     };
   };
 }

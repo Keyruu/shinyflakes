@@ -1,11 +1,11 @@
 { config, ... }:
 let
-  speedtestTrackerPath = "/etc/stacks/speedtest-tracker/config";
+  stackPath = "/etc/stacks/speedtest-tracker/config";
   my = config.services.my.speedtest-tracker;
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${speedtestTrackerPath} 0755 1000 1000"
+    "d ${stackPath} 0755 1000 1000"
   ];
 
   sops = {
@@ -24,6 +24,10 @@ in
     port = 9122;
     domain = "speedtest.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet.containers.speedtest-tracker = {
@@ -42,7 +46,7 @@ in
         "127.0.0.1:${toString my.port}:80"
       ];
       volumes = [
-        "${speedtestTrackerPath}:/config"
+        "${stackPath}:/config"
       ];
     };
     serviceConfig = {

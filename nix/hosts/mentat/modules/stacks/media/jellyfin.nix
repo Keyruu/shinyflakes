@@ -13,6 +13,10 @@ in
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet.containers.jellyfin = {

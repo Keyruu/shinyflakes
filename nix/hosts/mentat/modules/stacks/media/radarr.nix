@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/radarr";
   my = config.services.my.radarr;
@@ -12,6 +12,11 @@ in
     port = 7878;
     domain = "radarr.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-radarr";
+    };
   };
 
   virtualisation.quadlet.containers = {
@@ -44,15 +49,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:7878"
     ];
-  };
-
-  services.restic.backupsWithDefaults = {
-    radarr = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-radarr";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-radarr";
-    };
   };
 }

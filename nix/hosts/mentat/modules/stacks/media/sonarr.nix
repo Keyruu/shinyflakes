@@ -12,6 +12,11 @@ in
     port = 8989;
     domain = "sonarr.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-sonarr";
+    };
   };
 
   virtualisation.quadlet.containers = {
@@ -44,15 +49,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "127.0.0.1:${toString my.port}:8989"
     ];
-  };
-
-  services.restic.backupsWithDefaults = {
-    sonarr = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-sonarr";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-sonarr";
-    };
   };
 }

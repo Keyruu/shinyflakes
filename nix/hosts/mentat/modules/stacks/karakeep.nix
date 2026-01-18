@@ -33,6 +33,11 @@ in
     port = 3000;
     domain = "karakeep.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "karakeep-*";
+    };
   };
 
   virtualisation.quadlet =
@@ -114,14 +119,4 @@ in
         };
       };
     };
-
-  services.restic.backupsWithDefaults = {
-    karakeep = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop karakeep-*";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start karakeep-*";
-    };
-  };
 }

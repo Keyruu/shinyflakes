@@ -12,6 +12,11 @@ in
     port = 8686;
     domain = "lidarr.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-lidarr";
+    };
   };
 
   virtualisation.quadlet.containers = {

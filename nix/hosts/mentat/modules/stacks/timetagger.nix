@@ -23,6 +23,10 @@ in
     port = 8085;
     domain = "timetagger.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet = {
@@ -45,15 +49,4 @@ in
       };
     };
   };
-
-  services.restic.backupsWithDefaults = {
-    timetagger = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop timetagger";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start timetagger";
-    };
-  };
-
 }

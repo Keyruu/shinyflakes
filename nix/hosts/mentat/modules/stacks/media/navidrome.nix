@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/navidrome/data";
   my = config.services.my.navidrome;
@@ -12,6 +12,10 @@ in
     port = 4533;
     domain = "navidrome.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+    };
   };
 
   virtualisation.quadlet.containers.navidrome = {
@@ -31,16 +35,6 @@ in
     };
     serviceConfig = {
       Restart = "always";
-    };
-  };
-
-  services.restic.backupsWithDefaults = {
-    navidrome = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop navidrome";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start navidrome";
     };
   };
 }

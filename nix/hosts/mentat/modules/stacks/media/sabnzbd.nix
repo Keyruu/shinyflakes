@@ -12,6 +12,11 @@ in
     port = 8022;
     domain = "sabnzbd.lab.keyruu.de";
     proxy.enable = true;
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      systemd.unit = "media-sabnzbd";
+    };
   };
 
   virtualisation.quadlet.containers = {
@@ -43,15 +48,5 @@ in
     media-gluetun.containerConfig.publishPorts = [
       "${toString my.port}:8085"
     ];
-  };
-
-  services.restic.backupsWithDefaults = {
-    sabnzbd = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-sabnzbd";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-sabnzbd";
-    };
   };
 }

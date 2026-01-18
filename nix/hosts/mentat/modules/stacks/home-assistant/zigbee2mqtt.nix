@@ -44,12 +44,16 @@ in
       '';
   };
 
-  services.my.z2m = {
+  services.my.zigbee2mqtt = {
     port = 3845;
     domain = "z2m.port.peeraten.net";
     proxy = {
       enable = true;
       cert.host = "port.peeraten.net";
+    };
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
     };
   };
 
@@ -88,14 +92,4 @@ in
         };
       };
     };
-
-  services.restic.backupsWithDefaults = {
-    zigbee2mqtt = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop zigbee2mqtt";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start zigbee2mqtt";
-    };
-  };
 }
