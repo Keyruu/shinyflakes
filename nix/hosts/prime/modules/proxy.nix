@@ -2,10 +2,10 @@
 let
   mentat = config.services.mesh.people.lucas.devices.mentat.ip;
   proxyHosts = {
-    "hass.peeraten.net" = {
-      proxyHost = mentat;
-      proxyPort = 8123;
-    };
+    # "hass.peeraten.net" = {
+    #   proxyHost = mentat;
+    #   proxyPort = 8123;
+    # };
     "traccar.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5785;
@@ -55,5 +55,16 @@ let
     };
 in
 {
-  services.caddy.virtualHostsWithDefaults = lib.mapAttrs (_: mkProxyHost) proxyHosts;
+  services.caddy.virtualHostsWithDefaults = lib.mkMerge [
+    (lib.mapAttrs (_: mkProxyHost) proxyHosts)
+    {
+      "hass.peeraten.net" = {
+        extraConfig = ''
+          reverse_proxy http://${mentat}:8123 {
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+          }
+        '';
+      };
+    }
+  ];
 }
