@@ -32,7 +32,7 @@ in
             Include @owasp_crs/*.conf
 
             # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
-            SecRuleRemoveById 949000-949999
+            SecRuleRemoveById 949110
             # somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
           `
