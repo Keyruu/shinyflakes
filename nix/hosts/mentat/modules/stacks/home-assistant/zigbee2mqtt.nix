@@ -1,7 +1,7 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/z2m/data";
-  my = config.services.my.z2m;
+  my = config.services.my.zigbee2mqtt;
 in
 {
   systemd.tmpfiles.rules = [
