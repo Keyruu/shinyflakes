@@ -15,7 +15,7 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
-    - 100.64.0.0/10
+    - 100.67.0.0/24
 
 zeroconf:
   default_interface: true
