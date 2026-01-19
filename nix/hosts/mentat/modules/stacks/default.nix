@@ -23,5 +23,6 @@
     ./dawarich.nix
     ./hytale.nix
     ./backrest.nix
+    ./calibre-web.nix
   ];
 }

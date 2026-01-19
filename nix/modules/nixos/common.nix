@@ -148,6 +148,7 @@
       pciutils
       usbutils
       dig
+      trippy
     ];
 
     variables = {
