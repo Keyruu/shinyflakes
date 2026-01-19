@@ -76,6 +76,7 @@ in
     virtualHosts = {
       "hass.peeraten.net" = {
         extraConfig = ''
+          # i need to split out the websocket, bc coraza just can't handle the upgrade or the websocket in general
           @websockets {
             path /api/websocket
           }
@@ -84,6 +85,7 @@ in
               header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
             }
           }
+
           handle {
             route {
               coraza_waf {
@@ -94,11 +96,11 @@ in
                   Include @crs-setup.conf.example
                   Include @owasp_crs/*.conf
 
-                  # remove REQUEST-949-BLOCKING-EVALUATION, REQUEST-932-APPLICATION-ATTACK-RCE.conf, REQUEST-911-METHOD-ENFORCEMENT.conf bc of a lot of false positives
+                  # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
                   SecRuleRemoveById 949110
                   # somehow this blocks some http protocol, idfk 
                   SecRuleRemoveById 920420
-          `
+                `
               }
 
               reverse_proxy http://${mentat}:8123 {
