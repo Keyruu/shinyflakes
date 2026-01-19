@@ -61,6 +61,7 @@ in
       "hass.peeraten.net" = {
         extraConfig = ''
           reverse_proxy http://${mentat}:8123 {
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
             header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
           }
         '';

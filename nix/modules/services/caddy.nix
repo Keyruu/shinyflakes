@@ -31,8 +31,10 @@ in
             Include @crs-setup.conf.example
             Include @owasp_crs/*.conf
 
-            # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
+            # remove REQUEST-949-BLOCKING-EVALUATION, REQUEST-932-APPLICATION-ATTACK-RCE.conf, REQUEST-911-METHOD-ENFORCEMENT.conf bc of a lot of false positives
             SecRuleRemoveById 949110
+            SecRuleRemoveById 932370
+            SecRuleRemoveById 911100
             # somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
           `
