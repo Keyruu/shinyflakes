@@ -35,6 +35,8 @@ in
             SecRuleRemoveById 949110
             SecRuleRemoveById 932370
             SecRuleRemoveById 911100
+            # https://community.home-assistant.io/t/android-mobile-app-is-triggering-some-force-brute-scenarios-in-coraza-and-crowdsec/938537/3
+            SecRuleRemoveById 100004
             # somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
           `

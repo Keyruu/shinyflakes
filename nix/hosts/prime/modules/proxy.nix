@@ -58,25 +58,24 @@ in
   services.caddy = {
     virtualHostsWithDefaults = lib.mkMerge [
       (lib.mapAttrs (_: mkProxyHost) proxyHosts)
-      # {
-      #   "hass.peeraten.net" = {
-      #     extraConfig = ''
-      #       reverse_proxy http://${mentat}:8123 {
-      #         header_up X-Real-IP {http.request.header.CF-Connecting-IP}
-      #         header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-      #       }
-      #     '';
-      #   };
-      # }
+      {
+        "hass.peeraten.net" = {
+          extraConfig = ''
+            reverse_proxy http://${mentat}:8123 {
+              header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            }
+          '';
+        };
+      }
     ];
-    virtualHosts = {
-      "hass.peeraten.net" = {
-        extraConfig = ''
-          reverse_proxy http://${mentat}:8123 {
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-          }
-        '';
-      };
-    };
+    # virtualHosts = {
+    #   "hass.peeraten.net" = {
+    #     extraConfig = ''
+    #       reverse_proxy http://${mentat}:8123 {
+    #         header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+    #       }
+    #     '';
+    #   };
+    # };
   };
 }
