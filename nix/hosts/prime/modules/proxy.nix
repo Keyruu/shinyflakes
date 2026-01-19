@@ -72,7 +72,9 @@ in
     virtualHosts = {
       "hass.peeraten.net" = {
         extraConfig = ''
-          reverse_proxy http://${mentat}:8123 
+          reverse_proxy http://${mentat}:8123 {
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+          }
         '';
       };
     };
