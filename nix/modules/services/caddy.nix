@@ -37,9 +37,6 @@ in
             SecRuleRemoveById 911100
             # somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
-
-            # fix home assistant issues with WAF
-            SecRule REQUEST_URI "@beginsWith /api/websocket" "id:999003,phase:1,pass,nolog,ctl:ruleEngine=Off,ctl:requestBodyAccess=Off,ctl:responseBodyAccess=Off"
           `
         }
       '';
