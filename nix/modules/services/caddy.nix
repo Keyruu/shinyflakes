@@ -35,10 +35,12 @@ in
             SecRuleRemoveById 949110
             SecRuleRemoveById 932370
             SecRuleRemoveById 911100
-            # https://community.home-assistant.io/t/android-mobile-app-is-triggering-some-force-brute-scenarios-in-coraza-and-crowdsec/938537/3
-            SecRuleRemoveById 933150
             # somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
+
+            # fix home assistant issues with WAF
+            SecRule REQUEST_URI "@beginsWith /api/websocket" "id:999001,phase:1,pass,nolog,ctl:ruleEngine=Off"
+            SecRule REQUEST_URI "@beginsWith /auth" "id:999002,phase:1,pass,nolog,ctl:ruleEngine=Off"
           `
         }
       '';
