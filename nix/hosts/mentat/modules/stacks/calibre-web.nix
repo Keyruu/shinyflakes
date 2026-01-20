@@ -7,6 +7,8 @@ in
   systemd.tmpfiles.rules = [
     "d ${stackPath}/config 0755 1000 1000"
     "d ${stackPath}/books 0755 1000 1000"
+    "d ${stackPath}/ingest 0755 1000 1000"
+    "d ${stackPath}/plugins 0755 1000 1000"
   ];
 
   services.my.calibre-web = {
@@ -23,17 +25,18 @@ in
     containers = {
       calibre-web = {
         containerConfig = {
-          image = "docker.io/linuxserver/calibre-web:0.6.25";
+          image = "crocodilestick/calibre-web-automated:V3.1.4";
           publishPorts = [ "127.0.0.1:${toString my.port}:8083" ];
           volumes = [
             "${stackPath}/config:/config"
             "${stackPath}/books:/books"
+            "${stackPath}/ingest:/ingest"
+            "${stackPath}/plugins:/plugins"
           ];
           environments = {
             PUID = "1000";
             PGID = "1000";
             TZ = "Europe/Berlin";
-            DOCKER_MODS = "linuxserver/mods:universal-calibre";
           };
         };
         serviceConfig = {
@@ -52,16 +55,9 @@ in
         proxyWebsockets = true;
       };
       extraConfig = ''
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
-        proxy_set_header X-Scheme https;
-        client_max_body_size 1024M;
-
-        proxy_busy_buffers_size   1024k;
-        proxy_buffers   4 512k;
-        proxy_buffer_size   1024k;
+        proxy_busy_buffers_size 1024k;
+        proxy_buffers 4 512k;
+        proxy_buffer_size 1024k;
       '';
     };
   };
