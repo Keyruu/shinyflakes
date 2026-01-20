@@ -12,7 +12,7 @@ in
   services.my.calibre-web = {
     port = 8083;
     domain = "calibre.lab.keyruu.de";
-    proxy.enable = true;
+    proxy.enable = false;
     backup = {
       enable = true;
       paths = [ stackPath ];
@@ -40,6 +40,22 @@ in
           Restart = "always";
         };
       };
+    };
+  };
+
+  services.nginx.virtualHosts = {
+    ${my.domain} = {
+      useACMEHost = my.proxy.cert.host;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${toString my.port}";
+        proxyWebsockets = true;
+      };
+      extraConfig = ''
+        proxy_busy_buffers_size   1024k;
+        proxy_buffers   4 512k;
+        proxy_buffer_size   1024k;
+      '';
     };
   };
 }
