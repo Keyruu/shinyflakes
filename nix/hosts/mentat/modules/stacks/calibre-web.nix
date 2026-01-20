@@ -52,7 +52,7 @@ in
         proxyWebsockets = true;
       };
       extraConfig = ''
-        access_log stdout;
+        access_log /dev/stdout;
         proxy_set_header X-Scheme https;
         proxy_busy_buffers_size   1024k;
         proxy_buffers   4 512k;
