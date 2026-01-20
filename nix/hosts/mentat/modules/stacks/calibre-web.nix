@@ -11,6 +11,7 @@ in
     };
     users = {
       calibre = {
+        isSystemUser = true;
         uid = 1003;
         group = "calibre";
         extraGroups = [ "books" ];
@@ -21,8 +22,8 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${stackPath}/config 0755 calibre calibre"
-    "d ${stackPath}/books 0755 calibre books"
-    "d ${stackPath}/ingest 0755 calibre books"
+    "d ${stackPath}/books 0775 calibre books"
+    "d ${stackPath}/ingest 0775 calibre books"
     "d ${stackPath}/plugins 0755 calibre calibre"
   ];
 
@@ -52,8 +53,8 @@ in
             "${stackPath}/plugins:/plugins"
           ];
           environments = {
-            PUID = "1000";
-            PGID = "1000";
+            PUID = "1003";
+            PGID = "1003";
             TZ = "Europe/Berlin";
           };
         };
