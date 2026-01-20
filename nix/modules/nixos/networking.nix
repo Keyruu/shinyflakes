@@ -24,10 +24,6 @@
       "1.1.1.1"
       "8.8.8.8"
     ];
-    extraConfig = ''
-      Cache=yes
-      CacheFromLocalhost=yes
-    '';
   };
 
   systemd.services.NetworkManager-wait-online.enable = false;
