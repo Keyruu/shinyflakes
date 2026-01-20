@@ -29,7 +29,7 @@ in
           publishPorts = [ "127.0.0.1:${toString my.port}:8083" ];
           volumes = [
             "${stackPath}/config:/config"
-            "${stackPath}/books:/books"
+            "${stackPath}/books:/calibre-library"
             "${stackPath}/ingest:/ingest"
             "${stackPath}/plugins:/plugins"
           ];
