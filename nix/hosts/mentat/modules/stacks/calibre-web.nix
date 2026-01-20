@@ -5,25 +5,21 @@ let
 in
 {
   users = {
-    groups = {
-      books.gid = 1002;
-      calibre.gid = 1003;
-    };
+    groups.calibre.gid = 1003;
     users = {
       calibre = {
         isSystemUser = true;
         uid = 1003;
         group = "calibre";
-        extraGroups = [ "books" ];
+        extraGroups = [ "syncthing" ];
       };
-      root.extraGroups = [ "books" ];
     };
   };
 
   systemd.tmpfiles.rules = [
     "d ${stackPath}/config 0755 calibre calibre"
-    "d ${stackPath}/books 0775 calibre books"
-    "d ${stackPath}/ingest 0775 calibre books"
+    "d ${stackPath}/books 0775 calibre syncthing"
+    "d ${stackPath}/ingest 0775 calibre syncthing"
     "d ${stackPath}/plugins 0755 calibre calibre"
   ];
 
@@ -49,7 +45,7 @@ in
           volumes = [
             "${stackPath}/config:/config"
             "${stackPath}/books:/calibre-library"
-            "${stackPath}/ingest:/ingest"
+            "${stackPath}/ingest:/cwa-book-ingest"
             "${stackPath}/plugins:/plugins"
           ];
           environments = {
