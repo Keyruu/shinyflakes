@@ -83,6 +83,17 @@
               "fairphone"
             ];
           };
+          books = {
+            enable = lib.mkDefault true;
+            path = lib.mkDefault "${dir}/books";
+            devices = [
+              "mentat"
+              "thopter"
+              "carryall"
+              "muadib"
+              "fairphone"
+            ];
+          };
         };
     };
   };

@@ -11,14 +11,17 @@ in
     "d ${stackPath}/plugins 0755 1000 1000"
   ];
 
-  services.my.calibre-web = {
-    port = 8083;
-    domain = "calibre.lab.keyruu.de";
-    proxy.enable = false;
-    backup = {
-      enable = true;
-      paths = [ stackPath ];
+  services = {
+    my.calibre-web = {
+      port = 8083;
+      domain = "calibre.lab.keyruu.de";
+      proxy.enable = false;
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+      };
     };
+    syncthing.settings.folders.books.path = "${stackPath}/books";
   };
 
   virtualisation.quadlet = {
