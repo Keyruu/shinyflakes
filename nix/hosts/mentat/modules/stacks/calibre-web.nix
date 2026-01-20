@@ -4,11 +4,26 @@ let
   my = config.services.my.calibre-web;
 in
 {
+  users = {
+    groups = {
+      books.gid = 1002;
+      calibre.gid = 1003;
+    };
+    users = {
+      calibre = {
+        uid = 1003;
+        group = "calibre";
+        extraGroups = [ "books" ];
+      };
+      root.extraGroups = [ "books" ];
+    };
+  };
+
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/config 0755 1000 1000"
-    "d ${stackPath}/books 0755 1000 1000"
-    "d ${stackPath}/ingest 0755 1000 1000"
-    "d ${stackPath}/plugins 0755 1000 1000"
+    "d ${stackPath}/config 0755 calibre calibre"
+    "d ${stackPath}/books 0755 calibre books"
+    "d ${stackPath}/ingest 0755 calibre books"
+    "d ${stackPath}/plugins 0755 calibre calibre"
   ];
 
   services = {
