@@ -56,7 +56,7 @@ in
 
   virtualisation.quadlet.containers.garage = {
     containerConfig = {
-      image = "docker.io/dxflrs/garage:v2.1.0";
+      image = "docker.io/dxflrs/garage:v2.2.0";
       publishPorts = [
         "127.0.0.1:3900:3900"
         "127.0.0.1:3902:3902"
