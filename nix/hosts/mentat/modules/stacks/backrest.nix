@@ -30,7 +30,7 @@ in
 
   virtualisation.quadlet.containers.backrest = {
     containerConfig = {
-      image = "ghcr.io/garethgeorge/backrest:v1.11.1";
+      image = "ghcr.io/garethgeorge/backrest:v1.11.2";
       publishPorts = [ "127.0.0.1:${toString my.port}:9898" ];
       environmentFiles = [ config.sops.templates."backrest.env".path ];
       environments = {
