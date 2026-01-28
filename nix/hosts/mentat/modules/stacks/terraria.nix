@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.terraria = {
     containerConfig = {
-      image = "docker.io/ryshe/terraria:latest";
+      image = "docker.io/ryshe/terraria:vanilla-1.4.5.0-5";
       publishPorts = [ "7777:7777" ];
       volumes = [
         "${stackPath}/world:/root/.local/share/Terraria/Worlds"
