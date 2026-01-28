@@ -106,7 +106,7 @@ in
 
         "${stackName}-meilisearch" = {
           containerConfig = {
-            image = "getmeili/meilisearch:v1.12.3";
+            image = "getmeili/meilisearch:v1.34.3";
             volumes = [
               "${stackPath}/meilisearch/meili_data_v1.12:/meili_data"
             ];
