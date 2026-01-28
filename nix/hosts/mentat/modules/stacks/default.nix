@@ -22,6 +22,7 @@
     ./karaoke.nix
     ./dawarich.nix
     ./hytale.nix
+    ./terraria.nix
     ./backrest.nix
     ./calibre-web.nix
   ];

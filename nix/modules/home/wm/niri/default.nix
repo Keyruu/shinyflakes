@@ -31,7 +31,7 @@ in
 
     config = ''
       xwayland-satellite {
-          path "${lib.getExe pkgs.xwayland-satellite-unstable}"
+          path "${lib.getExe pkgs.xwayland-satellite}"
       }
 
       spawn-at-startup "niriusd"
