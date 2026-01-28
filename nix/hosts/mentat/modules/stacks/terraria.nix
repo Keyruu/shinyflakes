@@ -4,18 +4,18 @@ let
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/world 0755 root root"
+    "d ${stackPath}/config 0755 root root"
   ];
 
   virtualisation.quadlet.containers.terraria = {
     containerConfig = {
-      image = "docker.io/ryshe/terraria:vanilla-1.4.5.0-5";
+      image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5";
       publishPorts = [ "7777:7777" ];
       volumes = [
-        "${stackPath}/world:/root/.local/share/Terraria/Worlds"
+        "${stackPath}/config:/opt/terraria/config/"
       ];
       environments = {
-        WORLD_FILENAME = "wow.wld";
+        WORLD = "wow";
       };
     };
     serviceConfig = {
