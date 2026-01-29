@@ -42,6 +42,7 @@ in
       ];
       addCapabilities = [
         "NET_ADMIN"
+        "NET_RAW"
       ];
       volumes = [
         "${stackPath}/data:/data"
