@@ -25,5 +25,6 @@
     ./terraria.nix
     ./backrest.nix
     ./calibre-web.nix
+    ./forgejo.nix
   ];
 }
