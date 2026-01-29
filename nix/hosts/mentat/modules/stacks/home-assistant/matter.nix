@@ -8,13 +8,13 @@ in
     "d ${stackPath}/data 0755 root root"
   ];
 
-  services.my.matter = {
-    # port = 8981;
-    backup = {
-      enable = true;
-      paths = [ stackPath ];
-    };
-  };
+  # services.my.matter = {
+  #   # port = 8981;
+  #   backup = {
+  #     enable = true;
+  #     paths = [ stackPath ];
+  #   };
+  # };
 
   # networking.firewall.interfaces.eth0.allowedTCPPorts = [
   #   my.port
@@ -26,7 +26,10 @@ in
       environments = {
         TZ = "Europe/Berlin";
       };
-      appArmor = "unconfined";
+      podmanArgs = [
+        "--security-opt apparmor=unconfined"
+      ];
+      # appArmor = "unconfined";
       # exposePorts = [
       #   (toString my.port)
       # ];

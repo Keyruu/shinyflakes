@@ -57,6 +57,7 @@ in
                     };
                   };
                 };
+                default = { };
               };
               backup = lib.mkOption {
                 type = submodule {
