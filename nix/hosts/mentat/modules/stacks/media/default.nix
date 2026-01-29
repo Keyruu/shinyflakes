@@ -11,5 +11,7 @@
     ./lidarr.nix
     ./sabnzbd.nix
     ./nzbhydra2.nix
+    ./beets.nix
+    ./tidaloader.nix
   ];
 }
