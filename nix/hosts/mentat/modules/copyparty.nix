@@ -68,14 +68,14 @@ in
         "/" = {
           path = "/main";
           access = {
-            rw = [ "root" ];
+            rwmd = [ "root" ];
           };
         };
         "/public" = {
           path = "/main/dav/public";
           access = {
             r = "*";
-            rw = [ "root" ];
+            rwmd = [ "root" ];
           };
         };
       };

@@ -48,9 +48,9 @@ let
     };
 
     paths = {
-      default = "$albumartist/($year) $album %aunique{}/$track $title %aunique{}";
-      singleton = "$albumartist/($year) $album %aunique{}/$track $title %aunique{}";
-      comp = "Compilations/$album %aunique{}/$track $title %aunique{}";
+      default = "$albumartist/($year) $album %aunique{}/$track - $title %aunique{}";
+      singleton = "$albumartist/($year) $album %aunique{}/$track - $title %aunique{}";
+      comp = "Compilations/$album %aunique{}/$track - $title %aunique{}";
     };
 
     aunique = {
