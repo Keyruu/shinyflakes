@@ -17,10 +17,6 @@ in
     };
   };
 
-  networking.firewall.interfaces.eth0.allowedTCPPorts = [
-    my.port
-  ];
-
   virtualisation.quadlet.containers.openthread = {
     containerConfig = {
       image = "docker.io/openthread/border-router@sha256:ba663ed7e19e4b84facd2e6e9c62876926917be5e1d2d40be2c4f63d07b7fc4b";
