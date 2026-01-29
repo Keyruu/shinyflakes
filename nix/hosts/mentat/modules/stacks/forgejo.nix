@@ -63,5 +63,13 @@ in
       };
     };
   };
+
+  services.nginx.virtualHosts = {
+    "git.lab.keyruu.de" = {
+      useACMEHost = "lab.keyruu.de";
+      forceSSL = true;
+      inherit (config.services.nginx.virtualHosts."${my.domain}") locations;
+    };
+  };
 }
 
