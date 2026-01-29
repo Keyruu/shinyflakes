@@ -46,7 +46,6 @@ in
             USER_UID = "1004";
             USER_GID = "1004";
           };
-          environmentFiles = [ config.sops.templates."forgejo.env".path ];
         };
         serviceConfig = {
           Restart = "always";
