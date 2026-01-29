@@ -26,9 +26,9 @@ in
       environments = {
         TZ = "Europe/Berlin";
       };
-      podmanArgs = [
-        "--security-opt apparmor=unconfined"
-      ];
+      # podmanArgs = [
+      #   "--security-opt apparmor=unconfined"
+      # ];
       # appArmor = "unconfined";
       # exposePorts = [
       #   (toString my.port)
