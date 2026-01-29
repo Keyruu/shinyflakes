@@ -2,6 +2,7 @@
 let
   stackPath = "/etc/stacks/forgejo";
   my = config.services.my.forgejo;
+  inherit (config.services) mesh;
 in
 {
   users = {
@@ -46,6 +47,7 @@ in
           image = "codeberg.org/forgejo/forgejo:14.0.2";
           publishPorts = [
             "127.0.0.1:${toString my.port}:3000"
+            "${mesh.ip}:${toString my.port}:3000"
             "127.0.0.1:222:22"
           ];
           volumes = [
