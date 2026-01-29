@@ -19,6 +19,7 @@
               "garage"
               "s3"
               "atuin"
+              "git"
               "*"
             ];
           };

@@ -19,15 +19,25 @@ in
     "d ${stackPath}/data 0755 1000 1000"
   ];
 
-  services.my.forgejo = {
-    port = 3004;
-    domain = "git.lab.keyruu.de";
-    proxy.enable = true;
-    backup = {
-      enable = true;
-      paths = [ stackPath ];
+  services.my.forgejo =
+    let
+      domain = "git.keyruu.de";
+    in
+    {
+      port = 3004;
+      inherit domain;
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = domain;
+        };
+      };
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+      };
     };
-  };
 
   virtualisation.quadlet = {
     containers = {

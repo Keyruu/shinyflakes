@@ -38,9 +38,9 @@ let
       proxyHost = mentat;
       proxyPort = 5555;
     };
-    "atuin.keyruu.de" = {
+    "git.keyruu.de" = {
       proxyHost = mentat;
-      proxyPort = 8888;
+      proxyPort = 3004;
     };
     # "immich.keyruu.de" = { proxyHost = "100.67.0.2"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
@@ -56,27 +56,11 @@ let
 in
 {
   services.caddy = {
-    virtualHostsWithDefaults = lib.mkMerge [
-      (lib.mapAttrs (_: mkProxyHost) proxyHosts)
-      # {
-      #   "hass.peeraten.net" = {
-      #     extraConfig = ''
-      #       log {
-      #         output stdout
-      #         level DEBUG
-      #       }
-      #
-      #       reverse_proxy http://${mentat}:8123 {
-      #         header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-      #       }
-      #     '';
-      #   };
-      # }
-    ];
+    virtualHostsWithDefaults = lib.mapAttrs (_: mkProxyHost) proxyHosts;
     virtualHosts = {
+      # i need to split out the websocket, bc coraza just can't handle the upgrade or the websocket in general
       "hass.peeraten.net" = {
         extraConfig = ''
-          # i need to split out the websocket, bc coraza just can't handle the upgrade or the websocket in general
           @websockets {
             path /api/websocket
           }
