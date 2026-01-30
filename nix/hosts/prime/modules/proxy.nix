@@ -38,10 +38,10 @@ let
       proxyHost = mentat;
       proxyPort = 5555;
     };
-    "git.keyruu.de" = {
-      proxyHost = mentat;
-      proxyPort = 3004;
-    };
+    # "git.keyruu.de" = {
+    #   proxyHost = mentat;
+    #   proxyPort = 3004;
+    # };
     # "immich.keyruu.de" = { proxyHost = "100.67.0.2"; proxyPort = 3210; };
     # "*.zimtix.de" = { proxyHost = "192.168.100.32"; proxyPort = 80; };
   };
@@ -56,7 +56,15 @@ let
 in
 {
   services.caddy = {
-    virtualHostsWithDefaults = lib.mapAttrs (_: mkProxyHost) proxyHosts;
+    virtualHostsWithDefaults = (lib.mapAttrs (_: mkProxyHost) proxyHosts) // {
+      "git.keyruu.de" = {
+        extraConfig = ''
+          reverse_proxy http://${mentat}:3004 {
+          	header_up X-Real-Ip {remote_host}
+          }
+        '';
+      };
+    };
     virtualHosts = {
       # i need to split out the websocket, bc coraza just can't handle the upgrade or the websocket in general
       "hass.peeraten.net" = {
