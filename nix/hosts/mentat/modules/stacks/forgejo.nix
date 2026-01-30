@@ -81,6 +81,7 @@ in
             environments = {
               BIND = ":3000";
               TARGET = "http://forgejo:3000";
+              JWT_RESTRICTION_HEADER = "CF-Connecting-IP";
             };
             networks = [ networks.forgejo.ref ];
             networkAliases = [ "anubis" ];

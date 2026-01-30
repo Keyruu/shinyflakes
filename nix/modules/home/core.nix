@@ -212,6 +212,7 @@ in
     wireguard-tools
     tree-sitter
     zerotierone
+    feishin
 
     perSystem.self.numr
     perSystem.self.glide-browser
