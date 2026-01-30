@@ -65,7 +65,7 @@ in
               USER_UID = "1004";
               USER_GID = "1004";
             };
-            networks = [ networks.rybbit.ref ];
+            networks = [ networks.forgejo.ref ];
             networkAliases = [ "forgejo" ];
           };
           serviceConfig = {
@@ -73,13 +73,20 @@ in
           };
         };
         anubis = {
-          image = "ghcr.io/techarohq/anubis:v1.24.0";
-          publishPorts = [
-            "${mesh.ip}:${toString my.port}:3000"
-          ];
-          environments = {
-            BIND = ":3000";
-            TARGET = "http://forgejo:3000";
+          containerConfig = {
+            image = "ghcr.io/techarohq/anubis:v1.24.0";
+            publishPorts = [
+              "${mesh.ip}:${toString my.port}:3000"
+            ];
+            environments = {
+              BIND = ":3000";
+              TARGET = "http://forgejo:3000";
+            };
+            networks = [ networks.forgejo.ref ];
+            networkAliases = [ "anubis" ];
+          };
+          serviceConfig = {
+            Restart = "always";
           };
         };
       };
