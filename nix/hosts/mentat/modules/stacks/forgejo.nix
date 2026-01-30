@@ -40,31 +40,50 @@ in
       };
     };
 
-  virtualisation.quadlet = {
-    containers = {
-      forgejo = {
-        containerConfig = {
-          image = "codeberg.org/forgejo/forgejo:14.0.2";
-          publishPorts = [
-            "127.0.0.1:${toString my.port}:3000"
-            "${mesh.ip}:${toString my.port}:3000"
-            "127.0.0.1:222:22"
-          ];
-          volumes = [
-            "${stackPath}/data:/data"
-            "/etc/localtime:/etc/localtime:ro"
-          ];
-          environments = {
-            USER_UID = "1004";
-            USER_GID = "1004";
+  virtualisation.quadlet =
+    let
+      inherit (config.virtualisation.quadlet) networks;
+    in
+    {
+      networks.forgejo.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=forgejo" ];
+      };
+      containers = {
+        forgejo = {
+          containerConfig = {
+            image = "codeberg.org/forgejo/forgejo:14.0.2";
+            publishPorts = [
+              "127.0.0.1:${toString my.port}:3000"
+              "127.0.0.1:222:22"
+            ];
+            volumes = [
+              "${stackPath}/data:/data"
+              "/etc/localtime:/etc/localtime:ro"
+            ];
+            environments = {
+              USER_UID = "1004";
+              USER_GID = "1004";
+            };
+            networks = [ networks.rybbit.ref ];
+            networkAliases = [ "forgejo" ];
+          };
+          serviceConfig = {
+            Restart = "always";
           };
         };
-        serviceConfig = {
-          Restart = "always";
+        anubis = {
+          image = "ghcr.io/techarohq/anubis:v1.24.0";
+          publishPorts = [
+            "${mesh.ip}:${toString my.port}:3000"
+          ];
+          environments = {
+            BIND = ":3000";
+            TARGET = "http://forgejo:3000";
+          };
         };
       };
     };
-  };
 
   services.nginx.virtualHosts = {
     "git.lab.keyruu.de" = {
