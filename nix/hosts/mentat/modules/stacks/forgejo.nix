@@ -17,7 +17,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 1000 1000"
+    "d ${stackPath}/data 0755 1004 1004"
   ];
 
   services.my.forgejo =
@@ -101,4 +101,3 @@ in
     };
   };
 }
-

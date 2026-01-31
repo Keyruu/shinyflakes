@@ -39,6 +39,7 @@ _:
 
   window-rule {
       match app-id=r#"^spotify_player$"#
+      match app-id=r#"^feishin$"#
       match app-id=r#"^spotify$"#
       match title=r#"^Picture-in-Picture$"#
       open-on-workspace "media"
