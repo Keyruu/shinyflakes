@@ -20,5 +20,6 @@
     ./backup.nix
     ./mesh.nix
     ./glance.nix
+    ./forgejo-runner.nix
   ];
 }
