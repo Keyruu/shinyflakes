@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  runnerDir = "/var/lib/forgejo-runner";
+  runnerDir = "/var/lib/gitea-runner";
 in
 {
   sops.secrets = {
