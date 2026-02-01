@@ -59,4 +59,5 @@ in
     extraGroups = [ "podman" ];
     home = runnerDir;
   };
+  nix.settings.trusted-users = [ "gitea-runner" ];
 }
