@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.terraria = {
     containerConfig = {
-      image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5";
+      image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5.3";
       publishPorts = [ "7777:7777" ];
       volumes = [
         "${stackPath}/config:/opt/terraria/config/"
