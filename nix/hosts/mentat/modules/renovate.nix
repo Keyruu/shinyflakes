@@ -29,7 +29,7 @@
   services.renovate = {
     enable = true;
     environment = {
-      LOG_LEVEL = "debug";
+      LOG_LEVEL = "info";
     };
     credentials = {
       RENOVATE_TOKEN = config.sops.secrets.renovateToken.path;
