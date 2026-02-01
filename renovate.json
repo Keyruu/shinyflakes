@@ -24,5 +24,18 @@
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*\\w+\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ]
     }
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "^redis$",
+        "^postgres$",
+        "^valkey/valkey$",
+        "^clickhouse/clickhouse-server$",
+        "^getmeili/meilisearch$",
+        "alpine-chrome"
+      ],
+      "enabled": false
+    }
   ]
 }
