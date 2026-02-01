@@ -33,7 +33,7 @@
     schedule = "hourly";
     settings = {
       endpoint = "https://git.keyruu.de";
-      gitAuthor = "Renovate <renovate@keyruu.de";
+      gitAuthor = "Renovate <renovate@keyruu.de>";
       platform = "forgejo";
       platformAutomerge = true;
       autodiscover = true;
