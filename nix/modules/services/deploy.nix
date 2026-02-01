@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   perSystem,
   lib,
   ...
@@ -47,27 +48,37 @@
       package = perSystem.self.webhook;
       openFirewall = false;
       port = 8565;
-      hooksTemplated = {
-        deploy-template = # json
-          ''
-            {
-              "id": "deploy",
-              "execute-command": "${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}",
-              "include-command-output-in-response": true,
-              "include-command-output-in-response-on-error": true,
-              "trigger-rule": {
-                "match": {
-                  "type": "value",
-                  "value": "{{ cat "${config.sops.secrets.deployToken.path}" }}",
-                  "parameter": {
-                    "source": "header",
-                    "name": "X-Deploy-Token"
+      hooksTemplated =
+        let
+          deployScript =
+            pkgs.writeShellScript "deploy-script" # sh
+              ''
+                set -euo pipefail
+
+                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}
+              '';
+        in
+        {
+          deploy-template = # json
+            ''
+              {
+                "id": "deploy",
+                "execute-command": "${deployScript}",
+                "include-command-output-in-response": true,
+                "include-command-output-in-response-on-error": true,
+                "trigger-rule": {
+                  "match": {
+                    "type": "value",
+                    "value": "{{ cat "${config.sops.secrets.deployToken.path}" }}",
+                    "parameter": {
+                      "source": "header",
+                      "name": "X-Deploy-Token"
+                    }
                   }
                 }
               }
-            }
-          '';
-      };
+            '';
+        };
     };
   };
 }
