@@ -1,9 +1,26 @@
 { config, pkgs, ... }:
 {
+  users = {
+    groups.renovate.gid = 1005;
+    users = {
+      renovate = {
+        isSystemUser = true;
+        uid = 1005;
+        group = "renovate";
+      };
+    };
+  };
+
   sops.secrets = {
-    renovateToken = { };
-    renovateKey = { };
-    renovateGithubToken = { };
+    renovateToken = {
+      owner = "renovate";
+    };
+    renovateKey = {
+      owner = "renovate";
+    };
+    renovateGithubToken = {
+      owner = "renovate";
+    };
   };
 
   services.renovate = {
