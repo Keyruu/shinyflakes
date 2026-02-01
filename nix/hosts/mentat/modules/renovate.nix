@@ -7,7 +7,7 @@
   };
 
   services.renovate = {
-    enabled = true;
+    enable = true;
     credentials = {
       RENOVATE_TOKEN = config.sops.secrets.renovateToken.path;
       RENOVATE_GIT_PRIVATE_KEY = config.sops.secrets.renovateKey.path;
