@@ -43,6 +43,7 @@
       gitAuthor = "Renovate <renovate@keyruu.de>";
       platform = "forgejo";
       platformAutomerge = true;
+      automergeStrategy = "rebase";
       autodiscover = true;
 
       hostRules = [
