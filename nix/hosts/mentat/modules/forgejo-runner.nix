@@ -28,7 +28,7 @@ in
         git-lfs
         gitFull
         gnused
-        nixVersions.latest
+        config.nix.package
         nixos-rebuild-ng
         just
         nodejs
