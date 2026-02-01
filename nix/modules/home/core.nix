@@ -7,8 +7,8 @@
   ...
 }:
 let
-  pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs) system; };
-  pkgs-small = import inputs.nixpkgs-small { inherit (pkgs) system; };
+  pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
+  pkgs-small = import inputs.nixpkgs-small { inherit (pkgs.stdenv.hostPlatform) system; };
 in
 {
   imports = [
