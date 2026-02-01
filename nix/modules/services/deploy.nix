@@ -22,7 +22,21 @@
   };
 
   config = lib.mkIf config.services.deploy-webhook.enable {
-    sops.secrets.deployToken = { };
+    users = {
+      groups.webhook.gid = 1021;
+      users = {
+        webhook = {
+          isSystemUser = true;
+          uid = 1021;
+          group = "webhook";
+        };
+      };
+    };
+
+    sops.secrets.deployToken = {
+      owner = "webhook";
+      group = "webhook";
+    };
 
     networking.firewall.interfaces = lib.genAttrs config.services.deploy-webhook.interfaces (_: {
       allowedTCPPorts = [ config.services.webhook.port ];
