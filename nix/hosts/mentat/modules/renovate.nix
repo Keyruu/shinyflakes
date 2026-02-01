@@ -47,18 +47,18 @@
       autodiscover = true;
 
       hostRules = [
-        {
-          hostType = "docker";
-          matchHost = "docker.io";
-          username = "keyruu";
-          password = "\${DOCKER_HUB_PASSWORD}";
-        }
-        {
-          hostType = "docker";
-          matchHost = "ghcr.io";
-          username = "Keyruu";
-          password = "\${RENOVATE_GITHUB_COM_TOKEN}";
-        }
+        # {
+        #   hostType = "docker";
+        #   matchHost = "docker.io";
+        #   username = "keyruu";
+        #   password = "\${DOCKER_HUB_PASSWORD}";
+        # }
+        # {
+        #   hostType = "docker";
+        #   matchHost = "ghcr.io";
+        #   username = "Keyruu";
+        #   password = "\${RENOVATE_GITHUB_COM_TOKEN}";
+        # }
       ];
       packageRules = [
         {
