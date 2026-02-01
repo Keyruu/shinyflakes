@@ -2,7 +2,7 @@
 {
   home.packages = with pkgs; [
     prismlauncher # Minecraft launcher
-    kdePackages.kdenlive # for editing obs clips
+    # kdePackages.kdenlive # for editing obs clips
     mangohud
   ];
 
