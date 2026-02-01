@@ -50,13 +50,13 @@
           hostType = "docker";
           matchHost = "docker.io";
           username = "keyruu";
-          password = "process.env.DOCKER_HUB_PASSWORD";
+          password = "\${DOCKER_HUB_PASSWORD}";
         }
         {
           hostType = "docker";
           matchHost = "ghcr.io";
           username = "Keyruu";
-          password = "process.env.RENOVATE_GITHUB_COM_TOKEN";
+          password = "\${RENOVATE_GITHUB_COM_TOKEN}";
         }
       ];
       packageRules = [
