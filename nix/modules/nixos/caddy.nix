@@ -25,7 +25,7 @@
         plugins = [
           "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
         ];
-        hash = "sha256-zGUfWcobpf4r9/7HKomsSvrjijsDwnj+YHW30TT6WlQ=";
+        hash = "sha256-7mqh9RM6jyGEatxCTBY2iJqvYmbP2ltxSAZ8Y08on8M=";
       };
 
       globalConfig = ''
