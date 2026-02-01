@@ -29,11 +29,11 @@
     {
       "enabled": false,
       "matchPackageNames": [
-        "/^redis$/",
-        "/^postgres$/",
-        "/^valkey/valkey$/",
-        "/^clickhouse/clickhouse-server$/",
-        "/^getmeili/meilisearch$/",
+        "/redis/",
+        "/postgres/",
+        "/valkey/",
+        "/clickhouse/",
+        "/meilisearch/",
         "/alpine-chrome/"
       ]
     }
