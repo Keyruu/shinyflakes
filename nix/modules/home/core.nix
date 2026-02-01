@@ -156,7 +156,7 @@ in
     isd
     bluetui
     aichat
-    vdhcoapp
+    # vdhcoapp
     rustc
     cargo
     clang
