@@ -2,6 +2,8 @@ on: [push]
 jobs:
   build:
     runs-on: nixos-x86_64-linux
+    concurrency:
+      cancel-in-progress: false
     strategy:
       matrix:
         flake: [mentat, muadib, prime]
