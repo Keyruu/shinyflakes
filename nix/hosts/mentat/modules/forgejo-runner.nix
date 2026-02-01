@@ -18,12 +18,12 @@ in
           enabled = true;
         };
         container = {
-          workdir_parent = "${runnerDir}/workspace";
+          workdir_parent = "${runnerDir}/nix/workspace";
           # Increase shared memory for containers (default 64MB is too small for Metro/Gradle)
           options = "--shm-size=2g";
         };
         host = {
-          workdir_parent = "${runnerDir}/action-cache-dir";
+          workdir_parent = "${runnerDir}/nix/action-cache-dir";
         };
       };
       hostPackages = with pkgs; [
@@ -53,18 +53,18 @@ in
     };
   };
 
-  systemd.services.gitea-runner-nix = {
-    environment = {
-      XDG_CONFIG_HOME = runnerDir;
-      XDG_CACHE_HOME = "${runnerDir}/.cache";
-    };
-    serviceConfig.PrivateTmp = false;
-  };
+  # systemd.services.gitea-runner-nix = {
+  #   environment = {
+  #     XDG_CONFIG_HOME = runnerDir;
+  #     XDG_CACHE_HOME = "${runnerDir}/.cache";
+  #   };
+  #   serviceConfig.PrivateTmp = false;
+  # };
   users.groups.gitea-runner = { };
   users.users.gitea-runner = {
     isSystemUser = true;
     group = "gitea-runner";
-    extraGroups = [ "docker" ];
+    extraGroups = [ "podman" ];
     home = runnerDir;
   };
 }
