@@ -23,39 +23,16 @@
   };
 
   config = lib.mkIf config.services.deploy-webhook.enable {
-    users = {
-      groups.webhook = { };
-      users = {
-        webhook = {
-          isSystemUser = true;
-          group = "webhook";
-        };
-      };
-    };
-
-    security.sudo = {
-      enable = true;
-      extraRules = [
-        {
-          users = [ "webhook" ];
-          commands = [
-            {
-              command = "${config.system.build.nixos-rebuild}/bin/nixos-rebuild";
-              options = [ "NOPASSWD" ];
-            }
-          ];
-        }
-      ];
-    };
-
-    sops.secrets.deployToken = {
-      owner = "webhook";
-      group = "webhook";
-    };
+    sops.secrets.deployToken = { };
 
     networking.firewall.interfaces = lib.genAttrs config.services.deploy-webhook.interfaces (_: {
       allowedTCPPorts = [ config.services.webhook.port ];
     });
+
+    systemd.services.webhook.serviceConfig = {
+      User = lib.mkForce "root";
+      Group = lib.mkForce "root";
+    };
 
     services.webhook = {
       enable = true;
