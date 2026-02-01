@@ -29,9 +29,23 @@
         webhook = {
           isSystemUser = true;
           group = "webhook";
-          extraGroups = [ "wheel" ];
         };
       };
+    };
+
+    security.sudo = {
+      enable = true;
+      extraRules = [
+        {
+          users = [ "webhook" ];
+          commands = [
+            {
+              command = "${config.system.build.nixos-rebuild}/bin/nixos-rebuild";
+              options = [ "NOPASSWD" ];
+            }
+          ];
+        }
+      ];
     };
 
     sops.secrets.deployToken = {
@@ -55,7 +69,7 @@
               ''
                 set -euo pipefail
 
-                sudo ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}
+                /run/wrappers/bin/sudo ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}
               '';
         in
         {
