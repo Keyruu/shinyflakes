@@ -25,10 +25,14 @@
 
   services.renovate = {
     enable = true;
+    environment = {
+      LOG_LEVEL = "debug";
+    };
     credentials = {
       RENOVATE_TOKEN = config.sops.secrets.renovateToken.path;
       RENOVATE_GIT_PRIVATE_KEY = config.sops.secrets.renovateKey.path;
       RENOVATE_GITHUB_COM_TOKEN = config.sops.secrets.renovateGithubToken.path;
+      DOCKER_HUB_PASSWORD = config.sops.secrets.renovateDockerPassword.path;
     };
     schedule = "hourly";
     settings = {
@@ -38,6 +42,20 @@
       platformAutomerge = true;
       autodiscover = true;
 
+      hostRules = [
+        {
+          hostType = "docker";
+          matchHost = "docker.io";
+          username = "keyruu";
+          password = "process.env.DOCKER_HUB_PASSWORD";
+        }
+        {
+          hostType = "docker";
+          matchHost = "ghcr.io";
+          username = "Keyruu";
+          password = "process.env.RENOVATE_GITHUB_COM_TOKEN";
+        }
+      ];
       packageRules = [
         {
           matchUpdateTypes = [
