@@ -27,15 +27,15 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "^redis$",
-        "^postgres$",
-        "^valkey/valkey$",
-        "^clickhouse/clickhouse-server$",
-        "^getmeili/meilisearch$",
-        "alpine-chrome"
-      ],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "/^redis$/",
+        "/^postgres$/",
+        "/^valkey/valkey$/",
+        "/^clickhouse/clickhouse-server$/",
+        "/^getmeili/meilisearch$/",
+        "/alpine-chrome/"
+      ]
     }
   ]
 }
