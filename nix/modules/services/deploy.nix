@@ -1,5 +1,6 @@
 {
   config,
+  perSystem,
   lib,
   ...
 }:
@@ -29,6 +30,7 @@
 
     services.webhook = {
       enable = true;
+      package = perSystem.self.webhook;
       openFirewall = false;
       port = 8565;
       hooksTemplated = {
@@ -42,7 +44,7 @@
               "trigger-rule": {
                 "match": {
                   "type": "value",
-                  "value": "{{ cat "${config.sops.secrets.deployToken.path}" }}",
+                  "value": "{{ cat "${config.sops.secrets.deployToken.path}" | js }}",
                   "parameter": {
                     "source": "header",
                     "name": "X-Deploy-Token"
