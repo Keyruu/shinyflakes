@@ -1,0 +1,12 @@
+on: [push]
+jobs:
+  build:
+    runs-on: nixos-x86_64-linux
+    strategy:
+      matrix:
+        flake: [mentat, muadib, prime]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build
+        run: nixos-rebuild build --flake .#${{ matrix.flake }} --max-jobs 1
+

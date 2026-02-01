@@ -17,14 +17,6 @@ in
         cache = {
           enabled = true;
         };
-        container = {
-          workdir_parent = "${runnerDir}/nix/workspace";
-          # Increase shared memory for containers (default 64MB is too small for Metro/Gradle)
-          options = "--shm-size=2g";
-        };
-        host = {
-          workdir_parent = "${runnerDir}/nix/action-cache-dir";
-        };
       };
       hostPackages = with pkgs; [
         bash
@@ -37,6 +29,7 @@ in
         gitFull
         gnused
         nixVersions.latest
+        nixos-rebuild-ng
         just
         nodejs
         openssh
@@ -48,7 +41,6 @@ in
       tokenFile = config.sops.secrets.forgejoRunnerToken.path;
       labels = [
         "nixos-${pkgs.stdenv.hostPlatform.system}:host"
-        "nix:docker://localhost:5921/nix-runner"
       ];
     };
   };
