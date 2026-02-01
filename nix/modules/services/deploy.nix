@@ -44,7 +44,7 @@
               "trigger-rule": {
                 "match": {
                   "type": "value",
-                  "value": "{{ cat "${config.sops.secrets.deployToken.path}" | js }}",
+                  "value": "{{ cat "${config.sops.secrets.deployToken.path}" }}",
                   "parameter": {
                     "source": "header",
                     "name": "X-Deploy-Token"
