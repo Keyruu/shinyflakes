@@ -41,6 +41,11 @@
   boot.kernelPackages = pkgs.linuxPackages_6_18;
 
   services.resolved.enable = false;
+  services.deploy-webhook = {
+    enable = true;
+    flake = "github:Keyruu/shinyflakes";
+    interfaces = [ "eth0" ];
+  };
 
   hardware.cpu.amd.ryzen-smu.enable = true;
 
