@@ -24,12 +24,12 @@
 
   config = lib.mkIf config.services.deploy-webhook.enable {
     users = {
-      groups.webhook.gid = 1021;
+      groups.webhook = { };
       users = {
         webhook = {
           isSystemUser = true;
-          uid = 1021;
           group = "webhook";
+          extraGroups = [ "wheel" ];
         };
       };
     };
@@ -55,7 +55,7 @@
               ''
                 set -euo pipefail
 
-                ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}
+                sudo ${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch --flake ${config.services.deploy-webhook.flake}
               '';
         in
         {
