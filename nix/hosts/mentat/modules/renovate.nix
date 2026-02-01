@@ -21,6 +21,9 @@
     renovateGithubToken = {
       owner = "renovate";
     };
+    renovateDockerPassword = {
+      owner = "renovate";
+    };
   };
 
   services.renovate = {
