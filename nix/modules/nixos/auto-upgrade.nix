@@ -10,7 +10,7 @@
   #
   # sops.secrets.resendApiKey = { };
 
-  services.autoUpgrade = {
+  system.autoUpgrade = {
     enable = true;
     flake = "github:Keyruu/shinyflakes";
     dates = "*:0/5";
