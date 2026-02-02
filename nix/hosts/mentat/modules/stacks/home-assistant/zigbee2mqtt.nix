@@ -19,7 +19,7 @@ in
     restartUnits = [ "zigbee2mqtt.service" ];
     content = # yaml
       ''
-        version: 4
+        version: 5
         mqtt:
           base_topic: zigbee2mqtt
           server: mqtt://mqtt
@@ -29,6 +29,10 @@ in
           adapter: zstack
           port: /dev/ttyACM0
         advanced:
+          homeassistant_legacy_entity_attributes: false
+          homeassistant_legacy_triggers: false
+          legacy_api: false
+          legacy_availability_payload: false
           channel: 11
           network_key: ${config.sops.placeholder.z2mNetworkKey}
           pan_id: ${config.sops.placeholder.z2mPanId}
@@ -40,6 +44,8 @@ in
           enabled: true
           experimental_event_entities: true
         devices: devices.yaml
+        device_options:
+          legacy: false
         groups: groups.yaml
       '';
   };
