@@ -213,6 +213,7 @@ in
     tree-sitter
     zerotierone
     feishin
+    lmstudio
 
     perSystem.self.numr
     perSystem.self.glide-browser
