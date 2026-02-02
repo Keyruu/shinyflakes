@@ -4,18 +4,18 @@
   ...
 }:
 {
-  imports = [
-    flake.modules.services.auto-upgrade-notify
-  ];
+  # imports = [
+  #   flake.modules.services.auto-upgrade-notify
+  # ];
+  #
+  # sops.secrets.resendApiKey = { };
 
-  sops.secrets.resendApiKey = { };
-
-  services.autoUpgradeNotify = {
+  services.autoUpgrade = {
     enable = true;
     flake = "github:Keyruu/shinyflakes";
     dates = "*:0/5";
-    resendApiKeyPath = config.sops.secrets.resendApiKey.path;
-    fromEmail = "nixos-upgrade@lab.keyruu.de";
-    toEmails = [ "me@keyruu.de" ];
+    # resendApiKeyPath = config.sops.secrets.resendApiKey.path;
+    # fromEmail = "nixos-upgrade@lab.keyruu.de";
+    # toEmails = [ "me@keyruu.de" ];
   };
 }
