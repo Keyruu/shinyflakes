@@ -215,9 +215,9 @@ in
     feishin
     lmstudio
 
-    perSystem.self.numr
-    perSystem.self.glide-browser
+    # perSystem.self.numr
+    # perSystem.self.glide-browser
     perSystem.self.wg-peer
-    perSystem.librepods.default
+    # perSystem.librepods.default
   ];
 }
