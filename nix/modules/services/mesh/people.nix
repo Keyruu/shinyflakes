@@ -117,6 +117,10 @@
                 ip = "100.67.0.6";
                 publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
               };
+              carryall = {
+                ip = "100.67.0.8";
+                publicKey = "7Qn12iKEGxRNIEAOkoKQ2FUXKzvWWEP6ORJ3IHJ/sBI=";
+              };
             };
           };
         };
