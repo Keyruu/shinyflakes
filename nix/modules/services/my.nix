@@ -138,7 +138,7 @@ in
           ${name} = {
             inherit (cfg.backup) paths;
             backupPrepareCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl stop ${cfg.backup.systemd.unit}";
-            backupCleanupCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl start ${cfg.backup.systemd.unit}";
+            backupCleanupCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl start ${cfg.backup.systemd.unit} --all";
           };
         }
       ) config.services.my
