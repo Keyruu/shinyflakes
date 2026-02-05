@@ -38,14 +38,4 @@ in
       Restart = "always";
     };
   };
-
-  services.restic.backupsWithDefaults = {
-    jellyfin = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop jellyfin";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start jellyfin";
-    };
-  };
 }
