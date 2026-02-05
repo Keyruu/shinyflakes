@@ -32,7 +32,7 @@ in
 
   virtualisation.quadlet.containers.speedtest-tracker = {
     containerConfig = {
-      image = "lscr.io/linuxserver/speedtest-tracker:1.13.5";
+      image = "lscr.io/linuxserver/speedtest-tracker:1.13.8";
       environments = {
         TZ = "Europe/Berlin";
         PUID = "1000";
