@@ -108,6 +108,7 @@
             "map"
             "traccar"
             "owntracks"
+            "service"
           ];
         };
         mesh = {

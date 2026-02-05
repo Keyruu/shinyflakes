@@ -36,33 +36,21 @@ in
 
   fileSystems."/home".neededForBoot = true;
 
-  sops.secrets.carryallMeshKey = { };
-  services.mesh.ip = mesh.people.lucas.devices.carryall.ip;
+  services.mesh = {
+    inherit (mesh.people.lucas.devices.carryall) ip;
+    client = {
+      enable = true;
+      keyName = "carryallMeshKey";
+      allowedIPs = [
+        "192.168.100.0/24"
+      ];
+      ws = true;
+    };
+  };
   networking = {
     hostName = lib.mkForce "PCL2025101301";
     firewall.allowedTCPPorts = [ 57621 ];
     firewall.allowedUDPPorts = [ 5353 ];
-    wg-quick.interfaces = {
-      "${mesh.interface}" = {
-        address = [ "${mesh.ip}/24" ];
-        privateKeyFile = config.sops.secrets.carryallMeshKey.path;
-        dns = [ "100.67.0.2" ];
-        autostart = false;
-
-        peers = [
-          {
-            publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
-            allowedIPs = [
-              mesh.subnet
-              "192.168.100.0/24"
-            ];
-            endpoint = "mesh.peeraten.net:51234";
-            persistentKeepalive = 25;
-          }
-        ];
-      };
-    };
-
   };
 
   user.name = "lucas";

@@ -35,15 +35,29 @@ in
       };
     };
 
+    services.wstunnel = {
+      enable = true;
+      servers = {
+        wg-tunnel = {
+          listen = {
+            enableHTTPS = false;
+            host = "127.0.0.1";
+            port = 51233;
+          };
+          settings = {
+            restrict-to = [
+              {
+                host = "127.0.0.1";
+                port = 51234;
+              }
+            ];
+          };
+        };
+      };
+    };
     services.caddy.virtualHosts = {
       "mesh.peeraten.net" = {
-        extraConfig = ''
-          reverse_proxy 127.0.0.1:51234{
-            transport http {
-              versions 3
-            }
-          }
-        '';
+        extraConfig = "reverse_proxy 127.0.0.1:51233";
       };
     };
   };

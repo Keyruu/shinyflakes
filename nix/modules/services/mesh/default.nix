@@ -3,6 +3,7 @@
   imports = [
     ./people.nix
     ./server.nix
+    ./client.nix
   ];
 
   options.services.mesh = with lib.types; {

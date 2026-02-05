@@ -11,9 +11,6 @@ let
 in
 {
   imports = [
-    # inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
-    # inputs.nixos-hardware.nixosModules.common-cpu-intel
-    # inputs.nixos-hardware.nixosModules.common-gpu-intel
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
@@ -41,8 +38,13 @@ in
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
 
-  sops.secrets.muadibMeshKey = { };
-  services.mesh.ip = mesh.people.lucas.devices.muadib.ip;
+  services.mesh = {
+    inherit (mesh.people.lucas.devices.muadib) ip;
+    client = {
+      enable = true;
+      keyName = "muadibMeshKey";
+    };
+  };
   networking = {
     firewall = {
       interfaces."${mesh.interface}".allowedUDPPortRanges = [
@@ -55,25 +57,6 @@ in
       allowedTCPPorts = [
         57621
       ];
-    };
-
-    wg-quick.interfaces = {
-      "${mesh.interface}" = {
-        address = [ "${mesh.ip}/24" ];
-        privateKeyFile = config.sops.secrets.muadibMeshKey.path;
-        autostart = true;
-
-        peers = [
-          {
-            publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
-            allowedIPs = [
-              mesh.subnet
-            ];
-            endpoint = "mesh.peeraten.net:51234";
-            persistentKeepalive = 25;
-          }
-        ];
-      };
     };
   };
 

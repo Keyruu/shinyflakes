@@ -77,7 +77,7 @@ in
     pnpm
     just
     goreleaser
-    nixfmt-rfc-style
+    nixfmt
     nixfmt-tree
     cachix
     neovim

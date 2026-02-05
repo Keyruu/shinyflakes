@@ -59,26 +59,15 @@ in
     tailscale.enable = false;
   };
 
-  sops.secrets.thopterMeshKey = { };
-  services.mesh.ip = mesh.people.lucas.devices.thopter.ip;
-  networking.wg-quick.interfaces = {
-    "${mesh.interface}" = {
-      address = [ "${mesh.ip}/24" ];
-      privateKeyFile = config.sops.secrets.thopterMeshKey.path;
-      dns = [ "100.67.0.2" ];
-      autostart = false;
-
-      peers = [
-        {
-          publicKey = "ctHXSXda0q3R/NjILCPkWzlJzMc9ekKKpNHpe2Avyh8=";
-          allowedIPs = [
-            mesh.subnet
-            "192.168.100.0/24"
-          ];
-          endpoint = "mesh.peeraten.net:51234";
-          persistentKeepalive = 25;
-        }
+  services.mesh = {
+    inherit (mesh.people.lucas.devices.thopter) ip;
+    client = {
+      enable = true;
+      keyName = "thopterMeshKey";
+      allowedIPs = [
+        "192.168.100.0/24"
       ];
+      ws = true;
     };
   };
 
