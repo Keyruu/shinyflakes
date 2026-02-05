@@ -14,7 +14,10 @@ in
     keyName = lib.mkOption {
       type = str;
     };
-    autostart = lib.mkEnableOption "start mesh automatically";
+    autostart = lib.mkOption {
+      type = bool;
+      default = true;
+    };
     allowedIPs = lib.mkOption {
       type = listOf str;
       default = [ ];
