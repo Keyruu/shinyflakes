@@ -63,7 +63,7 @@
     };
 
     comin = {
-      url = "github:nlewo/comin";
+      url = "github:Keyruu/comin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
