@@ -34,6 +34,7 @@ in
     networking.firewall.interfaces."${cfg.metrics.interface}".allowedTCPPorts = [
       config.services.prometheus.exporters.node.port
       config.services.cadvisor.port
+      config.services.comin.exporter.port
     ];
 
     users = {
@@ -52,6 +53,11 @@ in
         listenAddress = "0.0.0.0";
         port = 3022;
         extraOptions = [ "--docker_only=false" ];
+      };
+
+      comin.exporter = {
+        listen_address = "0.0.0.0";
+        port = 4243;
       };
 
       prometheus.exporters = lib.mkIf cfg.metrics.enable {

@@ -28,16 +28,6 @@
         port = 9134;
         pools = [ "main" ];
       };
-      process = {
-        enable = true;
-        listenAddress = "127.0.0.1";
-        port = 9256;
-      };
-      systemd = {
-        enable = true;
-        port = 9558;
-        listenAddress = "127.0.0.1";
-      };
       smartctl = {
         enable = true;
         port = 9633;
@@ -88,26 +78,6 @@
           }
         ];
       }
-      # {
-      #   job_name = "headscale";
-      #   static_configs = [
-      #     {
-      #       targets = [
-      #         "100.64.0.6:8095"
-      #       ];
-      #     }
-      #   ];
-      # }
-      {
-        job_name = "systemd";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.systemd.port}"
-            ];
-          }
-        ];
-      }
       {
         job_name = "smartctl";
         static_configs = [
@@ -129,11 +99,12 @@
         ];
       }
       {
-        job_name = "process";
+        job_name = "comin";
         static_configs = [
           {
             targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.process.port}"
+              "127.0.0.1:${toString config.services.comin.exporter.port}"
+              "100.67.0.1:${toString config.services.comin.exporter.port}"
             ];
           }
         ];
