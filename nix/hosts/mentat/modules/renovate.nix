@@ -29,7 +29,7 @@
   services.renovate = {
     enable = true;
     environment = {
-      LOG_LEVEL = "info";
+      LOG_LEVEL = "debug";
     };
     credentials = {
       RENOVATE_TOKEN = config.sops.secrets.renovateToken.path;
@@ -59,16 +59,6 @@
         #   username = "Keyruu";
         #   password = "\${RENOVATE_GITHUB_COM_TOKEN}";
         # }
-      ];
-      packageRules = [
-        {
-          matchUpdateTypes = [
-            "minor"
-            "patch"
-          ];
-          matchCurrentVersion = "!/^0/";
-          automerge = true;
-        }
       ];
 
       nix.enabled = true;
