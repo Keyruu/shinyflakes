@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  perSystem,
   ...
 }:
 let
@@ -20,7 +21,7 @@ in
       inherit (my) port;
       plugins = with pkgs; [
         cockpit-zfs
-        cockpit-podman
+        perSystem.self.cockpit-podman
       ];
       settings = {
         WebService = {
