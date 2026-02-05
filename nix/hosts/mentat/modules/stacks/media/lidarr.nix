@@ -50,14 +50,4 @@ in
       "127.0.0.1:${toString my.port}:8686"
     ];
   };
-
-  services.restic.backupsWithDefaults = {
-    lidarr = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop media-lidarr";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start media-lidarr";
-    };
-  };
 }
