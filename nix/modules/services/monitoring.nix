@@ -84,8 +84,8 @@ in
                 max_age = "12h";
                 labels = {
                   job = "systemd-journal";
-                  host = config.networking.hostName;
-                  instance = config.networking.hostName;
+                  hostname = config.networking.hostName;
+                  inherit (config.services.monitoring.loki) instance;
                 };
               };
 
