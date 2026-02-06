@@ -85,7 +85,7 @@ in
                 labels = {
                   job = "systemd-journal";
                   hostname = config.networking.hostName;
-                  inherit (config.services.monitoring.loki) instance;
+                  inherit (config.services.monitoring.logs) instance;
                 };
               };
 
