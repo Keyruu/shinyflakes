@@ -1,4 +1,45 @@
-{ config, ... }:
+{ config, lib, ... }:
+let
+  hosts = {
+    mentat = "127.0.0.1";
+    prime = "100.67.0.1";
+  };
+
+  exporters = {
+    node_exporter = {
+      mentat = config.services.prometheus.exporters.node.port;
+      prime = 3021;
+    };
+    cadvisor = {
+      mentat = config.services.cadvisor.port;
+      prime = 3022;
+    };
+    comin = {
+      mentat = config.services.comin.exporter.port;
+      prime = 4243;
+    };
+    loki = {
+      mentat = config.services.loki.configuration.server.http_listen_port;
+    };
+    promtail = {
+      mentat = config.services.promtail.configuration.server.http_listen_port;
+    };
+    smartctl = {
+      mentat = config.services.prometheus.exporters.smartctl.port;
+    };
+    zfs = {
+      mentat = config.services.prometheus.exporters.zfs.port;
+    };
+  };
+
+  mkScrapeConfig = jobName: hostPorts: {
+    job_name = jobName;
+    static_configs = lib.mapAttrsToList (hostName: port: {
+      targets = [ "${hosts.${hostName}}:${toString port}" ];
+      labels.hostname = hostName;
+    }) hostPorts;
+  };
+in
 {
   services.cadvisor = {
     enable = true;
@@ -35,80 +76,6 @@
       };
     };
 
-    scrapeConfigs = [
-      {
-        job_name = "node_exporter";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
-              "100.67.0.1:3021"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "cadvisor";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.cadvisor.port}"
-              "100.67.0.1:3022"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "loki";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "promtail";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.promtail.configuration.server.http_listen_port}"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "smartctl";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "zfs";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.zfs.port}"
-            ];
-          }
-        ];
-      }
-      {
-        job_name = "comin";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.comin.exporter.port}"
-              "100.67.0.1:${toString config.services.comin.exporter.port}"
-            ];
-          }
-        ];
-      }
-    ];
+    scrapeConfigs = lib.mapAttrsToList mkScrapeConfig exporters;
   };
 }
