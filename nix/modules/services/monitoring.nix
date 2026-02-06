@@ -15,7 +15,6 @@ in
 
     logs = {
       enable = lib.mkEnableOption "Push logs";
-      nginx = lib.mkEnableOption "Enable Nginx logs";
       instance = lib.mkOption {
         type = lib.types.str;
         default = "";
@@ -39,11 +38,9 @@ in
 
     users = {
       groups.promtail = { };
-      groups.nginx = lib.mkIf cfg.logs.nginx { };
       users.promtail = {
         isSystemUser = true;
         group = "promtail";
-        extraGroups = [ (lib.mkIf cfg.logs.nginx "nginx") ];
       };
     };
 
@@ -99,19 +96,6 @@ in
                 }
               ];
             }
-            (lib.mkIf cfg.logs.nginx {
-              job_name = "nginx";
-              static_configs = [
-                {
-                  labels = {
-                    job = "nginx";
-                    __path__ = "/var/log/nginx/*.log";
-                    host = config.networking.hostName;
-                    instance = config.networking.hostName;
-                  };
-                }
-              ];
-            })
           ];
         };
       };

@@ -95,20 +95,6 @@
             }
           ];
         }
-        {
-          job_name = "nginx";
-          static_configs = [
-            {
-              targets = [ "localhost" ];
-              labels = {
-                job = "nginx";
-                __path__ = "/var/log/nginx/*.log";
-                host = hostName;
-                instance = "127.0.0.1";
-              };
-            }
-          ];
-        }
       ];
     };
     # extraFlags
