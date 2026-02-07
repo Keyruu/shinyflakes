@@ -80,14 +80,14 @@ in
         ${allRules}
 
         iptables -A wireguard-forward -m state --state ESTABLISHED,RELATED -j ACCEPT
-        iptables -t nat -A POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE
+        # iptables -t nat -A POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE
       '';
 
       postDown = ''
         iptables -D FORWARD -j wireguard-forward 2>/dev/null || true
         iptables -F wireguard-forward 2>/dev/null || true
         iptables -X wireguard-forward 2>/dev/null || true
-        iptables -t nat -D POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE 2>/dev/null || true
+        # iptables -t nat -D POSTROUTING -s ${mesh.subnet} -o ${lanInterface} -j MASQUERADE 2>/dev/null || true
       '';
     };
   };
