@@ -113,6 +113,7 @@
   ];
 
   services.caddy.virtualHostsWithDefaults."auth.peeraten.net".extraConfig = ''
+    import cloudflare-only
     reverse_proxy https://${toString config.services.kanidm.serverSettings.bindaddress} {
       transport http {
         tls

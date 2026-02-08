@@ -32,7 +32,13 @@ in
   services.my.karakeep = {
     port = 3000;
     domain = "karakeep.lab.keyruu.de";
-    proxy.enable = true;
+    proxy = {
+      enable = true;
+      whitelist = {
+        enable = true;
+        people = [ "lucas" ];
+      };
+    };
     backup = {
       enable = true;
       paths = [ stackPath ];

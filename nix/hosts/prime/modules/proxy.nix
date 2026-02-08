@@ -9,34 +9,42 @@ let
     "traccar.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5785;
+      cloudflare = true;
     };
     "owntracks.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5144;
+      cloudflare = true;
     };
     "map.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 3001;
+      cloudflare = true;
     };
     "calendar.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5232;
+      cloudflare = true;
     };
     "files.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 3210;
+      cloudflare = true;
     };
     "s3.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 3900;
+      cloudflare = true;
     };
     "garage.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 3902;
+      cloudflare = true;
     };
     "29112025karaoke.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 5555;
+      cloudflare = false;
     };
     # "git.keyruu.de" = {
     #   proxyHost = mentat;
@@ -47,9 +55,14 @@ let
   };
 
   mkProxyHost =
-    { proxyHost, proxyPort }:
+    {
+      proxyHost,
+      proxyPort,
+      cloudflare,
+    }:
     {
       extraConfig = ''
+        ${lib.optionalString cloudflare "import cloudflare-only"}
         reverse_proxy http://${proxyHost}:${toString proxyPort} 
       '';
     };
@@ -59,6 +72,7 @@ in
     virtualHostsWithDefaults = (lib.mapAttrs (_: mkProxyHost) proxyHosts) // {
       "git.keyruu.de" = {
         extraConfig = ''
+          import cloudflare-only
           reverse_proxy http://${mentat}:3004 {
           	header_up X-Real-Ip {remote_host}
           }
@@ -95,6 +109,7 @@ in
                 `
               }
 
+              import cloudflare-only
               reverse_proxy http://${mentat}:8123 {
                 header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
               }

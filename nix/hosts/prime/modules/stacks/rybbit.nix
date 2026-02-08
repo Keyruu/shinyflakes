@@ -23,28 +23,22 @@ in
       "rybbit-client.service"
     ];
     content = ''
-      # Domain and URL Configuration
       DOMAIN_NAME=rybbit.keyruu.de
       BASE_URL=https://rybbit.keyruu.de
 
-      # Authentication and Security
       BETTER_AUTH_SECRET=${config.sops.placeholder.rybbitBetterAuthSecret}
       DISABLE_SIGNUP=false
 
-      # ClickHouse Database Configuration
       CLICKHOUSE_DB=analytics
       CLICKHOUSE_USER=default
       CLICKHOUSE_PASSWORD=${config.sops.placeholder.rybbitClickhousePassword}
 
-      # PostgreSQL Database Configuration
       POSTGRES_DB=analytics
       POSTGRES_USER=frog
       POSTGRES_PASSWORD=${config.sops.placeholder.rybbitPostgresPassword}
 
-      # Resend API Key for email
       RESEND_API_KEY=${config.sops.placeholder.resendApiKey}
 
-      # Next.js client configuration
       NEXT_PUBLIC_BACKEND_URL=https://rybbit.keyruu.de
       NEXT_PUBLIC_DISABLE_SIGNUP=false
     '';
@@ -174,6 +168,7 @@ in
   services.caddy.virtualHostsWithDefaults =
     let
       extraConfig = ''
+        import cloudflare-only
         reverse_proxy http://127.0.0.1:3002
         reverse_proxy /api/* http://127.0.0.1:3001
       '';

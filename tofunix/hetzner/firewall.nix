@@ -27,7 +27,11 @@ let
     direction = "in";
     protocol = "tcp";
     port = toString port;
-    source_ips = ips;
+    source_ips = [
+      "0.0.0.0/0"
+      "::/0"
+    ];
+    # source_ips = ips;
   };
 
   httpsPorts = [

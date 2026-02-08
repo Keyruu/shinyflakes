@@ -31,15 +31,23 @@ in
               enable = lib.mkEnableOption "my service";
               port = lib.mkOption { type = port; };
               domain = lib.mkOption { type = str; };
-              # proxy = lib.mkEnableOption "proxy the service";
               proxy = lib.mkOption {
                 type = submodule {
                   options = {
                     enable = lib.mkEnableOption "proxy";
-                    # public = lib.mkOption {
-                    #   type = bool;
-                    #   default = false;
-                    # };
+                    # public = lib.mkEnableOption "will this be proxied by a vps";
+                    whitelist = lib.mkOption {
+                      type = submodule {
+                        options = {
+                          enable = lib.mkEnableOption "restrict the proxy to specific people";
+                          people = lib.mkOption {
+                            type = listOf str;
+                            default = [ ];
+                          };
+                        };
+                      };
+                      default = { };
+                    };
                     cert = lib.mkOption {
                       type = submodule {
                         options = {
@@ -125,6 +133,19 @@ in
             locations."/" = {
               proxyPass = "http://127.0.0.1:${toString serviceCfg.port}";
               proxyWebsockets = true;
+              extraConfig = lib.mkIf serviceCfg.proxy.whitelist.enable ''
+                ${lib.pipe config.services.mesh.people [
+                  (lib.filterAttrs (person: _: builtins.elem person serviceCfg.proxy.whitelist.people))
+                  (lib.mapAttrsToList (
+                    _: person: lib.mapAttrsToList (_: device: "allow ${device.ip};") person.devices
+                  ))
+                  lib.flatten
+                  (lib.concatStringsSep "\n")
+                ]}
+
+                allow 192.168.100.0/24;
+                deny all;
+              '';
             };
           };
         }
