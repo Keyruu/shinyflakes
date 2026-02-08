@@ -110,14 +110,14 @@
                 annotations:
                   summary: Blackbox probe failed (instance {{ $labels.instance }})
                   description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-              - alert: NginxHighHttp5xxErrorRate
-                expr: sum(rate(nginx_http_requests_total{status=~"^5.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > 5
-                for: 1m
+              - alert: CominSuspendedForTooLong
+                expr: comin_is_suspended == 1
+                for: 60m
                 labels:
                   severity: critical
                 annotations:
-                  summary: Nginx high HTTP 5xx error rate (instance {{ $labels.instance }})
-                  description: "Too many HTTP requests with status 5xx (> 5%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+                  summary: Comin has been suspended on {{ $labels.hostname }} for 1 hour
+                  description: "Comin suspended for too long\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       ''
     ];
   };

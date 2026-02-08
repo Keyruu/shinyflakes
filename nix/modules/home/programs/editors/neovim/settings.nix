@@ -38,19 +38,6 @@ _: {
       enable = true;
     };
 
-    tabline.nvimBufferline = {
-      enable = false;
-      setupOpts = {
-        options = {
-          numbers = "none";
-          left_trunc_marker = "";
-          right_trunc_marker = "";
-          separator_style = "thin";
-          # always_show_bufferline = true;
-        };
-      };
-    };
-
     mini = {
       tabline.enable = true;
     };

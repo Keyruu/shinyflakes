@@ -161,7 +161,10 @@
       grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
       context = {
         enable = true;
-        setupOpts.separator = "—";
+        setupOpts = {
+          separator = "—";
+          max_lines = 5;
+        };
       };
     };
   };
