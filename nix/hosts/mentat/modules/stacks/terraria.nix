@@ -16,6 +16,7 @@ in
       ];
       environments = {
         WORLD = "wow";
+        SECURE = "0";
       };
     };
     serviceConfig = {
