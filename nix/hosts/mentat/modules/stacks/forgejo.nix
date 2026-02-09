@@ -15,6 +15,8 @@ in
 
   sops.templates."forgejo.ini" = {
     restartUnits = [ "forgejo.service" ];
+    owner = "git";
+    group = "git";
     content = # ini
       ''
         APP_NAME = Forgejo
