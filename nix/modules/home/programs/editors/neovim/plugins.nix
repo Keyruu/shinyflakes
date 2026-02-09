@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   programs.nvf.settings.vim = {
     utility = {
@@ -24,6 +24,55 @@
       };
       yanky-nvim.enable = false;
       yazi-nvim.enable = true;
+    };
+
+    assistant = {
+      codecompanion-nvim = {
+        enable = true;
+        setupOpts = {
+          adapters =
+            lib.generators.mkLuaInline # lua
+              ''
+                {
+                  mammouth = function()
+                    return require("codecompanion.adapters").extend("openai_compatible", {
+                      env = {
+                        url = "https://api.mammouth.ai/v1",
+                        api_key = "MAMMOUTH_API_KEY",
+                        chat_url = "/v1/chat/completions",
+                      },
+                      schema = {
+                        model = {
+                          default = "codestral-2508",
+                        },
+                      },
+                    })
+                  end
+                }
+              '';
+          strategies = {
+            chat = {
+              adapter = "opencode";
+            };
+            inline = {
+              adapter = "mammouth";
+              keymaps = {
+                accept_change = {
+                  modes.n = "ga";
+                  description = "Accept the suggested change";
+                };
+                reject_change = {
+                  modes.n = "gr";
+                  opts = {
+                    nowait = true;
+                  };
+                  description = "Reject the suggested change";
+                };
+              };
+            };
+          };
+        };
+      };
     };
 
     lazy.plugins = {
