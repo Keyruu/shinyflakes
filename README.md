@@ -1,3 +1,5 @@
+![shinyflakes-logo](./docs/shinyflakes.png)
+
 # Shinyflakes
 
 My personal NixOS/nix-darwin homelab setup. Everything from servers to desktops
