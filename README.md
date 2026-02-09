@@ -1,6 +1,6 @@
 <img src="docs/shinyflakes.png" width="200" />
 
-# Shinyflakes
+# ✨Shinyflakes ❄️
 
 My personal NixOS/nix-darwin homelab setup. Everything from servers to desktops
 to laptops, all defined in one git repo. Because if it's not in git, did it even
