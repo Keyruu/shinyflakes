@@ -1,4 +1,4 @@
-![shinyflakes-logo](docs/shinyflakes.png)
+<img src="docs/shinyflakes.png" width="200" />
 
 # Shinyflakes
 
