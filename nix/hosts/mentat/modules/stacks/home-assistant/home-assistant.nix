@@ -1,7 +1,6 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/home-assistant";
-  my = config.services.my.home-assistant;
 in
 {
   imports = [

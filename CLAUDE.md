@@ -2,7 +2,10 @@
 
 ## Project Structure
 
-This project uses [blueprint](https://github.com/numtide/blueprint) for convention-based flake structure. Blueprint automatically discovers and exposes Nix configurations based on folder structure, eliminating the need to manually maintain flake outputs.
+This project uses [blueprint](https://github.com/numtide/blueprint) for
+convention-based flake structure. Blueprint automatically discovers and exposes
+Nix configurations based on folder structure, eliminating the need to manually
+maintain flake outputs.
 
 ### Folder Structure
 
@@ -36,6 +39,7 @@ nix/
 ### How Blueprint Works
 
 In `flake.nix`:
+
 ```nix
 outputs = inputs: inputs.blueprint {
   inherit inputs;
@@ -44,6 +48,7 @@ outputs = inputs: inputs.blueprint {
 ```
 
 Blueprint automatically:
+
 - Creates `nixosConfigurations.<hostname>` from `nix/hosts/*/configuration.nix`
 - Exposes `nixosModules.<name>` from `nix/modules/nixos/*.nix`
 - Exposes `homeModules.<name>` from `nix/modules/home/*.nix`
@@ -52,6 +57,7 @@ Blueprint automatically:
 ### Building and Deploying
 
 **Build a NixOS configuration:**
+
 ```bash
 # Build without switching
 nixos-rebuild build --flake .#hostname
@@ -66,6 +72,7 @@ sudo nixos-rebuild test --flake .#hostname
 ### Adding a New Host
 
 1. Create `nix/hosts/<hostname>/configuration.nix`:
+
 ```nix
 { inputs, flake, config, pkgs, lib, ... }:
 {
@@ -85,11 +92,14 @@ sudo nixos-rebuild test --flake .#hostname
 ```
 
 2. Generate hardware configuration:
+
 ```bash
 nixos-generate-config --root /mnt --show-hardware-config > nix/hosts/<hostname>/hardware-configuration.nix
 ```
 
-3. Create `nix/hosts/<hostname>/modules/default.nix` to import host-specific modules:
+3. Create `nix/hosts/<hostname>/modules/default.nix` to import host-specific
+   modules:
+
 ```nix
 { ... }:
 {
@@ -116,32 +126,37 @@ nixos-generate-config --root /mnt --show-hardware-config > nix/hosts/<hostname>/
 
 ### Key Notes
 
-- **Quadlet Service Names**: Quadlet units are just the container name with `.service` suffix, NOT prefixed with `quadlet-`. For container `service-main`, the systemd service is `service-main.service`.
+- **Quadlet Service Names**: Quadlet units are just the container name with
+  `.service` suffix, NOT prefixed with `quadlet-`. For container `service-main`,
+  the systemd service is `service-main.service`.
 
 ### File Structure Pattern
 
-All quadlet configurations follow this standardized structure:
+All quadlet configurations follow this standardized structure, but do ignore the
+comments, these are just for clarification:
 
 ```nix
 { config, ... }:
 let
   stackPath = "/etc/stacks/service-name";
+  my = config.services.my.service-name;
 in
 {
-  # 1. Sops secrets (if needed)
+  # sops secrets these are always just one value, if there multiple values like user and password, you need to create two secrets
   sops.secrets = {
     serviceSecret = {
+      # if there is a template you wont need to restart the unit here as well
       restartUnits = [ "service-main.service" ];
     };
   };
 
-  # 2. Directory creation
+  # directory creation
   systemd.tmpfiles.rules = [
     "d ${stackPath}/data 0755 root root"
     "d ${stackPath}/config 0755 root root"
   ];
 
-  # 3. Environment template (if secrets needed)
+  # template file (if secrets needed), this can either be a env file that can be used in environmentFiles or a general config file like yaml or toml, which then can be mounted into the container
   sops.templates."service.env" = {
     restartUnits = [ "service-main.service" ];
     content = ''
@@ -149,39 +164,80 @@ in
     '';
   };
 
-  # 4. Quadlet configuration
+  services.my.service-name = {
+    port = 3000;
+    # if the service is only used locally and not proxied through a vps then .lab is fine
+    domain = "service-name.lab.keyruu.de";
+    proxy = {
+      enable = true;
+      whitelist.enable = true;
+    };
+    backup = {
+      enable = true;
+      paths = [ stackPath ];
+      # this is not needed if there is only one container and it has the same name as in services.my
+      systemd.unit = "service-name-*";
+    };
+  };
+  # here is definition for a service that is proxied for the public
+  services.my.home-assistant =
+    let
+      domain = "hass.peeraten.net";
+    in
+    {
+      port = 8123;
+      inherit domain;
+      proxy = {
+        enable = true;
+        cert = {
+          provided = false;
+          host = domain;
+        };
+      };
+      backup = {
+        enable = true;
+        paths = [ stackPath ];
+      };
+    };
+
+
+  # quadlet configuration
   virtualisation.quadlet =
     let
+      # this is only needed if the app contains multiple containers that need to talk to eachother
       inherit (config.virtualisation.quadlet) networks;
     in
     {
+      # this is only needed if the app contains multiple containers that need to talk to eachother
       networks.service-name.networkConfig = {
         driver = "bridge";
         podmanArgs = [ "--interface-name=service-name" ];
       };
       
       containers = {
-        service-main = {
+        service-name-main = {
           containerConfig = {
-            image = "service:latest";
-            publishPorts = [ "127.0.0.1:PORT:PORT" ];
+            # never use latest here, we always want versioned tags
+            image = "service:v0.1.0";
+            # my.port should only be used for the first port and the second one should be the one thats used in the docker image
+            # this is bc the ports on the host can be different than the internal one bc of conflicts
+            publishPorts = [ "127.0.0.1:${toString my.port}:PORT" ];
             volumes = [ 
               "${stackPath}/data:/data"
               "${stackPath}/config:/config"
             ];
+            # these can be used for env vars that arent secrets
             environments = { KEY = "value"; };
             environmentFiles = [ config.sops.templates."service.env".path ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"  # For semantic versioning
-              # "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"  # For v-prefixed tags
-              # "wud.tag.include=^\\d+\\.\\d+-alpine$"  # For alpine variants
-            ];
+            # this is only needed if the app contains multiple containers that need to talk to eachother
             networks = [ networks.service-name.ref ];
             networkAliases = [ "service-alias" ];
           };
           serviceConfig = {
+            # this should be either always or on-failure
             Restart = "always";
           };
+          # this can be used for dependencies on other containers
           unitConfig = {
             After = [ "dependency.service" ];
             Requires = [ "dependency.service" ];
@@ -189,25 +245,6 @@ in
         };
       };
     };
-
-  # 5. ACME certificate (for external domains)
-  security.acme = {
-    certs."service.domain.com" = {
-      dnsProvider = "cloudflare";
-      dnsPropagationCheck = true;
-      environmentFile = config.sops.secrets.cloudflare.path;
-    };
-  };
-
-  # 6. Nginx reverse proxy
-  services.nginx.virtualHosts."service.domain.com" = {
-    useACMEHost = "service.domain.com";
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:PORT";
-      proxyWebsockets = true;
-    };
-  };
 }
 ```
 
@@ -255,7 +292,7 @@ sops.templates."service.env" = {
 containers.service-name = {
   containerConfig = {
     image = "image:tag";
-    publishPorts = [ "127.0.0.1:port:port" ];  # Bind to localhost
+    publishPorts = [ "127.0.0.1:${toString my.port}:port" ];  # Bind to localhost
     volumes = [ "${stackPath}/data:/container/path" ];
     environments = { ENV_VAR = "value"; };
     environmentFiles = [ config.sops.templates."service.env".path ];
@@ -278,7 +315,7 @@ containers.service-name = {
 #### 5. Network Configuration
 
 ```nix
-# Create dedicated network with interface name
+# Create dedicated network with interface name if there is more than one container
 networks.service-network.networkConfig = {
   driver = "bridge";
   podmanArgs = [ "--interface-name=service-name" ];
@@ -286,32 +323,6 @@ networks.service-network.networkConfig = {
 
 # Reference in containers
 networks = [ networks.service-network.ref ];
-```
-
-#### 6. External Access Setup
-
-For services accessible from outside:
-
-```nix
-# Local nginx (on service host)
-services.nginx.virtualHosts."service.lab.keyruu.de" = {
-  useACMEHost = "lab.keyruu.de";
-  forceSSL = true;
-  locations."/" = {
-    proxyPass = "http://127.0.0.1:PORT";
-    proxyWebsockets = true;
-  };
-};
-
-# External proxy (in sleipnir/proxy.nix for peeraten.net domains)
-services.nginx.virtualHosts."service.peeraten.net" = {
-  enableACME = true;
-  forceSSL = true;
-  locations."/" = {
-    proxyPass = "http://${config.services.mesh.ip}:PORT";  # Tailscale IP
-    proxyWebsockets = true;
-  };
-};
 ```
 
 ### Key Patterns
@@ -336,8 +347,10 @@ services.nginx.virtualHosts."service.peeraten.net" = {
 
 #### Network Configuration
 
-- For single-container stacks, omit network configuration entirely - containers will use the default bridge network
-- Only create dedicated networks for multi-container stacks that need inter-service communication
+- For single-container stacks, omit network configuration entirely - containers
+  will use the default bridge network
+- Only create dedicated networks for multi-container stacks that need
+  inter-service communication
 - Add `networkAliases` for services that other containers need to reach
 - Use the service name as alias for consistency
 
@@ -349,7 +362,8 @@ services.nginx.virtualHosts."service.peeraten.net" = {
 
 #### Configuration Files and Restart Triggers
 
-For services that need configuration files, use `X-RestartTrigger` to restart containers when config files change:
+For services that need configuration files, use `X-RestartTrigger` to restart
+containers when config files change:
 
 ```nix
 # Create config file
@@ -376,9 +390,13 @@ containers.service-main = {
 
 #### Automatic Restarts with SOPS
 
-Always include `restartUnits` for both secrets and templates to ensure containers restart when secrets change. **Important**: Use the exact container name with `.service` suffix - no `quadlet-` prefix.
+Always include `restartUnits` for both secrets and templates to ensure
+containers restart when secrets change. **Important**: Use the exact container
+name with `.service` suffix - no `quadlet-` prefix.
 
-**Best Practice**: Only add `restartUnits` to the SOPS template, not individual secrets. The template will automatically trigger when any referenced secret changes, eliminating redundancy.
+**Best Practice**: Only add `restartUnits` to the SOPS template, not individual
+secrets. The template will automatically trigger when any referenced secret
+changes, eliminating redundancy.
 
 ```nix
 # Secrets don't need individual restartUnits
@@ -397,39 +415,10 @@ sops.templates."service.env" = {
 };
 ```
 
-#### WUD Labels for Update Monitoring
-
-Add appropriate WUD labels to main application containers for automatic update detection:
-
-```nix
-labels = [
-  "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"      # Standard semantic versioning (1.2.3)
-  # "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"   # v-prefixed tags (v1.2.3)
-  # "wud.tag.include=^\\d+\\.\\d+-alpine$"    # Alpine variants (1.2-alpine)
-  # "wud.tag.include=^\\d+\\.\\d+\\.\\d+-.*$" # With suffixes (1.2.3-beta)
-];
-```
-
-Common patterns:
-
-- `^\\d+\\.\\d+\\.\\d+$` - Standard semantic versioning (most common)
-- `^v\\d+\\.\\d+\\.\\d+$` - Version tags with 'v' prefix
-- `^\\d+\\.\\d+-alpine$` - Alpine-based images
-- `^\\d+\\.\\d+\\.\\d+-.*$` - Versions with additional suffixes
-
-Only add labels to the main application containers, not databases or supporting services.
-
-**Disabling WUD for Supporting Services:**
-
-For containers that shouldn't be monitored for updates (databases, caches, etc.), disable WUD monitoring:
-
-```nix
-labels = [ "wud.watch=false" ];
-```
-
 #### Health Checks
 
-Use the proper Quadlet health check options instead of Docker Compose style healthcheck blocks:
+Use the proper Quadlet health check options instead of Docker Compose style
+healthcheck blocks:
 
 ```nix
 # ✅ Correct Quadlet health check format
@@ -458,12 +447,15 @@ containers.service-main = {
 ```
 
 Available health check options:
+
 - `healthCmd` - Command to run for health check
 - `healthInterval` - How often to run health check
 - `healthTimeout` - Maximum time for health check command
 - `healthRetries` - Number of consecutive failures needed to mark unhealthy
-- `healthStartPeriod` - Grace period before health checks count toward retry count
-- `healthOnFailure` - Action to take on health check failure (e.g., "kill", "restart")
+- `healthStartPeriod` - Grace period before health checks count toward retry
+  count
+- `healthOnFailure` - Action to take on health check failure (e.g., "kill",
+  "restart")
 
 #### Secret Naming
 
@@ -487,14 +479,21 @@ sops.secrets = {
 
 ### Common Gotchas
 
-- Remember to add external proxy configuration in sleipnir for peeraten.net domains
+- Remember to add external proxy configuration in sleipnir for peeraten.net
+  domains
 - Use `exec` instead of `command` for container arguments
 - Network references must use `networks.name.ref` pattern
-- Always include `inherit (config.virtualisation.quadlet) networks;` in let block when using networks
-- Don't create networks for single-container stacks - use default bridge network instead
+- Always include `inherit (config.virtualisation.quadlet) networks;` in let
+  block when using networks
+- Don't create networks for single-container stacks - use default bridge network
+  instead
 - Add WUD labels only to main application containers for update monitoring
-- Only add `restartUnits` to SOPS templates, not individual secrets (templates trigger when any referenced secret changes)
-- Use `X-RestartTrigger` for configuration files that should restart containers when changed
-- **Critical**: Quadlet service names are just the container name + `.service` - NO `quadlet-` prefix!
-- Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.) instead of Docker Compose style `healthcheck` blocks
+- Only add `restartUnits` to SOPS templates, not individual secrets (templates
+  trigger when any referenced secret changes)
+- Use `X-RestartTrigger` for configuration files that should restart containers
+  when changed
+- **Critical**: Quadlet service names are just the container name + `.service` -
+  NO `quadlet-` prefix!
+- Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.)
+  instead of Docker Compose style `healthcheck` blocks
 - Use camelCase for SOPS secret names for consistency
