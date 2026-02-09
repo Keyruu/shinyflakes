@@ -1,78 +1,128 @@
 # Shinyflakes
 
-My personal NixOS/nix-darwin homelab setup. Everything from servers to desktops to my Mac, all defined in one git repo. Because if it's not in git, did it even happen?
+My personal NixOS/nix-darwin homelab setup. Everything from servers to desktops
+to laptops, all defined in one git repo. Because if it's not in git, did it even
+happen?
 
 ## Why Though?
 
-I use NixOS to manage my homelab and it's been pretty awesome having my whole infrastructure version-controlled. No more "it worked on my machine" moments - my machines ARE the configuration.
+I use NixOS to manage my homelab and it's been pretty awesome having my whole
+infrastructure version-controlled. No more "it worked on my machine" moments -
+my machines ARE the configuration.
 
-The secret sauce here is using [Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html) (via [quadlet-nix](https://github.com/SEIAROTg/quadlet-nix)) for container management. Why? Because I want proper systemd integration, individual container metrics, and the ability to manage each container separately - not just restart the whole docker-compose when one thing breaks. Plus, Nix lets me do cool stuff like ensuring directories exist before mounting them, templating configs with secrets, and using actual Nix references between resources.
+The secret sauce here is using
+[Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+(via [quadlet-nix](https://github.com/SEIAROTg/quadlet-nix)) for container
+management.
+
+### Why not NixOS services?
+
+Because versioning is just horrendous. I can't really control versions of
+specific services if I don't want to have 100 flake inputs. Also with container
+images I always get the newest version as soon as its out.
+
+### Why not docker-compose?
+
+Because I want proper systemd integration, individual container metrics, and the
+ability to manage each container separately - not just restart the whole
+docker-compose when one thing breaks. Plus, Nix lets me do cool stuff like
+ensuring directories exist before mounting them, templating configs with
+secrets, and using actual Nix references between resources.
 
 ## The Fleet
 
 ### mentat - Main homelab server (x86_64-linux)
-The big boi running everything in my apartment:
-- **Media**: Jellyfin, Navidrome, and the full *arr stack for *Linux ISOs* and music
-- **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT, Wyoming for voice stuff, and Music Assistant
-- **AI Things**: Ollama + Open WebUI, LibreChat, Perplexica, various MCP servers because AI is everywhere now apparently
-- **Self-hosted Goodness**: Immich (photos), Actual Budget (money tracking), Dawarich (location tracking), Mealie (recipes), N8N (automation), Copyparty (file sharing), and yes, even a karaoke server
-- **Monitoring**: Grafana, Prometheus, Loki, Beszel, WUD for keeping tabs on container updates
-- **Storage**: Garage (S3-compatible storage), NAS with Samba, ZFS for data integrity
-- **DNS**: AdGuard Home for blocking the internet's nonsense
 
-### prime - Hetzner VPS (x86_64-linux)
-The public-facing server that makes everything accessible:
-- **Reverse Proxy**: Nginx with automatic SSL via Cloudflare DNS
-- **Identity**: Kanidm for centralized auth (so I only forget one password)
-- **VPN**: Headscale for my Tailscale mesh network
-- **Databases**: PostgreSQL instances for apps that need them
+The big boi running everything in my apartment:
+
+- **Media**: Jellyfin, Navidrome, and the full *arr stack for _Linux ISOs_ and
+  music
+- **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT and Music
+  Assistant
+- **AI Things**: ~~Ollama + Open WebUI,~~ LibreChat ~~, Perplexica,~~ various
+  MCP servers because AI is everywhere now apparently (I took my GPU out of the
+  server because of the power draw...)
+- **Self-hosted Goodness**: Immich (photos), Forgejo (git), Dawarich (location
+  tracking), Copyparty (file sharing)
+- **Monitoring**: Grafana, Prometheus, Loki, Beszel, Renovate for keeping tabs
+  on container and flake.lock updates
+- **Storage**: Garage (S3-compatible storage), NAS with Samba, ZFS for data
+  integrity
+- **DNS**: AdGuard Home for blocking the internet's nonsense
 - **GitOps**: Comin for automatic deployments because manual deploys are so 2023
 
-### carryall - Lenovo ThinkPad T14s (x86_64-linux)
-My daily driver laptop:
-- **Desktop**: Sway/Niri because tiling WMs are life
+### prime - Hetzner VPS (x86_64-linux)
+
+The public-facing server that makes everything accessible:
+
+- **Reverse Proxy**: Caddy with Coraza for a self-hosted WAF solution, because I
+  am paranoid (rightfully so)
+- **Identity**: Kanidm for centralized auth (so I only forget one password)
+- **VPN**: My self made mesh network with WireGuard (everything is declarative)
+- **GitOps**: Comin for automatic deployments because manual deploys are so 2023
+
+### carryall, thopter - Lenovo ThinkPad T14s (x86_64-linux)
+
+My work and private laptop:
+
+- **Desktop**: NNN is the goat, that stands for NixOS, Noctalia-Shell and Niri.
+  This definitely is my favorite way to use a DE now.
 - **Development**: All the tools, all the compilers, all the debuggers
 - **Security**: Lanzaboote for secure boot with TPM because we're fancy now
 - **Boot**: Plymouth for those sick boot animations
-- **Extras**: Fingerprint auth, auto-rotation, distrobox for when Nix isn't enough
+- **Extras**: Fingerprint auth, auto-rotation, distrobox for when Nix isn't
+  enough
 
-### thopter - Lenovo ThinkPad X1 Yoga 7th Gen (x86_64-linux)
-Backup laptop that shares config with carryall:
-- **Desktop**: Sway because consistency
-- **Development**: Same setup as carryall
+### muadib - Tower Desktop for gaming (x86_64-linux)
+
+Shares most of the config with the laptops, but of course has:
+
 - **Gaming**: Steam + Lutris for procrastination
 
 ## The Good Stuff
 
 ### Quadlet for Container Management
 
-I wrote a whole [blog post](https://keyruu.de/posts/quadlet/) about this, but TL;DR: Quadlet gives me proper systemd services for each container. That means:
+I wrote a whole [blog post](https://keyruu.de/posts/quadlet/) about this, but
+TL;DR: Quadlet gives me proper systemd services for each container. That means:
+
 - Individual `systemctl start/stop/restart` commands
 - Actual CPU/memory metrics per container (not just the whole compose)
 - Automatic restarts that don't nuke everything
 - Health checks that actually work
-- WUD (What's Up Docker) for keeping track of updates
+- Renovate for keeping track of updates
+- Generic alerts for systemd will also alert me of failing containers
 
-No more docker-compose bullshit where everything shares one log output and you can't tell what's broken.
+No more docker-compose bullshit where everything shares one log output and you
+can't tell what's broken.
 
 ### Secrets with SOPS
 
-All secrets are encrypted with [sops-nix](https://github.com/Mic92/sops-nix) using age keys. That means I can commit my secrets to git (encrypted, obviously) and they get decrypted on the hosts. Each host has its own key, containers restart automatically when secrets change, and I don't have to worry about accidentally leaking API keys.
+All secrets are encrypted with [sops-nix](https://github.com/Mic92/sops-nix)
+using age keys. That means I can commit my secrets to git (encrypted, obviously)
+and they get decrypted on the hosts. Each host has its own key, containers
+restart automatically when secrets change, and I don't have to worry about
+accidentally leaking API keys.
 
 Check out the nginx reverse proxy modules for examples of how this works.
 
 ### Networking
 
-- **Tailscale** mesh network connects everything. Doesn't matter if I'm home or at a coffee shop, everything just works.
-- **Nginx** reverse proxy with automatic Let's Encrypt SSL via Cloudflare DNS challenges.
-- **Headscale** on `prime` for self-hosted Tailscale coordination (because why not).
+- **WireGuard** mesh network connects everything. Doesn't matter if I'm home or
+  at a coffee shop, everything just works. This is very custom and is using my
+  own module. I will probably write a blogpost about that setup one day.
+- **Nginx** reverse proxy with automatic Let's Encrypt SSL via Cloudflare DNS
+  challenges. And a whitelist to not allow everybody on the mesh to access every
+  service.
 
 ### Storage
 
 - **ZFS** on `mentat` for data integrity and snapshots
-- **Disko** for declarative disk setup - because manual partitioning is for chumps
-- **Samba** for network shares so I can access my 10TB of photos from anywhere
-- **Backups**: uh... maybe? I should probably work on that.
+- **Disko** for declarative disk setup - because manual partitioning is for
+  chumps
+- **Samba** for network shares I guess
+- **Backups**: ~~uh... maybe? I should probably work on that.~~ I have that now.
+  Everything gets backupped every night via restic!
 
 ### Monitoring
 
@@ -80,20 +130,26 @@ Check out the nginx reverse proxy modules for examples of how this works.
 - **Prometheus** for metrics collection
 - **Loki** for log aggregation
 - **Beszel** for lightweight system monitoring
-- **WUD** (What's Up Docker) for tracking container updates
+- **Renovate** for tracking container updates
 
 ### Infrastructure as Code
 
-- **Terranix** for managing Terraform with Nix because why have two config languages when you can have one?
+- **Tofunix** for managing Terraform with Nix because why have two config
+  languages when you can have one?
   - Cloudflare DNS records
   - Hetzner Cloud resources
   - S3 backend in Cloudflare R2 for state management
 
 ## How It's Structured (Blueprint Edition)
 
-I recently restructured everything using [blueprint](https://github.com/numtide/blueprint), which is basically a convention-over-configuration thing for Nix flakes. Instead of manually wiring up all the flake outputs, blueprint just looks at your folder structure and figures it out.
+I recently restructured everything using
+[blueprint](https://github.com/numtide/blueprint), which is basically a
+convention-over-configuration thing for Nix flakes. Instead of manually wiring
+up all the flake outputs, blueprint just looks at your folder structure and
+figures it out.
 
 The magic happens in `flake.nix`:
+
 ```nix
 outputs = inputs: inputs.blueprint {
   inherit inputs;
@@ -115,7 +171,6 @@ nix/
 │   │       └── ...
 │   ├── prime/
 │   ├── thopter/
-│   └── stern/         # Darwin host
 ├── modules/           # Shared/reusable modules
 │   ├── nixos/        # NixOS modules
 │   ├── darwin/       # nix-darwin modules
@@ -128,16 +183,18 @@ nix/
 ```
 
 Blueprint automatically:
+
 - Creates `nixosConfigurations` from `nix/hosts/*/configuration.nix`
-- Creates `darwinConfigurations` from darwin hosts
 - Exposes modules from `nix/modules/`
 - Makes packages available from `nix/packages/`
 
-It's pretty neat. No more manually maintaining a giant `flake.nix` with all the outputs.
+It's pretty neat. No more manually maintaining a giant `flake.nix` with all the
+outputs.
 
 ## The Dependencies
 
-- **nixpkgs** (+ stable/small variants) - The Nix packages, multiple channels for flexibility
+- **nixpkgs** (+ stable/small variants) - The Nix packages, multiple channels
+  for flexibility
 - **blueprint** - Convention-based flake structure (the new hotness)
 - **quadlet-nix** - The star of the show, Podman containers as systemd services
 - **sops-nix** - Secrets management that doesn't suck
@@ -146,7 +203,8 @@ It's pretty neat. No more manually maintaining a giant `flake.nix` with all the 
 - **lanzaboote** - Secure boot for NixOS with TPM support
 - **zen-browser** - Privacy-focused Firefox fork
 - **nix-gaming** - Gaming optimizations and fixes
-- **vicinae** - Launcher - Raycast alternative for Linux (shoutout to the Vicinae project)
+- **vicinae** - Launcher - Raycast alternative for Linux (shoutout to the
+  Vicinae project)
 - **niri** - Scrollable tiling Wayland compositor
 - **spicetify-nix** - Spotify theming because aesthetics matter
 - **nvf** - Neovim configuration framework
@@ -159,7 +217,9 @@ It's pretty neat. No more manually maintaining a giant `flake.nix` with all the 
 
 ## Secrets Management
 
-All secrets are encrypted with sops-nix and stored in `nix/secrets.yaml`. Each host has its own age key derived from its SSH host key, so secrets are automatically decrypted on the right machines.
+All secrets are encrypted with sops-nix and stored in `nix/secrets.yaml`. Each
+host has its own age key derived from its SSH host key, so secrets are
+automatically decrypted on the right machines.
 
 ### Adding a New Host
 
@@ -209,7 +269,8 @@ Check out `CLAUDE.md` or any of the stack modules for more examples.
 
 - NixOS minimal ISO USB drive
 - Internet connection (Ethernet or WiFi)
-- Your disk partition scheme ready (check the disko configs in `nix/hosts/*/disko.nix`)
+- Your disk partition scheme ready (check the disko configs in
+  `nix/hosts/*/disko.nix`)
 
 ### Installation Steps
 
@@ -222,6 +283,7 @@ Boot from the NixOS minimal ISO and wait for the prompt.
 **Ethernet:** Should work automatically.
 
 **WiFi:**
+
 ```bash
 # Start wpa_supplicant
 sudo systemctl start wpa_supplicant
@@ -257,11 +319,13 @@ lsblk -f
 ls -l /dev/disk/by-id/
 ```
 
-Update your disko configuration to use the correct disk path. Using `/dev/disk/by-id/` is recommended for consistency.
+Update your disko configuration to use the correct disk path. Using
+`/dev/disk/by-id/` is recommended for consistency.
 
 #### 5. Partition with Disko
 
-**Warning:** This will erase your disk. Double-check you're targeting the right device!
+**Warning:** This will erase your disk. Double-check you're targeting the right
+device!
 
 ```bash
 # Run disko with your host's configuration
@@ -317,11 +381,15 @@ sudo umount -R /mnt
 sudo reboot
 ```
 
-Remove the USB drive when prompted. Your system should now boot into your configured NixOS installation, with the flake configuration already present in `/etc/nixos/`.
+Remove the USB drive when prompted. Your system should now boot into your
+configured NixOS installation, with the flake configuration already present in
+`/etc/nixos/`.
 
 ## Secure Boot with Lanzaboote
 
-If you want secure boot (and who doesn't?), you can set it up after installation. Lanzaboote gives you secure boot on NixOS with automatic signing of your kernel and initrd.
+If you want secure boot (and who doesn't?), you can set it up after
+installation. Lanzaboote gives you secure boot on NixOS with automatic signing
+of your kernel and initrd.
 
 ### Prerequisites
 
@@ -344,17 +412,20 @@ Make sure your host config includes Lanzaboote:
 1. **Boot into your new NixOS system** and make sure Lanzaboote is configured.
 
 2. **Create secure boot keys:**
+
 ```bash
 sudo sbctl create-keys
 ```
 
 3. **Put your system into Setup Mode:**
-   - Reboot and enter your BIOS/UEFI settings (usually F2, F10, F12, or Del during boot)
+   - Reboot and enter your BIOS/UEFI settings (usually F2, F10, F12, or Del
+     during boot)
    - Find the Secure Boot settings
    - Clear all existing keys or enable "Setup Mode"
    - Save and exit back to your system
 
 4. **Enroll your keys:**
+
 ```bash
 # Check that you're in setup mode
 sudo sbctl status
@@ -369,13 +440,15 @@ sudo sbctl enroll-keys --microsoft
    - Save and reboot
 
 Your system should now boot with secure boot enabled. You can verify with:
+
 ```bash
 sudo sbctl status
 ```
 
 ### TPM2 Disk Encryption
 
-If you're using LUKS encryption and have a TPM2 chip, you can unlock your disk automatically on boot:
+If you're using LUKS encryption and have a TPM2 chip, you can unlock your disk
+automatically on boot:
 
 ```bash
 # Enroll your LUKS partition with TPM2
@@ -384,20 +457,24 @@ sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7+12 --wipe-slot=tpm
 ```
 
 **What those PCRs mean:**
+
 - PCR 0: UEFI firmware and settings
 - PCR 2: Boot loader code
 - PCR 7: Secure boot state
 - PCR 12: Kernel command line and initrd
 
-Now your disk unlocks automatically on boot, but only if secure boot is enabled and nothing in the boot chain has been tampered with.
+Now your disk unlocks automatically on boot, but only if secure boot is enabled
+and nothing in the boot chain has been tampered with.
 
-**Warning:** If you change BIOS settings or disable secure boot, you'll need to manually enter your password. Keep that recovery key handy.
+**Warning:** If you change BIOS settings or disable secure boot, you'll need to
+manually enter your password. Keep that recovery key handy.
 
 ## Deploying Updates
 
 Once you have a host installed, deploying changes is straightforward:
 
 **NixOS hosts:**
+
 ```bash
 # Deploy to a host
 sudo nixos-rebuild switch --flake .#hostname
@@ -410,24 +487,41 @@ sudo nixos-rebuild test --flake .#hostname
 ```
 
 **Prerequisites for managing the config:**
+
 - Nix with flakes enabled
 - SOPS if you want to edit secrets (see Secrets Management section)
 - An age key if you want to decrypt secrets
 
 ## Why "Shinyflakes"?
 
-Because snowflakes are unique, and my setup is definitely... unique. Also "snowflake infrastructure" sounds way cooler than "my random server configs."
+There was a big teenage drug dealer here in Germany that sold drugs on the
+internet from a small town. He got caught but did do a documentary called
+_shinyflakes_. This also has inspired a german Netflix show called "How to sell
+drugs online (fast)", which is very good and definitely worth a watch.
+
+So why is my repo named like that? Idk flakes are a big concept in Nix and I
+thought that sounded cool for a repo name.
 
 ## License
 
-Do whatever you want with this. MIT? Apache? Unlicense? Pick your favorite. Just don't blame me if you copy-paste something and it breaks your setup. Individual components (packages, flakes, etc.) have their own licenses - check those too.
+Do whatever you want with this. MIT? Apache? Unlicense? Pick your favorite. Just
+don't blame me if you copy-paste something and it breaks your setup. Individual
+components (packages, flakes, etc.) have their own licenses - check those too.
 
 ## Shoutouts
 
-- [@SEIAROTg](https://github.com/SEIAROTg) for quadlet-nix and actually implementing features I requested
-- [@joinemm](https://github.com/joinemm) for having a great config to yoink from (seriously a lot of this has been copied from his conifg) and showing me NixOS!
-- [@Mic92](https://github.com/Mic92) for building what feels like half of the Nix ecosystem
+- [@SEIAROTg](https://github.com/SEIAROTg) for quadlet-nix and actually
+  implementing features I requested
+- [@joinemm](https://github.com/joinemm) for having a great config to yoink from
+  (seriously a lot of this has been copied from his conifg) and showing me
+  NixOS!
+- [@Mic92](https://github.com/Mic92) for building what feels like half of the
+  Nix ecosystem
+- The monthly NixOS meetup in Munich that led me to meet a bunch of awesome
+  people and taught me a lot about NixOS
 - The NixOS community for making this whole thing possible
 - Anyone who's contributed to the flakes I use
 
-If you're reading this and thinking "this looks cool but complicated" - yeah, it is. But it's also really fun once you get the hang of it. Feel free to steal ideas, patterns, or entire modules. That's what open source is for.
+If you're reading this and thinking "this looks cool but complicated" - yeah, it
+is. But it's also really fun once you get the hang of it. Feel free to steal
+ideas, patterns, or entire modules. That's what open source is for.
