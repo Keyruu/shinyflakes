@@ -1,7 +1,7 @@
 { config, lib, ... }:
 let
   port = 7384;
-  iptablesRule = ip: "iptables -A INPUT -p tcp -s ${ip} --dport ${port} -j ACCEPT";
+  iptablesRule = ip: "iptables -A INPUT -p tcp -s ${ip} --dport ${toString port} -j ACCEPT";
 in
 {
   networking.firewall = {
