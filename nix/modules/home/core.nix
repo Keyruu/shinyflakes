@@ -92,7 +92,7 @@ in
     jq
     yq
     gh # github cli
-    pkgs-stable.awscli2
+    awscli2
     kubernetes-helm
     kubectx
     kubectl
@@ -115,7 +115,7 @@ in
     diebahn
     wireguard-ui
     discord
-    pkgs-small.vesktop
+    vesktop
     slack
     signal-desktop
     thunderbird
