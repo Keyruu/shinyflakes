@@ -110,6 +110,7 @@
       max-jobs = "auto";
 
       substituters = [
+        "http://cache.keyruu.de:7384"
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
         "https://nixpkgs.cachix.org"
@@ -118,6 +119,7 @@
         "https://niri.cachix.org"
       ];
       trusted-public-keys = [
+        "cache.keyruu.de:BifJnHe/XQhZmmFwLSZttthsXT4u2/L4aeo0k9zV+Kc="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
         "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="

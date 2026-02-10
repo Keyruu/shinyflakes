@@ -22,5 +22,6 @@
     ./glance.nix
     ./forgejo-runner.nix
     ./renovate.nix
+    ./nix-serve.nix
   ];
 }
