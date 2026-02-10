@@ -23,6 +23,6 @@ in
     inherit port;
     openFirewall = false;
     bindAddress = "0.0.0.0";
-    secretKeyFile = config.sops.secrets.nixServeKey;
+    secretKeyFile = config.sops.secrets.nixServeKey.path;
   };
 }
