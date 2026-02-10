@@ -4,6 +4,8 @@ let
   iptablesRule = ip: "iptables -A INPUT -p tcp -s ${ip} --dport ${toString port} -j ACCEPT";
 in
 {
+  sops.secrets.nixServeKey = { };
+
   networking.firewall = {
     interfaces.eth0.allowedTCPPorts = [ port ];
     extraCommands = # sh
