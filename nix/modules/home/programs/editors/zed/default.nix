@@ -1,6 +1,6 @@
 { inputs, pkgs, ... }:
 let
-  pkgs-small = import inputs.nixpkgs-small { inherit (pkgs) system; };
+  pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs) system; };
 in
 {
   imports = [
@@ -11,6 +11,6 @@ in
 
   programs.zed-editor = {
     enable = true;
-    package = pkgs-small.zed-editor;
+    package = pkgs-stable.zed-editor;
   };
 }
