@@ -28,7 +28,7 @@ in
       Alt+E hotkey-overlay-title="Terminal" { spawn-sh "${
         focusOrSpawn "term" "Alacritty" "alacritty"
       }"; }
-      Alt+C hotkey-overlay-title="Browser" { spawn-sh "${focusOrSpawn null "zen-beta" "zen"}"; }
+      Alt+C hotkey-overlay-title="Browser" { spawn-sh "${focusOrSpawn null "zen-beta" "zen-beta"}"; }
       Alt+V hotkey-overlay-title="Code Editor" { spawn-sh "${
         focusOrSpawn "ide" "dev.zed.Zed" "zeditor"
       }"; }
