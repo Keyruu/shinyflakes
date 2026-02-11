@@ -62,9 +62,7 @@ in
             ];
             exec = "mosquitto -c /mosquitto/config/mqtt.conf";
             networks = [ networks.mqtt.ref ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
+            networkAliases = [ "mqtt" ];
           };
           serviceConfig = {
             Restart = "always";
