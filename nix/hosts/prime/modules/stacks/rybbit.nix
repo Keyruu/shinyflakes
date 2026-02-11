@@ -47,7 +47,7 @@ in
   virtualisation.quadlet =
     let
       # renovate: datasource=docker depName=ghcr.io/rybbit-io/rybbit-backend
-      rybbitVersion = "v2.3.1";
+      rybbitVersion = "v2.4.0";
       inherit (config.virtualisation.quadlet) networks;
     in
     {
