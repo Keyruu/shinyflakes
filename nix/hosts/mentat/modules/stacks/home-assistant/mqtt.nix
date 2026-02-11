@@ -40,7 +40,10 @@ in
     };
   };
 
-  networking.firewall.interfaces."mqtt".allowedUDPPorts = [ 53 ];
+  networking.firewall.interfaces."mqtt".allowedUDPPorts = [
+    53
+    5353
+  ];
   virtualisation.quadlet =
     let
       inherit (config.virtualisation.quadlet) networks;
