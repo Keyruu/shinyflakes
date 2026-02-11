@@ -45,7 +45,10 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
-      networks.mqtt.networkConfig.driver = "bridge";
+      networks.mqtt.networkConfig = {
+        driver = "bridge";
+        podmanArgs = [ "--interface-name=mqtt" ];
+      };
       containers = {
         mqtt = {
           containerConfig = {
