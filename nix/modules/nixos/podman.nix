@@ -4,7 +4,7 @@
     pkgs.docker-compose
   ];
 
-  networking.firewall.interfaces."podman+".allowedUDPPorts = [ 53 ];
+  networking.firewall.interfaces."podman".allowedUDPPorts = [ 53 ];
 
   virtualisation.podman = {
     enable = true;
