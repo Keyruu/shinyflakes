@@ -4,11 +4,6 @@
     pkgs.docker-compose
   ];
 
-  networking.firewall.interfaces."podman+".allowedUDPPorts = [
-    53
-    5353
-  ];
-
   virtualisation.podman = {
     enable = true;
     autoPrune.enable = true;
