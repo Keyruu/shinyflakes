@@ -3,11 +3,6 @@
   ...
 }:
 {
-  sops.secrets.aercAccounts = {
-    mode = "0600";
-    path = ".config/aerc/accounts.conf";
-  };
-
   programs = {
     aerc = {
       enable = true;
@@ -292,20 +287,6 @@
 
     msmtp.enable = true;
     mbsync.enable = true;
-  };
-
-  accounts.email = {
-    maildirBasePath = ".mail";
-    # accounts.notmuch = {
-    #   realName = "notmuch";
-    #   address = "notmuch@localhost";
-    #   aerc = {
-    #     enable = true;
-    #     extraAccounts.source = "notmuch://~/.mail";
-    #     extraBinds.messages."r" = '':reply -aqA {{index (.Filename | split ("/")) 4}}<Enter>'';
-    #     extraBinds.view."r" = '':reply -aqA {{index (.Filename | split ("/")) 4}}<Enter>'';
-    #   };
-    # };
   };
 
   services = {

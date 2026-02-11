@@ -1,4 +1,4 @@
-{ ... }:
+{ flake, ... }:
 {
   imports = [
     ./core.nix
@@ -14,7 +14,11 @@
     ./themes/theme.nix
 
     ./calendar.nix
+    flake.modules.private.calendar
+
     ./mail.nix
+    flake.modules.private.mail
+
     ./gaming.nix
     ./mpv.nix
     ./nix-index-database.nix
