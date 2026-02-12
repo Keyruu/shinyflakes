@@ -22,7 +22,7 @@ in
   virtualisation.quadlet.containers = {
     media-bazarr = {
       containerConfig = {
-        image = "ghcr.io/hotio/bazarr:release-1.5.3";
+        image = "ghcr.io/hotio/bazarr:release-1.5.5";
         environments = {
           PUID = "0";
           PGID = "0";
