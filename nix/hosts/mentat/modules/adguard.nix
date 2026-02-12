@@ -64,6 +64,11 @@ in
             }
             {
               enabled = true;
+              domain = "cache.keyruu.de";
+              answer = "192.168.100.7";
+            }
+            {
+              enabled = true;
               domain = "*.port.peeraten.net";
               answer = "192.168.100.7";
             }
