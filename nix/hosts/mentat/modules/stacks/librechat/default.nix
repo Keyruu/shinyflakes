@@ -146,7 +146,7 @@ in
 
         "${stackName}-rag-api" = {
           containerConfig = {
-            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:86a9b2202f740c1e737b4587de28faa81a131c4c616f832259bcea77096dd6a0";
+            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:293ebcfdc7118a8e7b67e569ccc278bd07e999e9718ce3c8bfa5bdbcafa40e88";
             environments = {
               DB_HOST = "${stackName}-vectordb";
               inherit RAG_PORT;
