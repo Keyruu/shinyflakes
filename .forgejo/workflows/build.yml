@@ -11,8 +11,9 @@ jobs:
       - uses: actions/checkout@v6
       - name: Fetch submodules
         run: |
-          git config url."https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/".insteadOf "ssh://git@git.lab.keyruu.de:222/"
-          git submodule update --init --recursive
+          git submodule init
+          git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
+          git submodule update --recursive
       - name: Build
         run: nixos-rebuild build --flake .?submodules=1#${{ matrix.flake }} --max-jobs 1
 
