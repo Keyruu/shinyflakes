@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   port = 7384;
   iptablesRule = ip: "iptables -A INPUT -p tcp -s ${ip} --dport ${toString port} -j ACCEPT";
@@ -20,6 +25,7 @@ in
 
   services.nix-serve = {
     enable = true;
+    package = pkgs.nix-serve-ng;
     inherit port;
     openFirewall = false;
     bindAddress = "0.0.0.0";
