@@ -42,7 +42,7 @@
       endpoint = "https://git.keyruu.de";
       gitAuthor = "Renovate <renovate@keyruu.de>";
       platform = "forgejo";
-      platformAutomerge = true;
+      platformAutomerge = false;
       automergeStrategy = "rebase";
       autodiscover = true;
 
@@ -65,7 +65,8 @@
       lockFileMaintenance = {
         enabled = true;
         automerge = true;
-        schedule = [ "* * * * *" ];
+        automergeType = "branch";
+        schedule = [ "daily" ];
       };
       osvVulnerabilityAlerts = true;
 
@@ -84,5 +85,4 @@
       config.nix.package
     ];
   };
-
 }
