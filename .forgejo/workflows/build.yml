@@ -9,6 +9,10 @@ jobs:
         flake: [mentat, muadib, prime]
     steps:
       - uses: actions/checkout@v6
+      - name: Fetch submodules
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.lab.keyruu.de/".insteadOf "ssh://git@git.lab.keyruu.de:222/"
+          git submodule update --init --recursive
       - name: Build
-        run: nixos-rebuild build --flake .#${{ matrix.flake }} --max-jobs 1
+        run: nixos-rebuild build --flake .?submodules=1#${{ matrix.flake }} --max-jobs 1
 

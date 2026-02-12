@@ -20,7 +20,25 @@ in
     ./zsh.nix
   ];
 
-  # add environment variables
+  sops.secrets = {
+    openaiKey = { };
+    anthropicKey = { };
+    geminiKey = { };
+    mammouthKey = { };
+    hcloudToken = { };
+    cloudflareToken = { };
+  };
+  sops.templates."shell.env".content = ''
+    OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
+    ANTHROPIC_API_KEY=${config.sops.placeholder.anthropicKey}
+    GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
+    MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
+    CLOUDFLARE_API_TOKEN=${config.sops.placeholder.cloudflareToken}
+    HCLOUD_TOKEN=${config.sops.placeholder.hcloudToken}
+    TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}
+    TF_VAR_hcloud_token=${config.sops.placeholder.hcloudToken}
+  '';
+
   home.sessionVariables = {
     # clean up ~
     LESSHISTFILE = cache + "/less/history";
@@ -54,8 +72,8 @@ in
     vi = "nvim";
     ".." = "cd ..";
     "..." = "cd ../..";
-    deploy-mentat = "nixos-rebuild --flake ~/shinyflakes#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --fast";
-    deploy-prime = "nixos-rebuild --flake ~/shinyflakes#prime switch --target-host root@prime --build-host root@prime --fast";
+    deploy-mentat = "nixos-rebuild --flake ~/shinyflakes#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";
+    deploy-prime = "nixos-rebuild --flake ~/shinyflakes#prime switch --target-host root@prime --build-host root@prime --no-reexec";
   };
 
   programs = {

@@ -1,31 +1,27 @@
 { flake, ... }:
 {
-  imports = [
-    ./core.nix
-    ./wm
-    ./shell
-    ./programs
-    ./scripts
-    ./clipse.nix
-    # ./dunst.nix
-    # ./swaync.nix
-    # ./tofi.nix
+  imports = with flake.modules.home; [
+    core
+    wm
+    shell
+    programs
+    scripts
+    clipse
 
     ./themes/theme.nix
 
-    ./calendar.nix
+    calendar
     flake.modules.private.calendar
 
-    ./mail.nix
+    mail
     flake.modules.private.mail
 
-    ./gaming.nix
-    ./mpv.nix
-    ./nix-index-database.nix
-    ./repos.nix
-    ./ssh.nix
-    ./tailscale.nix
-    ./gaming.nix
-    ./element.nix
+    gaming
+    mpv
+    nix-index-database
+    repos
+    ssh
+    gaming
+    element
   ];
 }

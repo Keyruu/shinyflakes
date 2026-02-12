@@ -19,6 +19,11 @@
 
     functions = {
       starship_transient_rprompt_func = "starship module time";
+      rebuild = # fish
+        ''
+          set config_name (if test (count $argv) -gt 0; echo $argv[1]; else; hostname; end)
+          sudo nixos-rebuild switch --flake ~/shinyflakes\?submodules=1#$config_name
+        '';
     };
 
     shellInit =
@@ -40,14 +45,14 @@
 
         set -x KUBECONFIG (string join ":" $HOME/.kube/*.yaml)
 
-        if test -f "${config.sops.secrets.shellEnv.path}"
+        if test -f "${config.sops.templates."shell.env".path}"
           while read -l line
             if string match -q -v '^#' "$line" && string match -q '*=*' "$line"
               set -gx (string split -m1 '=' "$line")
             end
-          end < "${config.sops.secrets.shellEnv.path}"
+          end < "${config.sops.templates."shell.env".path}"
         else
-          echo "Warning: SOPS secrets file not found at ${config.sops.secrets.shellEnv.path}" >&2
+          echo "Warning: SOPS secrets file not found at ${config.sops.templates."shell.env".path}" >&2
         end
 
         function last_history_item
