@@ -66,7 +66,7 @@
         enabled = true;
         automerge = true;
         automergeType = "branch";
-        schedule = [ "daily" ];
+        schedule = [ "30 4 * * *" ];
       };
       osvVulnerabilityAlerts = true;
 
