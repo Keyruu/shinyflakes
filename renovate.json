@@ -11,7 +11,7 @@
         "/\\.nix$/"
       ],
       "matchStrings": [
-        "image\\s*=\\s*\"(?<depName>[^:]+):(?<currentValue>[^\"]+)\""
+        "image\\s*=\\s*\"(?<depName>[^:]+):(?<currentValue>[^@\"]+)(@(?<currentDigest>sha256:[a-f0-9]+))?\""
       ],
       "datasourceTemplate": "docker"
     },
