@@ -34,8 +34,34 @@
         "/valkey/",
         "/clickhouse/",
         "/meilisearch/",
-        "/alpine-chrome/"
+        "/alpine-chrome/",
+        "/pgvector"
       ]
+    },
+    {
+      "description": "hotio images with release- prefix",
+      "matchPackagePatterns": ["^ghcr\\.io/hotio/"],
+      "versioning": "regex:^release-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(\\.(?<build>\\d+))?$"
+    },
+    {
+      "description": "Terraria with terraria- prefix",
+      "matchPackageNames": ["docker.io/passivelemon/terraria-docker"],
+      "versioning": "regex:^terraria-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)$"
+    },
+    {
+      "description": "Hytale experimental prefix",
+      "matchPackageNames": ["docker.io/deinfreu/hytale-server"],
+      "versioning": "regex:^experimental-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "description": "Calibre-web with V prefix",
+      "matchPackageNames": ["crocodilestick/calibre-web-automated"],
+      "versioning": "regex:^V(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "description": "Scrutiny with v-prefix and -omnibus suffix",
+      "matchPackageNames": ["ghcr.io/analogj/scrutiny"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-omnibus$"
     }
   ]
 }

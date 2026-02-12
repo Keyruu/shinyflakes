@@ -4,7 +4,6 @@
 
     ./zigbee2mqtt.nix
     ./mqtt.nix
-    ./matter-hub.nix
     ./esphome.nix
     ./music-assistant.nix
     ./matter.nix

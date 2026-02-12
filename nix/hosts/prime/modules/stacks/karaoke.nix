@@ -20,7 +20,7 @@ in
 
   virtualisation.quadlet.containers.pikaraoke = {
     containerConfig = {
-      image = "docker.io/vicwomg/pikaraoke:latest";
+      image = "docker.io/vicwomg/pikaraoke:1.18.4";
       publishPorts = [ "127.0.0.1:5555:5555" ];
       exec = [
         "-u"
