@@ -19,7 +19,7 @@ in
 
   virtualisation.quadlet.containers.openthread = {
     containerConfig = {
-      image = "docker.io/openthread/border-router:latest@sha256:22b429eeb3b9e4d2e37edb339e3e29ffc50387092ce332ded31aadc7c580c746";
+      image = "docker.io/openthread/border-router:latest@sha256:8b9e86a08d53d6da18dc0fa1917e0149523e2beff6606d3b2776c8b69189e877";
       environments = {
         TZ = "Europe/Berlin";
         OT_RCP_DEVICE = "spinel+hdlc+uart:///dev/ttyACM69?uart-baudrate=460800";
