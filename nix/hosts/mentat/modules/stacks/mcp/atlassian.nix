@@ -62,24 +62,24 @@ in
     };
   };
 
-  systemd.services.mcpo-atlassian = {
-    description = "mcpo-atlassian";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = ''
-        ${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm \
-        -e CONFLUENCE_URL \
-        -e CONFLUENCE_USERNAME \
-        -e CONFLUENCE_API_TOKEN \
-        -e JIRA_URL \
-        -e JIRA_USERNAME \
-        -e JIRA_API_TOKEN \
-        ghcr.io/sooperset/mcp-atlassian:${mcpVersion}
-      '';
-      User = "root";
-      Group = "root";
-      Restart = "always";
-      EnvironmentFile = config.sops.templates."mcp-atlassian.env".path;
-    };
-  };
+  # systemd.services.mcpo-atlassian = {
+  #   description = "mcpo-atlassian";
+  #   wantedBy = [ "multi-user.target" ];
+  #   serviceConfig = {
+  #     ExecStart = ''
+  #       ${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm \
+  #       -e CONFLUENCE_URL \
+  #       -e CONFLUENCE_USERNAME \
+  #       -e CONFLUENCE_API_TOKEN \
+  #       -e JIRA_URL \
+  #       -e JIRA_USERNAME \
+  #       -e JIRA_API_TOKEN \
+  #       ghcr.io/sooperset/mcp-atlassian:${mcpVersion}
+  #     '';
+  #     User = "root";
+  #     Group = "root";
+  #     Restart = "always";
+  #     EnvironmentFile = config.sops.templates."mcp-atlassian.env".path;
+  #   };
+  # };
 }

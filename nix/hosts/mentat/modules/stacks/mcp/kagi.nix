@@ -43,15 +43,15 @@ in
     };
   };
 
-  systemd.services.mcpo-kagi = {
-    description = "mcpo-kagi";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${pkgs.uv}/bin/uvx kagimcp";
-      EnvironmentFile = config.sops.templates."mcp-kagi.env".path;
-      User = "root";
-      Group = "root";
-      Restart = "always";
-    };
-  };
+  # systemd.services.mcpo-kagi = {
+  #   description = "mcpo-kagi";
+  #   wantedBy = [ "multi-user.target" ];
+  #   serviceConfig = {
+  #     ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${pkgs.uv}/bin/uvx kagimcp";
+  #     EnvironmentFile = config.sops.templates."mcp-kagi.env".path;
+  #     User = "root";
+  #     Group = "root";
+  #     Restart = "always";
+  #   };
+  # };
 }

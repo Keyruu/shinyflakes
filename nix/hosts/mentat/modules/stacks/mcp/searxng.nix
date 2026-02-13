@@ -33,17 +33,17 @@ in
     };
   };
 
-  systemd.services.mcpo-searxng = {
-    description = "mcpo-searxng";
-    wantedBy = [ "multi-user.target" ];
-    environment = {
-      SEARXNG_URL = "http://127.0.0.1:4899";
-    };
-    serviceConfig = {
-      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e SEARXNG_URL --network host isokoliuk/mcp-searxng:${mcpVersion}";
-      User = "root";
-      Group = "root";
-      Restart = "always";
-    };
-  };
+  # systemd.services.mcpo-searxng = {
+  #   description = "mcpo-searxng";
+  #   wantedBy = [ "multi-user.target" ];
+  #   environment = {
+  #     SEARXNG_URL = "http://127.0.0.1:4899";
+  #   };
+  #   serviceConfig = {
+  #     ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e SEARXNG_URL --network host isokoliuk/mcp-searxng:${mcpVersion}";
+  #     User = "root";
+  #     Group = "root";
+  #     Restart = "always";
+  #   };
+  # };
 }

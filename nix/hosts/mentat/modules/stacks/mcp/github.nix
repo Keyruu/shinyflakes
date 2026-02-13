@@ -43,15 +43,15 @@ in
     };
   };
 
-  systemd.services.mcpo-github = {
-    description = "mcpo-github";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server:${mcpVersion}";
-      User = "root";
-      Group = "root";
-      Restart = "always";
-      EnvironmentFile = config.sops.templates."mcp-github.env".path;
-    };
-  };
+  # systemd.services.mcpo-github = {
+  #   description = "mcpo-github";
+  #   wantedBy = [ "multi-user.target" ];
+  #   serviceConfig = {
+  #     ExecStart = "${lib.getExe perSystem.self.mcpo} --port ${toString oapiPort} --host 0.0.0.0 -- ${lib.getExe pkgs.podman} run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server:${mcpVersion}";
+  #     User = "root";
+  #     Group = "root";
+  #     Restart = "always";
+  #     EnvironmentFile = config.sops.templates."mcp-github.env".path;
+  #   };
+  # };
 }
