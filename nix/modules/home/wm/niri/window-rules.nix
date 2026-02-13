@@ -51,6 +51,7 @@ _:
       match app-id=r#"^signal$"#
       match app-id=r#"^vesktop$"#
       match app-id=r#"^fluffychat$"#
+      match app-id=r#"^Element$"#
       open-on-workspace "social"
       default-column-width { proportion 0.666; }
   }
