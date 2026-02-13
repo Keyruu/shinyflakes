@@ -15,7 +15,7 @@ in
     interfaces.eth0.allowedTCPPorts = [ port ];
     extraCommands = # sh
       ''
-        iptablesRule "100.67.0.1"
+        ${iptablesRule "100.67.0.1"}
         ${lib.pipe config.services.mesh.people.lucas.devices [
           (lib.mapAttrsToList (_: device: iptablesRule device.ip))
           (lib.concatStringsSep "\n")
