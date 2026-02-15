@@ -70,13 +70,10 @@ in
               DATA_DIR = "/data";
             };
             environmentFiles = [ config.sops.templates."karakeep.env".path ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
             networks = [ networks.karakeep.ref ];
           };
           serviceConfig = {
-            Restart = "unless-stopped";
+            Restart = "always";
           };
           unitConfig = {
             After = [
@@ -92,21 +89,18 @@ in
 
         karakeep-chrome = {
           containerConfig = {
-            # renovate: ignore
             image = "gcr.io/zenika-hub/alpine-chrome:124";
             exec = "--no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --enable-features=ConversionMeasurement,AttributionReportingCrossAppWeb --hide-scrollbars";
             networks = [ networks.karakeep.ref ];
             networkAliases = [ "chrome" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
-            Restart = "unless-stopped";
+            Restart = "always";
           };
         };
 
         karakeep-meilisearch = {
           containerConfig = {
-            # renovate: ignore
             image = "getmeili/meilisearch:v1.13.3";
             environments = {
               MEILI_NO_ANALYTICS = "true";
@@ -117,10 +111,9 @@ in
             ];
             networks = [ networks.karakeep.ref ];
             networkAliases = [ "meilisearch" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
-            Restart = "unless-stopped";
+            Restart = "always";
           };
         };
       };

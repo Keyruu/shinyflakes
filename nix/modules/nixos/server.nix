@@ -1,4 +1,8 @@
-{ flake, pkgs, ... }:
+{
+  flake,
+  pkgs,
+  ...
+}:
 {
   imports = [
     flake.modules.nixos.headless

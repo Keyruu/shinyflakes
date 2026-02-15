@@ -8,6 +8,8 @@
 }:
 {
   imports = [
+    inputs.nix-topology.nixosModules.default
+
     ./settings.nix
   ];
 

@@ -96,7 +96,7 @@ in
       libva-utils
       lutris-free
       (bottles.override { removeWarningPopup = true; })
-      (wineWowPackages.full.override {
+      (wineWow64Packages.full.override {
         wineRelease = "staging";
         mingwSupport = true;
       })

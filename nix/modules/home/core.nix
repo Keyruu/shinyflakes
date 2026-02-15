@@ -211,6 +211,7 @@ in
     zerotierone
     feishin
     lmstudio
+    winboat
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

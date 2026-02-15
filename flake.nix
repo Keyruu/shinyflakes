@@ -78,6 +78,12 @@
 
     pog.url = "github:jpetrucciani/pog";
 
+    flake-utils.url = "github:numtide/flake-utils";
+    nix-topology = {
+      url = "github:Keyruu/nix-topology";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # workstation
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -147,5 +153,21 @@
       githubActions.matrix = {
         host = builtins.attrNames blueprintOutputs.nixosConfigurations;
       };
-    };
+    }
+    // inputs.flake-utils.lib.eachDefaultSystem (system: rec {
+      pkgs = import inputs.nixpkgs {
+        inherit system;
+        overlays = [ inputs.nix-topology.overlays.default ];
+      };
+
+      topology = import inputs.nix-topology {
+        inherit pkgs;
+        modules = [
+          # Your own file to define global topology. Works in principle like a nixos module but uses different options.
+          # ./topology.nix
+          # Inline module to inform topology of your existing NixOS hosts.
+          { inherit (inputs.self) nixosConfigurations; }
+        ];
+      };
+    });
 }
