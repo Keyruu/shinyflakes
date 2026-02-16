@@ -5,13 +5,13 @@
 My personal NixOS setup. Everything from servers to desktops to laptops, all
 defined in one git repo. Because if it's not in git, did it even happen?
 
-## Why Though?
+## Why NixOS?
 
 I use NixOS to manage my homelab and it's been pretty awesome having my whole
 infrastructure version-controlled. No more "it worked on my machine" moments -
 my machines ARE the configuration.
 
-The secret sauce here is using
+The real killer here is using
 [Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 (via [quadlet-nix](https://github.com/SEIAROTg/quadlet-nix)) for container
 management.
@@ -30,7 +30,7 @@ docker-compose when one thing breaks. Plus, Nix lets me do cool stuff like
 ensuring directories exist before mounting them, templating configs with
 secrets, and using actual Nix references between resources.
 
-## The Fleet
+## My machines (Can you guess the theme?)
 
 ### mentat - Main homelab server (x86_64-linux)
 
@@ -80,7 +80,7 @@ Shares most of the config with the laptops, but of course has:
 
 - **Gaming**: Steam + Lutris for procrastination
 
-## The Good Stuff
+## Components
 
 ### Quadlet for Container Management
 
@@ -102,10 +102,14 @@ can't tell what's broken.
 All secrets are encrypted with [sops-nix](https://github.com/Mic92/sops-nix)
 using age keys. That means I can commit my secrets to git (encrypted, obviously)
 and they get decrypted on the hosts. Each host has its own key, containers
-restart automatically when secrets change, and I don't have to worry about
+restart automatically when secrets change and I don't have to worry about
 accidentally leaking API keys.
 
-Check out the nginx reverse proxy modules for examples of how this works.
+Another reason to use SOPS is that it enables me to have templates to basically
+inject secrets into a config file for services.
+
+For an example on this look at my forgejo setup. (You have to search it because
+I will probably restructure at some point.)
 
 ### Networking
 
@@ -115,6 +119,7 @@ Check out the nginx reverse proxy modules for examples of how this works.
 - **Nginx** reverse proxy with automatic Let's Encrypt SSL via Cloudflare DNS
   challenges. And a whitelist to not allow everybody on the mesh to access every
   service.
+- **Caddy** on `prime` with Coraza WAF to keep all the bad guys out.
 
 ### Storage
 
@@ -141,7 +146,7 @@ Check out the nginx reverse proxy modules for examples of how this works.
   - Hetzner Cloud resources
   - S3 backend in Cloudflare R2 for state management
 
-## How It's Structured (Blueprint Edition)
+## How It's Structured (Using Blueprint instead of flake-parts)
 
 I recently restructured everything using
 [blueprint](https://github.com/numtide/blueprint), which is basically a
@@ -171,7 +176,7 @@ nix/
 │   │       ├── adguard.nix
 │   │       └── ...
 │   ├── prime/
-│   ├── thopter/
+│   └── thopter/
 ├── modules/           # Shared/reusable modules
 │   ├── nixos/        # NixOS modules
 │   ├── darwin/       # nix-darwin modules
@@ -192,7 +197,10 @@ Blueprint automatically:
 It's pretty neat. No more manually maintaining a giant `flake.nix` with all the
 outputs.
 
-## The Dependencies
+## Dependencies
+
+This changes a lot as I'm working on my config daily, for the most up-to-date
+info look into the `flake.nix`.
 
 - **nixpkgs** (+ stable/small variants) - The Nix packages, multiple channels
   for flexibility
@@ -216,13 +224,11 @@ outputs.
 - **copyparty** - Simple file sharing server
 - **sirberus** - My own project integration
 
-## Secrets Management
+## How To's
 
-All secrets are encrypted with sops-nix and stored in `nix/secrets.yaml`. Each
-host has its own age key derived from its SSH host key, so secrets are
-automatically decrypted on the right machines.
+### Secrets Management
 
-### Adding a New Host
+#### Adding a New Host
 
 When you add a new machine, you need to give it access to secrets:
 
@@ -237,7 +243,7 @@ Add the output to `.sops.yaml` as a new `server_*` key, then re-encrypt secrets:
 sops updatekeys nix/secrets.yaml
 ```
 
-### Adding New Secrets
+#### Adding New Secrets
 
 Edit the secrets file with sops:
 
@@ -264,22 +270,22 @@ sops.templates."my-service.env" = {
 
 Check out `CLAUDE.md` or any of the stack modules for more examples.
 
-## Installing a New Host
+### Installing a New Host
 
-### Prerequisites
+#### Prerequisites
 
 - NixOS minimal ISO USB drive
 - Internet connection (Ethernet or WiFi)
 - Your disk partition scheme ready (check the disko configs in
   `nix/hosts/*/disko.nix`)
 
-### Installation Steps
+#### Installation Steps
 
-#### 1. Boot the Installer
+##### 1. Boot the Installer
 
 Boot from the NixOS minimal ISO and wait for the prompt.
 
-#### 2. Connect to Internet
+##### 2. Connect to Internet
 
 **Ethernet:** Should work automatically.
 
@@ -301,14 +307,14 @@ wpa_cli
 ping nixos.org
 ```
 
-#### 3. Copy the flake
+##### 3. Copy the flake
 
 ```bash
 git clone https://github.com/Keyruu/shinyflakes.git
 cd shinyflakes
 ```
 
-#### 4. Identify Your Disk
+##### 4. Identify Your Disk
 
 Before partitioning, make sure you know which disk you're targeting:
 
@@ -323,7 +329,7 @@ ls -l /dev/disk/by-id/
 Update your disko configuration to use the correct disk path. Using
 `/dev/disk/by-id/` is recommended for consistency.
 
-#### 5. Partition with Disko
+##### 5. Partition with Disko
 
 **Warning:** This will erase your disk. Double-check you're targeting the right
 device!
@@ -338,7 +344,7 @@ mount | grep /mnt
 df -h
 ```
 
-#### 6. Generate Hardware Configuration
+##### 6. Generate Hardware Configuration
 
 ```bash
 # Generate hardware config WITHOUT filesystem definitions (disko handles that)
@@ -349,7 +355,7 @@ sudo nixos-generate-config --no-filesystems --root /mnt
 sudo cp /mnt/etc/nixos/hardware-configuration.nix ./nix/hosts/hostname/
 ```
 
-#### 7. Copy Configuration to System
+##### 7. Copy Configuration to System
 
 ```bash
 # Copy the entire flake to the system partition
@@ -359,13 +365,13 @@ sudo cp -r ./ /mnt/etc/nixos/
 ls -la /mnt/etc/nixos/
 ```
 
-#### 8. Install NixOS
+##### 8. Install NixOS
 
 ```bash
 sudo nixos-install --flake /mnt/etc/nixos#hostname
 ```
 
-#### 9. Set User Password
+##### 9. Set User Password
 
 ```bash
 # If needed, set your user password
@@ -374,7 +380,7 @@ passwd lucas
 exit
 ```
 
-#### 10. Reboot
+##### 10. Reboot
 
 ```bash
 # Unmount and reboot
@@ -386,13 +392,13 @@ Remove the USB drive when prompted. Your system should now boot into your
 configured NixOS installation, with the flake configuration already present in
 `/etc/nixos/`.
 
-## Secure Boot with Lanzaboote
+### Secure Boot with Lanzaboote
 
 If you want secure boot (and who doesn't?), you can set it up after
 installation. Lanzaboote gives you secure boot on NixOS with automatic signing
 of your kernel and initrd.
 
-### Prerequisites
+#### Prerequisites
 
 Make sure your host config includes Lanzaboote:
 
@@ -408,7 +414,7 @@ Make sure your host config includes Lanzaboote:
 }
 ```
 
-### Setup Steps
+#### Setup Steps
 
 1. **Boot into your new NixOS system** and make sure Lanzaboote is configured.
 
@@ -446,7 +452,7 @@ Your system should now boot with secure boot enabled. You can verify with:
 sudo sbctl status
 ```
 
-### TPM2 Disk Encryption
+#### TPM2 Disk Encryption
 
 If you're using LUKS encryption and have a TPM2 chip, you can unlock your disk
 automatically on boot:
@@ -470,7 +476,7 @@ and nothing in the boot chain has been tampered with.
 **Warning:** If you change BIOS settings or disable secure boot, you'll need to
 manually enter your password. Keep that recovery key handy.
 
-## Deploying Updates
+### Deploying Updates
 
 Once you have a host installed, deploying changes is straightforward:
 
@@ -514,7 +520,7 @@ components (packages, flakes, etc.) have their own licenses - check those too.
 - [@SEIAROTg](https://github.com/SEIAROTg) for quadlet-nix and actually
   implementing features I requested
 - [@joinemm](https://github.com/joinemm) for having a great config to yoink from
-  (seriously a lot of this has been copied from his conifg) and showing me
+  (seriously a lot of this has been copied from his conifg) and for showing me
   NixOS!
 - [@Mic92](https://github.com/Mic92) for building what feels like half of the
   Nix ecosystem

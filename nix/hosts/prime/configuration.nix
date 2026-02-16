@@ -5,6 +5,9 @@
   pkgs,
   ...
 }:
+let
+  inherit (config.services) mesh;
+in
 {
   imports = [
     inputs.disko.nixosModules.disko
@@ -26,28 +29,28 @@
 
   sops = {
     secrets = {
-      cloudflare.owner = "root";
+      cloudflare = { };
+      resticServerPassword = { };
     };
+    templates."resticRepo".content =
+      "rest:http://lucas:${config.sops.placeholder.resticServerPassword}@${mesh.people.lucas.devices.mentat.ip}:8004/restic";
   };
 
-  services =
-    let
-      inherit (config.services) mesh;
-    in
-    {
-      mesh.server.enable = true;
-      monitoring = {
-        metrics = {
-          enable = true;
-          inherit (mesh) interface;
-        };
-        logs = {
-          enable = true;
-          instance = "100.67.0.1";
-          lokiAddress = "http://${mesh.people.lucas.devices.mentat.ip}:3030";
-        };
+  services = {
+    mesh.server.enable = true;
+    monitoring = {
+      metrics = {
+        enable = true;
+        inherit (mesh) interface;
+      };
+      logs = {
+        enable = true;
+        instance = "100.67.0.1";
+        lokiAddress = "http://${mesh.people.lucas.devices.mentat.ip}:3030";
       };
     };
+    restic.defaultRepoFile = config.sops.templates."resticRepo".path;
+  };
 
   environment.systemPackages = with pkgs; [
     vim

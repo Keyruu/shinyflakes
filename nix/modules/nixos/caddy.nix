@@ -58,6 +58,11 @@
 
       globalConfig = ''
         order coraza_waf first
+        servers {
+          trusted_proxies static ${lib.concatStringsSep " " ips}
+          trusted_proxies_strict
+          client_ip_headers Cf-Connecting-Ip X-Forwarded-For
+        }
       '';
 
       extraConfig = ''

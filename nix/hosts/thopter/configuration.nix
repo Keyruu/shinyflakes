@@ -63,6 +63,7 @@ in
     inherit (mesh.people.lucas.devices.thopter) ip;
     client = {
       enable = true;
+      autostart = false;
       keyName = "thopterMeshKey";
       allowedIPs = [
         "192.168.100.0/24"

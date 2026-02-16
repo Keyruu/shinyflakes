@@ -212,6 +212,7 @@ in
     feishin
     lmstudio
     winboat
+    kdePackages.kdeconnect-kde
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

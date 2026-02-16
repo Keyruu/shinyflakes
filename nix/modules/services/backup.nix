@@ -10,7 +10,14 @@ let
 in
 {
   options.services.restic = {
-    defaultRepo = lib.mkOption { type = lib.types.str; };
+    defaultRepo = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+    };
+    defaultRepoFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+    };
 
     backupsWithDefaults = lib.mkOption {
       type = lib.types.attrsOf (
@@ -22,6 +29,7 @@ in
                 config = {
                   initialize = lib.mkDefault true;
                   repository = lib.mkDefault config.services.restic.defaultRepo;
+                  repositoryFile = lib.mkDefault config.services.restic.defaultRepoFile;
                   passwordFile = lib.mkDefault config.sops.secrets.resticPassword.path;
 
                   pruneOpts = [
