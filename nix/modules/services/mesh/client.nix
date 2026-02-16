@@ -56,12 +56,13 @@ in
     services.wstunnel = lib.mkIf mesh.client.ws {
       enable = true;
       clients.wg-tunnel = {
-        connectTo = "wss://mesh.peeraten.net";
+        connectTo = "wss://service.peeraten.net";
         settings = {
           local-to-remote = [
             "udp://127.0.0.1:51234:127.0.0.1:51234"
           ];
           http-upgrade-path-prefix = "api/v1/websocket";
+          tls-sni-override = "service.peeraten.net";
         };
       };
     };

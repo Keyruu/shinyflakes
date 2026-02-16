@@ -42,6 +42,7 @@ in
     inherit (mesh.people.lucas.devices.muadib) ip;
     client = {
       enable = true;
+      ws = true;
       keyName = "muadibMeshKey";
     };
   };

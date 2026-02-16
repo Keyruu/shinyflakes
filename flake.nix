@@ -164,7 +164,7 @@
         inherit pkgs;
         modules = [
           # Your own file to define global topology. Works in principle like a nixos module but uses different options.
-          # ./topology.nix
+          ./nix/topology.nix
           # Inline module to inform topology of your existing NixOS hosts.
           { inherit (inputs.self) nixosConfigurations; }
         ];
