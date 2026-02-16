@@ -3,7 +3,15 @@ let
   repo = "/main/backup/restic";
 in
 {
-  sops.secrets.resticHtpasswd = { };
+  users.groups.restic = { };
+  users.users.restic = {
+    isSystemUser = true;
+    group = "restic";
+  };
+  sops.secrets.resticHtpasswd = {
+    owner = "restic";
+    group = "restic";
+  };
 
   services.restic = {
     defaultRepo = repo;

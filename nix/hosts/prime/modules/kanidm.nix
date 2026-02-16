@@ -33,9 +33,9 @@
 
   services = {
     kanidm = {
+      package = pkgs.kanidmWithSecretProvisioning_1_8;
       server = {
         enable = true;
-        package = pkgs.kanidmWithSecretProvisioning_1_8;
         settings = {
           online_backup.versions = 7;
           origin = "https://auth.peeraten.net";
