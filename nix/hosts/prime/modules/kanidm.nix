@@ -31,42 +31,44 @@
     };
   };
 
-  services.kanidm = {
-    server = {
-      enable = true;
-      package = pkgs.kanidmWithSecretProvisioning_1_8;
-      settings = {
-        online_backup.versions = 7;
-        origin = "https://auth.peeraten.net";
-        domain = "auth.peeraten.net";
-        bindaddress = "127.0.0.1:8010";
-        tls_chain = "${config.security.acme.certs."auth.peeraten.net".directory}/fullchain.pem";
-        tls_key = "${config.security.acme.certs."auth.peeraten.net".directory}/key.pem";
+  services = {
+    kanidm = {
+      server = {
+        enable = true;
+        package = pkgs.kanidmWithSecretProvisioning_1_8;
+        settings = {
+          online_backup.versions = 7;
+          origin = "https://auth.peeraten.net";
+          domain = "auth.peeraten.net";
+          bindaddress = "127.0.0.1:8010";
+          tls_chain = "${config.security.acme.certs."auth.peeraten.net".directory}/fullchain.pem";
+          tls_key = "${config.security.acme.certs."auth.peeraten.net".directory}/key.pem";
+        };
       };
-    };
-    provision = {
-      enable = true;
-      autoRemove = true;
-      adminPasswordFile = config.sops.secrets.kanidmAdminPassword.path;
-      idmAdminPasswordFile = config.sops.secrets.kanidmAdminPassword.path;
-      groups = {
-        headscale_users = { };
-        traccar_users = { };
-      };
-      systems.oauth2 = {
-        traccar = {
-          present = true;
-          displayName = "traccar.peeraten.net";
-          allowInsecureClientDisablePkce = true;
-          basicSecretFile = config.sops.secrets.traccarClientSecret.path;
-          originUrl = "https://traccar.peeraten.net/api/session/openid/callback";
-          originLanding = "https://traccar.peeraten.net/";
-          scopeMaps = {
-            traccar_users = [
-              "openid"
-              "email"
-              "profile"
-            ];
+      provision = {
+        enable = true;
+        autoRemove = true;
+        adminPasswordFile = config.sops.secrets.kanidmAdminPassword.path;
+        idmAdminPasswordFile = config.sops.secrets.kanidmAdminPassword.path;
+        groups = {
+          headscale_users = { };
+          traccar_users = { };
+        };
+        systems.oauth2 = {
+          traccar = {
+            present = true;
+            displayName = "traccar.peeraten.net";
+            allowInsecureClientDisablePkce = true;
+            basicSecretFile = config.sops.secrets.traccarClientSecret.path;
+            originUrl = "https://traccar.peeraten.net/api/session/openid/callback";
+            originLanding = "https://traccar.peeraten.net/";
+            scopeMaps = {
+              traccar_users = [
+                "openid"
+                "email"
+                "profile"
+              ];
+            };
           };
         };
       };
