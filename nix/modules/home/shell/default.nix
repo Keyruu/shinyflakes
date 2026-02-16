@@ -72,8 +72,8 @@ in
     vi = "nvim";
     ".." = "cd ..";
     "..." = "cd ../..";
-    deploy-mentat = "nixos-rebuild --flake ~/shinyflakes#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";
-    deploy-prime = "nixos-rebuild --flake ~/shinyflakes#prime switch --target-host root@prime --build-host root@prime --no-reexec";
+    deploy-mentat = "nixos-rebuild --flake ~/shinyflakes?submodules=1#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";
+    deploy-prime = "nixos-rebuild --flake ~/shinyflakes?submodules=1#prime switch --target-host root@prime --build-host root@prime --no-reexec";
   };
 
   programs = {
