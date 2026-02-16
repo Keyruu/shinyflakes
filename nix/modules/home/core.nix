@@ -212,7 +212,6 @@ in
     feishin
     lmstudio
     winboat
-    cinny-desktop
 
     # perSystem.self.numr
     # perSystem.self.glide-browser
