@@ -55,10 +55,15 @@ in
         };
       };
     };
-    services.caddy.virtualHosts = {
-      "service.peeraten.net" = {
-        extraConfig = "reverse_proxy 127.0.0.1:51233";
+    services.caddy.virtualHosts =
+      let
+        config = {
+          extraConfig = "reverse_proxy 127.0.0.1:51233";
+        };
+      in
+      {
+        "service.peeraten.net" = config;
+        "mesh.peeraten.net" = config;
       };
-    };
   };
 }
