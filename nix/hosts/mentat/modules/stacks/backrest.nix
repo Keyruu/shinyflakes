@@ -45,7 +45,7 @@ in
         "${stackPath}/config:/config"
         "${stackPath}/cache:/cache"
         "${stackPath}/tmp:/tmp"
-        "${config.services.restic.defaultRepo}:${config.services.restic.defaultRepo}"
+        "/main/backup/restic:/main/backup/restic"
       ];
     };
   };
