@@ -11,7 +11,6 @@
         owner = "restic";
         group = "restic";
       };
-      resticPassword = { };
       resticServerPassword = { };
       resticB2Password = { };
       b2MentatResticAccessKey = { };
@@ -23,9 +22,9 @@
       "restic-b2.env".content = # sh
         ''
           RESTIC_REPOSITORY=rest:http://lucas:${config.sops.placeholder.resticServerPassword}@127.0.0.1:8004/restic
-          RESTIC_PASSWORD_FILE=${config.sops.resticPassword.path}
+          RESTIC_PASSWORD_FILE=${config.sops.secrets.resticPassword.path}
           RESTIC_REPOSITORY2=s3:https://s3.eu-central-003.backblazeb2.com/keyruu-restic-backup/restic
-          RESTIC_PASSWORD_FILE2=${config.sops.resticB2Password.path}
+          RESTIC_PASSWORD_FILE2=${config.sops.secrets.resticB2Password.path}
           AWS_ACCESS_KEY_ID=${config.sops.placeholder.b2MentatResticAccessKey}
           AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.b2MentatResticSecretKey}
         '';
