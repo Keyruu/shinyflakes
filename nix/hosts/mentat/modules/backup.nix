@@ -54,16 +54,16 @@
 
     script =
       let
-        resticCmd = "${pkgs.restic}/bin/restic -r $RESTIC_REPOSITORY --password-file $RESTIC_PASSWORD_FILE";
+        resticCmd = "${pkgs.restic}/bin/restic";
       in
       # sh
       ''
         ${resticCmd} cat config 2>/dev/null || \
-        ${resticCmd} init
+        env -u RESTIC_FROM_REPOSITORY ${resticCmd} init
 
-        ${resticCmd} copy --from-repo $RESTIC_FROM_REPOSITORY --from-password-file $RESTIC_FROM_PASSWORD_FILE
+        ${resticCmd} copy
 
-        ${resticCmd} forget --prune \
+        env -u RESTIC_FROM_REPOSITORY ${resticCmd} forget --prune \
           --keep-weekly 4 \
           --keep-monthly 4 \
           --keep-yearly 2
