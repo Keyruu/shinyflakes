@@ -11,6 +11,7 @@
         owner = "restic";
         group = "restic";
       };
+      resticPassword = { };
       resticServerPassword = { };
       resticB2Password = { };
       b2MentatResticAccessKey = { };
