@@ -21,10 +21,10 @@
         "rest:http://lucas:${config.sops.placeholder.resticServerPassword}@127.0.0.1:8004/restic";
       "restic-b2.env".content = # sh
         ''
-          RESTIC_REPOSITORY=rest:http://lucas:${config.sops.placeholder.resticServerPassword}@127.0.0.1:8004/restic
-          RESTIC_PASSWORD_FILE=${config.sops.secrets.resticPassword.path}
-          RESTIC_REPOSITORY2=s3:https://s3.eu-central-003.backblazeb2.com/keyruu-restic-backup/restic
-          RESTIC_PASSWORD_FILE2=${config.sops.secrets.resticB2Password.path}
+          RESTIC_FROM_REPOSITORY=rest:http://lucas:${config.sops.placeholder.resticServerPassword}@127.0.0.1:8004/restic
+          RESTIC_FROM_PASSWORD_FILE=${config.sops.secrets.resticPassword.path}
+          RESTIC_REPOSITORY=s3:https://s3.eu-central-003.backblazeb2.com/keyruu-restic-backup/restic
+          RESTIC_PASSWORD_FILE=${config.sops.secrets.resticB2Password.path}
           AWS_ACCESS_KEY_ID=${config.sops.placeholder.b2MentatResticAccessKey}
           AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.b2MentatResticSecretKey}
         '';
@@ -58,21 +58,12 @@
       in
       # sh
       ''
-        ${resticCmd} -r "$RESTIC_REPOSITORY2" \
-          --password-file "$RESTIC_PASSWORD_FILE2" \
-          cat config 2>/dev/null || \
-        ${resticCmd} -r "$RESTIC_REPOSITORY2" \
-          --password-file "$RESTIC_PASSWORD_FILE2" \
-          init
+        ${resticCmd} cat config 2>/dev/null || \
+        ${resticCmd} init
 
-        ${resticCmd} -r "$RESTIC_REPOSITORY" --password-file "$RESTIC_PASSWORD_FILE" \
-          copy \
-          --repo2 "$RESTIC_REPOSITORY2" \
-          --password-file2 "$RESTIC_PASSWORD_FILE2"
+        ${resticCmd} copy
 
-        ${resticCmd} -r "$RESTIC_REPOSITORY2" \
-          --password-file "$RESTIC_PASSWORD_FILE2" \
-          forget --prune \
+        ${resticCmd} forget --prune \
           --keep-weekly 4 \
           --keep-monthly 4 \
           --keep-yearly 2
