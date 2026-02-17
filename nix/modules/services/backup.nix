@@ -46,7 +46,6 @@ in
 
                   timerConfig = lib.mkDefault {
                     OnCalendar = "04:00";
-                    # RandomizedDelaySec = "2h";
                   };
                 };
               }
