@@ -54,14 +54,14 @@
 
     script =
       let
-        resticCmd = "${pkgs.restic}/bin/restic";
+        resticCmd = "${pkgs.restic}/bin/restic -r $RESTIC_REPOSITORY";
       in
       # sh
       ''
         ${resticCmd} cat config 2>/dev/null || \
         ${resticCmd} init
 
-        ${resticCmd} -r "$RESTIC_REPOSITORY" copy --from-repo "$RESTIC_FROM_REPOSITORY"
+        ${resticCmd} copy --from-repo "$RESTIC_FROM_REPOSITORY"  
 
         ${resticCmd} forget --prune \
           --keep-weekly 4 \

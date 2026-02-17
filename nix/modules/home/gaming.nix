@@ -49,16 +49,29 @@
     '';
 
     # fix tmodloader steam join issue
-    desktopEntries.tmodloader = {
-      name = "tModLoader-fixed";
-      exec = "steam-run ./start-tModLoader.sh";
-      settings = {
-        Path = "/home/lucas/.local/share/Steam/steamapps/common/tModLoader";
+    desktopEntries = {
+      tmodloader = {
+        name = "tModLoader-fixed";
+        exec = "steam-run ./start-tModLoader.sh";
+        settings = {
+          Path = "/home/lucas/.local/share/Steam/steamapps/common/tModLoader";
+        };
+        terminal = false;
+        type = "Application";
+        categories = [ "Game" ];
+        icon = "terraria";
       };
-      terminal = false;
-      type = "Application";
-      categories = [ "Game" ];
-      icon = "terraria";
+      # er-seamless = {
+      #   name = "Elden Ring - Seamless Coop";
+      #   exec = "";
+      #   settings = {
+      #     Path = "/home/lucas/.local/share/Steam/steamapps/common/Elden Ring/Game";
+      #   };
+      #   terminal = false;
+      #   type = "Application";
+      #   categories = [ "Game" ];
+      #   icon = "terraria";
+      # };
     };
   };
 
