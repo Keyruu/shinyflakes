@@ -61,7 +61,7 @@
         ${resticCmd} cat config 2>/dev/null || \
         ${resticCmd} init
 
-        ${resticCmd} copy
+        ${resticCmd} -r "$RESTIC_REPOSITORY" copy --from-repo "$RESTIC_FROM_REPOSITORY"
 
         ${resticCmd} forget --prune \
           --keep-weekly 4 \
