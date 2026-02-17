@@ -65,7 +65,8 @@
           --password-file "$RESTIC_PASSWORD_FILE2" \
           init
 
-        ${resticCmd} copy \
+        ${resticCmd} -r "$RESTIC_REPOSITORY" --password-file "$RESTIC_PASSWORD_FILE" \
+          copy \
           --repo2 "$RESTIC_REPOSITORY2" \
           --password-file2 "$RESTIC_PASSWORD_FILE2"
 
