@@ -11,16 +11,19 @@ in
 {
   sops.secrets.nixServeKey = { };
 
-  networking.firewall = {
-    interfaces.eth0.allowedTCPPorts = [ port ];
-    extraCommands = # sh
-      ''
-        ${iptablesRule "100.67.0.1"}
-        ${lib.pipe config.services.mesh.people.lucas.devices [
-          (lib.mapAttrsToList (_: device: iptablesRule device.ip))
-          (lib.concatStringsSep "\n")
-        ]}
-      '';
+  networking = {
+    firewall = {
+      interfaces.eth0.allowedTCPPorts = [ port ];
+      extraCommands = # sh
+        ''
+          ${iptablesRule "100.67.0.1"}
+          ${lib.pipe config.services.mesh.people.lucas.devices [
+            (lib.mapAttrsToList (_: device: iptablesRule device.ip))
+            (lib.concatStringsSep "\n")
+          ]}
+        '';
+    };
+    hosts."127.0.0.1" = [ "cache.keyruu.de" ];
   };
 
   services.nix-serve = {
