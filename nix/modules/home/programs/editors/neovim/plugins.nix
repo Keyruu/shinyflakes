@@ -25,6 +25,9 @@
       yanky-nvim.enable = false;
       yazi-nvim.enable = true;
     };
+    notes = {
+      todo-comments.enable = true;
+    };
 
     assistant = {
       codecompanion-nvim = {

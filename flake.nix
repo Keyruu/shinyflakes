@@ -21,8 +21,6 @@
   inputs = {
     # nixpkgs
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
-    # FIXME: cockpit plugin python version mismatch: https://github.com/NixOS/nixpkgs/pull/486802
-    nixpkgs-cockpit-fix.url = "git+https://github.com/andre4ik3/nixpkgs?shallow=1&ref=cockpit-zfs-fix";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
     nixpkgs-stable.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-25.05";
 

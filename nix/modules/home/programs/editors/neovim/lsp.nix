@@ -135,8 +135,7 @@
       ts.enable = true;
       bash.enable = true;
       css.enable = true;
-      # FIXME: superhtml 0.6.2 is broken
-      html.enable = false;
+      html.enable = true;
       python.enable = true;
       tailwind.enable = true;
       markdown = {

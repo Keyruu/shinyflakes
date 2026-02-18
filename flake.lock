@@ -743,23 +743,6 @@
         "type": "indirect"
       }
     },
-    "nixpkgs-cockpit-fix": {
-      "locked": {
-        "lastModified": 1770201312,
-        "narHash": "sha256-X58kOo4oFsAzQr78PYu76RBpdWB4dN6bHeO1/OLAWOc=",
-        "ref": "cockpit-zfs-fix",
-        "rev": "503c0e88cee0e71237bf843ca371a3e278692684",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/andre4ik3/nixpkgs"
-      },
-      "original": {
-        "ref": "cockpit-zfs-fix",
-        "shallow": true,
-        "type": "git",
-        "url": "https://github.com/andre4ik3/nixpkgs"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1769909678,
@@ -1078,7 +1061,6 @@
         "nix-topology": "nix-topology",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_4",
-        "nixpkgs-cockpit-fix": "nixpkgs-cockpit-fix",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "noctalia": "noctalia",
