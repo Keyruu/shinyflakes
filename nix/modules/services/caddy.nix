@@ -31,12 +31,17 @@ in
             Include @crs-setup.conf.example
             Include @owasp_crs/*.conf
 
-            # remove REQUEST-949-BLOCKING-EVALUATION, REQUEST-932-APPLICATION-ATTACK-RCE.conf, REQUEST-911-METHOD-ENFORCEMENT.conf bc of a lot of false positives
+            # NOTE: remove REQUEST-949-BLOCKING-EVALUATION, REQUEST-932-APPLICATION-ATTACK-RCE.conf, REQUEST-911-METHOD-ENFORCEMENT.conf bc of a lot of false positives
             SecRuleRemoveById 949110
             SecRuleRemoveById 932370
             SecRuleRemoveById 911100
-            # somehow this blocks some http protocol, idfk 
+            # NOTE: somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
+
+            # NOTE: allow forgejo runner gRPC
+            SecRule REQUEST_URI "@beginsWith /api/actions/runner.v1.RunnerService/" "id:1001,phase:1,pass,nolog,ctl:ruleRemoveById=921150"
+            # NOTE: allow .git for forgejo
+            SecRule REQUEST_URI "@rx \.git/" "id:1002,phase:1,pass,nolog,ctl:ruleRemoveById=930130"
           `
         }
       '';
