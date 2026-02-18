@@ -36,6 +36,7 @@ in
       "rest:http://lucas:${config.sops.placeholder.resticServerPassword}@${mesh.people.lucas.devices.mentat.ip}:8004/restic";
   };
 
+  networking.hosts."100.67.0.2" = [ "cache.keyruu.de" ];
   services = {
     mesh.server.enable = true;
     monitoring = {
