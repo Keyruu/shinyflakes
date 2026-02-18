@@ -27,6 +27,15 @@ in
           load_owasp_crs
           directives `
             SecRuleEngine On
+
+            # turn off waf for the forgejo runner service as there are too many cases of false positives
+            SecRule REQUEST_URI "@beginsWith /api/actions/runner.v1.RunnerService/" \
+              "id:1000,\
+              phase:1,\
+              pass,\
+              nolog,\
+              ctl:ruleEngine=Off"
+
             Include @coraza.conf-recommended
             Include @crs-setup.conf.example
             Include @owasp_crs/*.conf
@@ -37,11 +46,6 @@ in
             SecRuleRemoveById 911100
             # NOTE: somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
-
-            # NOTE: allow forgejo runner gRPC
-            SecRule REQUEST_URI "@beginsWith /api/actions/runner.v1.RunnerService/" "id:1001,phase:1,pass,nolog,ctl:ruleRemoveById=921150"
-            # NOTE: allow .git for forgejo
-            SecRule REQUEST_URI "@rx \.git/" "id:1002,phase:1,pass,nolog,ctl:ruleRemoveById=930130"
           `
         }
       '';
