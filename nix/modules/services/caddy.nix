@@ -36,6 +36,14 @@ in
               nolog,\
               ctl:ruleEngine=Off"
 
+            # NOTE: allow .git for forgejo
+            SecRule REQUEST_URI "@rx \.git/" \
+              "id:1002,\
+              phase:1,\
+              pass,\
+              nolog,\
+              ctl:ruleRemoveById=930130"
+
             Include @coraza.conf-recommended
             Include @crs-setup.conf.example
             Include @owasp_crs/*.conf
@@ -46,9 +54,6 @@ in
             SecRuleRemoveById 911100
             # NOTE: somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
-
-            # NOTE: allow .git for forgejo
-            SecRule REQUEST_URI "@rx \.git/" "id:1002,phase:1,pass,nolog,ctl:ruleRemoveById=930130"
           `
         }
       '';
