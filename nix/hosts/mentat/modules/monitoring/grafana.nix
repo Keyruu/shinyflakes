@@ -8,40 +8,54 @@ let
   smallPkgs = import inputs.nixpkgs-small { inherit (pkgs) system; };
 in
 {
-  environment.etc."grafana/dashboards" = {
-    source = ./dashboards;
-    user = "grafana";
+  users = {
+    groups.grafana = { };
+    users.grafana = {
+      isSystemUser = true;
+      group = "grafana";
+    };
+  };
+
+  sops.secrets.grafanaSecretKey = {
+    owner = "grafana";
     group = "grafana";
   };
 
-  # Create a home dashboard that lists all dashboards
-  environment.etc."grafana/home.json".text = builtins.toJSON {
-    title = "Home";
-    uid = "home";
-    editable = false;
-    hideControls = false;
-    panels = [
-      {
-        id = 1;
-        type = "dashlist";
-        title = "Dashboards";
-        gridPos = {
-          h = 20;
-          w = 24;
-          x = 0;
-          y = 0;
-        };
-        options = {
-          showSearch = true;
-          showStarred = false;
-          showRecentlyViewed = false;
-          showHeadings = true;
-          maxItems = 100;
-          query = "";
-          tags = [ ];
-        };
-      }
-    ];
+  environment.etc = {
+    "grafana/dashboards" = {
+      source = ./dashboards;
+      user = "grafana";
+      group = "grafana";
+    };
+
+    "grafana/home.json".text = builtins.toJSON {
+      title = "Home";
+      uid = "home";
+      editable = false;
+      hideControls = false;
+      panels = [
+        {
+          id = 1;
+          type = "dashlist";
+          title = "Dashboards";
+          gridPos = {
+            h = 20;
+            w = 24;
+            x = 0;
+            y = 0;
+          };
+          options = {
+            showSearch = true;
+            showStarred = false;
+            showRecentlyViewed = false;
+            showHeadings = true;
+            maxItems = 100;
+            query = "";
+            tags = [ ];
+          };
+        }
+      ];
+    };
   };
 
   services.grafana = {
@@ -60,19 +74,13 @@ in
       };
       panels.disable_sanitize_html = true;
 
-      # Disable alerting to simplify UI
       alerting.enabled = false;
       unified_alerting.enabled = false;
-
-      # Simplify the navigation menu
       navigation = {
         app_standalone_pages = false;
       };
-
-      # Disable features not needed
       explore.enabled = false;
 
-      # Set default home dashboard to the dashboard list
       dashboards = {
         default_home_dashboard_path = "/etc/grafana/home.json";
       };
@@ -81,6 +89,8 @@ in
         provisioning = true;
         kubernetesDashboards = true;
       };
+
+      secret_key = "$__file{${config.sops.secrets.grafanaSecretKey.path}}";
     };
 
     provision = {
@@ -102,17 +112,6 @@ in
           type = "loki";
           access = "proxy";
           url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}";
-        }
-        {
-          name = "postgresql-blocky";
-          type = "postgres";
-          url = "/run/postgresql";
-          user = "grafana";
-          jsonData = {
-            password = "grafana";
-            database = "blocky";
-            sslmode = "disable";
-          };
         }
       ];
     };
