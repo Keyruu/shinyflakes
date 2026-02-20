@@ -43,7 +43,7 @@ in
 
   virtualisation.quadlet.containers.home-assistant = {
     containerConfig = {
-      image = "ghcr.io/home-assistant/home-assistant:2026.2.2";
+      image = "ghcr.io/home-assistant/home-assistant:2026.2.3";
       environments = {
         TZ = "Europe/Berlin";
         # OPENAI_BASE_URL = "https://api.scaleway.ai/28f14df5-01a1-40d6-b09f-046cadfaf4c9/v1";
