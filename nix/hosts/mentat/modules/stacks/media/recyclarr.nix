@@ -149,15 +149,15 @@ in
         "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml:ro"
       ];
       networks = [
-        "torrent-gluetun.container"
+        "media-gluetun.container"
       ];
     };
     serviceConfig = {
       Restart = "always";
     };
     unitConfig = {
-      After = [ "torrent-gluetun.service" ];
-      Requires = [ "torrent-gluetun.service" ];
+      After = [ "media-gluetun.service" ];
+      Requires = [ "media-gluetun.service" ];
     };
   };
 }
