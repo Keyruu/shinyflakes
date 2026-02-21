@@ -90,7 +90,7 @@ in
         kubernetesDashboards = true;
       };
 
-      secret_key = "$__file{${config.sops.secrets.grafanaSecretKey.path}}";
+      security.secret_key = "$__file{${config.sops.secrets.grafanaSecretKey.path}}";
     };
 
     provision = {
