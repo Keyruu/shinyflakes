@@ -18,84 +18,123 @@ in
             base_url: http://localhost:8989
             api_key: ${config.sops.placeholder.sonarrKey}
 
-            replace_existing_custom_formats: true
-
             quality_definition:
-                type: series
-            include:
-                - template: sonarr-quality-definition-series
-                - template: sonarr-v4-quality-profile-anime
-                - template: sonarr-v4-custom-formats-anime
-                - template: sonarr-v4-quality-profile-web-2160p
-                - template: sonarr-v4-custom-formats-web-2160p
+              type: series
+
             quality_profiles:
-                - name: Remux-1080p - Anime
-                - name: WEB-2160p
-                  qualities:
-                    - name: WEB 2160p
-                      qualities:
-                        - WEBDL-2160p
-                        - WEBRip-2160p
-                    - name: WEB 1080p
-                      qualities:
-                        - WEBDL-1080p
-                        - WEBRip-1080p
+              # Run `recyclarr list quality-profiles sonarr` to get these exact IDs!
+              - trash_id: <REPLACE_WITH_ANIME_ID> # Example ID for "Remux-1080p - Anime"
+                name: Remux-1080p - Anime
+                reset_unmatched_scores:
+                  enabled: true
+                  
+              - trash_id: <REPLACE_WITH_WEB_2160P_ID> # Example ID for "WEB-2160p"
+                name: WEB-2160p
+                reset_unmatched_scores:
+                  enabled: true
+
             custom_formats:
-                # =================================
-                # Remux-1080p - Anime
-                # =================================
-                - trash_ids:
-                    # Uncensored
-                    - 026d5aadd1a6b4e550b134cb6c72b3ca
-                    # 10bit
-                    - b2550eb333d27b75833e25b8c2557b38
-                    # Anime Dual Audio
-                    - 418f50b10f1907201b6cfdf881f467b7
-                  assign_scores_to:
-                    - name: Remux-1080p - Anime
-                # =================================
-                # WEB-2160p
-                # =================================
-                # Optional
-                - trash_ids:
-                    # Bad Dual Groups
-                    - 32b367365729d530ca1c124a0b180c64
-                    # DV (WEBDL)
-                    - 9b27ab6498ec0f31a3353992e19434ca
-                    # No-RlsGroup
-                    - 82d40da2bc6923f41e14394075dd4b03
-                  assign_scores_to:
-                    - name: WEB-2160p
+              - trash_ids:
+                  - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
+                  - b2550eb333d27b75833e25b8c2557b38 # 10bit
+                  - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
+                assign_scores_to:
+                  - name: Remux-1080p - Anime
+
+              - trash_ids:
+                  - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+                  - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
+                  - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+                assign_scores_to:
+                  - name: WEB-2160p
+
+              - trash_ids:
+                  - ed51973a811f51985f14e2f6f290e47a # German DL (default -10000)
+                assign_scores_to:
+                  - name: Remux-1080p - Anime
+                    score: 11000
+                  - name: WEB-2160p
+                    score: 11000
+
+              - trash_ids:
+                  - 8a9fcdbb445f2add0505926df3bb7b8a # German
+                  - c5dd0fd675f85487ad5bdf97159180bd # German DL (undefined)
+                  - 133589380b89f8f8394320901529bac1 # Not German or English
+                  - da0f005f9c3edf34fc26e18dce8c6573 # German Remux Tier 01
+                  - 6bc5ccd80a03e7abb8f556eecd174b73 # German Remux Tier 02
+                  - 68be37323132b35cf333c81a2ac8fc16 # German Web Tier 01
+                  - f51b96a50b0e6196cb69724b7833d837 # German Web Tier 02
+                  - bda67c2c0aae257308a4723d92475b86 # German Web Tier 03
+                  - c2eec878fa1989599c226ce4c287d6a7 # German Scene
+                  - a6a6c33d057406aaad978a6902823c35 # German LQ
+                  - 237eda4ef550a97da2c9d87b437e500b # German Microsized
+                assign_scores_to:
+                  - name: Remux-1080p - Anime
+                  - name: WEB-2160p
 
         radarr:
           movies:
             base_url: http://localhost:7878
             api_key: ${config.sops.placeholder.radarrKey}
 
-            replace_existing_custom_formats: true
+            quality_definition:
+              type: movie
 
             quality_profiles:
-              - name: SQP-1 (1080p)
+              # SQP-1 (1080p) -> mapped to HD Bluray + WEB
+              - trash_id: d1d67249d3890e49bc12e275d989a7e9
+                name: SQP-1 (1080p)
+                reset_unmatched_scores:
+                  enabled: true
                 min_format_score: 10
-              - name: SQP-1 (2160p)
-              # Uncomment the below line if you don't have access to top-tier indexers
+                
+              # SQP-1 (2160p) -> mapped to UHD Bluray + WEB
+              - trash_id: 64fb5f9858489bdac2af690e27c8f42f
+                name: SQP-1 (2160p)
+                reset_unmatched_scores:
+                  enabled: true
                 min_format_score: 10
-
-            include:
-              # Comment out any of the following includes to disable them
-              - template: radarr-quality-definition-sqp-streaming
-
-              - template: radarr-quality-profile-sqp-1-1080p
-              - template: radarr-custom-formats-sqp-1-1080p
-
-              - template: radarr-quality-profile-sqp-1-2160p-default
-              - template: radarr-custom-formats-sqp-1-2160p
 
             custom_formats:
               - trash_ids:
                   - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
                 assign_scores_to:
                   - name: SQP-1 (1080p)
+
+              - trash_ids:
+                  - f845be10da4f442654c13e1f2c3d6cd5 # German DL (default -10000)
+                assign_scores_to:
+                  - name: SQP-1 (1080p)
+                    score: 11000
+                  - name: SQP-1 (2160p)
+                    score: 11000
+
+              - trash_ids:
+                  - 86bc3115eb4e9873ac96904a4a68e19e # German
+                  - 6aad77771dabe9d3e9d7be86f310b867 # German DL (undefined)
+                  - 4eadb75fb23d09dfc0a8e3f687e72287 # Not German or English
+                  - 8608a2ed20c636b8a62de108e9147713 # German Remux Tier 01
+                  - f9cf598d55ce532d63596b060a6db9ee # German Remux Tier 02
+                  - a2ab25194f463f057a5559c03c84a3df # German Web Tier 01
+                  - 08d120d5a003ec4954b5b255c0691d79 # German Web Tier 02
+                  - 439f9d71becaed589058ec949e037ff3 # German Web Tier 03
+                  - 2d136d4e33082fe573d06b1f237c40dd # German Scene
+                  - 263943bc5d99550c68aad0c4278ba1c7 # German LQ
+                  - a826ee9e46607bc61795c85a6f2b1279 # German LQ (release title)
+                  - 03c430f326f10a27a9739b8bc83c30e4 # German Microsized
+                assign_scores_to:
+                  - name: SQP-1 (1080p)
+                  - name: SQP-1 (2160p)
+
+              - trash_ids:
+                  - 3bc8df3a71baaac60a31ef696ea72d36 # German 1080p Booster
+                assign_scores_to:
+                  - name: SQP-1 (1080p)
+
+              - trash_ids:
+                  - cc7b1e64e2513a6a271090cdfafaeb55 # German 2160p Booster
+                assign_scores_to:
+                  - name: SQP-1 (2160p)
       '';
   };
 
@@ -105,16 +144,12 @@ in
       environments = {
         TZ = "Europe/Berlin";
       };
-      user = "root";
       volumes = [
         "${recyclarrPath}:/config"
         "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml:ro"
       ];
       networks = [
         "torrent-gluetun.container"
-      ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
       ];
     };
     serviceConfig = {
