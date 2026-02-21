@@ -4,7 +4,7 @@ let
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${recyclarrPath} 0755 root root"
+    "d ${recyclarrPath} 0755 1000 1000"
   ];
 
   sops.templates."recyclarrConfig.yaml" = {
@@ -23,12 +23,12 @@ in
 
             quality_profiles:
               # Run `recyclarr list quality-profiles sonarr` to get these exact IDs!
-              - trash_id: <REPLACE_WITH_ANIME_ID> # Example ID for "Remux-1080p - Anime"
+              - trash_id: 20e0fc959f1f1704bed501f23bdae76f
                 name: Remux-1080p - Anime
                 reset_unmatched_scores:
                   enabled: true
                   
-              - trash_id: <REPLACE_WITH_WEB_2160P_ID> # Example ID for "WEB-2160p"
+              - trash_id: d1498e7d189fbe6c7110ceaabb7473e6
                 name: WEB-2160p
                 reset_unmatched_scores:
                   enabled: true
@@ -51,8 +51,6 @@ in
               - trash_ids:
                   - ed51973a811f51985f14e2f6f290e47a # German DL (default -10000)
                 assign_scores_to:
-                  - name: Remux-1080p - Anime
-                    score: 11000
                   - name: WEB-2160p
                     score: 11000
 
@@ -69,7 +67,6 @@ in
                   - a6a6c33d057406aaad978a6902823c35 # German LQ
                   - 237eda4ef550a97da2c9d87b437e500b # German Microsized
                 assign_scores_to:
-                  - name: Remux-1080p - Anime
                   - name: WEB-2160p
 
         radarr:
