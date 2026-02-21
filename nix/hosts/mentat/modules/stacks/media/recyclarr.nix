@@ -101,7 +101,7 @@ in
 
   virtualisation.quadlet.containers.torrent-recyclarr = {
     containerConfig = {
-      image = "ghcr.io/recyclarr/recyclarr:7.5.2";
+      image = "ghcr.io/recyclarr/recyclarr:8.1.0";
       environments = {
         TZ = "Europe/Berlin";
       };
