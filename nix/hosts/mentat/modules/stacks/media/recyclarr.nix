@@ -138,7 +138,7 @@ in
       '';
   };
 
-  virtualisation.quadlet.containers.torrent-recyclarr = {
+  virtualisation.quadlet.containers.media-recyclarr = {
     containerConfig = {
       image = "ghcr.io/recyclarr/recyclarr:8.1.0";
       environments = {
