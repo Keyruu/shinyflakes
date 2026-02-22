@@ -3,12 +3,25 @@ let
   recyclarrPath = "/etc/stacks/recyclarr/config";
 in
 {
+  users = {
+    groups.recyclarr.gid = 1006;
+    users = {
+      recyclarr = {
+        isSystemUser = true;
+        uid = 1006;
+        group = "recyclarr";
+      };
+    };
+  };
+
   systemd.tmpfiles.rules = [
-    "d ${recyclarrPath} 0755 1000 1000"
+    "d ${recyclarrPath} 0755 recyclarr recyclarr"
   ];
 
   sops.templates."recyclarrConfig.yaml" = {
-    restartUnits = [ "torrent-recyclarr.service" ];
+    restartUnits = [ "media-recyclarr.service" ];
+    owner = "recyclarr";
+    group = "recyclarr";
     content = # yaml
       ''
         # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
@@ -51,6 +64,8 @@ in
               - trash_ids:
                   - ed51973a811f51985f14e2f6f290e47a # German DL (default -10000)
                 assign_scores_to:
+                  - name: Remux-1080p - Anime
+                    score: 11000
                   - name: WEB-2160p
                     score: 11000
 
@@ -67,6 +82,7 @@ in
                   - a6a6c33d057406aaad978a6902823c35 # German LQ
                   - 237eda4ef550a97da2c9d87b437e500b # German Microsized
                 assign_scores_to:
+                  - name: Remux-1080p - Anime
                   - name: WEB-2160p
 
         radarr:
@@ -141,9 +157,11 @@ in
       environments = {
         TZ = "Europe/Berlin";
       };
+      user = "1006";
+      group = "1006";
       volumes = [
         "${recyclarrPath}:/config"
-        "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml:ro"
+        "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml"
       ];
       networks = [
         "media-gluetun.container"
