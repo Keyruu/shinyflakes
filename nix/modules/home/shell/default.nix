@@ -18,6 +18,7 @@ in
     ./yazi.nix
     ./zellij.nix
     ./zsh.nix
+    ./git.nix
   ];
 
   sops.secrets = {
