@@ -6,7 +6,7 @@ in
   sops = {
     secrets.forgejoRepoToken = { };
     templates."forgejoCreds".content =
-      "https://<USERNAME>:${config.sops.placeholder.forgejoRepoToken}@${gitHost}";
+      "https://x-access-token:${config.sops.placeholder.forgejoRepoToken}@${gitHost}";
   };
 
   programs.git = {
