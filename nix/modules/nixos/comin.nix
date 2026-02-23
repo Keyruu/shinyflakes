@@ -15,8 +15,6 @@
   };
 
   programs.git.config = {
-    url."https://git.keyruu.de/".insteadOf = "ssh://git@git.lab.keyruu.de:222/";
-
     credential."https://git.keyruu.de" = {
       helper = "store --file ${config.sops.secrets.cominForgejoToken.path}";
     };
