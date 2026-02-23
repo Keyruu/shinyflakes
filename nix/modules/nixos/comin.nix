@@ -22,17 +22,16 @@
     hostname = config.networking.hostName;
     submodules = true;
     sshKnownHostsPath = "/etc/comin-known-hosts";
+    sshKeyPath = config.sops.secrets.cominDeployKey.path;
     remotes = [
       {
         name = "origin";
         url = "https://git.keyruu.de/lucas/shinyflakes.git";
-        auth.ssh_key_path = config.sops.secrets.cominDeployKey.path;
         branches.main.name = "main";
       }
       {
         name = "github";
         url = "https://github.com/Keyruu/shinyflakes.git";
-        auth.ssh_key_path = config.sops.secrets.cominDeployKey.path;
         branches.main.name = "main";
       }
     ];
