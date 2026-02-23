@@ -11,27 +11,21 @@
 
   sops.secrets = {
     resendApiKey = { };
-    cominDeployKey = { };
+    cominForgejoToken = { };
   };
-
-  environment.etc."comin-known-hosts".text =
-    "[git.lab.keyruu.de]:222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIbQoOxLEolwOjY9FjxUolTIpuJ9A9xicKuGAOp0YwVe";
 
   services.comin = {
     enable = true;
     hostname = config.networking.hostName;
     submodules = true;
-    sshKnownHostsPath = "/etc/comin-known-hosts";
-    sshKeyPath = config.sops.secrets.cominDeployKey.path;
     remotes = [
       {
         name = "origin";
         url = "https://git.keyruu.de/lucas/shinyflakes.git";
-        branches.main.name = "main";
-      }
-      {
-        name = "github";
-        url = "https://github.com/Keyruu/shinyflakes.git";
+        auth = {
+          username = "lucas";
+          access_token_path = config.sops.secrets.cominForgejoToken.path;
+        };
         branches.main.name = "main";
       }
     ];
