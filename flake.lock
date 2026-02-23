@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1771868778,
-        "narHash": "sha256-7UxksMajU+d0TyAcNm/lIdg+HC5H/lZul/gDN1jrxwc=",
+        "lastModified": 1771869664,
+        "narHash": "sha256-GvNuTuHb3l51nAsGNh4ZwLnfGz5nKrNVrkvDdynvzhw=",
         "owner": "Keyruu",
         "repo": "comin",
-        "rev": "7decda7742bf3f20aa5bcd4b204cd3ced76a2c63",
+        "rev": "0ce1f59c274482265921980280336b9606770c44",
         "type": "github"
       },
       "original": {
