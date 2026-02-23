@@ -16,7 +16,6 @@
   services.comin = {
     enable = true;
     hostname = config.networking.hostName;
-    repositorySubdir = ".";
     submodules = true;
     remotes = [
       {
