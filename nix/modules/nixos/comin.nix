@@ -18,18 +18,9 @@
       "https://x-access-token:${config.sops.placeholder.cominForgejoToken}@git.keyruu.de";
   };
 
-  programs.git = {
-    enable = true;
-
-    userName = "Lucas";
-    userEmail = "keyruu@web.de";
-
-    extraConfig = {
-      pull.rebase = true;
-
-      credential."https://git.keyruu.de" = {
-        helper = "store --file ${config.sops.templates."forgejoCreds".path}";
-      };
+  programs.git.config = {
+    credential."https://git.keyruu.de" = {
+      helper = "store --file ${config.sops.templates."forgejoCreds".path}";
     };
   };
 
