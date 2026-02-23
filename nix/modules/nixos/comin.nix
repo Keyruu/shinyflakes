@@ -23,7 +23,7 @@
         name = "origin";
         url = "https://git.keyruu.de/lucas/shinyflakes.git";
         auth = {
-          username = "lucas";
+          username = "x-access-token";
           access_token_path = config.sops.secrets.cominForgejoToken.path;
         };
         branches.main.name = "main";
