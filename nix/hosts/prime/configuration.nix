@@ -40,7 +40,6 @@ in
     "cache.keyruu.de"
     "git.lab.keyruu.de"
   ];
-
   services = {
     mesh.server.enable = true;
     monitoring = {
