@@ -15,7 +15,7 @@
   };
 
   environment.etc."comin-known-hosts".text =
-    "git.lab.keyruu.de ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGnXQvd4ITKTnx1+0kWDobgECK8fa09a3xPSj8jsk/XT";
+    "[git.lab.keyruu.de]:222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIbQoOxLEolwOjY9FjxUolTIpuJ9A9xicKuGAOp0YwVe";
 
   services.comin = {
     enable = true;
