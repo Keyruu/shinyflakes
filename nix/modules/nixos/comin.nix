@@ -14,12 +14,6 @@
     cominForgejoToken = { };
   };
 
-  programs.git.config = {
-    credential."https://git.keyruu.de" = {
-      helper = "store --file ${config.sops.secrets.cominForgejoToken.path}";
-    };
-  };
-
   services.comin = {
     enable = true;
     hostname = config.networking.hostName;
@@ -28,6 +22,10 @@
       {
         name = "origin";
         url = "https://git.keyruu.de/lucas/shinyflakes.git";
+        auth = {
+          username = "x-access-token";
+          access_token_path = config.sops.secrets.cominForgejoToken.path;
+        };
         branches.main.name = "main";
       }
     ];
