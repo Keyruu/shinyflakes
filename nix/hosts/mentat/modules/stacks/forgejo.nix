@@ -174,6 +174,7 @@ in
             image = "codeberg.org/forgejo/forgejo:14.0.2";
             publishPorts = [
               "127.0.0.1:${toString my.port}:3000"
+              "127.0.0.1:222:22"
               "${localIp}:222:22"
             ];
             volumes = [
