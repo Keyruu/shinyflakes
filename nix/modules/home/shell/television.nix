@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.television = {
     enable = true;
     enableFishIntegration = false;

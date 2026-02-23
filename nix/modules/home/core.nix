@@ -75,7 +75,7 @@ in
     just
     goreleaser
     nixfmt
-    nixfmt-tree
+    treefmt
     cachix
     neovim
     gnupg

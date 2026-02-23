@@ -55,6 +55,7 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # infra
+    tofunix.url = "github:Keyruu/tofunix?dir=lib";
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     niks3 = {

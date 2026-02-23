@@ -17,7 +17,6 @@ in
   sops.templates."mcp-github.env" = {
     restartUnits = [
       "mcp-github.service"
-      "mcpo-github.service"
     ];
     content = # sh
       ''

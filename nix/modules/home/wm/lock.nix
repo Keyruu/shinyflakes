@@ -12,7 +12,7 @@
       auth.fingerprint = {
         enabled = true;
         ready_message = "<span>  </span>";
-        present_message = ''<span foreground='##94E2D5'>  </span>'';
+        present_message = "<span foreground='##94E2D5'>  </span>";
       };
 
       background = [

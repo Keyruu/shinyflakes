@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.atuin = {
     enable = true;
     enableZshIntegration = false;

@@ -1,4 +1,3 @@
-_:
-{
+_: {
   virtualisation.quadlet.autoEscape = true;
 }

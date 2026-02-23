@@ -1,5 +1,4 @@
-_:
-{
+_: {
   home.file.".ideavimrc".text =
     # vim
     ''

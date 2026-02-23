@@ -1,8 +1,7 @@
-{ pkgs, perSystem, ... }:
+{ pkgs, ... }:
 {
   environment.systemPackages = [
     pkgs.mcp-proxy
-    perSystem.self.mcpo
   ];
 
   users.users.mcp = {

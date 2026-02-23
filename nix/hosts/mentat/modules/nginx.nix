@@ -1,4 +1,3 @@
-_:
-{
+_: {
   services.nginx.clientMaxBodySize = "5000M";
 }

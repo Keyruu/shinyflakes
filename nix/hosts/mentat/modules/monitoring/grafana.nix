@@ -5,7 +5,7 @@
   ...
 }:
 let
-  smallPkgs = import inputs.nixpkgs-small { inherit (pkgs) system; };
+  smallPkgs = import inputs.nixpkgs-small { inherit (pkgs.stdenv.hostPlatform) system; };
 in
 {
   users = {

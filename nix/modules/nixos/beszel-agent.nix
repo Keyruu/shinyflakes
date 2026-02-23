@@ -12,7 +12,7 @@
       Restart = "always";
       RestartSec = "5";
       User = "0";
-      ExecStart = ''${pkgs.beszel}/bin/beszel-agent'';
+      ExecStart = "${pkgs.beszel}/bin/beszel-agent";
     };
   };
 }

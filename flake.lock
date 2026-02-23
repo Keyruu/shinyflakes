@@ -1070,6 +1070,7 @@
         "sirberus": "sirberus",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
+        "tofunix": "tofunix",
         "vicinae": "vicinae",
         "vicinae-extensions": "vicinae-extensions",
         "zen-browser": "zen-browser"
@@ -1288,6 +1289,23 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tofunix": {
+      "locked": {
+        "dir": "lib",
+        "lastModified": 1766313756,
+        "narHash": "sha256-brl8cLaG5f5QXK9+8gzUuJHJsXruodJ2rLBUTagqHqw=",
+        "owner": "Keyruu",
+        "repo": "tofunix",
+        "rev": "4dd4ff1f5458f4b10d150d2246fe269d824d6495",
+        "type": "github"
+      },
+      "original": {
+        "dir": "lib",
+        "owner": "Keyruu",
+        "repo": "tofunix",
         "type": "github"
       }
     },

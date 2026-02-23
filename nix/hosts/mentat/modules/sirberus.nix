@@ -6,7 +6,7 @@
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
-      ExecStart = "${inputs.sirberus.packages.${pkgs.system}.default}/bin/sirberus";
+      ExecStart = "${inputs.sirberus.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/sirberus";
       Restart = "always";
       User = "0";
       RestartSec = 5;

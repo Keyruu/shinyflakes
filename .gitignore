@@ -3,5 +3,6 @@
 .claude
 .opencode
 result
-pulumi
 .stfolder
+.terraform
+.terraform.lock.hcl
