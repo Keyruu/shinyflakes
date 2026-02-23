@@ -220,4 +220,6 @@ in
       inherit (config.services.nginx.virtualHosts."${my.domain}") locations;
     };
   };
+
+  networking.hosts."127.0.0.1" = [ "git.lab.keyruu.de" ];
 }
