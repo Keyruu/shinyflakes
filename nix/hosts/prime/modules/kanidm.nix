@@ -76,7 +76,7 @@
     caddy.virtualHostsWithDefaults."auth.peeraten.net".extraConfig = ''
       import cloudflare-only
 
-      reverse_proxy https://${toString config.services.kanidm.serverSettings.bindaddress} {
+      reverse_proxy https://${toString config.services.kanidm.server.settings.bindaddress} {
         transport http {
           tls
           tls_server_name auth.peeraten.net
@@ -94,8 +94,8 @@
   };
 
   systemd.services.kanidm.serviceConfig.BindReadOnlyPaths = [
-    config.services.kanidm.serverSettings.tls_chain
-    config.services.kanidm.serverSettings.tls_key
+    config.services.kanidm.server.settings.tls_chain
+    config.services.kanidm.server.settings.tls_key
     "/run/secrets"
   ];
 }
