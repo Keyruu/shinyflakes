@@ -14,14 +14,6 @@
       resendApiKey = { };
       cominForgejoToken = { };
     };
-    templates."forgejoCreds".content =
-      "https://x-access-token:${config.sops.placeholder.cominForgejoToken}@git.keyruu.de";
-  };
-
-  programs.git.config = {
-    credential."https://git.keyruu.de" = {
-      helper = "store --file ${config.sops.templates."forgejoCreds".path}";
-    };
   };
 
   services.comin = {
