@@ -1,4 +1,9 @@
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   inherit (config.services) mesh;
   mkPeer = endpoint: {
@@ -46,6 +51,11 @@ in
           ;
 
         autostart = false;
+
+        preUp = ''
+          echo "trigger" > /dev/udp/127.0.0.1/51234 || true
+          sleep 2
+        '';
 
         peers = [
           (mkPeer "127.0.0.1:51234")

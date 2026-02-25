@@ -12,10 +12,11 @@ in
   programs.git = {
     enable = true;
 
-    userName = "Lucas";
-    userEmail = "keyruu@web.de";
-
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Lucas";
+        email = "keyruu@web.de";
+      };
       pull.rebase = true;
 
       credential."https://git.keyruu.de" = {

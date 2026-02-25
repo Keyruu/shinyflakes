@@ -40,6 +40,7 @@ in
     inherit (mesh.people.lucas.devices.carryall) ip;
     client = {
       enable = true;
+      autostart = false;
       keyName = "carryallMeshKey";
       allowedIPs = [
         "192.168.100.0/24"
