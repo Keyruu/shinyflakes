@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   stackPath = "/etc/stacks/rybbit";
 in
@@ -165,20 +165,32 @@ in
       };
     };
 
-  services.caddy.virtualHostsWithDefaults =
-    let
-      extraConfig = ''
-        import cloudflare-only
-        reverse_proxy http://127.0.0.1:3002
-        reverse_proxy /api/* http://127.0.0.1:3001
-      '';
-    in
-    {
-      "rybbit.keyruu.de" = {
-        inherit extraConfig;
+  services = {
+    caddy.virtualHostsWithDefaults =
+      let
+        extraConfig = ''
+          import cloudflare-only
+          reverse_proxy http://127.0.0.1:3002
+          reverse_proxy /api/* http://127.0.0.1:3001
+        '';
+      in
+      {
+        "rybbit.keyruu.de" = {
+          inherit extraConfig;
+        };
+        "sorryihavetodothis.keyruu.de" = {
+          inherit extraConfig;
+        };
       };
-      "sorryihavetodothis.keyruu.de" = {
-        inherit extraConfig;
+
+    restic.backupsWithDefaults = {
+      rybbit = {
+        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop rybbit-*";
+        paths = [
+          stackPath
+        ];
+        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start rybbit-* --all";
       };
     };
+  };
 }

@@ -32,7 +32,7 @@
   };
 
   services.restic = {
-    defaultRepoFile = config.sops.templates."resticRepo".path;
+    defaults.repoFile = config.sops.templates."resticRepo".path;
     server = {
       enable = true;
       dataDir = "/main/backup";

@@ -53,7 +53,11 @@ in
         lokiAddress = "http://${mesh.people.lucas.devices.mentat.ip}:3030";
       };
     };
-    restic.defaultRepoFile = config.sops.templates."resticRepo".path;
+    restic.defaults = {
+      repoFile = config.sops.templates."resticRepo".path;
+      # prevent lock collisions with mentat
+      onCalendar = "03:00";
+    };
   };
 
   environment.systemPackages = with pkgs; [

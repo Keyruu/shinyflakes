@@ -10,13 +10,19 @@ let
 in
 {
   options.services.restic = {
-    defaultRepo = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-    };
-    defaultRepoFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
+    defaults = {
+      repo = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
+      repoFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+      };
+      onCalendar = lib.mkOption {
+        type = lib.types.str;
+        default = "04:00";
+      };
     };
 
     backupsWithDefaults = lib.mkOption {
@@ -28,8 +34,8 @@ in
               {
                 config = {
                   initialize = lib.mkDefault true;
-                  repository = lib.mkDefault config.services.restic.defaultRepo;
-                  repositoryFile = lib.mkDefault config.services.restic.defaultRepoFile;
+                  repository = lib.mkDefault config.services.restic.defaults.repo;
+                  repositoryFile = lib.mkDefault config.services.restic.defaults.repoFile;
                   passwordFile = lib.mkDefault config.sops.secrets.resticPassword.path;
 
                   pruneOpts = [
@@ -44,8 +50,8 @@ in
                     "--tag ${name}"
                   ];
 
-                  timerConfig = lib.mkDefault {
-                    OnCalendar = "04:00";
+                  timerConfig = {
+                    OnCalendar = lib.mkDefault config.services.restic.defaults.onCalendar;
                   };
                 };
               }

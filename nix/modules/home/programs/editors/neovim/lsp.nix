@@ -88,20 +88,13 @@
           };
         };
 
-        # astro = {
-        #   cmd = [
-        #     "astro-ls"
-        #     "--stdio"
-        #   ];
-        #   filetypes = [ "astro" ];
-        #   extraOptions = {
-        #     init_options = {
-        #       typescript = {
-        #         tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
-        #       };
-        #     };
-        #   };
-        # };
+        astro = {
+          init_options = {
+            typescript = {
+              tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
+            };
+          };
+        };
 
         vuels = {
           cmd = [
