@@ -16,13 +16,13 @@
               "files"
               "atuin"
               "git"
+              "fm"
               "*"
             ];
           };
           coolify = {
             content = ref.hcloud_server.pegasus.ipv4_address;
             cnames = [
-              "fm"
               "oblivion"
               "@"
             ];

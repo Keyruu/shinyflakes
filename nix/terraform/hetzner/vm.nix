@@ -15,7 +15,7 @@
 
     pegasus = {
       name = "pegasus";
-      server_type = "cax21";
+      server_type = "cax11";
       image = "debian-12";
       datacenter = "nbg1-dc3";
       firewall_ids = [ ref.hcloud_firewall.cloudflare-https.id ];
