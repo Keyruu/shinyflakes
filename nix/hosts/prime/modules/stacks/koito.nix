@@ -14,7 +14,7 @@ in
   };
 
   sops.templates = {
-    "koito.env" = {
+    "koito-main.env" = {
       restartUnits = [ "koito-main.service" ];
       content = ''
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
