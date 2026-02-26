@@ -24,9 +24,9 @@ in
     "koito-db.env" = {
       restartUnits = [ "koito-db.service" ];
       content = ''
-        POSTGRES_DB = "koitodb";
-        POSTGRES_USER = "postgres";
-        POSTGRES_PASSWORD = ${config.sops.placeholder.koitoDbPassword};
+        POSTGRES_DB=koitodb
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=${config.sops.placeholder.koitoDbPassword}
       '';
     };
   };
@@ -73,8 +73,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = [ "db.service" ];
-            Requires = [ "db.service" ];
+            After = [ "koito-db.service" ];
+            Requires = [ "koito-db.service" ];
           };
         };
       };
