@@ -91,7 +91,7 @@ in
     };
 
     restic.backupsWithDefaults = {
-      rybbit = {
+      koito = {
         backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop koito-*";
         paths = [
           stackPath
