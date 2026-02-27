@@ -87,6 +87,8 @@ in
         extraConfig = ''
           import cloudflare-only
           reverse_proxy http://127.0.0.1:4110
+
+          header Access-Control-Allow-Origin "https://keyruu.de"
         '';
       };
     };
