@@ -18,7 +18,8 @@ in
       restartUnits = [ "koito-main.service" ];
       content = ''
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
-        KOITO_ALLOWED_HOSTS=keyruu.de,${domain}
+        KOITO_ALLOWED_HOSTS=${domain},koito:4110
+        KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de
       '';
     };
     "koito-db.env" = {
