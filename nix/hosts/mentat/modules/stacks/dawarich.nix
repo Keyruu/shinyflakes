@@ -54,7 +54,7 @@ in
   virtualisation.quadlet =
     let
       # renovate: datasource=docker depName=freikin/dawarich
-      DAWARICH_VERSION = "1.3.0";
+      DAWARICH_VERSION = "1.3.1";
       inherit (config.virtualisation.quadlet) networks;
     in
     {
