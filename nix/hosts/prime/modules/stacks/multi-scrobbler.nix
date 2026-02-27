@@ -37,6 +37,8 @@ in
       KOITO_URL=http://koito:4110
       LZENDPOINT_ENABLE=true
       LZE_TOKEN=${config.sops.placeholder.multiScrobblerListenBrainzToken}
+      LASTFM_API_KEY=${config.sops.placeholder.multiScrobblerLastfmApiKey}
+      LASTFM_SECRET=${config.sops.placeholder.multiScrobblerLastfmSharedSecret}
     '';
   };
 
