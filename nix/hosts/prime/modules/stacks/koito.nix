@@ -99,6 +99,7 @@ in
           reverse_proxy http://127.0.0.1:4110
 
           header Access-Control-Allow-Origin "https://keyruu.de"
+          header Access-Control-Allow-Methods "GET"
         '';
       };
     };
