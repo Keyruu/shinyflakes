@@ -19,7 +19,7 @@ in
       content = ''
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
         KOITO_ALLOWED_HOSTS=${domain},koito:4110
-        KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de
+        KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
       '';
     };
     "koito-db.env" = {
@@ -86,20 +86,7 @@ in
       "${domain}" = {
         extraConfig = ''
           import cloudflare-only
-
-          @cors_preflight method OPTIONS
-          handle @cors_preflight {
-              header Access-Control-Allow-Origin "https://your-frontend.com"
-              header Access-Control-Allow-Methods "GET, POST, OPTIONS"
-              header Access-Control-Allow-Headers "Content-Type, Authorization"
-              header Access-Control-Max-Age "3600"
-              respond "" 204
-          }
-
           reverse_proxy http://127.0.0.1:4110
-
-          header Access-Control-Allow-Origin "https://keyruu.de"
-          header Access-Control-Allow-Methods "GET"
         '';
       };
     };
