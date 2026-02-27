@@ -23,6 +23,8 @@ in
     multiScrobblerSpotifyClientId = { };
     multiScrobblerSpotifyClientSecret = { };
     multiScrobblerKoitoToken = { };
+    multiScrobblerLastfmApiKey = { };
+    multiScrobblerLastfmSharedSecret = { };
   };
 
   sops.templates."multi-scrobbler.env" = {
