@@ -17,6 +17,7 @@
               "atuin"
               "git"
               "fm"
+              "scrobble"
               "*"
             ];
           };
