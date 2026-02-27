@@ -20,6 +20,7 @@ in
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
         KOITO_ALLOWED_HOSTS=${domain},koito:4110
         KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
+        KOITO_ENABLE_FULL_IMAGE_CACHE=true
       '';
     };
     "koito-db.env" = {
