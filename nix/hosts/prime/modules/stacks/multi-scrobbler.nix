@@ -23,6 +23,7 @@ in
     multiScrobblerSpotifyClientId = { };
     multiScrobblerSpotifyClientSecret = { };
     multiScrobblerKoitoToken = { };
+    multiScrobblerListenBrainzToken = { };
     multiScrobblerLastfmApiKey = { };
     multiScrobblerLastfmSharedSecret = { };
   };
