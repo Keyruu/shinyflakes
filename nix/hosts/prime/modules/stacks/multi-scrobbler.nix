@@ -35,6 +35,8 @@ in
       KOITO_USER=admin
       KOITO_TOKEN=${config.sops.placeholder.multiScrobblerKoitoToken}
       KOITO_URL=http://koito:4110
+      LZENDPOINT_ENABLE=true
+      LZE_TOKEN=${config.sops.placeholder.multiScrobblerListenBrainzToken}
     '';
   };
 
