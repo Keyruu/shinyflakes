@@ -18,6 +18,7 @@
               "git"
               "fm"
               "scrobble"
+              "@"
               "*"
             ];
           };
@@ -26,7 +27,6 @@
             cnames = [
               "oblivion"
               "spot"
-              "@"
             ];
           };
         };
