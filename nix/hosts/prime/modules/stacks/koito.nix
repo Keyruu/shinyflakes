@@ -43,7 +43,7 @@ in
     in
     {
       builds.koito.buildConfig = {
-        workdir = src;
+        workdir = "${src}";
         file = "${src}/Dockerfile";
       };
 
