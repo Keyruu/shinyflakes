@@ -4,5 +4,6 @@
 
     ./kanidm.nix
     ./proxy.nix
+    ./homepage.nix
   ];
 }

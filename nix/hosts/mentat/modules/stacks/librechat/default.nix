@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackName = "librechat";
   stackPath = "/etc/stacks/${stackName}";

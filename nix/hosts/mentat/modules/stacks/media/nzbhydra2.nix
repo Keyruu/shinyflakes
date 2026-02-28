@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/nzbhydra2";
   my = config.services.my.nzbhydra2;

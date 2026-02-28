@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/karakeep";
   my = config.services.my.karakeep;

@@ -1,7 +1,6 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/music-assistant";
-  my = config.services.my.music-assistant;
 in
 {
   systemd.tmpfiles.rules = [

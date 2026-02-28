@@ -1,7 +1,6 @@
 { config, ... }:
 let
   stackPath = "/etc/stacks/matter";
-  my = config.services.my.matter;
 in
 {
   systemd.tmpfiles.rules = [

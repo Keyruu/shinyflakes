@@ -68,12 +68,14 @@
       '';
     };
 
-    sudo = {
+    sudo.enable = false;
+    sudo-rs = {
+      enable = true;
       execWheelOnly = true;
-      extraConfig = ''
-        Defaults lecture = never
-        Defaults passwd_timeout=0
-      '';
+      # extraConfig = ''
+      #   Defaults lecture = never
+      #   Defaults passwd_timeout=0
+      # '';
     };
   };
 

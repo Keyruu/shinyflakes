@@ -1,7 +1,6 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/esphome/config";
-  my = config.services.my.esphome;
 in
 {
   systemd.tmpfiles.rules = [

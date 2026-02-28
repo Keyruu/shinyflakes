@@ -1,6 +1,5 @@
 {
   config,
-  perSystem,
   pkgs,
   lib,
   ...

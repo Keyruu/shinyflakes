@@ -30,6 +30,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -133,6 +138,11 @@
 
     librepods = {
       url = "github:SophiaH67/librepods/linux/rust";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    homepage = {
+      url = "github:Keyruu/homepage";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

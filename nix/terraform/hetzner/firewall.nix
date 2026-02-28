@@ -1,27 +1,5 @@
 { lib, ref, ... }:
 let
-  ipv4Txt = builtins.fetchurl {
-    url = "https://www.cloudflare.com/ips-v4";
-    sha256 = "sha256-8Cxtg7wBqwroV3Fg4DbXAMdFU1m84FTfiE5dfZ5Onns=";
-  };
-
-  ipv6Txt = builtins.fetchurl {
-    url = "https://www.cloudflare.com/ips-v6";
-    sha256 = "sha256-np054+g7rQDE3sr9U8Y/piAp89ldto3pN9K+KCNMoKk=";
-  };
-
-  parseIpList =
-    txt:
-    lib.pipe txt [
-      builtins.readFile
-      (lib.splitString "\n")
-      (lib.filter (ip: ip != ""))
-    ];
-
-  ipv4 = parseIpList ipv4Txt;
-  ipv6 = parseIpList ipv6Txt;
-
-  ips = ipv4 ++ ipv6;
 
   createPortRule = port: {
     direction = "in";

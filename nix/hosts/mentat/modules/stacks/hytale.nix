@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 let
   stackPath = "/etc/stacks/hytale";
 in

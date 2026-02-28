@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let
   my = config.services.my.jellyfin;
   stackPath = "/etc/stacks/jellyfin";
