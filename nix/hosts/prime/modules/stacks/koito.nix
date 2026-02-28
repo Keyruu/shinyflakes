@@ -11,7 +11,6 @@ in
 
   sops.secrets = {
     koitoDbPassword = { };
-    koitoLastfmApiKey = { };
   };
 
   sops.templates = {
@@ -22,8 +21,6 @@ in
         KOITO_ALLOWED_HOSTS=${domain},koito:4110
         KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
         KOITO_ENABLE_FULL_IMAGE_CACHE=true
-        KOITO_FETCH_IMAGES_DURING_IMPORT=true
-        KOITO_LASTFM_API_KEY=${config.sops.placeholder.koitoLastfmApiKey}
       '';
     };
     "koito-db.env" = {
