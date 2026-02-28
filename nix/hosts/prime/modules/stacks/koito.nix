@@ -35,9 +35,18 @@ in
 
   virtualisation.quadlet =
     let
-      inherit (config.virtualisation.quadlet) networks;
+      inherit (config.virtualisation.quadlet) builds networks;
+      src = fetchGit {
+        url = "https://github.com/Keyruu/Koito.git";
+        rev = "fee7fb811c8b34cb70ef7f376907c41bbb4044b4";
+      };
     in
     {
+      builds.koito.buildConfig = {
+        workdir = src;
+        file = "${src}/Dockerfile";
+      };
+
       networks.koito.networkConfig = {
         driver = "bridge";
         podmanArgs = [ "--interface-name=koito" ];
@@ -64,7 +73,7 @@ in
 
         koito-main = {
           containerConfig = {
-            image = "gabehf/koito:v0.1.7";
+            image = builds.koito.ref;
             publishPorts = [ "127.0.0.1:4110:4110" ];
             volumes = [ "${stackPath}/data:/etc/koito" ];
             environmentFiles = [ config.sops.templates."koito-main.env".path ];
