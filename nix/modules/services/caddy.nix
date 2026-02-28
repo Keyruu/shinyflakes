@@ -36,13 +36,49 @@ in
               nolog,\
               ctl:ruleEngine=Off"
 
-            # NOTE: allow .git for forgejo
+            # disable rules for Git operations (.git/ paths)
             SecRule REQUEST_URI "@rx \.git/" \
-              "id:1002,\
-              phase:1,\
-              pass,\
-              nolog,\
-              ctl:ruleRemoveById=930130"
+                "id:1001,\
+                phase:1,\
+                pass,\
+                nolog,\
+                ctl:ruleRemoveById=930130,\
+                ctl:ruleRemoveById=920270,\
+                ctl:ruleRemoveById=920450,\
+                ctl:ruleRemoveById=921150,\
+                ctl:ruleRemoveById=942100,\
+                ctl:ruleRemoveById=942540"
+
+            # disable rules for GitHub API/webhooks (issues, PRs, content)
+            SecRule REQUEST_URI "@rx /api/v1/repos/.*/(issues|pulls)/" \
+                "id:1002,\
+                phase:1,\
+                pass,\
+                nolog,\
+                ctl:ruleRemoveById=932235,\
+                ctl:ruleRemoveById=932250,\
+                ctl:ruleRemoveById=932260,\
+                ctl:ruleRemoveById=941180"
+
+            # disable rules for issue content paths
+            SecRule REQUEST_URI "@rx /.*/issues/.*/content" \
+                "id:1003,\
+                phase:1,\
+                pass,\
+                nolog,\
+                ctl:ruleRemoveById=932235,\
+                ctl:ruleRemoveById=932250,\
+                ctl:ruleRemoveById=932260,\
+                ctl:ruleRemoveById=941180"
+
+            # disable SSRF rule for /api/track (legitimate localhost referrers)
+            SecRule REQUEST_URI "@beginsWith /api/track" \
+                "id:1004,\
+                phase:1,\
+                pass,\
+                nolog,\
+                ctl:ruleRemoveById=934110"
+
 
             Include @coraza.conf-recommended
             Include @crs-setup.conf.example
