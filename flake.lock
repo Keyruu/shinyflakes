@@ -504,11 +504,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1772302055,
-        "narHash": "sha256-TOfO1eHZB2qIvqcnitgXe1i8i7rmNPvugpYRxCQ/ejc=",
+        "lastModified": 1772302675,
+        "narHash": "sha256-ubtp84O2GJMuZxf84wQiR8fUtl3njZurTxLzdWmsAe8=",
         "owner": "Keyruu",
         "repo": "homepage",
-        "rev": "ec21912b4083739c0310ba4f361b9e9a3a3c530f",
+        "rev": "152576377c967d266396b873612445b570ae7ae8",
         "type": "github"
       },
       "original": {
