@@ -1,6 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   recyclarrPath = "/etc/stacks/recyclarr/config";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   users = {
@@ -19,7 +21,7 @@ in
   ];
 
   sops.templates."recyclarrConfig.yaml" = {
-    restartUnits = [ "media-recyclarr.service" ];
+    restartUnits = [ (quadletToService containers.media-recyclarr) ];
     owner = "recyclarr";
     group = "recyclarr";
     content = # yaml
@@ -171,8 +173,8 @@ in
       Restart = "always";
     };
     unitConfig = {
-      After = [ "media-gluetun.service" ];
-      Requires = [ "media-gluetun.service" ];
+      After = [ containers.media-gluetun.ref ];
+      Requires = [ containers.media-gluetun.ref ];
     };
   };
 }

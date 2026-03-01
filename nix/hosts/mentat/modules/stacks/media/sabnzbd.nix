@@ -1,7 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/sabnzbd";
   my = config.services.my.sabnzbd;
+  inherit (config.virtualisation.quadlet) containers;
 in
 {
   systemd.tmpfiles.rules = [
@@ -41,8 +42,8 @@ in
         Restart = "always";
       };
       unitConfig = {
-        After = [ "media-gluetun.service" ];
-        Requires = [ "media-gluetun.service" ];
+        After = [ containers.media-gluetun.ref ];
+        Requires = [ containers.media-gluetun.ref ];
       };
     };
     media-gluetun.containerConfig.publishPorts = [

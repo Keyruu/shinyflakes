@@ -1,6 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   traccarPath = "/etc/stacks/traccar";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   systemd.tmpfiles.rules = [
@@ -14,7 +16,7 @@ in
   };
 
   sops.templates."traccar.xml" = {
-    restartUnits = [ "traccar.service" ];
+    restartUnits = [ (quadletToService containers.traccar) ];
     content = ''
       <?xml version='1.0' encoding='UTF-8'?>
       <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>

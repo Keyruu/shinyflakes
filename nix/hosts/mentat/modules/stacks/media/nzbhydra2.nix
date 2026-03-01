@@ -1,7 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/nzbhydra2";
   my = config.services.my.nzbhydra2;
+  inherit (config.virtualisation.quadlet) containers;
 in
 {
   systemd.tmpfiles.rules = [
@@ -41,8 +42,8 @@ in
         Restart = "always";
       };
       unitConfig = {
-        After = [ "media-gluetun.service" ];
-        Requires = [ "media-gluetun.service" ];
+        After = [ containers.media-gluetun.ref ];
+        Requires = [ containers.media-gluetun.ref ];
       };
     };
     media-gluetun.containerConfig.publishPorts = [

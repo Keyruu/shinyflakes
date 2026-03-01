@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/z2m/data";
   my = config.services.my.zigbee2mqtt;
+  inherit (config.virtualisation.quadlet) containers networks;
+  inherit (flake.lib) quadletToService;
 in
 {
   systemd.tmpfiles.rules = [
@@ -16,7 +18,7 @@ in
   };
 
   sops.templates."z2mConfiguration.yaml" = {
-    restartUnits = [ "zigbee2mqtt.service" ];
+    restartUnits = [ (quadletToService containers.zigbee2mqtt) ];
     content = # yaml
       ''
         version: 5
@@ -63,39 +65,35 @@ in
     };
   };
 
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      containers = {
-        zigbee2mqtt = {
-          containerConfig = {
-            image = "koenkk/zigbee2mqtt:2.8.0";
-            environments = {
-              TZ = "Europe/Berlin";
-            };
-            publishPorts = [
-              "127.0.0.1:${toString my.port}:8080"
-            ];
-            volumes = [
-              "${stackPath}:/app/data"
-              "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
-              "/run/udev:/run/udev:ro"
-            ];
-            networks = [ networks.mqtt.ref ];
-            devices = [
-              "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
-            ];
+  virtualisation.quadlet = {
+    containers = {
+      zigbee2mqtt = {
+        containerConfig = {
+          image = "koenkk/zigbee2mqtt:2.8.0";
+          environments = {
+            TZ = "Europe/Berlin";
           };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = {
-            After = "mqtt.service";
-            Requires = "mqtt.service";
-          };
+          publishPorts = [
+            "127.0.0.1:${toString my.port}:8080"
+          ];
+          volumes = [
+            "${stackPath}:/app/data"
+            "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
+            "/run/udev:/run/udev:ro"
+          ];
+          networks = [ networks.mqtt.ref ];
+          devices = [
+            "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
+          ];
+        };
+        serviceConfig = {
+          Restart = "always";
+        };
+        unitConfig = {
+          After = containers.mqtt.ref;
+          Requires = containers.mqtt.ref;
         };
       };
     };
+  };
 }

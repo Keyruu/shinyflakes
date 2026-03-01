@@ -1,6 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/n8n";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   sops.secrets = {
@@ -12,7 +14,7 @@ in
   ];
 
   sops.templates."n8n.env" = {
-    restartUnits = [ "n8n.service" ];
+    restartUnits = [ (quadletToService containers.n8n) ];
     content = ''
       N8N_ENCRYPTION_KEY=${config.sops.placeholder.n8nEncryptionKey}
     '';

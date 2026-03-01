@@ -1,8 +1,10 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/forgejo";
   my = config.services.my.forgejo;
   inherit (config.services) mesh;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
   domain = "git.keyruu.de";
 in
 {
@@ -13,7 +15,7 @@ in
   };
 
   sops.templates."forgejo.ini" = {
-    restartUnits = [ "forgejo.service" ];
+    restartUnits = [ (quadletToService containers.forgejo) ];
     owner = "git";
     group = "git";
     content = # ini

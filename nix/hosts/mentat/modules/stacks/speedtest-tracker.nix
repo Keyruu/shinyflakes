@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/speedtest-tracker/config";
   my = config.services.my.speedtest-tracker;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   systemd.tmpfiles.rules = [
@@ -11,7 +13,7 @@ in
   sops = {
     secrets."speedtestTrackerAppKey".owner = "root";
     templates."speedtest-tracker.env" = {
-      restartUnits = [ "speedtest-tracker.service" ];
+      restartUnits = [ (quadletToService containers.speedtest-tracker) ];
       content = # env
         ''
           APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}

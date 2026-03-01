@@ -63,8 +63,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = "searxng-gluetun.service";
-            Requires = "searxng-gluetun.service";
+            After = containers."searxng-gluetun".ref;
+            Requires = containers."searxng-gluetun".ref;
           };
         };
 

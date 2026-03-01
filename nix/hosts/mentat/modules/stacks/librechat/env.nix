@@ -1,4 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
+let
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
+  stackName = "librechat";
+in
 {
   sops.secrets = {
     anthropicKey.owner = "root";
@@ -16,7 +21,7 @@
   };
 
   sops.templates."librechat.env" = {
-    restartUnits = [ "librechat-api.service" ];
+    restartUnits = [ (quadletToService containers."${stackName}-api") ];
     content = # sh
       ''
         #=====================================================================#

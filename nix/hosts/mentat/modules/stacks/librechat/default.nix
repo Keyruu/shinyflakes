@@ -1,8 +1,10 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackName = "librechat";
   stackPath = "/etc/stacks/${stackName}";
   my = config.services.my.librechat;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   imports = [
@@ -154,8 +156,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = [ "${stackName}-vectordb.service" ];
-            Requires = [ "${stackName}-vectordb.service" ];
+            After = [ containers."${stackName}-vectordb".ref ];
+            Requires = [ containers."${stackName}-vectordb".ref ];
           };
         };
       };

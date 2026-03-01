@@ -271,19 +271,24 @@ systemd.tmpfiles.rules = [
 ```nix
 # Declare secrets with restart units
 sops.secrets = {
-  serviceSecret = {
-    restartUnits = [ "service-main.service" ];
-  };
+  serviceSecret = { };
 };
 
 # Create environment template with restart units
+# Use quadletToService from flake.lib to convert container refs to service names
 sops.templates."service.env" = {
-  restartUnits = [ "service-main.service" ];
+  restartUnits = map (flake.lib.quadletToService) [
+    containers.service-main
+    containers.service-db
+  ];
   content = ''
     SECRET=${config.sops.placeholder.serviceSecret}
   '';
 };
 ```
+
+Note: For quadlet internal references (like `unitConfig.After/Requires`), use `containers.name.ref` directly.
+For external systemd units (like `restartUnits`), use `flake.lib.quadletToService` to convert container refs to service names.
 
 #### 4. Convert Services
 
@@ -393,23 +398,35 @@ name with `.service` suffix - no `quadlet-` prefix.
 
 **Best Practice**: Only add `restartUnits` to the SOPS template, not individual
 secrets. The template will automatically trigger when any referenced secret
-changes, eliminating redundancy.
+changes, eliminating redundancy. Use `flake.lib.quadletToService` to convert
+container refs to systemd service names.
 
 ```nix
-# Secrets don't need individual restartUnits
-sops.secrets = {
-  serviceSecret = { };
-  anotherSecret = { };
-};
+# In your stack file, import flake.lib
+{ config, flake, ... }:
+let
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
+in
+{
+  # Secrets don't need individual restartUnits
+  sops.secrets = {
+    serviceSecret = { };
+    anotherSecret = { };
+  };
 
-# Only the template needs restartUnits
-sops.templates."service.env" = {
-  restartUnits = [ "service-main.service" ];  # Container name + .service
-  content = ''
-    SECRET=${config.sops.placeholder.serviceSecret}
-    ANOTHER=${config.sops.placeholder.anotherSecret}
-  '';
-};
+  # Only the template needs restartUnits - use quadletToService
+  sops.templates."service.env" = {
+    restartUnits = map quadletToService [
+      containers.service-main
+      containers.service-db
+    ];
+    content = ''
+      SECRET=${config.sops.placeholder.serviceSecret}
+      ANOTHER=${config.sops.placeholder.anotherSecret}
+    '';
+  };
+}
 ```
 
 #### Health Checks

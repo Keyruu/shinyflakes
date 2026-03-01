@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/timetagger";
   my = config.services.my.timetagger;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   sops.secrets = {
@@ -13,7 +15,7 @@ in
   ];
 
   sops.templates."timetagger.env" = {
-    restartUnits = [ "timetagger.service" ];
+    restartUnits = [ (quadletToService containers.timetagger) ];
     content = ''
       TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCreds}
     '';

@@ -2,6 +2,7 @@
 let
   stackPath = "/etc/stacks/immich";
   my = config.services.my.immich;
+  inherit (config.virtualisation.quadlet) containers;
 in
 {
   systemd.tmpfiles.rules = [
@@ -76,8 +77,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = "immich-server.service";
-            Requires = "immich-server.service";
+            After = containers.immich-server.ref;
+            Requires = containers.immich-server.ref;
           };
         };
 

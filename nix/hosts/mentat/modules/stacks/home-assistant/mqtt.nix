@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
+{ config, flake, pkgs, ... }:
 let
   stackPath = "/etc/stacks/mqtt/data";
+  inherit (config.virtualisation.quadlet) containers networks;
+  inherit (flake.lib) quadletToService;
 in
 {
   systemd.tmpfiles.rules = [
@@ -21,11 +23,10 @@ in
       mqttPasswordFile = {
         owner = "mosquitto";
         group = "mosquitto";
-        restartUnits = [ "mqtt.service" ];
       };
     };
     templates."mqtt.conf" = {
-      restartUnits = [ "mqtt.service" ];
+      restartUnits = [ (quadletToService containers.mqtt) ];
       content = # yaml
         ''
           allow_anonymous false
@@ -40,16 +41,12 @@ in
     };
   };
 
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.mqtt.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=mqtt" ];
-      };
-      containers = {
+  virtualisation.quadlet = {
+    networks.mqtt.networkConfig = {
+      driver = "bridge";
+      podmanArgs = [ "--interface-name=mqtt" ];
+    };
+    containers = {
         mqtt = {
           containerConfig = {
             image = "eclipse-mosquitto:2.0.22";

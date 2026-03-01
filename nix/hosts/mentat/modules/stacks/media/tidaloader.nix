@@ -1,19 +1,17 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   my = config.services.my.tidaloader;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadletToService;
 in
 {
   sops.secrets = {
-    tidaloaderUsername = {
-      restartUnits = [ "tidaloader.service" ];
-    };
-    tidaloaderPassword = {
-      restartUnits = [ "tidaloader.service" ];
-    };
+    tidaloaderUsername = { };
+    tidaloaderPassword = { };
   };
 
   sops.templates."tidaloader.env" = {
-    restartUnits = [ "tidaloader.service" ];
+    restartUnits = [ (quadletToService containers.tidaloader) ];
     content = ''
       AUTH_USERNAME=${config.sops.placeholder.tidaloaderUsername}
       AUTH_PASSWORD=${config.sops.placeholder.tidaloaderPassword}
