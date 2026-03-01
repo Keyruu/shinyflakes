@@ -75,11 +75,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1772375406,
-        "narHash": "sha256-nCU0CYzmcB97AZ6qj+8A6xUJBViI4iueb6i+1kt8ATA=",
+        "lastModified": 1772375918,
+        "narHash": "sha256-lb9P+RW2yn1Rti81pefkszy0SMGn2kw+vR14ei4pPSM=",
         "owner": "Keyruu",
         "repo": "buymeaspezi",
-        "rev": "2ac4e0937ffb1b2c80eb8ee6cc8cc0a6a4bd26bc",
+        "rev": "40ba417d1929e28d366f1fd82b4e2ca3e8312608",
         "type": "github"
       },
       "original": {
