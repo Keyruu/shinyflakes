@@ -141,8 +141,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # web
     homepage = {
       url = "github:Keyruu/homepage";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    buymeaspezi = {
+      url = "github:Keyruu/buymeaspezi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

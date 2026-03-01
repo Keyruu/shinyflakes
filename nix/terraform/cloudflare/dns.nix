@@ -119,7 +119,7 @@
     "buymeaspezi.com" = {
       zoneId = ref.cloudflare_zone.buymeaspezi-com.id;
       records = {
-        cname."@".content = "coolify.keyruu.de";
+        cname."@".content = "sleipnir.keyruu.de";
 
         txt."@" = {
           spf.content = "v=spf1 +a +mx ?all";

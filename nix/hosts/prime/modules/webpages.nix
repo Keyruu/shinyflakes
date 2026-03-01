@@ -16,6 +16,20 @@
           }
         '';
       };
+      "buymeaspezi.com" = {
+        extraConfig = ''
+          import cloudflare-only
+
+          header {
+            -Last-Modified
+          }
+          encode
+          root ${perSystem.buymeaspezi.default}
+          file_server {
+            etag_file_extensions .etag
+          }
+        '';
+      };
     };
   };
 }
