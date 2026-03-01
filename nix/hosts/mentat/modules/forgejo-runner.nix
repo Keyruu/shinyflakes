@@ -22,6 +22,7 @@ in
         bash
         coreutils
         curl
+        jq
         direnv
         docker
         gawk
