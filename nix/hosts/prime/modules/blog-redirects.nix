@@ -12,6 +12,10 @@ _: {
         redir /Homelab/Quadlet* https://keyruu.de/blog/quadlet/ permanent
         redir /Web-Development/Everything-in-Go* https://keyruu.de/blog/everything-in-go/ permanent
 
+        handle_path /tags/* {
+          redir https://keyruu.de/blog/tag/{path} permanent
+        }
+
         handle {
           redir https://keyruu.de/blog{uri} permanent
         }
