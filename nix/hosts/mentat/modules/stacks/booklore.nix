@@ -14,9 +14,9 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/bookdrop 0755 root root"
-    "d ${stackPath}/mariadb/config 0755 root root"
+    "d ${stackPath}/data 0755 1000 1000"
+    "d ${stackPath}/bookdrop 0755 1000 1000"
+    "d ${stackPath}/mariadb/config 0755 1000 1000"
   ];
 
   sops.templates."booklore.env" = {
@@ -127,4 +127,15 @@ in
         };
       };
     };
+
+  services.nginx.virtualHosts = {
+    ${my.domain} = {
+      extraConfig = ''
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+        large_client_header_buffers 8 32k;
+      '';
+    };
+  };
 }
