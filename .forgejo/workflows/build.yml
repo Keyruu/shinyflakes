@@ -9,7 +9,7 @@ jobs:
       - name: Get host matrix
         id: hosts
         run: |
-          hosts=$(nix eval --json '.?submodules=1#lib.hostMatrix.host' 2>/dev/null)
+          hosts=$(nix eval --json '.?submodules=1#lib.hostMatrix' 2>/dev/null)
           echo "hosts=$hosts" >> $GITHUB_OUTPUT
   build:
     runs-on: nixos-x86_64-linux
