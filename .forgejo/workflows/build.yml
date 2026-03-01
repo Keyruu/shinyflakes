@@ -17,7 +17,7 @@ jobs:
       cancel-in-progress: false
     strategy:
       matrix:
-        flake: ${{ fromJSON(needs.setup.outputs.hosts) }}
+        host: ${{ fromJSON(needs.setup.outputs.hosts) }}
     needs: setup
     steps:
       - uses: actions/checkout@v6
