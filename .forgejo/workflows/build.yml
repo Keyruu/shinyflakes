@@ -1,12 +1,24 @@
 on: [push]
 jobs:
+  setup:
+    runs-on: nixos-x86_64-linux
+    outputs:
+      hosts: ${{ steps.hosts.outputs.hosts }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get host matrix
+        id: hosts
+        run: |
+          hosts=$(nix eval --json '.?submodules=1#lib.hostMatrix.host' 2>/dev/null)
+          echo "hosts=$hosts" >> $GITHUB_OUTPUT
   build:
     runs-on: nixos-x86_64-linux
     concurrency:
       cancel-in-progress: false
     strategy:
       matrix:
-        flake: [mentat, muadib, prime]
+        flake: ${{ fromJSON(needs.setup.outputs.hosts) }}
+    needs: setup
     steps:
       - uses: actions/checkout@v6
       - name: Fetch submodules
@@ -14,6 +26,7 @@ jobs:
           git submodule init
           git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
           git submodule update --recursive
-      - name: Build
-        run: nixos-rebuild build --flake .?submodules=1#${{ matrix.flake }} --max-jobs 1
+      - name: Build all hosts
+        run: |
+          nixos-rebuild build --flake .?submodules=1#${{ matrix.host }} --max-jobs 1
 
