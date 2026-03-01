@@ -16,7 +16,7 @@ in
   systemd.tmpfiles.rules = [
     "d ${stackPath}/data 0755 1000 1000"
     "d ${stackPath}/bookdrop 0755 1000 1000"
-    "d ${stackPath}/mariadb/config 0755 1000 1000"
+    "d ${stackPath}/mariadb/config 0755 root root"
   ];
 
   sops.templates."booklore.env" = {
