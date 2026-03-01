@@ -35,7 +35,8 @@
         "/clickhouse/",
         "/meilisearch/",
         "/alpine-chrome/",
-        "/pgvector"
+        "/pgvector",
+        "/mariadb/"
       ]
     },
     {
