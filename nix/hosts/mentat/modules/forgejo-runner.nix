@@ -34,6 +34,7 @@ in
         nodejs
         openssh
         wget
+        trivy
       ];
       enable = true;
       name = config.networking.hostName;

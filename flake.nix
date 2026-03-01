@@ -155,18 +155,10 @@
   # Load the blueprint with custom prefix
   outputs =
     inputs:
-    let
-      blueprintOutputs = inputs.blueprint {
-        inherit inputs;
-        nixpkgs.config.allowUnfree = true;
-        prefix = "nix";
-      };
-    in
-    blueprintOutputs
-    // {
-      githubActions.matrix = {
-        host = builtins.attrNames blueprintOutputs.nixosConfigurations;
-      };
+    inputs.blueprint {
+      inherit inputs;
+      nixpkgs.config.allowUnfree = true;
+      prefix = "nix";
     }
     // inputs.flake-utils.lib.eachDefaultSystem (system: rec {
       pkgs = import inputs.nixpkgs {
