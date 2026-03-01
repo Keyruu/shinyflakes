@@ -58,9 +58,6 @@ in
         "127.0.0.1:5144:5144"
         "${config.services.mesh.ip}:5144:5144"
       ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+-alpine$"
-      ];
     };
     serviceConfig = {
       Restart = "always";

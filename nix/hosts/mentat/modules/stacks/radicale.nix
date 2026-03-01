@@ -69,9 +69,6 @@ in
           "${stackPath}/config/config:/config/config:ro"
           "${config.sops.secrets.radicaleUsers.path}:/config/users:ro"
         ];
-        labels = [
-          "wud.tag.include=^\\d+\\.\\d+\\.\\d+\\.\\d+$"
-        ];
       };
       serviceConfig = {
         Restart = "always";

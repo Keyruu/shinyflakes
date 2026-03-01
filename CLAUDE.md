@@ -296,9 +296,6 @@ containers.service-name = {
     volumes = [ "${stackPath}/data:/container/path" ];
     environments = { ENV_VAR = "value"; };
     environmentFiles = [ config.sops.templates."service.env".path ];
-    labels = [
-      "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"  # WUD update monitoring
-    ];
     networks = [ networks.service-network.ref ];
     networkAliases = [ "service-alias" ];  # For inter-service communication
   };
@@ -487,7 +484,6 @@ sops.secrets = {
   block when using networks
 - Don't create networks for single-container stacks - use default bridge network
   instead
-- Add WUD labels only to main application containers for update monitoring
 - Only add `restartUnits` to SOPS templates, not individual secrets (templates
   trigger when any referenced secret changes)
 - Use `X-RestartTrigger` for configuration files that should restart containers

@@ -74,7 +74,6 @@ in
             ];
             networks = [ networks.dawarich.ref ];
             networkAliases = [ "dawarich_redis" ];
-            labels = [ "wud.watch=false" ];
             healthCmd = "redis-cli --raw incr ping";
             healthInterval = "10s";
             healthTimeout = "10s";
@@ -102,7 +101,6 @@ in
             ];
             networks = [ networks.dawarich.ref ];
             networkAliases = [ "dawarich_db" ];
-            labels = [ "wud.watch=false" ];
             healthCmd = "pg_isready -U postgres -d dawarich_development";
             healthInterval = "10s";
             healthTimeout = "10s";
@@ -147,9 +145,6 @@ in
               STORE_GEODATA = "true";
             };
             environmentFiles = [ config.sops.templates."dawarich.env".path ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
             networks = [ networks.dawarich.ref ];
           };
           serviceConfig = {
@@ -194,7 +189,6 @@ in
               STORE_GEODATA = "true";
             };
             environmentFiles = [ config.sops.templates."dawarich.env".path ];
-            labels = [ "wud.watch=false" ];
             networks = [ networks.dawarich.ref ];
             healthCmd = "pgrep -f sidekiq";
             healthInterval = "10s";

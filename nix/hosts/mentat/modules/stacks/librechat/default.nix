@@ -64,9 +64,6 @@ in
             ];
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
-            labels = [
-              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
-            ];
             autoUpdate = "registry";
           };
           serviceConfig = {
@@ -97,7 +94,6 @@ in
             ];
             networks = [ networks.librechat.ref ];
             networkAliases = [ "mongodb" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";
@@ -117,7 +113,6 @@ in
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
             networkAliases = [ "meilisearch" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";
@@ -137,7 +132,6 @@ in
             environmentFiles = [ config.sops.templates."librechat.env".path ];
             networks = [ networks.librechat.ref ];
             networkAliases = [ "vectordb" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";
@@ -154,7 +148,6 @@ in
             networks = [ networks.librechat.ref ];
             environmentFiles = [ config.sops.templates."librechat.env".path ];
             networkAliases = [ "rag_api" ];
-            labels = [ "wud.watch=false" ];
             autoUpdate = "registry";
           };
           serviceConfig = {

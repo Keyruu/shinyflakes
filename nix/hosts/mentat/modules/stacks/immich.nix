@@ -70,9 +70,6 @@ in
               "${stackPath}/model-cache:/cache"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
-            labels = [
-              "wud.tag.include=^v\\d+\\.\\d+\\.\\d+$"
-            ];
             networks = [ networks.immich.ref ];
           };
           serviceConfig = {
@@ -92,7 +89,6 @@ in
             networks = [ networks.immich.ref ];
             networkAliases = [ "redis" ];
             notify = "healthy";
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";
@@ -113,7 +109,6 @@ in
             ];
             networks = [ networks.immich.ref ];
             networkAliases = [ "postgres" ];
-            labels = [ "wud.watch=false" ];
           };
           serviceConfig = {
             Restart = "always";

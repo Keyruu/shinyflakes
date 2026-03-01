@@ -33,9 +33,6 @@ in
         WEBHOOK_URL = "https://n8n.lab.keyruu.de/";
       };
       environmentFiles = [ config.sops.templates."n8n.env".path ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-      ];
     };
     serviceConfig = {
       Restart = "always";

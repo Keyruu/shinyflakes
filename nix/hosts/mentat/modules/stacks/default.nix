@@ -23,5 +23,6 @@
     ./forgejo.nix
     ./invidious.nix
     ./freshrss.nix
+    ./booklore.nix
   ];
 }

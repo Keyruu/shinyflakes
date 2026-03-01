@@ -16,9 +16,6 @@ in
       volumes = [
         "${stackPath}/data:/app/data"
       ];
-      labels = [
-        "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-      ];
     };
     serviceConfig = {
       Restart = "always";
