@@ -15,7 +15,6 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/books 0755 root root"
     "d ${stackPath}/bookdrop 0755 root root"
     "d ${stackPath}/mariadb/config 0755 root root"
   ];
@@ -107,7 +106,7 @@ in
             ];
             volumes = [
               "${stackPath}/data:/app/data"
-              "${stackPath}/books:/books"
+              "/main/media/Books:/books"
               "${stackPath}/bookdrop:/bookdrop"
             ];
             networks = [ networks.booklore.ref ];
