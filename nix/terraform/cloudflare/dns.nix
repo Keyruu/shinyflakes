@@ -19,14 +19,13 @@
               "fm"
               "scrobble"
               "@"
-              "oblivion-test"
+              "oblivion"
               "*"
             ];
           };
           coolify = {
             content = ref.hcloud_server.pegasus.ipv4_address;
             cnames = [
-              "oblivion"
               "spot"
             ];
           };

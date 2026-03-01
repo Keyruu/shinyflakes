@@ -1,6 +1,6 @@
 _: {
   services.caddy.virtualHostsWithDefaults = {
-    "oblivion-test.keyruu.de" = {
+    "oblivion.keyruu.de" = {
       extraConfig = ''
         import cloudflare-only
 
