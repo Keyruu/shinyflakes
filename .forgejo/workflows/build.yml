@@ -6,6 +6,11 @@ jobs:
       hosts: ${{ steps.hosts.outputs.hosts }}
     steps:
       - uses: actions/checkout@v6
+      - name: Fetch submodules
+        run: |
+          git submodule init
+          git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
+          git submodule update --recursive
       - name: Get host matrix
         id: hosts
         run: |
