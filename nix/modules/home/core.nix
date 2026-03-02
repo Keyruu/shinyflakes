@@ -6,6 +6,9 @@
   flake,
   ...
 }:
+let
+  stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
+in
 {
   imports = [
     inputs.sops-nix.homeManagerModules.sops
@@ -102,7 +105,7 @@
     obsidian
     pavucontrol
     notion-app-enhanced
-    calibre
+    stable.calibre
     localsend
     element-desktop
     diebahn
