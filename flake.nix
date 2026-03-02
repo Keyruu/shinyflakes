@@ -136,6 +136,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    noctalia-qs = {
+      url = "github:noctalia-dev/noctalia-qs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     librepods = {
       url = "github:SophiaH67/librepods/linux/rust";
       inputs.nixpkgs.follows = "nixpkgs";

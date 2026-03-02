@@ -10,7 +10,6 @@
 
   programs.noctalia-shell = {
     enable = true;
-    systemd.enable = true;
 
     colors = {
       mError = "#f38ba8"; # red from waybar critical state
