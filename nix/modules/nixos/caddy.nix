@@ -1,4 +1,5 @@
 {
+  config,
   flake,
   pkgs,
   lib,
@@ -8,6 +9,19 @@
   imports = [
     flake.modules.services.caddy
   ];
+
+  sops = {
+    secrets = {
+      caddyPasswordHash = { };
+    };
+    templates."caddy.env" = {
+      owner = "caddy";
+      group = "caddy";
+      content = ''
+        PASSWORD_HASH=${config.sops.placeholder.caddyPasswordHash}
+      '';
+    };
+  };
 
   networking.firewall.allowedTCPPorts = [
     80
@@ -34,6 +48,8 @@
         ];
         hash = "sha256-7mqh9RM6jyGEatxCTBY2iJqvYmbP2ltxSAZ8Y08on8M=";
       };
+
+      environmentFile = config.sops.templates."caddy.env".path;
 
       globalConfig = ''
         order coraza_waf first
