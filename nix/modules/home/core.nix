@@ -140,7 +140,7 @@
     tilt
     yt-dlp
     colmena
-    harlequin
+    # harlequin
     cloudlens
     lsof
     wtype
