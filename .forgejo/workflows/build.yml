@@ -31,7 +31,7 @@ jobs:
           git submodule init
           git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
           git submodule update --recursive
-      - name: Build all hosts
+      - name: Build host
         run: |
           nixos-rebuild build --flake .?submodules=1#${{ matrix.host }} --max-jobs 1
 
