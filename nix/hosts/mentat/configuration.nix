@@ -87,7 +87,7 @@
     slirp4netns
     lazydocker
     usbutils
-    beets
+    # beets
     conmon
     runc
     powertop

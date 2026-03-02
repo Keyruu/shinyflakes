@@ -105,6 +105,7 @@ in
     obsidian
     pavucontrol
     notion-app-enhanced
+    # FIXME: broken on unstable https://github.com/NixOS/nixpkgs/issues/493843
     stable.calibre
     localsend
     element-desktop
@@ -143,6 +144,7 @@ in
     tilt
     yt-dlp
     colmena
+    # FIXME: harlequin broken on unstable
     # harlequin
     cloudlens
     lsof

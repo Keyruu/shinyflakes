@@ -11,7 +11,8 @@
     ./lidarr.nix
     ./sabnzbd.nix
     ./nzbhydra2.nix
-    ./beets.nix
+    # FIXME: beets broken on unstable
+    # ./beets.nix
     ./tidaloader.nix
   ];
 }
