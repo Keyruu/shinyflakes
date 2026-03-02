@@ -9,7 +9,7 @@ let
   oapiPort = 30102;
 
   # renovate: datasource=docker depName=ghcr.io/sooperset/mcp-atlassian
-  mcpVersion = "0.20.1";
+  mcpVersion = "0.21.0";
 in
 {
   sops.secrets = {
