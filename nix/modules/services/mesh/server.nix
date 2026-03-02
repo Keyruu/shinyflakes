@@ -16,6 +16,11 @@ in
     };
 
     networking.firewall.allowedUDPPorts = [ 51234 ];
+    networking.nat = {
+      enable = true;
+      internalInterfaces = [ "mesh0" ];
+      externalInterface = "eth0";
+    };
 
     networking.wg-quick.interfaces = {
       mesh0 = {

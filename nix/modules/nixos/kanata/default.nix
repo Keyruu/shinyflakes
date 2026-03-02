@@ -9,10 +9,6 @@
           "/dev/input/event0"
         ];
       };
-      common = {
-        configFile = ./kanata-common.kbd;
-        devices = [ "/dev/input/by-id/usb-ZSA_Technology_Labs_Voyager_oyYzP_DzNPA7-event-kbd" ];
-      };
     };
   };
 }

@@ -42,7 +42,10 @@ in
     inherit (mesh.people.lucas.devices.muadib) ip;
     client = {
       enable = true;
-      ws = true;
+      ws = {
+        enable = true;
+        defaultInterface = "enp42s0";
+      };
       keyName = "muadibMeshKey";
     };
   };
