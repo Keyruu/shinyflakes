@@ -17,14 +17,6 @@ _: {
         user = "root";
         compression = true;
       };
-      "coolify" = {
-        hostname = "195.201.39.140";
-        user = "root";
-      };
-      "traversetown" = {
-        hostname = "78.47.122.5";
-        user = "root";
-      };
     };
   };
 }
