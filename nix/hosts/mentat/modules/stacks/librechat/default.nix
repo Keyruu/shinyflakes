@@ -56,7 +56,7 @@ in
       containers = {
         "${stackName}-api" = {
           containerConfig = {
-            image = "ghcr.io/danny-avila/librechat-api:v0.8.2-rc2";
+            image = "ghcr.io/danny-avila/librechat-api:v0.8.3-rc2";
             publishPorts = [ "127.0.0.1:${toString my.port}:3080" ];
             addHosts = [ "host.containers.internal:host-gateway" ];
             volumes = [
