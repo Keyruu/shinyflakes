@@ -61,7 +61,13 @@ in
   options.services.my = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule (
-        { name, ... }:
+        { name, config, ... }:
+        let
+          stackCfg = config.stack;
+          memberServices = map (short: "${prefixName name short}.service") (
+            lib.attrNames stackCfg.containers
+          );
+        in
         {
           options.stack = {
             enable = lib.mkEnableOption "stack infrastructure (directories, users, network, containers)";
@@ -196,6 +202,11 @@ in
               ) securityFields
             );
           };
+
+          config.backup = lib.mkIf stackCfg.enable {
+            paths = lib.mkDefault [ stackCfg.path ];
+            systemd.unit = lib.mkIf (stackCfg.containers != { }) (lib.mkDefault memberServices);
+          };
         }
       )
     );
@@ -324,79 +335,87 @@ in
                 let
                   fullName = prefixName stackName shortName;
 
-                  depRefs = map (dep: "${prefixName stackName dep}.container") containerCfg.dependsOn;
+                  base = removeAttrs containerCfg [
+                    "dependsOn"
+                    "security"
+                    # quadlet-nix internal/read-only attrs
+                    "ref"
+                    "_serviceName"
+                    "_configText"
+                    "_autoStart"
+                    "_autoEscapeRequired"
+                    "_rootless"
+                    "_overrides"
+                  ];
 
-                  applySecurityTo =
-                    containerCfg:
-                    lib.foldl' (
-                      acc: field:
-                      let
-                        effective =
-                          if containerCfg.security.${field.name} != null then
-                            containerCfg.security.${field.name}
-                          else
-                            secCfg.${field.name};
-                      in
-                      acc // field.apply effective
-                    ) { } securityFields;
+                  withNetwork =
+                    if stackCfg.network.enable && base.containerConfig.networks == [ ] then
+                      base
+                      // {
+                        containerConfig = base.containerConfig // {
+                          networks = [ config.virtualisation.quadlet.networks.${stackCfg.network.name}.ref ];
+                        };
+                      }
+                    else
+                      base;
+
+                  withPorts =
+                    if
+                      stackCfg.main == shortName
+                      && stackCfg.internalPort != null
+                      && withNetwork.containerConfig.publishPorts == [ ]
+                    then
+                      withNetwork
+                      // {
+                        containerConfig = withNetwork.containerConfig // {
+                          publishPorts = [
+                            "127.0.0.1:${toString svc.port}:${toString stackCfg.internalPort}"
+                          ];
+                        };
+                      }
+                    else
+                      withNetwork;
+
+                  depRefs = map (dep: "${prefixName stackName dep}.container") containerCfg.dependsOn;
+                  withDeps =
+                    if containerCfg.dependsOn != [ ] then
+                      withPorts
+                      // {
+                        unitConfig = withPorts.unitConfig // {
+                          After = (withPorts.unitConfig.After or [ ]) ++ depRefs;
+                          Requires = (withPorts.unitConfig.Requires or [ ]) ++ depRefs;
+                        };
+                      }
+                    else
+                      withPorts;
+
+                  securityAttrs = lib.foldl' (
+                    acc: field:
+                    let
+                      effective =
+                        if containerCfg.security.${field.name} != null then
+                          containerCfg.security.${field.name}
+                        else
+                          secCfg.${field.name};
+                    in
+                    acc // field.apply effective
+                  ) { } securityFields;
+                  withSecurity =
+                    if secCfg.enable then
+                      withDeps
+                      // {
+                        containerConfig = withDeps.containerConfig // securityAttrs;
+                      }
+                    else
+                      withDeps;
                 in
                 {
-                  ${fullName} = lib.mkMerge [
-                    (removeAttrs containerCfg [
-                      "dependsOn"
-                      "security"
-                    ])
-
-                    (lib.optionalAttrs stackCfg.network.enable {
-                      containerConfig.networks = lib.mkDefault [
-                        config.virtualisation.quadlet.networks.${stackCfg.network.name}.ref
-                      ];
-                    })
-
-                    (lib.optionalAttrs (stackCfg.main == shortName && stackCfg.internalPort != null) {
-                      containerConfig.publishPorts = lib.mkDefault [
-                        "127.0.0.1:${toString svc.port}:${toString stackCfg.internalPort}"
-                      ];
-                    })
-
-                    (lib.optionalAttrs (containerCfg.dependsOn != [ ]) {
-                      unitConfig = {
-                        After = lib.mkDefault depRefs;
-                        Requires = lib.mkDefault depRefs;
-                      };
-                    })
-
-                    (lib.optionalAttrs secCfg.enable {
-                      containerConfig = applySecurityTo containerCfg;
-                    })
-                  ];
+                  ${fullName} = withSecurity;
                 }
               ) stackCfg.containers
             )
           ) enabledStacks
         )
-      );
-    }
-
-    {
-      services.my = lib.mkMerge (
-        lib.mapAttrsToList (
-          stackName: svc:
-          let
-            stackCfg = svc.stack;
-            memberServices = map (short: "${prefixName stackName short}.service") (
-              lib.attrNames stackCfg.containers
-            );
-          in
-          lib.mkIf (stackCfg.enable && svc.backup.enable) {
-            ${stackName}.backup = {
-              paths = lib.mkDefault [ stackCfg.path ];
-            }
-            // lib.optionalAttrs (stackCfg.containers != { }) {
-              systemd.unit = lib.mkDefault memberServices;
-            };
-          }
-        ) enabledStacks
       );
     }
   ];
