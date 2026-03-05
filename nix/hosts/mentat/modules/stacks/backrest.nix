@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/dawarich";
   my = config.services.my.backrest;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -14,7 +16,7 @@ in
   sops = {
     templates."backrest.env" = {
       restartUnits = [
-        "backrest.service"
+        (quadlet.service containers.backrest)
       ];
       content = ''
         RESTIC_PASSWORD=${config.sops.placeholder.resticPassword}

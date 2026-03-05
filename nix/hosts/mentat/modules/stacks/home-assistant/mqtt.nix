@@ -1,8 +1,13 @@
-{ config, flake, pkgs, ... }:
+{
+  config,
+  flake,
+  pkgs,
+  ...
+}:
 let
   stackPath = "/etc/stacks/mqtt/data";
   inherit (config.virtualisation.quadlet) containers networks;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -26,7 +31,7 @@ in
       };
     };
     templates."mqtt.conf" = {
-      restartUnits = [ (quadletToService containers.mqtt) ];
+      restartUnits = [ (quadlet.service containers.mqtt) ];
       content = # yaml
         ''
           allow_anonymous false
@@ -47,29 +52,29 @@ in
       podmanArgs = [ "--interface-name=mqtt" ];
     };
     containers = {
-        mqtt = {
-          containerConfig = {
-            image = "eclipse-mosquitto:2.0.22";
-            publishPorts = [
-              "127.0.0.1:1883:1883"
-              "192.168.100.7:1883:1883"
-              "127.0.0.1:9001:9001"
-            ];
-            volumes = [
-              "${stackPath}:/mosquitto"
-              "${config.sops.templates."mqtt.conf".path}:/mosquitto/config/mqtt.conf:ro"
-              "${config.sops.secrets.mqttPasswordFile.path}:/mosquitto/config/pwfile:ro"
-            ];
-            exec = "mosquitto -c /mosquitto/config/mqtt.conf";
-            networks = [ networks.mqtt.ref ];
-            networkAliases = [ "mqtt" ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
+      mqtt = {
+        containerConfig = {
+          image = "eclipse-mosquitto:2.0.22";
+          publishPorts = [
+            "127.0.0.1:1883:1883"
+            "192.168.100.7:1883:1883"
+            "127.0.0.1:9001:9001"
+          ];
+          volumes = [
+            "${stackPath}:/mosquitto"
+            "${config.sops.templates."mqtt.conf".path}:/mosquitto/config/mqtt.conf:ro"
+            "${config.sops.secrets.mqttPasswordFile.path}:/mosquitto/config/pwfile:ro"
+          ];
+          exec = "mosquitto -c /mosquitto/config/mqtt.conf";
+          networks = [ networks.mqtt.ref ];
+          networkAliases = [ "mqtt" ];
+        };
+        serviceConfig = {
+          Restart = "always";
         };
       };
     };
+  };
 
   services.nginx.virtualHosts."mqtt.port.peeraten.net" = {
     useACMEHost = "port.peeraten.net";

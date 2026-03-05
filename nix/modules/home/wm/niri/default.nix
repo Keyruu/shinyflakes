@@ -12,8 +12,6 @@ let
   windowRulesKdl = import ./window-rules.nix { inherit pkgs lib; };
   bindsKdl = import ./binds.nix { inherit pkgs lib; };
   altTabKdl = import ./alt-tab.nix { inherit pkgs lib; };
-
-  wallpaper = ../../themes/dark-bg.jpg;
 in
 {
   imports = [

@@ -2,7 +2,7 @@
 let
   traccarPath = "/etc/stacks/traccar";
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -16,7 +16,7 @@ in
   };
 
   sops.templates."traccar.xml" = {
-    restartUnits = [ (quadletToService containers.traccar) ];
+    restartUnits = [ (quadlet.service containers.traccar) ];
     content = ''
       <?xml version='1.0' encoding='UTF-8'?>
       <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>

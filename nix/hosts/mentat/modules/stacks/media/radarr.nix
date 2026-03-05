@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/radarr";
   my = config.services.my.radarr;

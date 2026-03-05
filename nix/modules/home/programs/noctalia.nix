@@ -36,6 +36,7 @@
         backgroundOpacity = 0;
         showCapsule = true;
         floating = true;
+        useSeparateOpacity = true;
         widgets = {
           left = [
             {
@@ -134,22 +135,33 @@
       ui = {
         fontDefault = config.user.font;
         fontFixed = config.user.font;
-        radiusRatio = 0.3;
       };
       # colorSchemes.predefinedScheme = "Noctalia (default)";
       general = {
-        radiusRatio = 0.2;
+        radiusRatio = 1;
       };
       wallpaper = {
         enabled = true;
         directory = ../themes;
-        defaultWallpaper = ../themes/dark-bg.jpg;
         overviewEnabled = true;
       };
-      notifications.enabled = true;
+      notifications = {
+        enabled = true;
+        sounds = {
+          enabled = true;
+          excludedApps = "discord,firefox,chrome,chromium,edge,Slack";
+        };
+      };
       location = {
         name = "Munich, Germany";
         firstDayOfWeek = 0;
+      };
+      idle = {
+        enabled = true;
+        fadeDuration = 5;
+        lockTimeout = 330;
+        screenOffTimeout = 300;
+        suspendTimeout = 900;
       };
       dock.enabled = false;
     };

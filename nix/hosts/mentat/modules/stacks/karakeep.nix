@@ -1,7 +1,8 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
-  stackPath = "/etc/stacks/karakeep";
   my = config.services.my.karakeep;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   sops.secrets = {
@@ -9,15 +10,10 @@ in
     karakeepMeiliMasterKey = { };
   };
 
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/meilisearch 0755 root root"
-  ];
-
   sops.templates."karakeep.env" = {
-    restartUnits = [
-      "karakeep-web.service"
-      "karakeep-meilisearch.service"
+    restartUnits = map quadlet.service [
+      containers.karakeep-web
+      containers.karakeep-meilisearch
     ];
     content = # sh
       ''
@@ -39,83 +35,72 @@ in
         people = [ "lucas" ];
       };
     };
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit = "karakeep-*";
+      directories = [
+        "data"
+        "meilisearch"
+      ];
+      network.enable = true;
+      containers = with containers; {
+        members = [
+          karakeep-web
+          karakeep-chrome
+          karakeep-meilisearch
+        ];
+        security.enable = true;
+      };
     };
   };
 
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.karakeep.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=karakeep" ];
+  virtualisation.quadlet.containers = {
+    karakeep-web = {
+      containerConfig = {
+        image = "ghcr.io/karakeep-app/karakeep:0.31.0";
+        publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
+        volumes = [
+          "${my.stack.path}/data:/data"
+        ];
+        environments = {
+          MEILI_ADDR = "http://${quadlet.alias containers.karakeep-meilisearch}:7700";
+          BROWSER_WEB_URL = "http://${quadlet.alias containers.karakeep-chrome}:9222";
+          DATA_DIR = "/data";
+        };
+        environmentFiles = [ config.sops.templates."karakeep.env".path ];
       };
-
-      containers = {
-        karakeep-web = {
-          containerConfig = {
-            image = "ghcr.io/karakeep-app/karakeep:0.31.0";
-            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
-            volumes = [
-              "${stackPath}/data:/data"
-            ];
-            environments = {
-              MEILI_ADDR = "http://meilisearch:7700";
-              BROWSER_WEB_URL = "http://chrome:9222";
-              DATA_DIR = "/data";
-            };
-            environmentFiles = [ config.sops.templates."karakeep.env".path ];
-            networks = [ networks.karakeep.ref ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = {
-            After = [
-              "karakeep-meilisearch.service"
-              "karakeep-chrome.service"
-            ];
-            Requires = [
-              "karakeep-meilisearch.service"
-              "karakeep-chrome.service"
-            ];
-          };
-        };
-
-        karakeep-chrome = {
-          containerConfig = {
-            image = "gcr.io/zenika-hub/alpine-chrome:124";
-            exec = "--no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --enable-features=ConversionMeasurement,AttributionReportingCrossAppWeb --hide-scrollbars";
-            networks = [ networks.karakeep.ref ];
-            networkAliases = [ "chrome" ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-        };
-
-        karakeep-meilisearch = {
-          containerConfig = {
-            image = "getmeili/meilisearch:v1.13.3";
-            environments = {
-              MEILI_NO_ANALYTICS = "true";
-            };
-            environmentFiles = [ config.sops.templates."karakeep.env".path ];
-            volumes = [
-              "${stackPath}/meilisearch:/meili_data"
-            ];
-            networks = [ networks.karakeep.ref ];
-            networkAliases = [ "meilisearch" ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-        };
+      unitConfig = {
+        After = [
+          containers.karakeep-meilisearch.ref
+          containers.karakeep-chrome.ref
+        ];
+        Requires = [
+          containers.karakeep-meilisearch.ref
+          containers.karakeep-chrome.ref
+        ];
       };
     };
+
+    karakeep-chrome = {
+      containerConfig = {
+        image = "gcr.io/zenika-hub/alpine-chrome:124";
+        exec = "--no-sandbox --disable-gpu --disable-dev-shm-usage --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --enable-features=ConversionMeasurement,AttributionReportingCrossAppWeb --hide-scrollbars";
+        networkAliases = [ "chrome" ];
+      };
+    };
+
+    karakeep-meilisearch = {
+      containerConfig = {
+        image = "getmeili/meilisearch:v1.13.3";
+        environments = {
+          MEILI_NO_ANALYTICS = "true";
+        };
+        environmentFiles = [ config.sops.templates."karakeep.env".path ];
+        volumes = [
+          "${my.stack.path}/meilisearch:/meili_data"
+        ];
+        networkAliases = [ "meilisearch" ];
+      };
+    };
+  };
 }

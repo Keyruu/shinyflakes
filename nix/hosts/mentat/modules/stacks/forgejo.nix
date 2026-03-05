@@ -4,7 +4,7 @@ let
   my = config.services.my.forgejo;
   inherit (config.services) mesh;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
   domain = "git.keyruu.de";
 in
 {
@@ -15,7 +15,7 @@ in
   };
 
   sops.templates."forgejo.ini" = {
-    restartUnits = [ (quadletToService containers.forgejo) ];
+    restartUnits = [ (quadlet.service containers.forgejo) ];
     owner = "git";
     group = "git";
     content = # ini

@@ -4,7 +4,7 @@ let
   stackPath = "/etc/stacks/${stackName}";
   my = config.services.my.librechat;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   imports = [
@@ -30,7 +30,13 @@ in
     backup = {
       enable = true;
       paths = [ stackPath ];
-      systemd.unit = "librechat-*";
+      systemd.unit = map quadlet.service [
+        containers."${stackName}-api"
+        containers."${stackName}-mongodb"
+        containers."${stackName}-meilisearch"
+        containers."${stackName}-vectordb"
+        containers."${stackName}-rag-api"
+      ];
     };
   };
 
@@ -73,14 +79,13 @@ in
           };
           unitConfig = {
             After = [
-              "${stackName}-mongodb.service"
-              "${stackName}-rag-api.service"
+              containers."${stackName}-mongodb".ref
+              containers."${stackName}-rag-api".ref
             ];
             Requires = [
-              "${stackName}-mongodb.service"
-              "${stackName}-rag-api.service"
+              containers."${stackName}-mongodb".ref
+              containers."${stackName}-rag-api".ref
             ];
-            # This will cause the service to restart when the config file changes
             X-RestartTrigger = [
               "${config.environment.etc."stacks/${stackName}/api/librechat.yaml".source}"
             ];

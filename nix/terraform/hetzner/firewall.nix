@@ -1,4 +1,4 @@
-{ lib, ref, ... }:
+{ ref, ... }:
 let
 
   createPortRule = port: {

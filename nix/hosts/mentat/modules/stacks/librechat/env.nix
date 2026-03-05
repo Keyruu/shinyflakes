@@ -1,7 +1,7 @@
 { config, flake, ... }:
 let
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
   stackName = "librechat";
 in
 {
@@ -21,7 +21,7 @@ in
   };
 
   sops.templates."librechat.env" = {
-    restartUnits = [ (quadletToService containers."${stackName}-api") ];
+    restartUnits = [ (quadlet.service containers."${stackName}-api") ];
     content = # sh
       ''
         #=====================================================================#

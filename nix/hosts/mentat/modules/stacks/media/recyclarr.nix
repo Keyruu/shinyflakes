@@ -2,7 +2,7 @@
 let
   recyclarrPath = "/etc/stacks/recyclarr/config";
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   users = {
@@ -21,7 +21,7 @@ in
   ];
 
   sops.templates."recyclarrConfig.yaml" = {
-    restartUnits = [ (quadletToService containers.media-recyclarr) ];
+    restartUnits = [ (quadlet.service containers.media-recyclarr) ];
     owner = "recyclarr";
     group = "recyclarr";
     content = # yaml

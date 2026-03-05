@@ -3,7 +3,7 @@ let
   stackPath = "/etc/stacks/booklore";
   my = config.services.my.booklore;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   sops.secrets = {
@@ -20,7 +20,7 @@ in
   ];
 
   sops.templates."booklore.env" = {
-    restartUnits = map quadletToService [
+    restartUnits = map quadlet.service [
       containers.booklore-main
       containers.booklore-mariadb
     ];
@@ -52,7 +52,12 @@ in
       backup = {
         enable = true;
         paths = [ stackPath ];
-        systemd.unit = "booklore-*";
+        systemd.unit =
+          with containers;
+          map quadlet.service [
+            booklore-main
+            booklore-mariadb
+          ];
       };
     };
 

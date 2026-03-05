@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/multi-scrobbler";
   domain = "scrobble.keyruu.de";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   users = {
@@ -30,7 +32,7 @@ in
 
   sops.templates = {
     "multi-scrobbler.env" = {
-      restartUnits = [ "multi-scrobbler.service" ];
+      restartUnits = [ (quadlet.service containers.multi-scrobbler) ];
       owner = "multi-scrobbler";
       group = "multi-scrobbler";
       content = ''

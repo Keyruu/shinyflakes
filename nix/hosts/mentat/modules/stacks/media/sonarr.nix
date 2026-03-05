@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/sonarr";
   my = config.services.my.sonarr;

@@ -3,7 +3,7 @@ let
   stackPath = "/etc/stacks/speedtest-tracker/config";
   my = config.services.my.speedtest-tracker;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -13,7 +13,7 @@ in
   sops = {
     secrets."speedtestTrackerAppKey".owner = "root";
     templates."speedtest-tracker.env" = {
-      restartUnits = [ (quadletToService containers.speedtest-tracker) ];
+      restartUnits = [ (quadlet.service containers.speedtest-tracker) ];
       content = # env
         ''
           APP_KEY=${config.sops.placeholder.speedtestTrackerAppKey}

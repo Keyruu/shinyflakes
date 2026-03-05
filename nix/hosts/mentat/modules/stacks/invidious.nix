@@ -1,9 +1,14 @@
-{ config, flake, pkgs, ... }:
+{
+  config,
+  flake,
+  pkgs,
+  ...
+}:
 let
   stackPath = "/etc/stacks/invidious";
   my = config.services.my.invidious;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
   dbName = "invidious";
   dbUser = "peter";
   dbHost = "db";
@@ -37,7 +42,7 @@ in
 
   sops.templates = {
     "invidious.env" = {
-      restartUnits = [ (quadletToService containers.invidious-main) ];
+      restartUnits = [ (quadlet.service containers.invidious-main) ];
       content = ''
         INVIDIOUS_CONFIG=${
           builtins.toJSON {
@@ -59,13 +64,13 @@ in
       '';
     };
     "invidious-companion.env" = {
-      restartUnits = [ (quadletToService containers.invidious-companion) ];
+      restartUnits = [ (quadlet.service containers.invidious-companion) ];
       content = ''
         SERVER_SECRET_KEY=${companionKey}
       '';
     };
     "invidious-postgres.env" = {
-      restartUnits = [ (quadletToService containers.invidious-postgres) ];
+      restartUnits = [ (quadlet.service containers.invidious-postgres) ];
       content = ''
         POSTGRES_PASSWORD=${dbPassword}
       '';
@@ -79,7 +84,13 @@ in
     backup = {
       enable = true;
       paths = [ stackPath ];
-      systemd.unit = "invidious-*";
+      systemd.unit =
+        with containers;
+        map quadlet.service [
+          invidious-main
+          invidious-companion
+          invidious-postgres
+        ];
     };
   };
 
@@ -109,9 +120,9 @@ in
           serviceConfig = {
             Restart = "on-failure";
           };
-          unitConfig = {
-            After = [ containers.invidious-postgres.ref ];
-            Requires = [ containers.invidious-postgres.ref ];
+          unitConfig = with containers; {
+            After = [ invidious-postgres.ref ];
+            Requires = [ invidious-postgres.ref ];
           };
         };
 

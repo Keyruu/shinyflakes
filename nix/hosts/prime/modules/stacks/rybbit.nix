@@ -1,6 +1,13 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  flake,
+  ...
+}:
 let
   stackPath = "/etc/stacks/rybbit";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -18,10 +25,12 @@ in
   };
 
   sops.templates."rybbit.env" = {
-    restartUnits = [
-      "rybbit-backend.service"
-      "rybbit-client.service"
-    ];
+    restartUnits =
+      with containers;
+      map quadlet.service [
+        rybbit-backend
+        rybbit-client
+      ];
     content = ''
       DOMAIN_NAME=rybbit.keyruu.de
       BASE_URL=https://rybbit.keyruu.de
@@ -59,7 +68,6 @@ in
       containers = {
         rybbit-clickhouse = {
           containerConfig = {
-            # renovate: ignore
             image = "clickhouse/clickhouse-server:25.4.2";
             volumes = [
               "${stackPath}/clickhouse-data:/var/lib/clickhouse"
@@ -128,14 +136,14 @@ in
           serviceConfig = {
             Restart = "always";
           };
-          unitConfig = {
+          unitConfig = with containers; {
             After = [
-              "rybbit-clickhouse.service"
-              "rybbit-postgres.service"
+              rybbit-clickhouse.ref
+              rybbit-postgres.ref
             ];
             Requires = [
-              "rybbit-clickhouse.service"
-              "rybbit-postgres.service"
+              rybbit-clickhouse.ref
+              rybbit-postgres.ref
             ];
           };
         };
@@ -157,9 +165,9 @@ in
           serviceConfig = {
             Restart = "always";
           };
-          unitConfig = {
-            After = [ "rybbit-backend.service" ];
-            Requires = [ "rybbit-backend.service" ];
+          unitConfig = with containers; {
+            After = [ rybbit-backend.ref ];
+            Requires = [ rybbit-backend.ref ];
           };
         };
       };
@@ -183,14 +191,25 @@ in
         };
       };
 
-    restic.backupsWithDefaults = {
-      rybbit = {
-        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop rybbit-*";
-        paths = [
-          stackPath
-        ];
-        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start rybbit-* --all";
+    restic.backupsWithDefaults =
+      let
+        units =
+          with containers;
+          map quadlet.service [
+            rybbit-clickhouse
+            rybbit-postgres
+            rybbit-backend
+            rybbit-client
+          ];
+      in
+      {
+        rybbit = {
+          backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop ${builtins.concatStringsSep " " units}";
+          paths = [
+            stackPath
+          ];
+          backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start ${builtins.concatStringsSep " " units}";
+        };
       };
-    };
   };
 }

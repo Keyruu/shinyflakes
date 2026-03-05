@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/bazarr";
   my = config.services.my.bazarr;

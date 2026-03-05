@@ -8,21 +8,36 @@ let
     inherit pkgs;
     inherit (pkgs) lib;
   };
+
+  tofunix = tofunix-lib.mkCliAio {
+    plugins = [
+      (tofunix-lib.mkOpentofuProvider {
+        owner = "cloudflare";
+        repo = "cloudflare";
+        version = "5.15.0";
+        hash = "sha256-OVmE5zPRp+kEj7zGxxVu2bcNA2gDdj4m5DgAZckQW2k=";
+      })
+      (tofunix-lib.mkOpentofuProvider {
+        owner = "hetznercloud";
+        repo = "hcloud";
+        version = "1.57.0";
+        hash = "sha256-vdw+oskc7ASOnEuCyijl/racJeO4hc7AN6APsUwmvzY=";
+      })
+    ];
+    moduleConfig = ../terraform/main.nix;
+  };
 in
-tofunix-lib.mkCliAio {
-  plugins = [
-    (tofunix-lib.mkOpentofuProvider {
-      owner = "cloudflare";
-      repo = "cloudflare";
-      version = "5.15.0";
-      hash = "sha256-OVmE5zPRp+kEj7zGxxVu2bcNA2gDdj4m5DgAZckQW2k=";
-    })
-    (tofunix-lib.mkOpentofuProvider {
-      owner = "hetznercloud";
-      repo = "hcloud";
-      version = "1.57.0";
-      hash = "sha256-vdw+oskc7ASOnEuCyijl/racJeO4hc7AN6APsUwmvzY=";
-    })
-  ];
-  moduleConfig = ../terraform/main.nix;
-}
+# after a flake update the opentofu derivation changes, which invalidates
+# the h1: hashes in .terraform.lock.hcl and the provider symlinks in
+# .terraform/providers/ (they point into a garbage-collected store path).
+# since providers are already pinned by nix (exact version + sha256), the
+# lock file adds no value so we delete stale state and reinit providers
+# each time so tofu always sees providers matching the current nix closure.
+pkgs.writeShellScriptBin "tofunix" ''
+  rm -f .terraform.lock.hcl
+  rm -rf .terraform/providers .terraform/plugin_path
+
+  ${tofunix}/bin/tofunix init -input=false -backend=false > /dev/null 2>&1
+
+  exec ${tofunix}/bin/tofunix "$@"
+''

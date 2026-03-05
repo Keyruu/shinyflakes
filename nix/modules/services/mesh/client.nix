@@ -77,7 +77,7 @@ in
         address = [ "${mesh.ip}/24" ];
         privateKeyFile = config.sops.secrets."${mesh.client.keyName}".path;
         dns = [ "100.67.0.2" ];
-        inherit (mesh.client) autostart;
+        autostart = false;
 
         preUp = ''
           echo "trigger" > /dev/udp/127.0.0.1/51234 || true

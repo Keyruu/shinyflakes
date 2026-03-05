@@ -1,7 +1,4 @@
-{
-  ...
-}:
-{
+_: {
   # imports = [
   #   flake.modules.services.auto-upgrade-notify
   # ];

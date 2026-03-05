@@ -1,7 +1,14 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  flake,
+  ...
+}:
 let
   stackPath = "/etc/stacks/koito";
   domain = "fm.keyruu.de";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -15,7 +22,7 @@ in
 
   sops.templates = {
     "koito-main.env" = {
-      restartUnits = [ "koito-main.service" ];
+      restartUnits = [ (quadlet.service containers.koito-main) ];
       content = ''
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
         KOITO_ALLOWED_HOSTS=${domain},koito:4110
@@ -24,7 +31,7 @@ in
       '';
     };
     "koito-db.env" = {
-      restartUnits = [ "koito-db.service" ];
+      restartUnits = [ (quadlet.service containers.koito-db) ];
       content = ''
         POSTGRES_DB=koitodb
         POSTGRES_USER=postgres
@@ -84,8 +91,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = [ "koito-db.service" ];
-            Requires = [ "koito-db.service" ];
+            After = [ containers.koito-db.ref ];
+            Requires = [ containers.koito-db.ref ];
           };
         };
       };
@@ -103,11 +110,11 @@ in
 
     restic.backupsWithDefaults = {
       koito = {
-        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop koito-*";
+        backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop ${quadlet.service containers.koito-main} ${quadlet.service containers.koito-db}";
         paths = [
           stackPath
         ];
-        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start koito-* --all";
+        backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start ${quadlet.service containers.koito-db} ${quadlet.service containers.koito-main}";
       };
     };
   };

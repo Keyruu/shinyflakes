@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   karaokeDomain = "29112025karaoke.keyruu.de";
   stackPath = "/etc/stacks/pikaraoke";
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -11,7 +13,7 @@ in
   sops.secrets.karaokeAdminPassword = { };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
-      "pikaraoke.service"
+      (quadlet.service containers.pikaraoke)
     ];
     content = ''
       KARAOKE_ADMIN_PASSWORD=${config.sops.placeholder.karaokeAdminPassword}

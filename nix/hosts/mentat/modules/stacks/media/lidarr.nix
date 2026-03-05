@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/lidarr/config";
   my = config.services.my.lidarr;

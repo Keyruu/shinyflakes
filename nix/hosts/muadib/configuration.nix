@@ -49,9 +49,9 @@ in
       keyName = "muadibMeshKey";
     };
   };
-  networking = {
-    firewall = {
-      interfaces."${mesh.interface}".allowedUDPPortRanges = [
+  networking.firewall.interfaces = {
+    "${mesh.interface}" = {
+      allowedUDPPortRanges = [
         # hytale
         {
           from = 30000;
@@ -62,6 +62,9 @@ in
         57621
       ];
     };
+    enp42s0.allowedTCPPorts = [
+      6767
+    ];
   };
 
   services = {

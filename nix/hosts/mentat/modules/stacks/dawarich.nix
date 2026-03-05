@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/dawarich";
   my = config.services.my.dawarich;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   sops.secrets = {
@@ -18,11 +20,13 @@ in
   ];
 
   sops.templates."dawarich.env" = {
-    restartUnits = [
-      "dawarich-app.service"
-      "dawarich-sidekiq.service"
-      "dawarich-db.service"
-    ];
+    restartUnits =
+      with containers;
+      map quadlet.service [
+        dawarich-app
+        dawarich-sidekiq
+        dawarich-db
+      ];
     content = ''
       POSTGRES_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
       DATABASE_PASSWORD=${config.sops.placeholder.dawarichDatabasePassword}
@@ -47,7 +51,14 @@ in
       backup = {
         enable = true;
         paths = [ stackPath ];
-        systemd.unit = "dawarich-*";
+        systemd.unit =
+          with containers;
+          map quadlet.service [
+            dawarich-app
+            dawarich-sidekiq
+            dawarich-redis
+            dawarich-db
+          ];
       };
     };
 
@@ -150,14 +161,14 @@ in
           serviceConfig = {
             Restart = "on-failure";
           };
-          unitConfig = {
+          unitConfig = with containers; {
             After = [
-              "dawarich-db.service"
-              "dawarich-redis.service"
+              dawarich-db.ref
+              dawarich-redis.ref
             ];
             Requires = [
-              "dawarich-db.service"
-              "dawarich-redis.service"
+              dawarich-db.ref
+              dawarich-redis.ref
             ];
           };
         };
@@ -199,16 +210,16 @@ in
           serviceConfig = {
             Restart = "on-failure";
           };
-          unitConfig = {
+          unitConfig = with containers; {
             After = [
-              "dawarich-db.service"
-              "dawarich-redis.service"
-              "dawarich-app.service"
+              dawarich-db.ref
+              dawarich-redis.ref
+              dawarich-app.ref
             ];
             Requires = [
-              "dawarich-db.service"
-              "dawarich-redis.service"
-              "dawarich-app.service"
+              dawarich-db.ref
+              dawarich-redis.ref
+              dawarich-app.ref
             ];
           };
         };

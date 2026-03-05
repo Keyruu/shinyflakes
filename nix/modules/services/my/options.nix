@@ -80,7 +80,7 @@ in
                             default = true;
                           };
                           unit = lib.mkOption {
-                            type = str;
+                            type = either str (listOf str);
                             default = name;
                           };
                         };
@@ -155,11 +155,18 @@ in
     services.restic.backupsWithDefaults = lib.mkMerge (
       lib.mapAttrsToList (
         name: cfg:
+        let
+          unitStr =
+            if builtins.isList cfg.backup.systemd.unit then
+              lib.concatStringsSep " " cfg.backup.systemd.unit
+            else
+              cfg.backup.systemd.unit;
+        in
         lib.mkIf cfg.backup.enable {
           ${name} = {
             inherit (cfg.backup) paths;
-            backupPrepareCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl stop ${cfg.backup.systemd.unit}";
-            backupCleanupCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl start ${cfg.backup.systemd.unit} --all";
+            backupPrepareCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl stop ${unitStr}";
+            backupCleanupCommand = lib.optionalString cfg.backup.systemd.enable "${pkgs.systemd}/bin/systemctl start ${unitStr}";
           };
         }
       ) config.services.my

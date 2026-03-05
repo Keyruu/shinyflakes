@@ -24,7 +24,11 @@ let
     }) containers;
 in
 rec {
-  quadletToService = container: builtins.replaceStrings [ ".container" ] [ ".service" ] container.ref;
+  quadlet = {
+    service = container: builtins.replaceStrings [ ".container" ] [ ".service" ] container.ref;
+    name = container: lib.removeSuffix ".container" container.ref;
+    alias = container: builtins.head container.containerConfig.networkAliases;
+  };
 
   cloudflare = rec {
     ipv4Txt = builtins.fetchurl {

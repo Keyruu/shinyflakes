@@ -3,7 +3,7 @@ let
   stackPath = "/etc/stacks/z2m/data";
   my = config.services.my.zigbee2mqtt;
   inherit (config.virtualisation.quadlet) containers networks;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -18,7 +18,7 @@ in
   };
 
   sops.templates."z2mConfiguration.yaml" = {
-    restartUnits = [ (quadletToService containers.zigbee2mqtt) ];
+    restartUnits = [ (quadlet.service containers.zigbee2mqtt) ];
     content = # yaml
       ''
         version: 5

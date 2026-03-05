@@ -1,8 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/immich";
   my = config.services.my.immich;
   inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -17,7 +18,14 @@ in
     backup = {
       enable = true;
       paths = [ stackPath ];
-      systemd.unit = "immich-*";
+      systemd.unit =
+        with containers;
+        map quadlet.service [
+          immich-server
+          immich-machine-learning
+          immich-redis
+          immich-database
+        ];
     };
   };
 
@@ -52,14 +60,14 @@ in
           serviceConfig = {
             Restart = "always";
           };
-          unitConfig = {
+          unitConfig = with containers; {
             After = [
-              "immich-redis.service"
-              "immich-database.service"
+              immich-redis.ref
+              immich-database.ref
             ];
             Requires = [
-              "immich-redis.service"
-              "immich-database.service"
+              immich-redis.ref
+              immich-database.ref
             ];
           };
         };
@@ -76,15 +84,14 @@ in
           serviceConfig = {
             Restart = "always";
           };
-          unitConfig = {
-            After = containers.immich-server.ref;
-            Requires = containers.immich-server.ref;
+          unitConfig = with containers; {
+            After = immich-server.ref;
+            Requires = immich-server.ref;
           };
         };
 
         immich-redis = {
           containerConfig = {
-            # renovate: ignore
             image = "docker.io/library/redis:6.2-alpine@sha256:c5a607fb6e1bb15d32bbcf14db22787d19e428d59e31a5da67511b49bb0f1ccc";
             healthCmd = "redis-cli ping || exit 1";
             networks = [ networks.immich.ref ];
@@ -98,7 +105,6 @@ in
 
         immich-database = {
           containerConfig = {
-            # renovate: ignore
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0";
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
             environments = {

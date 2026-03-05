@@ -1,7 +1,9 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   stackPath = "/etc/stacks/searxng";
   my = config.services.my.searxng;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
   systemd.tmpfiles.rules = [
@@ -25,7 +27,13 @@ in
     backup = {
       enable = true;
       paths = [ stackPath ];
-      systemd.unit = "searxng-*";
+      systemd.unit =
+        with containers;
+        map quadlet.service [
+          searxng-gluetun
+          searxng-redis
+          searxng-server
+        ];
     };
   };
 
@@ -63,8 +71,8 @@ in
             Restart = "always";
           };
           unitConfig = {
-            After = containers."searxng-gluetun".ref;
-            Requires = containers."searxng-gluetun".ref;
+            After = containers.searxng-gluetun.ref;
+            Requires = containers.searxng-gluetun.ref;
           };
         };
 
@@ -81,17 +89,17 @@ in
             volumes = [
               "${stackPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
             ];
-            networks = [ containers."searxng-gluetun".ref ];
+            networks = [ containers.searxng-gluetun.ref ];
           };
           serviceConfig = {
             Restart = "always";
           };
           unitConfig = {
             After = [
-              "searxng-redis.service"
+              containers.searxng-redis.ref
             ];
             Requires = [
-              "searxng-redis.service"
+              containers.searxng-redis.ref
             ];
             X-RestartTrigger = [
               "${config.environment.etc."stacks/searxng/data/settings.yml".source}"

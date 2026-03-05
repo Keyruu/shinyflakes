@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   stackPath = "/etc/stacks/sabnzbd";
   my = config.services.my.sabnzbd;

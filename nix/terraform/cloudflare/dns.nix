@@ -76,6 +76,7 @@
             protonmail-verification.content = "protonmail-verification=62673f2072dc24b4ddfbd6b529e4a739015bf114";
             spf.content = "v=spf1 include:spf.migadu.com -all";
             migadu-verification.content = "hosted-email-verify=1wxdfhns";
+            google-site-verification.content = "google-site-verification=6ZOB7yh6i5vdXQ5cFR7xc2-cG4btBGLHTCP9oiPQAVo";
           };
           "_dmarc".dmarc.content =
             "v=DMARC1; p=reject; rua=mailto:003e8edaf3ba4b5c87763b1d392a3ae4@dmarc-reports.cloudflare.net,mailto:dmarc@keyruu.de";

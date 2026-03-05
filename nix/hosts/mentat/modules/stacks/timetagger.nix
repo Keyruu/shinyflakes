@@ -3,7 +3,7 @@ let
   stackPath = "/etc/stacks/timetagger";
   my = config.services.my.timetagger;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadletToService;
+  inherit (flake.lib) quadlet;
 in
 {
   sops.secrets = {
@@ -15,7 +15,7 @@ in
   ];
 
   sops.templates."timetagger.env" = {
-    restartUnits = [ (quadletToService containers.timetagger) ];
+    restartUnits = [ (quadlet.service containers.timetagger) ];
     content = ''
       TIMETAGGER_CREDENTIALS=${config.sops.placeholder.timetaggerCreds}
     '';
