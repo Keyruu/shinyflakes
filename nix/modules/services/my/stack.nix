@@ -25,7 +25,7 @@ let
       }
     else
       {
-        path = entry.path;
+        inherit (entry) path;
         mode = fallback defaultMode entry.mode;
         owner = fallback defaultOwner entry.owner;
         group = fallback defaultGroup entry.group;
@@ -33,18 +33,32 @@ let
 
   enabledStacks = lib.filterAttrs (_: svc: svc.stack.enable) config.services.my;
 
+  resolve = override: global: if override != null then override else global;
+
   applySecurityDefaults =
     secCfg: containerName:
     let
-      excluded = builtins.any (c: quadlet.name c == containerName) secCfg.exclude;
+      override = secCfg.overrides.${containerName} or { };
+      effective = {
+        dropAllCapabilities = resolve (override.dropAllCapabilities or null) secCfg.dropAllCapabilities;
+        noNewPrivileges = resolve (override.noNewPrivileges or null) secCfg.noNewPrivileges;
+        readOnlyRootFilesystem = resolve (override.readOnlyRootFilesystem or null
+        ) secCfg.readOnlyRootFilesystem;
+        memoryLimit = resolve (override.memoryLimit or null) secCfg.memoryLimit;
+        pidsLimit = resolve (override.pidsLimit or null) secCfg.pidsLimit;
+      };
     in
-    lib.mkIf (!excluded) {
+    {
       containerConfig =
-        lib.optionalAttrs secCfg.dropAllCapabilities { dropCapabilities = lib.mkDefault [ "ALL" ]; }
-        // lib.optionalAttrs secCfg.noNewPrivileges { noNewPrivileges = lib.mkDefault true; }
-        // lib.optionalAttrs secCfg.readOnlyRootFilesystem { readOnly = lib.mkDefault true; }
-        // lib.optionalAttrs (secCfg.memoryLimit != null) { memory = lib.mkDefault secCfg.memoryLimit; }
-        // lib.optionalAttrs (secCfg.pidsLimit != null) { pidsLimit = lib.mkDefault secCfg.pidsLimit; };
+        lib.optionalAttrs effective.dropAllCapabilities { dropCapabilities = lib.mkDefault [ "ALL" ]; }
+        // lib.optionalAttrs effective.noNewPrivileges { noNewPrivileges = lib.mkDefault true; }
+        // lib.optionalAttrs effective.readOnlyRootFilesystem { readOnly = lib.mkDefault true; }
+        // lib.optionalAttrs (effective.memoryLimit != null) {
+          memory = lib.mkDefault effective.memoryLimit;
+        }
+        // lib.optionalAttrs (effective.pidsLimit != null) {
+          pidsLimit = lib.mkDefault effective.pidsLimit;
+        };
     };
 in
 {
@@ -163,22 +177,32 @@ in
                   description = ''
                     Quadlet containers belonging to this stack.
                     Pass container values directly (e.g. containers.karakeep-web).
-                    Used to auto-wire backup.systemd.unit and backup.paths when backup is enabled.
+                    Used to auto-wire backup, network, and security.
+                  '';
+                };
+
+                main = lib.mkOption {
+                  type = lib.types.nullOr lib.types.anything;
+                  default = null;
+                  description = ''
+                    The main container that serves the stack's port.
+                    When set, auto-publishes my.port to this container's first
+                    networkAlias port. Requires internalPort to be set.
+                  '';
+                };
+
+                internalPort = lib.mkOption {
+                  type = lib.types.nullOr lib.types.port;
+                  default = null;
+                  description = ''
+                    The container-internal port of the main container.
+                    Used with containers.main to auto-publish
+                    127.0.0.1:<my.port>:<internalPort>.
                   '';
                 };
 
                 security = {
                   enable = lib.mkEnableOption "OWASP Docker security hardening for member containers";
-
-                  exclude = lib.mkOption {
-                    type = lib.types.listOf lib.types.anything;
-                    default = [ ];
-                    description = ''
-                      Containers to exclude from security hardening.
-                      Pass container values directly (e.g. containers.karakeep-meilisearch).
-                      Excluded containers keep their own quadlet config unchanged.
-                    '';
-                  };
 
                   dropAllCapabilities = lib.mkOption {
                     type = lib.types.bool;
@@ -224,6 +248,51 @@ in
                       OWASP Rule #7: Limit number of processes in the container. null = no limit.
                     '';
                     example = 200;
+                  };
+
+                  overrides = lib.mkOption {
+                    type = lib.types.attrsOf (
+                      lib.types.submodule {
+                        options = {
+                          dropAllCapabilities = lib.mkOption {
+                            type = lib.types.nullOr lib.types.bool;
+                            default = null;
+                            description = "Override dropAllCapabilities for this container. null = use global.";
+                          };
+                          noNewPrivileges = lib.mkOption {
+                            type = lib.types.nullOr lib.types.bool;
+                            default = null;
+                            description = "Override noNewPrivileges for this container. null = use global.";
+                          };
+                          readOnlyRootFilesystem = lib.mkOption {
+                            type = lib.types.nullOr lib.types.bool;
+                            default = null;
+                            description = "Override readOnlyRootFilesystem for this container. null = use global.";
+                          };
+                          memoryLimit = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = "Override memoryLimit for this container. null = use global.";
+                          };
+                          pidsLimit = lib.mkOption {
+                            type = lib.types.nullOr lib.types.int;
+                            default = null;
+                            description = "Override pidsLimit for this container. null = use global.";
+                          };
+                        };
+                      }
+                    );
+                    default = { };
+                    description = ''
+                      Per-container security overrides, keyed by container name.
+                      Each option defaults to null (use global setting).
+                      Set to a non-null value to override for that container.
+                    '';
+                    example = {
+                      "karakeep-meilisearch" = {
+                        readOnlyRootFilesystem = false;
+                      };
+                    };
                   };
                 };
               };
@@ -305,6 +374,24 @@ in
             )
           ) enabledStacks
         )
+      );
+    }
+
+    {
+      virtualisation.quadlet.containers = lib.mkMerge (
+        lib.mapAttrsToList (
+          _name: svc:
+          let
+            stackCfg = svc.stack;
+            containersCfg = stackCfg.containers;
+            mainName = quadlet.name containersCfg.main;
+          in
+          lib.mkIf (stackCfg.enable && containersCfg.main != null && containersCfg.internalPort != null) {
+            ${mainName}.containerConfig.publishPorts = lib.mkDefault [
+              "127.0.0.1:${toString svc.port}:${toString containersCfg.internalPort}"
+            ];
+          }
+        ) enabledStacks
       );
     }
 
