@@ -384,16 +384,16 @@ in
           stackName: svc:
           let
             stackCfg = svc.stack;
-            fullNames = map (prefixName stackName) (lib.attrNames stackCfg.containers);
+            memberServices = map (short: "${prefixName stackName short}.service") (
+              lib.attrNames stackCfg.containers
+            );
           in
           lib.mkIf (stackCfg.enable && svc.backup.enable) {
             ${stackName}.backup = {
               paths = lib.mkDefault [ stackCfg.path ];
             }
             // lib.optionalAttrs (stackCfg.containers != { }) {
-              systemd.unit = lib.mkDefault (
-                map (name: quadlet.service config.virtualisation.quadlet.containers.${name}) fullNames
-              );
+              systemd.unit = lib.mkDefault memberServices;
             };
           }
         ) enabledStacks
