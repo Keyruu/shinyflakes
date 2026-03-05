@@ -1,5 +1,6 @@
 {
   config,
+  options,
   flake,
   lib,
   ...
@@ -7,312 +8,265 @@
 let
   inherit (flake.lib) quadlet;
 
-  defaultMode = stackCfg: if stackCfg.user.enable then "0750" else "0755";
-  defaultOwner = stackCfg: if stackCfg.user.enable then stackCfg.user.name else "root";
-  defaultGroup = stackCfg: if stackCfg.user.enable then stackCfg.user.group else "root";
+  # reuse the quadlet-nix container submodule via getSubModules so stack
+  # containers share the same options as virtualisation.quadlet.containers.*.
+  containerModules =
+    options.virtualisation.quadlet.containers.type.nestedTypes.elemType.getSubModules;
 
-  normalizeDir =
-    stackCfg: entry:
-    let
-      fallback = field: val: if val == null then field stackCfg else val;
-    in
-    if builtins.isString entry then
-      {
-        path = entry;
-        mode = defaultMode stackCfg;
-        owner = defaultOwner stackCfg;
-        group = defaultGroup stackCfg;
-      }
-    else
-      {
-        inherit (entry) path;
-        mode = fallback defaultMode entry.mode;
-        owner = fallback defaultOwner entry.owner;
-        group = fallback defaultGroup entry.group;
-      };
+  # each entry defines one security setting. stack-global options, per-container
+  # overrides and the containerConfig mapping are all generated from this list.
+  securityFields = [
+    {
+      name = "dropAllCapabilities";
+      type = lib.types.bool;
+      default = true;
+      description = "OWASP Rule #3: Drop all Linux capabilities by default.";
+      apply = v: lib.optionalAttrs v { dropCapabilities = lib.mkDefault [ "ALL" ]; };
+    }
+    {
+      name = "noNewPrivileges";
+      type = lib.types.bool;
+      default = true;
+      description = "OWASP Rule #4: Prevent in-container privilege escalation.";
+      apply = v: lib.optionalAttrs v { noNewPrivileges = lib.mkDefault true; };
+    }
+    {
+      name = "readOnlyRootFilesystem";
+      type = lib.types.bool;
+      default = true;
+      description = "OWASP Rule #8: Set container root filesystem to read-only.";
+      apply = v: lib.optionalAttrs v { readOnly = lib.mkDefault true; };
+    }
+    {
+      name = "memoryLimit";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "OWASP Rule #7: Limit container memory. null = no limit.";
+      apply = v: lib.optionalAttrs (v != null) { memory = lib.mkDefault v; };
+    }
+    {
+      name = "pidsLimit";
+      type = lib.types.nullOr lib.types.int;
+      default = null;
+      description = "OWASP Rule #7: Limit number of processes. null = no limit.";
+      apply = v: lib.optionalAttrs (v != null) { pidsLimit = lib.mkDefault v; };
+    }
+  ];
 
   enabledStacks = lib.filterAttrs (_: svc: svc.stack.enable) config.services.my;
 
-  resolve = override: global: if override != null then override else global;
-
-  applySecurityDefaults =
-    secCfg: containerName:
-    let
-      override = secCfg.overrides.${containerName} or { };
-      effective = {
-        dropAllCapabilities = resolve (override.dropAllCapabilities or null) secCfg.dropAllCapabilities;
-        noNewPrivileges = resolve (override.noNewPrivileges or null) secCfg.noNewPrivileges;
-        readOnlyRootFilesystem = resolve (override.readOnlyRootFilesystem or null
-        ) secCfg.readOnlyRootFilesystem;
-        memoryLimit = resolve (override.memoryLimit or null) secCfg.memoryLimit;
-        pidsLimit = resolve (override.pidsLimit or null) secCfg.pidsLimit;
-      };
-    in
-    {
-      containerConfig =
-        lib.optionalAttrs effective.dropAllCapabilities { dropCapabilities = lib.mkDefault [ "ALL" ]; }
-        // lib.optionalAttrs effective.noNewPrivileges { noNewPrivileges = lib.mkDefault true; }
-        // lib.optionalAttrs effective.readOnlyRootFilesystem { readOnly = lib.mkDefault true; }
-        // lib.optionalAttrs (effective.memoryLimit != null) {
-          memory = lib.mkDefault effective.memoryLimit;
-        }
-        // lib.optionalAttrs (effective.pidsLimit != null) {
-          pidsLimit = lib.mkDefault effective.pidsLimit;
-        };
-    };
+  prefixName = stackName: shortName: "${stackName}-${shortName}";
 in
 {
   options.services.my = lib.mkOption {
-    type =
-      with lib.types;
-      attrsOf (
-        submodule (
-          { name, ... }:
-          {
-            options.stack = {
-              enable = lib.mkEnableOption "stack infrastructure (directories, users, network)";
+    type = lib.types.attrsOf (
+      lib.types.submodule (
+        { name, ... }:
+        {
+          options.stack = {
+            enable = lib.mkEnableOption "stack infrastructure (directories, users, network, containers)";
 
-              path = lib.mkOption {
-                type = lib.types.str;
-                default = "/etc/stacks/${name}";
-                description = "Base path for the stack's data. Exposed as a convenience attribute.";
-              };
+            path = lib.mkOption {
+              type = lib.types.str;
+              default = "/etc/stacks/${name}";
+              description = "Base path for the stack's data.";
+            };
 
-              directories = lib.mkOption {
-                type =
-                  with lib.types;
-                  listOf (
-                    either str (submodule {
-                      options = {
-                        path = lib.mkOption {
-                          type = str;
-                          description = "Subdirectory name under the stack path.";
-                        };
-                        mode = lib.mkOption {
-                          type = nullOr str;
-                          default = null;
-                          description = "Permission mode for the directory. null = use stack default (0750 with user, 0755 without).";
-                        };
-                        owner = lib.mkOption {
-                          type = nullOr str;
-                          default = null;
-                          description = "Owner of the directory. null = use stack default (user name or root).";
-                        };
-                        group = lib.mkOption {
-                          type = nullOr str;
-                          default = null;
-                          description = "Group of the directory. null = use stack default (user group or root).";
-                        };
+            directories = lib.mkOption {
+              type = lib.types.listOf (
+                lib.types.either lib.types.str (
+                  lib.types.submodule {
+                    options = {
+                      path = lib.mkOption {
+                        type = lib.types.str;
+                        description = "Subdirectory name under the stack path.";
                       };
-                    })
-                  );
-                default = [ ];
-                description = ''
-                  Subdirectories to create under the stack path.
-                  Each entry can be a string (creates subdir with defaults) or an attrset
-                  with { path, mode, owner, group } for custom ownership/permissions.
-                  When stack.user is enabled, directories default to being owned by that user.
-                '';
-                example = [
-                  "data"
-                  "config"
-                  {
-                    path = "db";
-                    mode = "0770";
-                    owner = "root";
-                    group = "root";
-                  }
-                ];
-              };
-
-              user = {
-                enable = lib.mkEnableOption "create a system user and group for this stack";
-
-                name = lib.mkOption {
-                  type = lib.types.str;
-                  default = name;
-                  description = "Username for the stack's system user.";
-                };
-
-                uid = lib.mkOption {
-                  type = lib.types.nullOr lib.types.int;
-                  default = null;
-                  description = "Explicit UID for the user. null = auto-assigned.";
-                };
-
-                group = lib.mkOption {
-                  type = lib.types.str;
-                  default = name;
-                  description = "Group name for the stack's system group.";
-                };
-
-                gid = lib.mkOption {
-                  type = lib.types.nullOr lib.types.int;
-                  default = null;
-                  description = "Explicit GID for the group. null = auto-assigned.";
-                };
-
-                extraGroups = lib.mkOption {
-                  type = lib.types.listOf lib.types.str;
-                  default = [ ];
-                  description = "Additional groups for the user.";
-                  example = [ "syncthing" ];
-                };
-              };
-
-              network = {
-                enable = lib.mkEnableOption "create a dedicated bridge network for this stack";
-
-                name = lib.mkOption {
-                  type = lib.types.str;
-                  default = name;
-                  description = "Network name (also used as interface name).";
-                };
-              };
-
-              containers = {
-                members = lib.mkOption {
-                  type = lib.types.listOf lib.types.anything;
-                  default = [ ];
-                  description = ''
-                    Quadlet containers belonging to this stack.
-                    Pass container values directly (e.g. containers.karakeep-web).
-                    Used to auto-wire backup, network, and security.
-                  '';
-                };
-
-                main = lib.mkOption {
-                  type = lib.types.nullOr lib.types.anything;
-                  default = null;
-                  description = ''
-                    The main container that serves the stack's port.
-                    When set, auto-publishes my.port to this container's first
-                    networkAlias port. Requires internalPort to be set.
-                  '';
-                };
-
-                internalPort = lib.mkOption {
-                  type = lib.types.nullOr lib.types.port;
-                  default = null;
-                  description = ''
-                    The container-internal port of the main container.
-                    Used with containers.main to auto-publish
-                    127.0.0.1:<my.port>:<internalPort>.
-                  '';
-                };
-
-                security = {
-                  enable = lib.mkEnableOption "OWASP Docker security hardening for member containers";
-
-                  dropAllCapabilities = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = ''
-                      OWASP Rule #3: Drop all Linux capabilities by default.
-                      Containers that need specific capabilities should add them
-                      back via their own containerConfig.addCapabilities.
-                    '';
-                  };
-
-                  noNewPrivileges = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = ''
-                      OWASP Rule #4: Prevent in-container privilege escalation
-                      via setuid/setgid binaries.
-                    '';
-                  };
-
-                  readOnlyRootFilesystem = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = ''
-                      OWASP Rule #8: Set container root filesystem to read-only.
-                      All writes should go through explicit volumes or tmpfses.
-                    '';
-                  };
-
-                  memoryLimit = lib.mkOption {
-                    type = lib.types.nullOr lib.types.str;
-                    default = null;
-                    description = ''
-                      OWASP Rule #7: Limit container memory. null = no limit.
-                    '';
-                    example = "2g";
-                  };
-
-                  pidsLimit = lib.mkOption {
-                    type = lib.types.nullOr lib.types.int;
-                    default = null;
-                    description = ''
-                      OWASP Rule #7: Limit number of processes in the container. null = no limit.
-                    '';
-                    example = 200;
-                  };
-
-                  overrides = lib.mkOption {
-                    type = lib.types.attrsOf (
-                      lib.types.submodule {
-                        options = {
-                          dropAllCapabilities = lib.mkOption {
-                            type = lib.types.nullOr lib.types.bool;
-                            default = null;
-                            description = "Override dropAllCapabilities for this container. null = use global.";
-                          };
-                          noNewPrivileges = lib.mkOption {
-                            type = lib.types.nullOr lib.types.bool;
-                            default = null;
-                            description = "Override noNewPrivileges for this container. null = use global.";
-                          };
-                          readOnlyRootFilesystem = lib.mkOption {
-                            type = lib.types.nullOr lib.types.bool;
-                            default = null;
-                            description = "Override readOnlyRootFilesystem for this container. null = use global.";
-                          };
-                          memoryLimit = lib.mkOption {
-                            type = lib.types.nullOr lib.types.str;
-                            default = null;
-                            description = "Override memoryLimit for this container. null = use global.";
-                          };
-                          pidsLimit = lib.mkOption {
-                            type = lib.types.nullOr lib.types.int;
-                            default = null;
-                            description = "Override pidsLimit for this container. null = use global.";
-                          };
-                        };
-                      }
-                    );
-                    default = { };
-                    description = ''
-                      Per-container security overrides, keyed by container name.
-                      Each option defaults to null (use global setting).
-                      Set to a non-null value to override for that container.
-                    '';
-                    example = {
-                      "karakeep-meilisearch" = {
-                        readOnlyRootFilesystem = false;
+                      mode = lib.mkOption {
+                        type = lib.types.nullOr lib.types.str;
+                        default = null;
+                        description = "Permission mode. null = stack default (0750 with user, 0755 without).";
+                      };
+                      owner = lib.mkOption {
+                        type = lib.types.nullOr lib.types.str;
+                        default = null;
+                        description = "Owner. null = stack default (user name or root).";
+                      };
+                      group = lib.mkOption {
+                        type = lib.types.nullOr lib.types.str;
+                        default = null;
+                        description = "Group. null = stack default (user group or root).";
                       };
                     };
-                  };
-                };
+                  }
+                )
+              );
+              default = [ ];
+              description = "Subdirectories to create under the stack path. Strings use defaults, attrsets allow custom mode/owner/group.";
+            };
+
+            user = {
+              enable = lib.mkEnableOption "system user and group for this stack";
+              name = lib.mkOption {
+                type = lib.types.str;
+                default = name;
+              };
+              uid = lib.mkOption {
+                type = lib.types.nullOr lib.types.int;
+                default = null;
+              };
+              group = lib.mkOption {
+                type = lib.types.str;
+                default = name;
+              };
+              gid = lib.mkOption {
+                type = lib.types.nullOr lib.types.int;
+                default = null;
+              };
+              extraGroups = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [ ];
               };
             };
-          }
-        )
-      );
+
+            network = {
+              enable = lib.mkEnableOption "dedicated bridge network for this stack";
+              name = lib.mkOption {
+                type = lib.types.str;
+                default = name;
+                description = "Network name, also used as interface name.";
+              };
+            };
+
+            main = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Short name of the main container. Auto-publishes 127.0.0.1:<my.port>:<internalPort>.";
+            };
+
+            internalPort = lib.mkOption {
+              type = lib.types.nullOr lib.types.port;
+              default = null;
+              description = "Container-internal port of the main container.";
+            };
+
+            containers = lib.mkOption {
+              type = lib.types.attrsOf (
+                lib.types.submoduleWith {
+                  modules = containerModules ++ [
+                    {
+                      options = {
+                        dependsOn = lib.mkOption {
+                          type = lib.types.listOf lib.types.str;
+                          default = [ ];
+                          description = "Sibling short names. Auto-generates After and Requires with prefixed refs.";
+                        };
+
+                        security = lib.listToAttrs (
+                          map (
+                            field:
+                            lib.nameValuePair field.name (
+                              lib.mkOption {
+                                type = lib.types.nullOr field.type;
+                                default = null;
+                                description = "Override ${field.name} for this container. null = use stack global.";
+                              }
+                            )
+                          ) securityFields
+                        );
+                      };
+                    }
+                  ];
+                }
+              );
+              default = { };
+              description = "Containers in this stack. Short name keys get auto-prefixed with the stack name.";
+            };
+
+            security = {
+              enable = lib.mkEnableOption "OWASP Docker security hardening for stack containers";
+            }
+            // lib.listToAttrs (
+              map (
+                field:
+                lib.nameValuePair field.name (
+                  lib.mkOption {
+                    inherit (field) type default description;
+                  }
+                )
+              ) securityFields
+            );
+          };
+        }
+      )
+    );
   };
 
   config = lib.mkMerge [
     {
-      systemd.tmpfiles.rules = lib.mkMerge (
+      assertions = lib.concatLists (
         lib.mapAttrsToList (
-          _name: svc:
+          stackName: svc:
           let
             stackCfg = svc.stack;
-            dirs = map (normalizeDir stackCfg) stackCfg.directories;
+            names = lib.attrNames stackCfg.containers;
+            available = builtins.concatStringsSep ", " names;
+          in
+          lib.optionals stackCfg.enable (
+            lib.optional (stackCfg.main != null && !(builtins.elem stackCfg.main names)) {
+              assertion = false;
+              message = "services.my.${stackName}.stack.main = \"${stackCfg.main}\" does not match any container (available: ${available}).";
+            }
+            ++ lib.concatLists (
+              lib.mapAttrsToList (
+                shortName: containerCfg:
+                map (
+                  dep:
+                  lib.mkIf (!(builtins.elem dep names)) {
+                    assertion = false;
+                    message = "services.my.${stackName}.stack.containers.${shortName}.dependsOn contains \"${dep}\" which is not a sibling container (available: ${available}).";
+                  }
+                ) containerCfg.dependsOn
+              ) stackCfg.containers
+            )
+          )
+        ) enabledStacks
+      );
+    }
+
+    {
+      systemd.tmpfiles.rules = lib.mkMerge (
+        lib.mapAttrsToList (
+          _: svc:
+          let
+            stackCfg = svc.stack;
+            defaultMode = if stackCfg.user.enable then "0750" else "0755";
+            defaultOwner = if stackCfg.user.enable then stackCfg.user.name else "root";
+            defaultGroup = if stackCfg.user.enable then stackCfg.user.group else "root";
+            normalizeDir =
+              entry:
+              if builtins.isString entry then
+                {
+                  path = entry;
+                  mode = defaultMode;
+                  owner = defaultOwner;
+                  group = defaultGroup;
+                }
+              else
+                {
+                  inherit (entry) path;
+                  mode = if entry.mode != null then entry.mode else defaultMode;
+                  owner = if entry.owner != null then entry.owner else defaultOwner;
+                  group = if entry.group != null then entry.group else defaultGroup;
+                };
           in
           lib.mkIf stackCfg.enable (
-            map (dir: "d ${stackCfg.path}/${dir.path} ${dir.mode} ${dir.owner} ${dir.group}") dirs
+            map (
+              entry:
+              let
+                dir = normalizeDir entry;
+              in
+              "d ${stackCfg.path}/${dir.path} ${dir.mode} ${dir.owner} ${dir.group}"
+            ) stackCfg.directories
           )
         ) enabledStacks
       );
@@ -321,12 +275,11 @@ in
     {
       users = lib.mkMerge (
         lib.mapAttrsToList (
-          _name: svc:
+          _: svc:
           let
-            stackCfg = svc.stack;
-            userCfg = stackCfg.user;
+            userCfg = svc.stack.user;
           in
-          lib.mkIf (stackCfg.enable && userCfg.enable) {
+          lib.mkIf (svc.stack.enable && userCfg.enable) {
             users.${userCfg.name} = {
               isSystemUser = true;
               inherit (userCfg) group extraGroups;
@@ -342,12 +295,11 @@ in
     {
       virtualisation.quadlet.networks = lib.mkMerge (
         lib.mapAttrsToList (
-          _name: svc:
+          _: svc:
           let
-            stackCfg = svc.stack;
-            netCfg = stackCfg.network;
+            netCfg = svc.stack.network;
           in
-          lib.mkIf (stackCfg.enable && netCfg.enable) {
+          lib.mkIf (svc.stack.enable && netCfg.enable) {
             ${netCfg.name}.networkConfig = {
               driver = "bridge";
               interfaceName = netCfg.name;
@@ -361,82 +313,90 @@ in
       virtualisation.quadlet.containers = lib.mkMerge (
         lib.concatLists (
           lib.mapAttrsToList (
-            _name: svc:
+            stackName: svc:
             let
               stackCfg = svc.stack;
-              netCfg = stackCfg.network;
-              networkRef = config.virtualisation.quadlet.networks.${netCfg.name}.ref;
+              secCfg = stackCfg.security;
             in
-            lib.optionals (stackCfg.enable && netCfg.enable && stackCfg.containers.members != [ ]) (
-              map (container: {
-                ${quadlet.name container}.containerConfig.networks = lib.mkDefault [ networkRef ];
-              }) stackCfg.containers.members
+            lib.optionals stackCfg.enable (
+              lib.mapAttrsToList (
+                shortName: containerCfg:
+                let
+                  fullName = prefixName stackName shortName;
+
+                  depRefs = map (dep: "${prefixName stackName dep}.container") containerCfg.dependsOn;
+
+                  applySecurityTo =
+                    containerCfg:
+                    lib.foldl' (
+                      acc: field:
+                      let
+                        effective =
+                          if containerCfg.security.${field.name} != null then
+                            containerCfg.security.${field.name}
+                          else
+                            secCfg.${field.name};
+                      in
+                      acc // field.apply effective
+                    ) { } securityFields;
+                in
+                {
+                  ${fullName} = lib.mkMerge [
+                    (removeAttrs containerCfg [
+                      "dependsOn"
+                      "security"
+                    ])
+
+                    (lib.optionalAttrs stackCfg.network.enable {
+                      containerConfig.networks = lib.mkDefault [
+                        config.virtualisation.quadlet.networks.${stackCfg.network.name}.ref
+                      ];
+                    })
+
+                    (lib.optionalAttrs (stackCfg.main == shortName && stackCfg.internalPort != null) {
+                      containerConfig.publishPorts = lib.mkDefault [
+                        "127.0.0.1:${toString svc.port}:${toString stackCfg.internalPort}"
+                      ];
+                    })
+
+                    (lib.optionalAttrs (containerCfg.dependsOn != [ ]) {
+                      unitConfig = {
+                        After = lib.mkDefault depRefs;
+                        Requires = lib.mkDefault depRefs;
+                      };
+                    })
+
+                    (lib.optionalAttrs secCfg.enable {
+                      containerConfig = applySecurityTo containerCfg;
+                    })
+                  ];
+                }
+              ) stackCfg.containers
             )
           ) enabledStacks
         )
-      );
-    }
-
-    {
-      virtualisation.quadlet.containers = lib.mkMerge (
-        lib.mapAttrsToList (
-          _name: svc:
-          let
-            stackCfg = svc.stack;
-            containersCfg = stackCfg.containers;
-            mainName = quadlet.name containersCfg.main;
-          in
-          lib.mkIf (stackCfg.enable && containersCfg.main != null && containersCfg.internalPort != null) {
-            ${mainName}.containerConfig.publishPorts = lib.mkDefault [
-              "127.0.0.1:${toString svc.port}:${toString containersCfg.internalPort}"
-            ];
-          }
-        ) enabledStacks
       );
     }
 
     {
       services.my = lib.mkMerge (
         lib.mapAttrsToList (
-          name: svc:
+          stackName: svc:
           let
             stackCfg = svc.stack;
-            memberServices = map quadlet.service stackCfg.containers.members;
+            fullNames = map (prefixName stackName) (lib.attrNames stackCfg.containers);
           in
           lib.mkIf (stackCfg.enable && svc.backup.enable) {
-            ${name}.backup = {
+            ${stackName}.backup = {
               paths = lib.mkDefault [ stackCfg.path ];
             }
-            // lib.optionalAttrs (stackCfg.containers.members != [ ]) {
-              systemd.unit = lib.mkDefault memberServices;
+            // lib.optionalAttrs (stackCfg.containers != { }) {
+              systemd.unit = lib.mkDefault (
+                map (name: quadlet.service config.virtualisation.quadlet.containers.${name}) fullNames
+              );
             };
           }
         ) enabledStacks
-      );
-    }
-
-    {
-      virtualisation.quadlet.containers = lib.mkMerge (
-        lib.concatLists (
-          lib.mapAttrsToList (
-            _name: svc:
-            let
-              stackCfg = svc.stack;
-              secCfg = stackCfg.containers.security;
-            in
-            lib.optionals (stackCfg.enable && secCfg.enable) (
-              map (
-                container:
-                let
-                  name = quadlet.name container;
-                in
-                {
-                  ${name} = applySecurityDefaults secCfg name;
-                }
-              ) stackCfg.containers.members
-            )
-          ) enabledStacks
-        )
       );
     }
   ];

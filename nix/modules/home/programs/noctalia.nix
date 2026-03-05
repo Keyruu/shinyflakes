@@ -157,7 +157,7 @@
         firstDayOfWeek = 0;
       };
       idle = {
-        enabled = true;
+        enabled = false;
         fadeDuration = 5;
         lockTimeout = 330;
         screenOffTimeout = 300;

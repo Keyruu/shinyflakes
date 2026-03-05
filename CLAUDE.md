@@ -129,18 +129,38 @@ containers. Always use `inherit (flake.lib) quadlet;` in the let block.
 
 | Function | Input | Output | Example |
 |---|---|---|---|
-| `quadlet.toService` | container | systemd service name | `"karakeep-web.service"` |
+| `quadlet.service` | container | systemd service name | `"karakeep-web.service"` |
 | `quadlet.name` | container | plain container name | `"karakeep-web"` |
 | `quadlet.alias` | container | first network alias | `"meilisearch"` |
 
-**IMPORTANT**: `flake.lib.quadletToService` is a legacy alias. All new code must
-use `quadlet.service`. See `MIGRATE_STACKS.md` for migration instructions.
+These helpers work with containers from `config.virtualisation.quadlet.containers`,
+which is where stack-defined containers end up after auto-prefixing.
 
 ## Stack Module (`services.my.<name>.stack`)
 
 The stack module (`nix/modules/services/my/stack.nix`) reduces boilerplate for
 quadlet container stacks by auto-generating tmpfiles, users, networks, backup
-wiring, and OWASP security hardening.
+wiring, OWASP security hardening, and container orchestration.
+
+### How Stack Containers Work
+
+Containers are defined inside `services.my.<name>.stack.containers` using
+**short names** as keys. The stack module auto-prefixes them with the stack name
+and copies them into `virtualisation.quadlet.containers`:
+
+```
+stack.containers.web      → virtualisation.quadlet.containers.karakeep-web
+stack.containers.chrome   → virtualisation.quadlet.containers.karakeep-chrome
+stack.containers.db       → virtualisation.quadlet.containers.karakeep-db
+```
+
+The container options are the same as `virtualisation.quadlet.containers.*`
+(reused via `getSubModules`), plus these stack-specific extras:
+
+- **`dependsOn`** — list of sibling short names; auto-generates
+  `unitConfig.After` and `unitConfig.Requires` with prefixed refs
+- **`security.*`** — per-container overrides for stack-level security settings
+  (null = use global)
 
 ### What the Stack Module Auto-Generates
 
@@ -151,13 +171,19 @@ When `stack.enable = true`:
   `0750`.
 - **Users/Groups**: `stack.user` creates `users.users` and `users.groups`.
 - **Network**: `stack.network` creates a quadlet bridge network with
-  `interfaceName`. The network is auto-wired into all member containers.
+  `interfaceName`. The network is auto-wired into all stack containers.
+- **Port publishing**: `stack.main` + `stack.internalPort` auto-adds
+  `publishPorts = [ "127.0.0.1:<my.port>:<internalPort>" ]` to the main
+  container.
+- **Dependencies**: `dependsOn` on each container auto-generates
+  `unitConfig.After` and `unitConfig.Requires` with prefixed container refs.
 - **Backup**: When `backup.enable = true`, `backup.paths` defaults to
-  `[ stack.path ]` and `backup.systemd.unit` is auto-wired from
-  `stack.containers.members`.
-- **Security**: When `stack.containers.security.enable = true`, OWASP hardening
-  is applied to all member containers (except those in `security.exclude`). All
-  values use `mkDefault` so per-container overrides always win.
+  `[ stack.path ]` and `backup.systemd.unit` is auto-wired from all stack
+  containers.
+- **Security**: When `stack.security.enable = true`, OWASP hardening is applied
+  to all stack containers. Per-container `security.*` options override the
+  globals (null = use global). All values use `mkDefault` so explicit
+  `containerConfig` values always win.
 
 **Note**: `serviceConfig.Restart = "always"` is already the default in
 quadlet-nix, so stacks never need to set it.
@@ -170,9 +196,13 @@ quadlet-nix, so stacks never need to set it.
 - `stack.directories` — list of subdirs (string or `{ path; mode; owner; group; }`)
 - `stack.user.{ enable, name, uid, group, gid, extraGroups }` — system user
 - `stack.network.{ enable, name }` — bridge network
-- `stack.containers.members` — list of container attrsets (NOT `.ref` strings)
-- `stack.containers.security.{ enable, exclude, dropAllCapabilities,
-  noNewPrivileges, readOnlyRootFilesystem, memoryLimit, pidsLimit }`
+- `stack.main` — short name of the main container for port auto-publishing
+- `stack.internalPort` — container-internal port of the main container
+- `stack.containers` — attrsOf container submodules (short names, auto-prefixed)
+- `stack.containers.<name>.dependsOn` — list of sibling short names for deps
+- `stack.containers.<name>.security.*` — per-container security overrides
+- `stack.security.{ enable, dropAllCapabilities, noNewPrivileges,
+  readOnlyRootFilesystem, memoryLimit, pidsLimit }` — stack-level security
 
 ## Quadlet Configuration Best Practices
 
@@ -191,6 +221,7 @@ module. Comments are for clarification only:
 { config, flake, ... }:
 let
   my = config.services.my.service-name;
+  # containers is needed for SOPS restartUnits and quadlet.alias references
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
@@ -201,10 +232,9 @@ in
   };
 
   # template file (if secrets needed)
-  # For single container: restartUnits = [ (quadlet.toService containers.service-name) ];
-  # For multiple containers: restartUnits = map quadlet.toService [ containers.service-main containers.service-db ];
+  # Reference containers by their full prefixed name from config.virtualisation.quadlet.containers
   sops.templates."service.env" = {
-    restartUnits = map quadlet.toService [
+    restartUnits = map quadlet.service [
       containers.service-name-main
       containers.service-name-db
     ];
@@ -228,13 +258,44 @@ in
       directories = [ "data" "config" ];
       # only for multi-container stacks that need inter-container communication
       network.enable = true;
-      # pass container attrsets directly, use `with containers;` for brevity
-      containers = with containers; {
-        members = [
-          service-name-main
-          service-name-db
-        ];
-        security.enable = true;
+      # main container for auto port publishing
+      main = "main";
+      internalPort = 3000;
+      # OWASP security hardening for all containers
+      security.enable = true;
+
+      # containers use short names, auto-prefixed to service-name-main etc.
+      containers = {
+        main = {
+          containerConfig = {
+            # never use latest, always versioned tags
+            image = "service:v0.1.0";
+            # publishPorts is auto-wired by stack.main + stack.internalPort
+            volumes = [
+              "${my.stack.path}/data:/data"
+              "${my.stack.path}/config:/config"
+            ];
+            # non-secret env vars
+            environments = {
+              KEY = "value";
+              # use quadlet.alias with full prefixed name for inter-container hostnames
+              DB_HOST = quadlet.alias containers.service-name-db;
+            };
+            environmentFiles = [ config.sops.templates."service.env".path ];
+            # network is auto-wired by stack.network, just set aliases
+            networkAliases = [ "service-main" ];
+          };
+          # use dependsOn with short sibling names instead of manual After/Requires
+          dependsOn = [ "db" ];
+        };
+
+        db = {
+          containerConfig = {
+            image = "postgres:16";
+            volumes = [ "${my.stack.path}/db:/var/lib/postgresql/data" ];
+            networkAliases = [ "db" ];
+          };
+        };
       };
     };
   };
@@ -258,47 +319,11 @@ in
       stack = {
         enable = true;
         directories = [ "config" ];
-        # home-assistant uses host networking, no bridge network or members needed
+        # home-assistant uses host networking — define the container in
+        # virtualisation.quadlet.containers directly (not in stack.containers)
+        # since it cannot use stack network auto-wiring
       };
     };
-
-  # quadlet containers — only container-specific config, no network/restart boilerplate
-  virtualisation.quadlet.containers = {
-    service-name-main = {
-      containerConfig = {
-        # never use latest, always versioned tags
-        image = "service:v0.1.0";
-        # my.port for the host port, second value is the container-internal port
-        publishPorts = [ "127.0.0.1:${toString my.port}:PORT" ];
-        volumes = [
-          "${my.stack.path}/data:/data"
-          "${my.stack.path}/config:/config"
-        ];
-        # non-secret env vars
-        environments = {
-          KEY = "value";
-          # use quadlet.alias for inter-container hostnames
-          DB_HOST = quadlet.alias containers.service-name-db;
-        };
-        environmentFiles = [ config.sops.templates."service.env".path ];
-        # network is auto-wired by stack.network, just set aliases
-        networkAliases = [ "service-main" ];
-      };
-      # dependencies on other containers
-      unitConfig = {
-        After = [ containers.service-name-db.ref ];
-        Requires = [ containers.service-name-db.ref ];
-      };
-    };
-
-    service-name-db = {
-      containerConfig = {
-        image = "postgres:16";
-        volumes = [ "${my.stack.path}/db:/var/lib/postgresql/data" ];
-        networkAliases = [ "db" ];
-      };
-    };
-  };
 }
 ```
 
@@ -310,14 +335,35 @@ in
 - Note volume mounts, environment variables, and networks
 - Check for secrets or sensitive data
 
-#### 2. Create Directory Structure
+#### 2. Create the Stack Module
 
 ```nix
-# Use /etc/stacks/service-name/ pattern
-systemd.tmpfiles.rules = [
-  "d ${stackPath}/data 0755 root root"
-  "d ${stackPath}/config 0755 root root"
-];
+{ config, flake, ... }:
+let
+  my = config.services.my.service-name;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
+in
+{
+  services.my.service-name = {
+    port = 3000;
+    domain = "service-name.lab.keyruu.de";
+    proxy.enable = true;
+    backup.enable = true;
+    stack = {
+      enable = true;
+      directories = [ "data" "config" ];
+      network.enable = true;  # only for multi-container stacks
+      main = "main";
+      internalPort = 3000;
+      security.enable = true;
+
+      containers = {
+        # containers defined here with short names
+      };
+    };
+  };
+}
 ```
 
 #### 3. Handle Secrets
@@ -335,10 +381,10 @@ in
     serviceSecret = { };
   };
 
-  # Create environment template with restart units using quadlet
-  # For single container:
+  # Create environment template with restart units
+  # Reference full prefixed names from config.virtualisation.quadlet.containers
   sops.templates."service.env" = {
-    restartUnits = [ (quadlet.service containers.service-name) ];
+    restartUnits = [ (quadlet.service containers.service-name-main) ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
     '';
@@ -347,8 +393,8 @@ in
   # For multiple containers:
   sops.templates."service.env" = {
     restartUnits = map quadlet.service [
-      containers.service-main
-      containers.service-db
+      containers.service-name-main
+      containers.service-name-db
     ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
@@ -357,53 +403,42 @@ in
 }
 ```
 
-Note: For quadlet internal references (like `unitConfig.After/Requires`), use `containers.name.ref` directly.
-For external systemd units (like `restartUnits`), use `flake.lib.quadlet` to convert container refs to service names.
-
 #### 4. Convert Services
 
-```nix
-# Docker Compose service becomes:
-containers.service-name = {
-  containerConfig = {
-    image = "image:tag";
-    publishPorts = [ "127.0.0.1:${toString my.port}:port" ];  # Bind to localhost
-    volumes = [ "${stackPath}/data:/container/path" ];
-    environments = { ENV_VAR = "value"; };
-    environmentFiles = [ config.sops.templates."service.env".path ];
-    networks = [ networks.service-network.ref ];
-    networkAliases = [ "service-alias" ];  # For inter-service communication
-  };
-  serviceConfig = {
-    Restart = "always";
-  };
-  # Use containers.name.ref for internal quadlet references
-  unitConfig = {
-    After = [ containers.dependency.ref ];
-    Requires = [ containers.dependency.ref ];
-  };
-};
-```
-
-#### 5. Network Configuration
+Docker Compose services become stack containers with short names:
 
 ```nix
-# Create dedicated network with interface name if there is more than one container
-networks.service-network.networkConfig = {
-  driver = "bridge";
-  podmanArgs = [ "--interface-name=service-name" ];
-};
+stack.containers = {
+  main = {
+    containerConfig = {
+      image = "image:tag";
+      # publishPorts auto-wired by stack.main + stack.internalPort
+      volumes = [ "${my.stack.path}/data:/container/path" ];
+      environments = { ENV_VAR = "value"; };
+      environmentFiles = [ config.sops.templates."service.env".path ];
+      networkAliases = [ "service-main" ];
+    };
+    # use dependsOn instead of manual After/Requires
+    dependsOn = [ "db" ];
+  };
 
-# Reference in containers
-networks = [ networks.service-network.ref ];
+  db = {
+    containerConfig = {
+      image = "postgres:16";
+      volumes = [ "${my.stack.path}/db:/var/lib/postgresql/data" ];
+      networkAliases = [ "db" ];
+    };
+  };
+};
 ```
 
 ### Key Patterns
 
 #### Port Binding
 
-- Always bind to `127.0.0.1:PORT:PORT` for security
-- Use different ports for each service to avoid conflicts
+- The main container's port is auto-published via `stack.main` +
+  `stack.internalPort` → `127.0.0.1:<my.port>:<internalPort>`
+- For additional ports, use `publishPorts` directly on the container
 - External access goes through nginx reverse proxy
 
 #### Volume Mounts
@@ -417,44 +452,31 @@ networks = [ networks.service-network.ref ];
 
 #### Service Dependencies
 
-- Use `After` for startup order
-- Use `Requires` for hard dependencies
-- Use `Wants` for soft dependencies
+- Use `dependsOn = [ "db" ]` with short sibling names for intra-stack deps
+- The stack auto-generates both `After` and `Requires`
+- For dependencies on containers outside the stack, use `unitConfig.After` /
+  `unitConfig.Requires` with full `.ref` strings directly
 
 #### Network Configuration
 
-- For single-container stacks, omit network configuration entirely - containers
-  will use the default bridge network
-- Only create dedicated networks for multi-container stacks that need
-  inter-service communication
+- For single-container stacks, omit `network.enable` — containers use the
+  default bridge network
+- For multi-container stacks, set `network.enable = true` — all stack containers
+  get the network auto-wired
 - Add `networkAliases` for services that other containers need to reach
 - Use the service name as alias for consistency
 
 #### Backup Configuration
 
-The `backup.systemd.unit` option accepts both a string or a list of service names.
-Use `quadlet.service` to convert container refs:
+Backup paths and systemd units are auto-wired by the stack module when
+`backup.enable = true`. No manual configuration needed for standard stacks.
+
+For custom backup paths, override with:
 
 ```nix
-# For single container
-services.my.service-name = {
-  backup = {
-    enable = true;
-    paths = [ stackPath ];
-    systemd.unit = [ (quadlet.service containers.service-name) ];
-  };
-};
-
-# For multiple containers
-services.my.service-name = {
-  backup = {
-    enable = true;
-    paths = [ stackPath ];
-    systemd.unit = map quadlet.service [
-      containers.service-main
-      containers.service-db
-    ];
-  };
+backup = {
+  enable = true;
+  paths = [ "/custom/path" ];
 };
 ```
 
@@ -478,10 +500,10 @@ environment.etc."stacks/service-name/config/config.yml".text = # yaml
     database: ${config.sops.placeholder.dbUrl}
   '';
 
-# Container with restart trigger
-containers.service-main = {
+# On the stack container:
+stack.containers.main = {
   containerConfig = {
-    volumes = [ "${stackPath}/config:/config" ];
+    volumes = [ "${my.stack.path}/config:/config" ];
   };
   unitConfig = {
     # Restart when config file changes
@@ -495,40 +517,38 @@ containers.service-main = {
 #### Automatic Restarts with SOPS
 
 Always include `restartUnits` for templates to ensure containers restart when
-secrets change. Use `flake.lib.quadlet` to convert container refs to
-systemd service names.
+secrets change. Reference the full prefixed container names from
+`config.virtualisation.quadlet.containers`.
 
 **Best Practice**: Only add `restartUnits` to the SOPS template, not individual
 secrets. The template will automatically trigger when any referenced secret
 changes, eliminating redundancy.
 
 ```nix
-# In your stack file, import containers and quadlet
 { config, flake, ... }:
 let
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  # Secrets don't need individual restartUnits
   sops.secrets = {
     serviceSecret = { };
     anotherSecret = { };
   };
 
-  # For single container - use list with single element
+  # For single container — use full prefixed name
   sops.templates."service.env" = {
-    restartUnits = [ (quadlet.service containers.service-name) ];
+    restartUnits = [ (quadlet.service containers.service-name-main) ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
     '';
   };
 
-  # For multiple containers - use map pattern
+  # For multiple containers
   sops.templates."service.env" = {
     restartUnits = map quadlet.service [
-      containers.service-main
-      containers.service-db
+      containers.service-name-main
+      containers.service-name-db
     ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
@@ -544,7 +564,7 @@ Use the proper Quadlet health check options instead of Docker Compose style
 healthcheck blocks:
 
 ```nix
-containers.service-main = {
+stack.containers.main = {
   containerConfig = {
     healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:8080/health";
     healthInterval = "30s";
@@ -584,21 +604,25 @@ sops.secrets = {
 - Remember to add external proxy configuration in sleipnir for peeraten.net
   domains
 - Use `exec` instead of `command` for container arguments
-- Network references must use `networks.name.ref` pattern
-- Always include `inherit (config.virtualisation.quadlet) networks;` in let
-  block when using networks
-- Don't create networks for single-container stacks - use default bridge network
+- Container short names in `stack.containers` are auto-prefixed with the stack
+  name (e.g. `web` → `karakeep-web`)
+- For SOPS `restartUnits` and `quadlet.alias`, always use the full prefixed name
+  from `config.virtualisation.quadlet.containers` (e.g.
+  `containers.karakeep-web`, not `containers.web`)
+- Don't create networks for single-container stacks — use default bridge network
   instead
 - Only add `restartUnits` to SOPS templates, not individual secrets (templates
   trigger when any referenced secret changes)
 - Use `X-RestartTrigger` for configuration files that should restart containers
   when changed
-- **Container References**:
-  - For internal quadlet dependencies (After/Requires): use `containers.name.ref`
-  - For external systemd units (restartUnits, backup commands): use `quadlet.service containers.name`
-  - Single container: `restartUnits = [ (quadlet.service containers.name) ];`
-  - Multiple containers: `restartUnits = map quadlet.service [ containers.name1 containers.name2 ];`
+- Use `dependsOn = [ "db" ]` for intra-stack deps instead of manual
+  `unitConfig.After/Requires`
 - Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.)
   instead of Docker Compose style `healthcheck` blocks
 - Use camelCase for SOPS secret names for consistency
-- Always import `containers` from `config.virtualisation.quadlet` and `quadlet` from `flake.lib` in the let block
+- Always import `containers` from `config.virtualisation.quadlet` and `quadlet`
+  from `flake.lib` in the let block
+- `serviceConfig.Restart = "always"` is already the quadlet-nix default — never
+  set it explicitly
+- Per-container security overrides use `security.*` directly on the container
+  (null = use stack global)
