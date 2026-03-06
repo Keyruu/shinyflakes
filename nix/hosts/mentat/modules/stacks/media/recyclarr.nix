@@ -155,7 +155,7 @@ in
 
   virtualisation.quadlet.containers.media-recyclarr = {
     containerConfig = {
-      image = "ghcr.io/recyclarr/recyclarr:8.3.2";
+      image = "ghcr.io/recyclarr/recyclarr:8.4.0";
       environments = {
         TZ = "Europe/Berlin";
       };
