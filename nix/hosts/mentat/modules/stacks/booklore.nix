@@ -99,7 +99,7 @@ in
 
         booklore-main = {
           containerConfig = {
-            image = "ghcr.io/booklore-app/booklore:v2.0.5";
+            image = "ghcr.io/booklore-app/booklore:v2.0.6";
             environments = {
               USER_ID = "1000";
               GROUP_ID = "1000";
