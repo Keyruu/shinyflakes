@@ -152,7 +152,7 @@
       git
       vim
       wget
-      neofetch
+      fastfetch
       pciutils
       usbutils
       dig
