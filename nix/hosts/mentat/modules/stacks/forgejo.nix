@@ -157,7 +157,7 @@ in
         }
       ];
       network.enable = true;
-      main = "forgejo";
+      main = "server";
       internalPort = 3000;
       security.enable = false;
 
