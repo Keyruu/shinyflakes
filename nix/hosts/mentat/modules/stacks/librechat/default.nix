@@ -83,7 +83,7 @@ in
 
         mongodb = {
           containerConfig = {
-            image = "mongo:8.0.17";
+            image = "mongo:8.2.5";
             exec = "mongod --noauth";
             volumes = [
               "${my.stack.path}/mongodb/data:/data/db"
