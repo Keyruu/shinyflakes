@@ -8,6 +8,8 @@ let
   my = config.services.my.mentat-cockpit;
 in
 {
+  networking.firewall.interfaces.mesh0.allowedTCPPorts = [ my.port ];
+
   services = {
     my.mentat-cockpit = {
       enable = true;
@@ -23,7 +25,7 @@ in
       ];
       settings = {
         WebService = {
-          Origins = lib.mkForce "https://prime.keyruu.de wss://prime.keyruu.de";
+          Origins = lib.mkForce "http://100.67.0.1 ws://100.67.0.1";
           ProtocolHeader = "X-Forwarded-Proto";
           ForwardedForHeader = "X-Forwarded-For";
           # Allow HTTP connections from nginx reverse proxy
@@ -31,13 +33,5 @@ in
         };
       };
     };
-    caddy.virtualHostsWithDefaults."prime.keyruu.de".extraConfig = ''
-      import cloudflare-only
-
-      basic_auth * {
-        lucas {$PASSWORD_HASH}
-      }
-      reverse_proxy http://127.0.0.1:${toString my.port}
-    '';
   };
 }
