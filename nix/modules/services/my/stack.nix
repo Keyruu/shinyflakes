@@ -54,7 +54,9 @@ let
 
   enabledStacks = lib.filterAttrs (_: svc: svc.stack.enable) config.services.my;
 
-  prefixName = stackName: shortName: "${stackName}-${shortName}";
+  prefixName =
+    stackName: containerCount: shortName:
+    if containerCount == 1 then shortName else "${stackName}-${shortName}";
 in
 {
   options.services.my = lib.mkOption {
@@ -63,7 +65,8 @@ in
         { name, config, ... }:
         let
           stackCfg = config.stack;
-          memberServices = map (short: "${prefixName name short}.service") (
+          containerCount = builtins.length (lib.attrNames stackCfg.containers);
+          memberServices = map (short: "${prefixName name containerCount short}.service") (
             lib.attrNames stackCfg.containers
           );
         in
@@ -327,12 +330,13 @@ in
             let
               stackCfg = svc.stack;
               secCfg = stackCfg.security;
+              containerCount = builtins.length (lib.attrNames stackCfg.containers);
             in
             lib.optionals stackCfg.enable (
               lib.mapAttrsToList (
                 shortName: containerCfg:
                 let
-                  fullName = prefixName stackName shortName;
+                  fullName = prefixName stackName containerCount shortName;
 
                   base = removeAttrs containerCfg [
                     "dependsOn"
@@ -375,7 +379,7 @@ in
                     else
                       withNetwork;
 
-                  depRefs = map (dep: "${prefixName stackName dep}.container") containerCfg.dependsOn;
+                  depRefs = map (dep: "${prefixName stackName containerCount dep}.container") containerCfg.dependsOn;
                   withDeps =
                     if containerCfg.dependsOn != [ ] then
                       withPorts

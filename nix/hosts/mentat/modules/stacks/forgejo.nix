@@ -162,7 +162,7 @@ in
       security.enable = false;
 
       containers = {
-        forgejo = {
+        server = {
           containerConfig = {
             image = "codeberg.org/forgejo/forgejo:14.0.2";
             publishPorts = [
