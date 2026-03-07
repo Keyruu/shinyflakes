@@ -6,5 +6,6 @@
     ./kanidm.nix
     ./proxy.nix
     ./webpages.nix
+    ./cockpit.nix
   ];
 }

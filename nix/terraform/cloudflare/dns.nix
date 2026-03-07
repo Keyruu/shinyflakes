@@ -19,6 +19,7 @@
               "fm"
               "scrobble"
               "oblivion"
+              "prime"
               "@"
               "*"
             ];
