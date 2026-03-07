@@ -5,12 +5,13 @@
   ...
 }:
 let
-  servicesWithPorts = lib.mapAttrsToList (name: svc: {
+  servicesWithPorts = lib.filterAttrs (_: svc: svc.port != null) config.services.my;
+  portList = lib.mapAttrsToList (name: svc: {
     inherit name;
     inherit (svc) port;
-  }) config.services.my;
+  }) servicesWithPorts;
 
-  groupedByPort = lib.groupBy (svc: toString svc.port) servicesWithPorts;
+  groupedByPort = lib.groupBy (svc: toString svc.port) portList;
   duplicatePorts = lib.filterAttrs (_port: services: builtins.length services > 1) groupedByPort;
 
   formatDuplicates = lib.concatStringsSep "\n" (
@@ -29,7 +30,10 @@ in
           {
             options = {
               enable = lib.mkEnableOption "my service";
-              port = lib.mkOption { type = port; };
+              port = lib.mkOption {
+                type = lib.types.nullOr lib.types.port;
+                default = null;
+              };
               domain = lib.mkOption { type = str; };
               proxy = lib.mkOption {
                 type = submodule {
@@ -126,7 +130,7 @@ in
     services.nginx.virtualHosts = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf serviceCfg.proxy.enable {
+        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.port != null) {
           ${serviceCfg.domain} = {
             useACMEHost = serviceCfg.proxy.cert.host;
             forceSSL = true;
