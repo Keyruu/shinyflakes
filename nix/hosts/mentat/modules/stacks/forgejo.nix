@@ -14,7 +14,7 @@ in
   };
 
   sops.templates."forgejo.ini" = {
-    restartUnits = [ (quadlet.service containers.server) ];
+    restartUnits = [ (quadlet.service containers.forgejo-server) ];
     owner = "git";
     group = "git";
     content = # ini
