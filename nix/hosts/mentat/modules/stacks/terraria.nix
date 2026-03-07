@@ -1,26 +1,29 @@
-_:
+{ config, ... }:
 let
-  stackPath = "/etc/stacks/terraria";
+  my = config.services.my.terraria;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/config 0755 root root"
-  ];
+  services.my.terraria = {
+    stack = {
+      enable = true;
+      directories = [ "config" ];
+      security.enable = false;
 
-  virtualisation.quadlet.containers.terraria = {
-    containerConfig = {
-      image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5.5";
-      publishPorts = [ "7777:7777" ];
-      volumes = [
-        "${stackPath}/config:/opt/terraria/config/"
-      ];
-      environments = {
-        WORLD = "wow";
-        SECURE = "0";
+      containers = {
+        terraria = {
+          containerConfig = {
+            image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5.5";
+            publishPorts = [ "7777:7777" ];
+            volumes = [
+              "${my.stack.path}/config:/opt/terraria/config/"
+            ];
+            environments = {
+              WORLD = "wow";
+              SECURE = "0";
+            };
+          };
+        };
       };
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 }

@@ -1,16 +1,9 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/searxng";
   my = config.services.my.searxng;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/valkey 0775 999 1000"
-    "d ${stackPath}/data 0755 root root"
-  ];
-
   sops.secrets = {
     searxngGluetunEnv.owner = "root";
     searxngEnv.owner = "root";
@@ -24,59 +17,45 @@ in
     port = 4899;
     domain = "search.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit =
-        with containers;
-        map quadlet.service [
-          searxng-gluetun
-          searxng-redis
-          searxng-server
-        ];
-    };
-  };
+      directories = [
+        {
+          path = "valkey";
+          mode = "0775";
+          owner = "999";
+          group = "1000";
+        }
+        "data"
+      ];
+      main = "server";
+      internalPort = 8080;
+      security.enable = false;
 
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) containers;
-    in
-    {
       containers = {
-        "searxng-gluetun" = {
+        gluetun = {
           containerConfig = {
             image = "ghcr.io/qdm12/gluetun:v3.41.1";
             addCapabilities = [ "NET_ADMIN" ];
             devices = [ "/dev/net/tun:/dev/net/tun" ];
             environmentFiles = [ config.sops.secrets.searxngGluetunEnv.path ];
-            publishPorts = [
-              "127.0.0.1:${toString my.port}:8080"
-            ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
         };
 
-        searxng-redis = {
+        redis = {
           containerConfig = {
             image = "docker.io/valkey/valkey:8-alpine";
             exec = "valkey-server --save 30 1 --loglevel warning";
             volumes = [
-              "${stackPath}/valkey:/data:z"
+              "${my.stack.path}/valkey:/data:z"
             ];
-            networks = [ containers."searxng-gluetun".ref ];
+            networks = [ containers.searxng-gluetun.ref ];
           };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = {
-            After = containers.searxng-gluetun.ref;
-            Requires = containers.searxng-gluetun.ref;
-          };
+          dependsOn = [ "gluetun" ];
         };
 
-        searxng-server = {
+        server = {
           containerConfig = {
             image = "docker.io/searxng/searxng:2025.9.12-d79ad74";
             environments = {
@@ -87,20 +66,12 @@ in
             };
             environmentFiles = [ config.sops.secrets.searxngEnv.path ];
             volumes = [
-              "${stackPath}/data/settings.yml:/etc/searxng/settings.yml:ro"
+              "${my.stack.path}/data/settings.yml:/etc/searxng/settings.yml:ro"
             ];
             networks = [ containers.searxng-gluetun.ref ];
           };
-          serviceConfig = {
-            Restart = "always";
-          };
+          dependsOn = [ "redis" ];
           unitConfig = {
-            After = [
-              containers.searxng-redis.ref
-            ];
-            Requires = [
-              containers.searxng-redis.ref
-            ];
             X-RestartTrigger = [
               "${config.environment.etc."stacks/searxng/data/settings.yml".source}"
             ];
@@ -108,4 +79,5 @@ in
         };
       };
     };
+  };
 }

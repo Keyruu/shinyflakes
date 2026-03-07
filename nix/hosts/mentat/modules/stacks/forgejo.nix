@@ -1,6 +1,5 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/forgejo";
   my = config.services.my.forgejo;
   inherit (config.services) mesh;
   inherit (config.virtualisation.quadlet) containers;
@@ -129,21 +128,6 @@ in
       '';
   };
 
-  users = {
-    groups.git.gid = 1004;
-    users = {
-      git = {
-        isSystemUser = true;
-        uid = 1004;
-        group = "git";
-      };
-    };
-  };
-
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 1004 1004"
-  ];
-
   services.my.forgejo = {
     port = 3004;
     inherit domain;
@@ -154,21 +138,29 @@ in
         host = domain;
       };
     };
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
-
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.forgejo.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=forgejo" ];
+      user = {
+        enable = true;
+        name = "git";
+        uid = 1004;
+        group = "git";
+        gid = 1004;
       };
+      directories = [
+        {
+          path = "data";
+          mode = "0750";
+          owner = "git";
+          group = "git";
+        }
+      ];
+      network.enable = true;
+      main = "forgejo";
+      internalPort = 3000;
+      security.enable = false;
+
       containers = {
         forgejo = {
           containerConfig = {
@@ -178,7 +170,7 @@ in
               "222:22"
             ];
             volumes = [
-              "${stackPath}/data:/data"
+              "${my.stack.path}/data:/data"
               "${config.sops.templates."forgejo.ini".path}:/data/gitea/conf/app.ini:ro"
               "/etc/localtime:/etc/localtime:ro"
             ];
@@ -186,11 +178,7 @@ in
               USER_UID = "1004";
               USER_GID = "1004";
             };
-            networks = [ networks.forgejo.ref ];
             networkAliases = [ "forgejo" ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
         };
         anubis = {
@@ -204,15 +192,12 @@ in
               TARGET = "http://forgejo:3000";
               JWT_RESTRICTION_HEADER = "CF-Connecting-IP";
             };
-            networks = [ networks.forgejo.ref ];
             networkAliases = [ "anubis" ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
         };
       };
     };
+  };
 
   services.nginx.virtualHosts = {
     "git.lab.keyruu.de" = {

@@ -1,12 +1,8 @@
-_:
+{ config, ... }:
 let
-  stackPath = "/etc/stacks/esphome/config";
+  my = config.services.my.esphome;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath} 0755 root root"
-  ];
-
   services.my.esphome = {
     port = 6052;
     domain = "esphome.port.peeraten.net";
@@ -14,33 +10,31 @@ in
       enable = true;
       cert.host = "port.peeraten.net";
     };
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
-
-  virtualisation.quadlet.containers.esphome = {
-    containerConfig = {
-      image = "ghcr.io/esphome/esphome:2026.2.4";
-      environments = {
-        TZ = "Europe/Berlin";
+      directories = [ "config" ];
+      security.enable = false;
+      containers.esphome = {
+        containerConfig = {
+          image = "ghcr.io/esphome/esphome:2026.2.4";
+          environments = {
+            TZ = "Europe/Berlin";
+          };
+          exposePorts = [
+            "6052"
+          ];
+          addCapabilities = [
+            "CAP_NET_RAW"
+          ];
+          volumes = [
+            "${my.stack.path}/config:/config"
+          ];
+          networks = [
+            "host"
+          ];
+        };
       };
-      exposePorts = [
-        "6052"
-      ];
-      addCapabilities = [
-        "CAP_NET_RAW"
-      ];
-      volumes = [
-        "${stackPath}:/config"
-      ];
-      networks = [
-        "host"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 }

@@ -1,109 +1,71 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/immich";
   my = config.services.my.immich;
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/pgdata 0770 999 999"
-    "d ${stackPath}/model-cache 0770 root root"
-  ];
-
   services.my.immich = {
     port = 2283;
     domain = "immich.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit =
-        with containers;
-        map quadlet.service [
-          immich-server
-          immich-machine-learning
-          immich-redis
-          immich-database
-        ];
-    };
-  };
-
-  virtualisation.quadlet =
-    let
-      UPLOAD_LOCATION = "/main/immich";
-      # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
-      IMMICH_VERSION = "v2.5.6";
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.immich.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=immich" ];
-      };
+      directories = [
+        {
+          path = "pgdata";
+          mode = "0770";
+          owner = "999";
+          group = "999";
+        }
+        {
+          path = "model-cache";
+          mode = "0770";
+          owner = "root";
+          group = "root";
+        }
+      ];
+      network.enable = true;
+      main = "server";
+      internalPort = 2283;
+      security.enable = false;
 
       containers = {
-        immich-server = {
+        server = {
           containerConfig = {
-            image = "ghcr.io/immich-app/immich-server:${IMMICH_VERSION}";
-            publishPorts = [
-              "127.0.0.1:${toString my.port}:2283"
-            ];
+            image = "ghcr.io/immich-app/immich-server:v2.5.6";
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
-              "${UPLOAD_LOCATION}:/data"
+              "/main/immich:/data"
               "/main:/usr/src/app/extra-main"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
-            networks = [ networks.immich.ref ];
           };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = with containers; {
-            After = [
-              immich-redis.ref
-              immich-database.ref
-            ];
-            Requires = [
-              immich-redis.ref
-              immich-database.ref
-            ];
-          };
+          dependsOn = [
+            "redis"
+            "database"
+          ];
         };
 
-        immich-machine-learning = {
+        machine-learning = {
           containerConfig = {
-            image = "ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION}";
+            image = "ghcr.io/immich-app/immich-machine-learning:v2.5.6";
             volumes = [
-              "${stackPath}/model-cache:/cache"
+              "${my.stack.path}/model-cache:/cache"
             ];
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
-            networks = [ networks.immich.ref ];
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = with containers; {
-            After = immich-server.ref;
-            Requires = immich-server.ref;
           };
         };
 
-        immich-redis = {
+        redis = {
           containerConfig = {
             image = "docker.io/library/redis:6.2-alpine@sha256:c5a607fb6e1bb15d32bbcf14db22787d19e428d59e31a5da67511b49bb0f1ccc";
             healthCmd = "redis-cli ping || exit 1";
-            networks = [ networks.immich.ref ];
             networkAliases = [ "redis" ];
             notify = "healthy";
           };
-          serviceConfig = {
-            Restart = "always";
-          };
         };
 
-        immich-database = {
+        database = {
           containerConfig = {
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0";
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
@@ -112,17 +74,14 @@ in
             };
             securityLabelDisable = true;
             volumes = [
-              "${stackPath}/pgdata:/var/lib/postgresql/data:z"
+              "${my.stack.path}/pgdata:/var/lib/postgresql/data:z"
             ];
-            networks = [ networks.immich.ref ];
             networkAliases = [ "postgres" ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
         };
       };
     };
+  };
 
   services.restic.backupsWithDefaults = {
     immich-photos = {

@@ -1,15 +1,10 @@
 { config, flake, ... }:
 let
-  traccarPath = "/etc/stacks/traccar";
+  my = config.services.my.traccar;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${traccarPath}/data 0755 root root"
-    "d ${traccarPath}/logs 0755 root root"
-  ];
-
   sops.secrets = {
     traccarClientSecret.owner = "root";
     locationIqKey.owner = "root";
@@ -46,23 +41,34 @@ in
     '';
   };
 
-  virtualisation.quadlet.containers.traccar = {
-    containerConfig = {
-      image = "docker.io/traccar/traccar:6.12-alpine";
-      volumes = [
-        "${traccarPath}/data:/opt/traccar/data"
-        "${traccarPath}/logs:/opt/traccar/logs"
-        "${config.sops.templates."traccar.xml".path}:/opt/traccar/conf/traccar.xml:ro"
+  services.my.traccar = {
+    port = 5785;
+    stack = {
+      enable = true;
+      directories = [
+        "data"
+        "logs"
       ];
-      publishPorts = [
-        "127.0.0.1:5785:5785"
-        "${config.services.mesh.ip}:5785:5785"
-        "127.0.0.1:5144:5144"
-        "${config.services.mesh.ip}:5144:5144"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
+      security.enable = false;
+
+      containers = {
+        traccar = {
+          containerConfig = {
+            image = "docker.io/traccar/traccar:6.12-alpine";
+            volumes = [
+              "${my.stack.path}/data:/opt/traccar/data"
+              "${my.stack.path}/logs:/opt/traccar/logs"
+              "${config.sops.templates."traccar.xml".path}:/opt/traccar/conf/traccar.xml:ro"
+            ];
+            publishPorts = [
+              "127.0.0.1:5785:5785"
+              "${config.services.mesh.ip}:5785:5785"
+              "127.0.0.1:5144:5144"
+              "${config.services.mesh.ip}:5144:5144"
+            ];
+          };
+        };
+      };
     };
   };
 

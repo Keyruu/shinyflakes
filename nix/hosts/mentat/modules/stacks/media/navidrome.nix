@@ -1,40 +1,35 @@
 { config, ... }:
 let
-  stackPath = "/etc/stacks/navidrome/data";
   my = config.services.my.navidrome;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath} 0755 root root"
-  ];
-
   services.my.navidrome = {
     port = 4533;
     domain = "navidrome.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
+      directories = [ "data" ];
+      main = "navidrome";
+      internalPort = 4533;
+      security.enable = false;
 
-  virtualisation.quadlet.containers.navidrome = {
-    containerConfig = {
-      image = "deluan/navidrome:0.60.3";
-      environments = {
-        ND_LOGLEVEL = "info";
-        ND_BASEURL = "https://navidrome.lab.keyruu.de";
+      containers = {
+        navidrome = {
+          containerConfig = {
+            image = "deluan/navidrome:0.60.3";
+            environments = {
+              ND_LOGLEVEL = "info";
+              ND_BASEURL = "https://navidrome.lab.keyruu.de";
+            };
+            volumes = [
+              "${my.stack.path}/data:/data"
+              "/main/media/Music/library:/music:ro"
+            ];
+          };
+        };
       };
-      volumes = [
-        "${stackPath}:/data"
-        "/main/media/Music/library:/music:ro"
-      ];
-      publishPorts = [
-        "127.0.0.1:${toString my.port}:4533"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 }

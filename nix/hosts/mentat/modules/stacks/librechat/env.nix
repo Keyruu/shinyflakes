@@ -2,7 +2,6 @@
 let
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
-  stackName = "librechat";
 in
 {
   sops.secrets = {
@@ -21,7 +20,12 @@ in
   };
 
   sops.templates."librechat.env" = {
-    restartUnits = [ (quadlet.service containers."${stackName}-api") ];
+    restartUnits = map quadlet.service [
+      containers.librechat-api
+      containers.librechat-meilisearch
+      containers.librechat-vectordb
+      containers.librechat-rag-api
+    ];
     content = # sh
       ''
         #=====================================================================#

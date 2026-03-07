@@ -1,12 +1,8 @@
-_:
+{ config, ... }:
 let
-  stackPath = "/etc/stacks/music-assistant";
+  my = config.services.my.music-assistant;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-  ];
-
   networking.firewall.interfaces.eth0.allowedTCPPorts = [
     8095
     8097
@@ -19,30 +15,28 @@ in
       enable = true;
       cert.host = "port.peeraten.net";
     };
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
-
-  virtualisation.quadlet.containers.music-assistant = {
-    containerConfig = {
-      image = "ghcr.io/music-assistant/server:2.7.10";
-      environments = {
-        TZ = "Europe/Berlin";
+      directories = [ "data" ];
+      security.enable = false;
+      containers.music-assistant = {
+        containerConfig = {
+          image = "ghcr.io/music-assistant/server:2.7.10";
+          environments = {
+            TZ = "Europe/Berlin";
+          };
+          exposePorts = [
+            "8095"
+          ];
+          volumes = [
+            "${my.stack.path}/data:/data"
+          ];
+          networks = [
+            "host"
+          ];
+        };
       };
-      exposePorts = [
-        "8095"
-      ];
-      volumes = [
-        "${stackPath}/data:/data"
-      ];
-      networks = [
-        "host"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 }

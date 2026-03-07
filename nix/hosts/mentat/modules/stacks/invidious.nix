@@ -5,7 +5,6 @@
   ...
 }:
 let
-  stackPath = "/etc/stacks/invidious";
   my = config.services.my.invidious;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
@@ -32,13 +31,6 @@ in
     invidiousCompanionKey = { };
     invidiousHmacKey = { };
   };
-
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/companion-cache 0755 root root"
-    "d ${stackPath}/postgres 0755 999 999"
-    "d ${stackPath}/config 0755 root root"
-  ];
 
   sops.templates = {
     "invidious.env" = {
@@ -81,74 +73,55 @@ in
     port = 3009;
     domain = "invidious.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit =
-        with containers;
-        map quadlet.service [
-          invidious-main
-          invidious-companion
-          invidious-postgres
-        ];
-    };
-  };
-
-  virtualisation.quadlet =
-    let
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.invidious.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=invidious" ];
-      };
+      directories = [
+        "data"
+        "companion-cache"
+        {
+          path = "postgres";
+          mode = "0755";
+          owner = "999";
+          group = "999";
+        }
+        "config"
+      ];
+      network.enable = true;
+      main = "main";
+      internalPort = 3000;
+      security.enable = false;
 
       containers = {
-        invidious-main = {
+        main = {
           containerConfig = {
             image = "quay.io/invidious/invidious:2026.01.30-48be830";
-            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
             volumes = [
-              "${stackPath}/data:/data"
-              "${stackPath}/config:/config"
+              "${my.stack.path}/data:/data"
+              "${my.stack.path}/config:/config"
             ];
             environmentFiles = [ config.sops.templates."invidious.env".path ];
-            networks = [ networks.invidious.ref ];
             networkAliases = [ "invidious" ];
           };
-          serviceConfig = {
-            Restart = "on-failure";
-          };
-          unitConfig = with containers; {
-            After = [ invidious-postgres.ref ];
-            Requires = [ invidious-postgres.ref ];
-          };
+          dependsOn = [ "postgres" ];
         };
 
-        invidious-companion = {
+        companion = {
           containerConfig = {
             image = "quay.io/invidious/invidious-companion:latest@sha256:2dc4de2066fc7dd9a64af3b8324dadb45f0d7c018e9484f1b4b6eaa3d43f3a41";
             environmentFiles = [ config.sops.templates."invidious-companion.env".path ];
             volumes = [
-              "${stackPath}/companion-cache:/var/tmp/youtubei.js:rw"
+              "${my.stack.path}/companion-cache:/var/tmp/youtubei.js:rw"
             ];
-            dropCapabilities = [ "ALL" ];
-            readOnly = true;
-            noNewPrivileges = true;
-            networks = [ networks.invidious.ref ];
             networkAliases = [ "companion" ];
-          };
-          serviceConfig = {
-            Restart = "on-failure";
           };
         };
 
-        invidious-postgres = {
+        postgres = {
           containerConfig = {
             image = "docker.io/library/postgres:14";
             volumes = [
-              "${stackPath}/postgres:/var/lib/postgresql/data"
+              "${my.stack.path}/postgres:/var/lib/postgresql/data"
               "${invidiousSrc}/config/sql:/config/sql"
               "${invidiousSrc}/docker/init-invidious-db.sh:/docker-entrypoint-initdb.d/init-invidious-db.sh"
             ];
@@ -157,13 +130,10 @@ in
               POSTGRES_USER = dbUser;
             };
             environmentFiles = [ config.sops.templates."invidious-postgres.env".path ];
-            networks = [ networks.invidious.ref ];
             networkAliases = [ dbHost ];
-          };
-          serviceConfig = {
-            Restart = "on-failure";
           };
         };
       };
     };
+  };
 }

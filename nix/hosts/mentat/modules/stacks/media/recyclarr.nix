@@ -5,21 +5,6 @@ let
   inherit (flake.lib) quadlet;
 in
 {
-  users = {
-    groups.recyclarr.gid = 1006;
-    users = {
-      recyclarr = {
-        isSystemUser = true;
-        uid = 1006;
-        group = "recyclarr";
-      };
-    };
-  };
-
-  systemd.tmpfiles.rules = [
-    "d ${recyclarrPath} 0755 recyclarr recyclarr"
-  ];
-
   sops.templates."recyclarrConfig.yaml" = {
     restartUnits = [ (quadlet.service containers.media-recyclarr) ];
     owner = "recyclarr";
@@ -153,28 +138,42 @@ in
       '';
   };
 
-  virtualisation.quadlet.containers.media-recyclarr = {
-    containerConfig = {
-      image = "ghcr.io/recyclarr/recyclarr:8.4.0";
-      environments = {
-        TZ = "Europe/Berlin";
+  services.my.recyclarr = {
+    enable = true;
+    backup.enable = true;
+    stack = {
+      enable = true;
+      user.enable = true;
+      directories = [
+        {
+          path = "config";
+          mode = "0770";
+          owner = "recyclarr";
+          group = "recyclarr";
+        }
+      ];
+      security.enable = false;
+      containers.recyclarr = {
+        containerConfig = {
+          image = "ghcr.io/recyclarr/recyclarr:8.3.0";
+          environments = {
+            TZ = "Europe/Berlin";
+          };
+          user = "1006";
+          group = "1006";
+          volumes = [
+            "${recyclarrPath}:/config"
+            "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml"
+          ];
+          networks = [
+            "media-gluetun.container"
+          ];
+        };
+        unitConfig = {
+          After = [ containers.media-gluetun.ref ];
+          Requires = [ containers.media-gluetun.ref ];
+        };
       };
-      user = "1006";
-      group = "1006";
-      volumes = [
-        "${recyclarrPath}:/config"
-        "${config.sops.templates."recyclarrConfig.yaml".path}:/config/recyclarr.yml"
-      ];
-      networks = [
-        "media-gluetun.container"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
-    };
-    unitConfig = {
-      After = [ containers.media-gluetun.ref ];
-      Requires = [ containers.media-gluetun.ref ];
     };
   };
 }

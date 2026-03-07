@@ -45,7 +45,7 @@ in
       network.enable = true;
       main = "web";
       internalPort = 3000;
-      security.enable = true;
+      security.enable = false;
 
       containers = {
         web = {

@@ -1,54 +1,55 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/dawarich";
   my = config.services.my.backrest;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-    "d ${stackPath}/config 0755 root root"
-    "d ${stackPath}/cache 0755 root root"
-    "d ${stackPath}/tmp 0755 root root"
-  ];
-
-  sops = {
-    templates."backrest.env" = {
-      restartUnits = [
-        (quadlet.service containers.backrest)
-      ];
-      content = ''
-        RESTIC_PASSWORD=${config.sops.placeholder.resticPassword}
-      '';
-    };
+  sops.templates."backrest.env" = {
+    restartUnits = [
+      (quadlet.service containers.backrest)
+    ];
+    content = ''
+      RESTIC_PASSWORD=${config.sops.placeholder.resticPassword}
+    '';
   };
 
   services.my.backrest = {
     port = 9898;
     domain = "backrest.lab.keyruu.de";
     proxy.enable = true;
-  };
-
-  virtualisation.quadlet.containers.backrest = {
-    containerConfig = {
-      image = "ghcr.io/garethgeorge/backrest:v1.12.0";
-      publishPorts = [ "127.0.0.1:${toString my.port}:9898" ];
-      environmentFiles = [ config.sops.templates."backrest.env".path ];
-      environments = {
-        BACKREST_DATA = "/data";
-        BACKREST_CONFIG = "/config/config.json";
-        XDG_CACHE_HOME = "/cache";
-        TMPDIR = "/tmp";
-        TZ = "Europe/Amsterdam";
-      };
-      volumes = [
-        "${stackPath}/data:/data"
-        "${stackPath}/config:/config"
-        "${stackPath}/cache:/cache"
-        "${stackPath}/tmp:/tmp"
-        "/main/backup/restic:/main/backup/restic"
+    stack = {
+      enable = true;
+      directories = [
+        "data"
+        "config"
+        "cache"
+        "tmp"
       ];
+      security.enable = false;
+
+      containers = {
+        backrest = {
+          containerConfig = {
+            image = "ghcr.io/garethgeorge/backrest:v1.12.0";
+            environmentFiles = [ config.sops.templates."backrest.env".path ];
+            environments = {
+              BACKREST_DATA = "/data";
+              BACKREST_CONFIG = "/config/config.json";
+              XDG_CACHE_HOME = "/cache";
+              TMPDIR = "/tmp";
+              TZ = "Europe/Amsterdam";
+            };
+            volumes = [
+              "${my.stack.path}/data:/data"
+              "${my.stack.path}/config:/config"
+              "${my.stack.path}/cache:/cache"
+              "${my.stack.path}/tmp:/tmp"
+              "/main/backup/restic:/main/backup/restic"
+            ];
+          };
+        };
+      };
     };
   };
 }

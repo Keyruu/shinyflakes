@@ -1,6 +1,6 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/n8n";
+  my = config.services.my.n8n;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
@@ -9,10 +9,6 @@ in
     n8nEncryptionKey = { };
   };
 
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-  ];
-
   sops.templates."n8n.env" = {
     restartUnits = [ (quadlet.service containers.n8n) ];
     content = ''
@@ -20,24 +16,34 @@ in
     '';
   };
 
-  virtualisation.quadlet.containers.n8n = {
-    containerConfig = {
-      image = "docker.n8n.io/n8nio/n8n:latest";
-      publishPorts = [ "127.0.0.1:5678:5678" ];
-      volumes = [
-        "${stackPath}/data:/home/node/.n8n"
-      ];
-      environments = {
-        DB_TYPE = "sqlite";
-        N8N_HOST = "n8n.lab.keyruu.de";
-        N8N_PORT = "5678";
-        N8N_PROTOCOL = "https";
-        WEBHOOK_URL = "https://n8n.lab.keyruu.de/";
+  services.my.n8n = {
+    port = 5678;
+    domain = "n8n.lab.keyruu.de";
+    proxy.enable = true;
+    backup.enable = true;
+    stack = {
+      enable = true;
+      directories = [ "data" ];
+      security.enable = false;
+
+      containers = {
+        n8n = {
+          containerConfig = {
+            image = "docker.n8n.io/n8nio/n8n:latest";
+            volumes = [
+              "${my.stack.path}/data:/home/node/.n8n"
+            ];
+            environments = {
+              DB_TYPE = "sqlite";
+              N8N_HOST = "n8n.lab.keyruu.de";
+              N8N_PORT = "5678";
+              N8N_PROTOCOL = "https";
+              WEBHOOK_URL = "https://n8n.lab.keyruu.de/";
+            };
+            environmentFiles = [ config.sops.templates."n8n.env".path ];
+          };
+        };
       };
-      environmentFiles = [ config.sops.templates."n8n.env".path ];
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 

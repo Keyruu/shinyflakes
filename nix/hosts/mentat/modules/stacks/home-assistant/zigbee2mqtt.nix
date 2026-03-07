@@ -1,15 +1,10 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/z2m/data";
   my = config.services.my.zigbee2mqtt;
-  inherit (config.virtualisation.quadlet) containers networks;
+  inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath} 0755 root root"
-  ];
-
   sops.secrets = {
     z2mNetworkKey.owner = "root";
     z2mPanId.owner = "root";
@@ -59,39 +54,35 @@ in
       enable = true;
       cert.host = "port.peeraten.net";
     };
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
+      directories = [ "data" ];
+      main = "zigbee2mqtt";
+      internalPort = 8080;
+      security.enable = false;
 
-  virtualisation.quadlet = {
-    containers = {
-      zigbee2mqtt = {
-        containerConfig = {
-          image = "koenkk/zigbee2mqtt:2.9.1";
-          environments = {
-            TZ = "Europe/Berlin";
+      containers = {
+        zigbee2mqtt = {
+          containerConfig = {
+            image = "koenkk/zigbee2mqtt:2.9.1";
+            environments = {
+              TZ = "Europe/Berlin";
+            };
+            volumes = [
+              "${my.stack.path}/data:/app/data"
+              "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
+              "/run/udev:/run/udev:ro"
+            ];
+            networks = [ "mqtt" ];
+            devices = [
+              "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
+            ];
           };
-          publishPorts = [
-            "127.0.0.1:${toString my.port}:8080"
-          ];
-          volumes = [
-            "${stackPath}:/app/data"
-            "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
-            "/run/udev:/run/udev:ro"
-          ];
-          networks = [ networks.mqtt.ref ];
-          devices = [
-            "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
-          ];
-        };
-        serviceConfig = {
-          Restart = "always";
-        };
-        unitConfig = {
-          After = containers.mqtt.ref;
-          Requires = containers.mqtt.ref;
+          unitConfig = {
+            After = [ containers.mqtt.ref ];
+            Requires = [ containers.mqtt.ref ];
+          };
         };
       };
     };

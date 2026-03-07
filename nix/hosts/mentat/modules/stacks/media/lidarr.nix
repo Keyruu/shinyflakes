@@ -1,54 +1,48 @@
 { config, ... }:
 let
-  stackPath = "/etc/stacks/lidarr/config";
   my = config.services.my.lidarr;
   inherit (config.virtualisation.quadlet) containers;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/config 0755 root root"
-  ];
-
   services.my.lidarr = {
     port = 8686;
     domain = "lidarr.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit = "media-lidarr";
+      directories = [ "config" ];
+      security.enable = false;
+
+      containers = {
+        lidarr = {
+          containerConfig = {
+            image = "ghcr.io/hotio/lidarr:release-3.1.0.4875";
+            environments = {
+              PUID = "0";
+              PGID = "0";
+              UMASK = "022";
+              TZ = "Europe/Berlin";
+            };
+            volumes = [
+              "/etc/localtime:/etc/localtime:ro"
+              "${my.stack.path}/config:/config"
+              "/main/media:/data"
+            ];
+            networks = [
+              "media-gluetun.container"
+            ];
+          };
+          unitConfig = {
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
+          };
+        };
+      };
     };
   };
 
-  virtualisation.quadlet.containers = {
-    media-lidarr = {
-      containerConfig = {
-        image = "ghcr.io/hotio/lidarr:release-3.1.0.4875";
-        environments = {
-          PUID = "0";
-          PGID = "0";
-          UMASK = "022";
-          TZ = "Europe/Berlin";
-        };
-        volumes = [
-          "/etc/localtime:/etc/localtime:ro"
-          "${stackPath}/config:/config"
-          "/main/media:/data"
-        ];
-        networks = [
-          "media-gluetun.container"
-        ];
-      };
-      serviceConfig = {
-        Restart = "always";
-      };
-      unitConfig = {
-        After = [ containers.media-gluetun.ref ];
-        Requires = [ containers.media-gluetun.ref ];
-      };
-    };
-    media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:${toString my.port}:8686"
-    ];
-  };
+  virtualisation.quadlet.containers.media-gluetun.containerConfig.publishPorts = [
+    "127.0.0.1:${toString my.port}:8686"
+  ];
 }

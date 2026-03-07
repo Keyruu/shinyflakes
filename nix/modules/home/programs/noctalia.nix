@@ -11,6 +11,23 @@
   programs.noctalia-shell = {
     enable = true;
 
+    plugins = {
+      sources = [
+        {
+          enabled = true;
+          name = "Official Noctalia Plugins";
+          url = "https://github.com/noctalia-dev/noctalia-plugins";
+        }
+      ];
+      states = {
+        notes-scratchpad = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+      };
+      version = 2;
+    };
+
     colors = {
       mError = "#f38ba8"; # red from waybar critical state
       mOnError = "#111111";

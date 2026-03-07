@@ -6,7 +6,6 @@
   ...
 }:
 let
-  inherit (flake.lib) quadlet;
 
   # reuse the quadlet-nix container submodule via getSubModules so stack
   # containers share the same options as virtualisation.quadlet.containers.*.

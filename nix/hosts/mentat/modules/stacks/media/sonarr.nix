@@ -1,54 +1,48 @@
 { config, ... }:
 let
-  stackPath = "/etc/stacks/sonarr";
   my = config.services.my.sonarr;
   inherit (config.virtualisation.quadlet) containers;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/config 0755 root root"
-  ];
-
   services.my.sonarr = {
     port = 8989;
     domain = "sonarr.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-      systemd.unit = "media-sonarr";
+      directories = [ "config" ];
+      security.enable = false;
+
+      containers = {
+        sonarr = {
+          containerConfig = {
+            image = "ghcr.io/hotio/sonarr:release-4.0.16.2944";
+            environments = {
+              PUID = "0";
+              PGID = "0";
+              UMASK = "022";
+              TZ = "Europe/Berlin";
+            };
+            volumes = [
+              "/etc/localtime:/etc/localtime:ro"
+              "${my.stack.path}/config:/config"
+              "/main/media:/data"
+            ];
+            networks = [
+              "media-gluetun.container"
+            ];
+          };
+          unitConfig = {
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
+          };
+        };
+      };
     };
   };
 
-  virtualisation.quadlet.containers = {
-    media-sonarr = {
-      containerConfig = {
-        image = "ghcr.io/hotio/sonarr:release-4.0.16.2944";
-        environments = {
-          PUID = "0";
-          PGID = "0";
-          UMASK = "022";
-          TZ = "Europe/Berlin";
-        };
-        volumes = [
-          "/etc/localtime:/etc/localtime:ro"
-          "${stackPath}/config:/config"
-          "/main/media:/data"
-        ];
-        networks = [
-          "media-gluetun.container"
-        ];
-      };
-      serviceConfig = {
-        Restart = "always";
-      };
-      unitConfig = {
-        After = [ containers.media-gluetun.ref ];
-        Requires = [ containers.media-gluetun.ref ];
-      };
-    };
-    media-gluetun.containerConfig.publishPorts = [
-      "127.0.0.1:${toString my.port}:8989"
-    ];
-  };
+  virtualisation.quadlet.containers.media-gluetun.containerConfig.publishPorts = [
+    "127.0.0.1:${toString my.port}:8989"
+  ];
 }

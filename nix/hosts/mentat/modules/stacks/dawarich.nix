@@ -1,6 +1,5 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/dawarich";
   my = config.services.my.dawarich;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
@@ -10,14 +9,6 @@ in
     dawarichDatabasePassword = { };
     dawarichSecretKeyBase = { };
   };
-
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/db-data 0700 999 999"
-    "d ${stackPath}/shared 0755 root root"
-    "d ${stackPath}/public 0755 root root"
-    "d ${stackPath}/watched 0755 root root"
-    "d ${stackPath}/storage 0755 root root"
-  ];
 
   sops.templates."dawarich.env" = {
     restartUnits =
@@ -48,181 +39,150 @@ in
           host = domain;
         };
       };
-      backup = {
+      backup.enable = true;
+      stack = {
         enable = true;
-        paths = [ stackPath ];
-        systemd.unit =
-          with containers;
-          map quadlet.service [
-            dawarich-app
-            dawarich-sidekiq
-            dawarich-redis
-            dawarich-db
-          ];
-      };
-    };
+        directories = [
+          {
+            path = "db-data";
+            mode = "0700";
+            owner = "999";
+            group = "999";
+          }
+          "shared"
+          "public"
+          "watched"
+          "storage"
+        ];
+        network.enable = true;
+        main = "app";
+        internalPort = 3000;
+        security.enable = false;
 
-  virtualisation.quadlet =
-    let
-      # renovate: datasource=docker depName=freikin/dawarich
-      DAWARICH_VERSION = "1.3.1";
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.dawarich.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=dawarich" ];
-      };
-
-      containers = {
-        dawarich-redis = {
-          containerConfig = {
-            # renovate: ignore
-            image = "redis:7.4-alpine";
-            exec = "redis-server";
-            volumes = [
-              "${stackPath}/shared:/data"
-            ];
-            networks = [ networks.dawarich.ref ];
-            networkAliases = [ "dawarich_redis" ];
-            healthCmd = "redis-cli --raw incr ping";
-            healthInterval = "10s";
-            healthTimeout = "10s";
-            healthRetries = 5;
-            healthStartPeriod = "30s";
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-        };
-
-        dawarich-db = {
-          containerConfig = {
-            # renovate: ignore
-            image = "postgis/postgis:17-3.5-alpine";
-            shmSize = "1g";
-            environments = {
-              POSTGRES_USER = "postgres";
-              POSTGRES_DB = "dawarich_development";
+        containers =
+          let
+            # renovate: datasource=docker depName=freikin/dawarich
+            version = "1.3.1";
+          in
+          {
+            redis = {
+              containerConfig = {
+                image = "redis:7.4-alpine";
+                exec = "redis-server";
+                volumes = [
+                  "${my.stack.path}/shared:/data"
+                ];
+                networkAliases = [ "dawarich_redis" ];
+                healthCmd = "redis-cli --raw incr ping";
+                healthInterval = "10s";
+                healthTimeout = "10s";
+                healthRetries = 5;
+                healthStartPeriod = "30s";
+              };
             };
-            environmentFiles = [ config.sops.templates."dawarich.env".path ];
-            volumes = [
-              "${stackPath}/db-data:/var/lib/postgresql/data:Z"
-              "${stackPath}/shared:/var/shared"
-            ];
-            networks = [ networks.dawarich.ref ];
-            networkAliases = [ "dawarich_db" ];
-            healthCmd = "pg_isready -U postgres -d dawarich_development";
-            healthInterval = "10s";
-            healthTimeout = "10s";
-            healthRetries = 5;
-            healthStartPeriod = "30s";
-          };
-          serviceConfig = {
-            Restart = "always";
-          };
-        };
 
-        dawarich-app = {
-          containerConfig = {
-            image = "freikin/dawarich:${DAWARICH_VERSION}";
-            exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
-            publishPorts = [
-              "127.0.0.1:${toString my.port}:3000"
-              "${config.services.mesh.ip}:${toString my.port}:3000"
-            ];
-            volumes = [
-              "${stackPath}/public:/var/app/public"
-              "${stackPath}/watched:/var/app/tmp/imports/watched"
-              "${stackPath}/storage:/var/app/storage"
-              "${stackPath}/db-data:/dawarich_db_data"
-            ];
-            environments = {
-              RAILS_ENV = "development";
-              REDIS_URL = "redis://dawarich_redis:6379";
-              DATABASE_HOST = "dawarich_db";
-              DATABASE_PORT = "5432";
-              DATABASE_USERNAME = "postgres";
-              DATABASE_NAME = "dawarich_development";
-              MIN_MINUTES_SPENT_IN_CITY = "60";
-              APPLICATION_HOSTS = "localhost,map.peeraten.net";
-              TIME_ZONE = "Europe/Berlin";
-              APPLICATION_PROTOCOL = "https";
-              PROMETHEUS_EXPORTER_ENABLED = "false";
-              PROMETHEUS_EXPORTER_HOST = "0.0.0.0";
-              PROMETHEUS_EXPORTER_PORT = "9394";
-              RAILS_LOG_TO_STDOUT = "true";
-              SELF_HOSTED = "true";
-              STORE_GEODATA = "true";
+            db = {
+              containerConfig = {
+                image = "postgis/postgis:17-3.5-alpine";
+                shmSize = "1g";
+                environments = {
+                  POSTGRES_USER = "postgres";
+                  POSTGRES_DB = "dawarich_development";
+                };
+                environmentFiles = [ config.sops.templates."dawarich.env".path ];
+                volumes = [
+                  "${my.stack.path}/db-data:/var/lib/postgresql/data:Z"
+                  "${my.stack.path}/shared:/var/shared"
+                ];
+                networkAliases = [ "dawarich_db" ];
+                healthCmd = "pg_isready -U postgres -d dawarich_development";
+                healthInterval = "10s";
+                healthTimeout = "10s";
+                healthRetries = 5;
+                healthStartPeriod = "30s";
+              };
             };
-            environmentFiles = [ config.sops.templates."dawarich.env".path ];
-            networks = [ networks.dawarich.ref ];
-          };
-          serviceConfig = {
-            Restart = "on-failure";
-          };
-          unitConfig = with containers; {
-            After = [
-              dawarich-db.ref
-              dawarich-redis.ref
-            ];
-            Requires = [
-              dawarich-db.ref
-              dawarich-redis.ref
-            ];
-          };
-        };
 
-        dawarich-sidekiq = {
-          containerConfig = {
-            image = "freikin/dawarich:${DAWARICH_VERSION}";
-            exec = "sidekiq-entrypoint.sh sidekiq";
-            volumes = [
-              "${stackPath}/public:/var/app/public"
-              "${stackPath}/watched:/var/app/tmp/imports/watched"
-              "${stackPath}/storage:/var/app/storage"
-            ];
-            environments = {
-              RAILS_ENV = "development";
-              REDIS_URL = "redis://dawarich_redis:6379";
-              DATABASE_HOST = "dawarich_db";
-              DATABASE_PORT = "5432";
-              DATABASE_USERNAME = "postgres";
-              DATABASE_NAME = "dawarich_development";
-              APPLICATION_HOSTS = "localhost,map.peeraten.net";
-              BACKGROUND_PROCESSING_CONCURRENCY = "10";
-              APPLICATION_PROTOCOL = "https";
-              PROMETHEUS_EXPORTER_ENABLED = "false";
-              PROMETHEUS_EXPORTER_HOST = "dawarich-app";
-              PROMETHEUS_EXPORTER_PORT = "9394";
-              RAILS_LOG_TO_STDOUT = "true";
-              SELF_HOSTED = "true";
-              STORE_GEODATA = "true";
+            app = {
+              containerConfig = {
+                image = "freikin/dawarich:${version}";
+                exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
+                publishPorts = [
+                  "127.0.0.1:${toString my.port}:3000"
+                  "${config.services.mesh.ip}:${toString my.port}:3000"
+                ];
+                volumes = [
+                  "${my.stack.path}/public:/var/app/public"
+                  "${my.stack.path}/watched:/var/app/tmp/imports/watched"
+                  "${my.stack.path}/storage:/var/app/storage"
+                  "${my.stack.path}/db-data:/dawarich_db_data"
+                ];
+                environments = {
+                  RAILS_ENV = "development";
+                  REDIS_URL = "redis://dawarich_redis:6379";
+                  DATABASE_HOST = "dawarich_db";
+                  DATABASE_PORT = "5432";
+                  DATABASE_USERNAME = "postgres";
+                  DATABASE_NAME = "dawarich_development";
+                  MIN_MINUTES_SPENT_IN_CITY = "60";
+                  APPLICATION_HOSTS = "localhost,map.peeraten.net";
+                  TIME_ZONE = "Europe/Berlin";
+                  APPLICATION_PROTOCOL = "https";
+                  PROMETHEUS_EXPORTER_ENABLED = "false";
+                  PROMETHEUS_EXPORTER_HOST = "0.0.0.0";
+                  PROMETHEUS_EXPORTER_PORT = "9394";
+                  RAILS_LOG_TO_STDOUT = "true";
+                  SELF_HOSTED = "true";
+                  STORE_GEODATA = "true";
+                };
+                environmentFiles = [ config.sops.templates."dawarich.env".path ];
+              };
+              dependsOn = [
+                "db"
+                "redis"
+              ];
             };
-            environmentFiles = [ config.sops.templates."dawarich.env".path ];
-            networks = [ networks.dawarich.ref ];
-            healthCmd = "pgrep -f sidekiq";
-            healthInterval = "10s";
-            healthTimeout = "10s";
-            healthRetries = 30;
-            healthStartPeriod = "30s";
+
+            sidekiq = {
+              containerConfig = {
+                image = "freikin/dawarich:${version}";
+                exec = "sidekiq-entrypoint.sh sidekiq";
+                volumes = [
+                  "${my.stack.path}/public:/var/app/public"
+                  "${my.stack.path}/watched:/var/app/tmp/imports/watched"
+                  "${my.stack.path}/storage:/var/app/storage"
+                ];
+                environments = {
+                  RAILS_ENV = "development";
+                  REDIS_URL = "redis://dawarich_redis:6379";
+                  DATABASE_HOST = "dawarich_db";
+                  DATABASE_PORT = "5432";
+                  DATABASE_USERNAME = "postgres";
+                  DATABASE_NAME = "dawarich_development";
+                  APPLICATION_HOSTS = "localhost,map.peeraten.net";
+                  BACKGROUND_PROCESSING_CONCURRENCY = "10";
+                  APPLICATION_PROTOCOL = "https";
+                  PROMETHEUS_EXPORTER_ENABLED = "false";
+                  PROMETHEUS_EXPORTER_HOST = "dawarich-app";
+                  PROMETHEUS_EXPORTER_PORT = "9394";
+                  RAILS_LOG_TO_STDOUT = "true";
+                  SELF_HOSTED = "true";
+                  STORE_GEODATA = "true";
+                };
+                environmentFiles = [ config.sops.templates."dawarich.env".path ];
+                healthCmd = "pgrep -f sidekiq";
+                healthInterval = "10s";
+                healthTimeout = "10s";
+                healthRetries = 30;
+                healthStartPeriod = "30s";
+              };
+              dependsOn = [
+                "db"
+                "redis"
+                "app"
+              ];
+            };
           };
-          serviceConfig = {
-            Restart = "on-failure";
-          };
-          unitConfig = with containers; {
-            After = [
-              dawarich-db.ref
-              dawarich-redis.ref
-              dawarich-app.ref
-            ];
-            Requires = [
-              dawarich-db.ref
-              dawarich-redis.ref
-              dawarich-app.ref
-            ];
-          };
-        };
       };
     };
 }

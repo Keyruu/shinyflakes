@@ -1,41 +1,38 @@
 { config, ... }:
 let
   my = config.services.my.jellyfin;
-  stackPath = "/etc/stacks/jellyfin";
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/config 0770 root root"
-    "d ${stackPath}/cache 0770 root root"
-  ];
-
   services.my.jellyfin = {
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
     proxy.enable = true;
-    backup = {
+    backup.enable = true;
+    stack = {
       enable = true;
-      paths = [ stackPath ];
-    };
-  };
+      directories = [
+        "config"
+        "cache"
+      ];
+      main = "jellyfin";
+      internalPort = 8096;
+      security.enable = false;
 
-  virtualisation.quadlet.containers.jellyfin = {
-    containerConfig = {
-      image = "ghcr.io/jellyfin/jellyfin:10.11.6";
-      environments = {
+      containers = {
+        jellyfin = {
+          containerConfig = {
+            image = "ghcr.io/jellyfin/jellyfin:10.11.6";
+            volumes = [
+              "${my.stack.path}/config:/config"
+              "${my.stack.path}/cache:/cache"
+              "/main/media:/media"
+            ];
+            publishPorts = [
+              "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
+            ];
+          };
+        };
       };
-      volumes = [
-        "${stackPath}/config:/config"
-        "${stackPath}/cache:/cache"
-        "/main/media:/media"
-      ];
-      publishPorts = [
-        "127.0.0.1:${toString my.port}:${toString my.port}"
-        "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
     };
   };
 }

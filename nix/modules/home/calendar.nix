@@ -99,8 +99,6 @@ in
     };
     settings = {
       default = {
-        # this is so stupid
-        default_calendar = "work1";
         timedelta = "5d";
       };
       view = {

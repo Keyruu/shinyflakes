@@ -1,28 +1,14 @@
 {
   config,
   flake,
-  pkgs,
   ...
 }:
 let
   stackPath = "/etc/stacks/mqtt/data";
-  inherit (config.virtualisation.quadlet) containers networks;
+  inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath} 0755 root root"
-  ];
-
-  users = {
-    users.mosquitto = {
-      uid = 1883;
-      isSystemUser = true;
-      group = "mosquitto";
-    };
-    groups.mosquitto.gid = 1883;
-  };
-
   sops = {
     secrets = {
       mqttPasswordFile = {
@@ -46,19 +32,28 @@ in
     };
   };
 
-  virtualisation.quadlet = {
-    networks.mqtt.networkConfig = {
-      driver = "bridge";
-      podmanArgs = [ "--interface-name=mqtt" ];
-    };
-    containers = {
-      mqtt = {
+  services.my.mqtt = {
+    enable = true;
+    port = 1883;
+    backup.enable = true;
+    stack = {
+      enable = true;
+      network.enable = true;
+      user = {
+        enable = true;
+        name = "mosquitto";
+        group = "mosquitto";
+        uid = 1883;
+        gid = 1883;
+      };
+      directories = [ "data" ];
+      security.enable = false;
+      containers.mqtt = {
         containerConfig = {
           image = "eclipse-mosquitto:2.0.22";
           publishPorts = [
             "127.0.0.1:1883:1883"
             "192.168.100.7:1883:1883"
-            "127.0.0.1:9001:9001"
           ];
           volumes = [
             "${stackPath}:/mosquitto"
@@ -66,33 +61,9 @@ in
             "${config.sops.secrets.mqttPasswordFile.path}:/mosquitto/config/pwfile:ro"
           ];
           exec = "mosquitto -c /mosquitto/config/mqtt.conf";
-          networks = [ networks.mqtt.ref ];
           networkAliases = [ "mqtt" ];
         };
-        serviceConfig = {
-          Restart = "always";
-        };
       };
-    };
-  };
-
-  services.nginx.virtualHosts."mqtt.port.peeraten.net" = {
-    useACMEHost = "port.peeraten.net";
-    forceSSL = true;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:9001";
-      proxyWebsockets = true;
-    };
-  };
-
-  services.restic.backupsWithDefaults = {
-    mqtt = {
-      backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop mqtt";
-      paths = [
-        stackPath
-      ];
-      backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start mqtt";
     };
   };
 }

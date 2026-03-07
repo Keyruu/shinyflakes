@@ -10,8 +10,5 @@
       };
       environmentFiles = [ config.sops.secrets.gluetunEnv.path ];
     };
-    serviceConfig = {
-      Restart = "always";
-    };
   };
 }

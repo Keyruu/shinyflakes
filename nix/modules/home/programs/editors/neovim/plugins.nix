@@ -14,7 +14,14 @@
             animate.enabled = false;
           };
           input.enabled = true;
-          lazygit.enabled = true;
+          lazygit = {
+            enabled = true;
+            config = {
+              os = {
+                editPreset = "nvim-remote";
+              };
+            };
+          };
           picker.enabled = true;
           notifier.enabled = true;
           quickfile.enabled = true;
@@ -146,6 +153,13 @@
         setup = # lua
           ''
             require('codediff').setup({})
+          '';
+      };
+      grug-far-nvim = {
+        package = grug-far-nvim;
+        setup = # lua
+          ''
+            require('grug-far').setup({})
           '';
       };
     };

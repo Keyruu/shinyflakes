@@ -19,7 +19,6 @@
     ./hytale.nix
     ./terraria.nix
     ./backrest.nix
-    ./calibre-web.nix
     ./forgejo.nix
     ./invidious.nix
     ./freshrss.nix
