@@ -3,13 +3,6 @@ let
   my = config.services.my.radicale;
 in
 {
-  users.groups.radicale.gid = 2999;
-  users.users.radicale = {
-    uid = 2999;
-    isSystemUser = true;
-    group = "radicale";
-  };
-
   sops.secrets.radicaleUsers = {
     mode = "0440";
     owner = "radicale";
