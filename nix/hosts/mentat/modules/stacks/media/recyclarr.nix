@@ -6,7 +6,7 @@ let
 in
 {
   sops.templates."recyclarrConfig.yaml" = {
-    restartUnits = [ (quadlet.service containers.media-recyclarr) ];
+    restartUnits = [ (quadlet.service containers.recyclarr) ];
     owner = "recyclarr";
     group = "recyclarr";
     content = # yaml
