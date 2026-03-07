@@ -109,7 +109,7 @@ in
 
         vectordb = {
           containerConfig = {
-            image = "pgvector/pgvector:0.8.0-pg15-trixie";
+            image = "pgvector/pgvector:0.8.2-pg15-trixie";
             volumes = [
               "${my.stack.path}/vectordb/pgdata2:/var/lib/postgresql/data"
             ];
