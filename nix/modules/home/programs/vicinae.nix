@@ -20,7 +20,7 @@
     };
     package = perSystem.vicinae.default;
     extensions = with perSystem.vicinae-extensions; [
-      bluetooth
+      # bluetooth
       nix
       # systemd
       wifi-commander
