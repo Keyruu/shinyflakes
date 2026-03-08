@@ -14,8 +14,6 @@ in
         "config"
         "cache"
       ];
-      main = "jellyfin";
-      internalPort = 8096;
       security.enable = false;
 
       containers = {
@@ -28,7 +26,8 @@ in
               "/main/media:/media"
             ];
             publishPorts = [
-              "${config.services.mesh.ip}:${toString my.port}:${toString my.port}"
+              "127.0.0.1:${toString my.port}:8096"
+              "${config.services.mesh.ip}:${toString my.port}:8096"
             ];
           };
         };
