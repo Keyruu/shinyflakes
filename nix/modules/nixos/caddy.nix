@@ -36,7 +36,7 @@
   services.caddy =
     let
       # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
-      corazaCaddyVersion = "v2.1.1-0.20251210234215-5d280fbd8128";
+      corazaCaddyVersion = "v2.2.0";
 
       inherit (flake.lib.cloudflare) all;
     in
