@@ -145,18 +145,6 @@ in
               };
             };
 
-            main = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = null;
-              description = "Short name of the main container. Auto-publishes 127.0.0.1:<my.port>:<internalPort>.";
-            };
-
-            internalPort = lib.mkOption {
-              type = lib.types.nullOr lib.types.port;
-              default = null;
-              description = "Container-internal port of the main container.";
-            };
-
             containers = lib.mkOption {
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
@@ -225,11 +213,7 @@ in
             available = builtins.concatStringsSep ", " names;
           in
           lib.optionals stackCfg.enable (
-            lib.optional (stackCfg.main != null && !(builtins.elem stackCfg.main names)) {
-              assertion = false;
-              message = "services.my.${stackName}.stack.main = \"${stackCfg.main}\" does not match any container (available: ${available}).";
-            }
-            ++ lib.concatLists (
+            lib.concatLists (
               lib.mapAttrsToList (
                 shortName: containerCfg:
                 map (
@@ -362,35 +346,18 @@ in
                     else
                       base;
 
-                  withPorts =
-                    if
-                      stackCfg.main == shortName
-                      && stackCfg.internalPort != null
-                      && withNetwork.containerConfig.publishPorts == [ ]
-                    then
+                  depRefs = map (dep: "${prefixName stackName containerCount dep}.container") containerCfg.dependsOn;
+                  withDeps =
+                    if containerCfg.dependsOn != [ ] then
                       withNetwork
                       // {
-                        containerConfig = withNetwork.containerConfig // {
-                          publishPorts = [
-                            "127.0.0.1:${toString svc.port}:${toString stackCfg.internalPort}"
-                          ];
+                        unitConfig = withNetwork.unitConfig // {
+                          After = (withNetwork.unitConfig.After or [ ]) ++ depRefs;
+                          Requires = (withNetwork.unitConfig.Requires or [ ]) ++ depRefs;
                         };
                       }
                     else
                       withNetwork;
-
-                  depRefs = map (dep: "${prefixName stackName containerCount dep}.container") containerCfg.dependsOn;
-                  withDeps =
-                    if containerCfg.dependsOn != [ ] then
-                      withPorts
-                      // {
-                        unitConfig = withPorts.unitConfig // {
-                          After = (withPorts.unitConfig.After or [ ]) ++ depRefs;
-                          Requires = (withPorts.unitConfig.Requires or [ ]) ++ depRefs;
-                        };
-                      }
-                    else
-                      withPorts;
 
                   securityAttrs = lib.foldl' (
                     acc: field:

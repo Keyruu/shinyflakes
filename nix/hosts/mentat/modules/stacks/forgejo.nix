@@ -157,8 +157,6 @@ in
         }
       ];
       network.enable = true;
-      main = "server";
-      internalPort = 3000;
       security.enable = false;
 
       containers = {

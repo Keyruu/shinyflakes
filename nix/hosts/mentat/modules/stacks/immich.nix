@@ -25,14 +25,13 @@ in
         }
       ];
       network.enable = true;
-      main = "server";
-      internalPort = 2283;
       security.enable = false;
 
       containers = {
         server = {
           containerConfig = {
             image = "ghcr.io/immich-app/immich-server:v2.5.6";
+            publishPorts = [ "127.0.0.1:${toString my.port}:2283" ];
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
               "/main/immich:/data"

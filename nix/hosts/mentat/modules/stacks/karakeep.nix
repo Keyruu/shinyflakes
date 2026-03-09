@@ -43,14 +43,13 @@ in
         "meilisearch"
       ];
       network.enable = true;
-      main = "web";
-      internalPort = 3000;
       security.enable = false;
 
       containers = {
         web = {
           containerConfig = {
             image = "ghcr.io/karakeep-app/karakeep:0.31.0";
+            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
             volumes = [
               "${my.stack.path}/data:/data"
             ];

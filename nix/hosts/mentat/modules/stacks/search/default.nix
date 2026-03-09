@@ -29,8 +29,6 @@ in
         }
         "data"
       ];
-      main = "server";
-      internalPort = 8080;
       security.enable = false;
 
       containers = {
@@ -58,6 +56,7 @@ in
         server = {
           containerConfig = {
             image = "docker.io/searxng/searxng:2025.9.12-d79ad74";
+            publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
             environments = {
               SEARXNG_BASE_URL = "https://search.lab.keyruu.de";
               UWSGI_WORKERS = "4";

@@ -11,14 +11,13 @@ in
     stack = {
       enable = true;
       directories = [ "data" ];
-      main = "navidrome";
-      internalPort = 4533;
       security.enable = false;
 
       containers = {
         navidrome = {
           containerConfig = {
             image = "deluan/navidrome:0.60.3";
+            publishPorts = [ "127.0.0.1:${toString my.port}:4533" ];
             environments = {
               ND_LOGLEVEL = "info";
               ND_BASEURL = "https://navidrome.lab.keyruu.de";

@@ -88,14 +88,13 @@ in
         "config"
       ];
       network.enable = true;
-      main = "main";
-      internalPort = 3000;
       security.enable = false;
 
       containers = {
         main = {
           containerConfig = {
             image = "quay.io/invidious/invidious:2026.01.30-48be830";
+            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
             volumes = [
               "${my.stack.path}/data:/data"
               "${my.stack.path}/config:/config"

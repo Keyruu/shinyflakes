@@ -55,8 +55,6 @@ in
           "storage"
         ];
         network.enable = true;
-        main = "app";
-        internalPort = 3000;
         security.enable = false;
 
         containers =

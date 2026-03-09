@@ -31,6 +31,7 @@ in
         freshrss = {
           containerConfig = {
             image = "freshrss/freshrss:1.28.1";
+            publishPorts = [ "127.0.0.1:${toString my.port}:80" ];
             volumes = [
               "${my.stack.path}/data:/var/www/FreshRSS/data"
               "${youlag}:/var/www/FreshRSS/extensions/xExtension-Youlag:ro"

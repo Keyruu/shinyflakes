@@ -51,14 +51,13 @@ in
         }
       ];
       network.enable = true;
-      main = "api";
-      internalPort = 3080;
       security.enable = false;
 
       containers = {
         api = {
           containerConfig = {
             image = "ghcr.io/danny-avila/librechat-api:v0.8.3-rc2";
+            publishPorts = [ "127.0.0.1:${toString my.port}:3080" ];
             addHosts = [ "host.containers.internal:host-gateway" ];
             volumes = [
               "${my.stack.path}/api/librechat.yaml:/app/librechat.yaml"
