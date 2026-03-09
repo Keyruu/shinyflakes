@@ -1,5 +1,10 @@
 { pkgs, ... }:
 {
+  xdg.mime.defaultApplications = {
+    "inode/directory" = "thunar.desktop";
+    "inode/mount-point" = "thunar.desktop";
+  };
+
   services = {
     gvfs.enable = true;
     udisks2.mountOnMedia = true;
@@ -20,6 +25,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    file-roller
     webp-pixbuf-loader # thumbnails for .webp
     ffmpegthumbnailer # thumbnails for video files
     poppler # thumbnails for .pdf

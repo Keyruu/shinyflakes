@@ -9,6 +9,13 @@ _: {
         doom_loop = "ask";
         external_directory = "ask";
       };
+      mcp = {
+        searxng = {
+          type = "remote";
+          url = "http://100.67.0.2:30003/sse";
+          enabled = true;
+        };
+      };
       provider = {
         mammouth = {
           npm = "@ai-sdk/openai-compatible";
