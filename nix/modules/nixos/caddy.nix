@@ -46,7 +46,7 @@
         plugins = [
           "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
         ];
-        hash = "sha256-RM5FpAsoqR5VFB/lDSGU7DMGQBUrgchgg+xKof4mpQY=";
+        hash = "sha256-e/GdUZ5IOKHvP83uLk4EH6oUROV7s0q8LF4b+Y3wook=";
       };
 
       environmentFile = config.sops.templates."caddy.env".path;
