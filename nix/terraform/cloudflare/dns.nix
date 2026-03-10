@@ -20,6 +20,7 @@
               "scrobble"
               "oblivion"
               "prime"
+              "notify"
               "@"
               "*"
             ];
