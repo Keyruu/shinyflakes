@@ -93,7 +93,7 @@ in
 
           main = {
             containerConfig = {
-              image = "ghcr.io/booklore-app/booklore:v2.0.6";
+              image = "ghcr.io/booklore-app/booklore:v2.1.0";
               publishPorts = [ "127.0.0.1:${toString my.port}:6060" ];
               environments = {
                 USER_ID = "1000";
