@@ -39,7 +39,11 @@ in
                 type = submodule {
                   options = {
                     enable = lib.mkEnableOption "proxy";
-                    # public = lib.mkEnableOption "will this be proxied by a vps";
+                    server = lib.mkOption {
+                      type = enum [ "nginx" "caddy" ];
+                      default = "nginx";
+                      description = "Which reverse proxy server to use.";
+                    };
                     whitelist = lib.mkOption {
                       type = submodule {
                         options = {
@@ -130,7 +134,7 @@ in
     services.nginx.virtualHosts = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.port != null) {
+        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "nginx" && serviceCfg.port != null) {
           ${serviceCfg.domain} = {
             useACMEHost = serviceCfg.proxy.cert.host;
             forceSSL = true;
@@ -151,6 +155,20 @@ in
                 deny all;
               '';
             };
+          };
+        }
+      ) config.services.my
+    );
+
+    services.caddy.virtualHostsWithDefaults = lib.mkMerge (
+      lib.mapAttrsToList (
+        _name: serviceCfg:
+        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "caddy" && serviceCfg.port != null) {
+          ${serviceCfg.domain} = {
+            extraConfig = ''
+              ${lib.optionalString serviceCfg.proxy.whitelist.enable "import cloudflare-only"}
+              reverse_proxy http://127.0.0.1:${toString serviceCfg.port}
+            '';
           };
         }
       ) config.services.my

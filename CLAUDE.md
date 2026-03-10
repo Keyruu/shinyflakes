@@ -172,9 +172,6 @@ When `stack.enable = true`:
 - **Users/Groups**: `stack.user` creates `users.users` and `users.groups`.
 - **Network**: `stack.network` creates a quadlet bridge network with
   `interfaceName`. The network is auto-wired into all stack containers.
-- **Port publishing**: `stack.main` + `stack.internalPort` auto-adds
-  `publishPorts = [ "127.0.0.1:<my.port>:<internalPort>" ]` to the main
-  container.
 - **Dependencies**: `dependsOn` on each container auto-generates
   `unitConfig.After` and `unitConfig.Requires` with prefixed container refs.
 - **Backup**: When `backup.enable = true`, `backup.paths` defaults to
@@ -196,8 +193,6 @@ quadlet-nix, so stacks never need to set it.
 - `stack.directories` — list of subdirs (string or `{ path; mode; owner; group; }`)
 - `stack.user.{ enable, name, uid, group, gid, extraGroups }` — system user
 - `stack.network.{ enable, name }` — bridge network
-- `stack.main` — short name of the main container for port auto-publishing
-- `stack.internalPort` — container-internal port of the main container
 - `stack.containers` — attrsOf container submodules (short names, auto-prefixed)
 - `stack.containers.<name>.dependsOn` — list of sibling short names for deps
 - `stack.containers.<name>.security.*` — per-container security overrides
@@ -258,9 +253,6 @@ in
       directories = [ "data" "config" ];
       # only for multi-container stacks that need inter-container communication
       network.enable = true;
-      # main container for auto port publishing
-      main = "main";
-      internalPort = 3000;
       # OWASP security hardening for all containers
       security.enable = true;
 
@@ -270,7 +262,8 @@ in
           containerConfig = {
             # never use latest, always versioned tags
             image = "service:v0.1.0";
-            # publishPorts is auto-wired by stack.main + stack.internalPort
+            # publish ports manually for the main service
+            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
             volumes = [
               "${my.stack.path}/data:/data"
               "${my.stack.path}/config:/config"
@@ -354,12 +347,11 @@ in
       enable = true;
       directories = [ "data" "config" ];
       network.enable = true;  # only for multi-container stacks
-      main = "main";
-      internalPort = 3000;
       security.enable = true;
 
       containers = {
         # containers defined here with short names
+        # publish ports manually on the main container
       };
     };
   };
@@ -412,7 +404,7 @@ stack.containers = {
   main = {
     containerConfig = {
       image = "image:tag";
-      # publishPorts auto-wired by stack.main + stack.internalPort
+      publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
       volumes = [ "${my.stack.path}/data:/container/path" ];
       environments = { ENV_VAR = "value"; };
       environmentFiles = [ config.sops.templates."service.env".path ];
@@ -436,9 +428,8 @@ stack.containers = {
 
 #### Port Binding
 
-- The main container's port is auto-published via `stack.main` +
-  `stack.internalPort` → `127.0.0.1:<my.port>:<internalPort>`
-- For additional ports, use `publishPorts` directly on the container
+- Publish ports manually on the main container using `publishPorts = [ "127.0.0.1:${toString my.port}:<internalPort>" ]`
+- `my.port` is the port defined in `services.my.<name>.port`
 - External access goes through nginx reverse proxy
 
 #### Volume Mounts

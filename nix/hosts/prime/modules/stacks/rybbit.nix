@@ -5,18 +5,11 @@
   ...
 }:
 let
-  stackPath = "/etc/stacks/rybbit";
+  my = config.services.my.rybbit;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/clickhouse-data 0755 root root"
-    "d ${stackPath}/postgres-data 0755 root root"
-  ];
-
-  environment.etc."stacks/rybbit/clickhouse_config".source = ./rybbit-clickhouse;
-
   sops.secrets = {
     resendApiKey = { };
     rybbitBetterAuthSecret = { };
@@ -53,25 +46,32 @@ in
     '';
   };
 
-  virtualisation.quadlet =
-    let
-      # renovate: datasource=docker depName=ghcr.io/rybbit-io/rybbit-backend
-      rybbitVersion = "v2.4.0";
-      inherit (config.virtualisation.quadlet) networks;
-    in
-    {
-      networks.rybbit.networkConfig = {
-        driver = "bridge";
-        podmanArgs = [ "--interface-name=rybbit" ];
-      };
+  environment.etc."stacks/rybbit/clickhouse_config".source = ./rybbit-clickhouse;
+
+  services.my.rybbit = {
+    port = 3002;
+    domain = "rybbit.keyruu.de";
+    proxy = {
+      enable = true;
+      server = "caddy";
+      whitelist.enable = true;
+    };
+    backup.enable = true;
+    stack = {
+      enable = true;
+      directories = [
+        "clickhouse-data"
+        "postgres-data"
+      ];
+      network.enable = true;
 
       containers = {
-        rybbit-clickhouse = {
+        clickhouse = {
           containerConfig = {
             image = "clickhouse/clickhouse-server:25.4.2";
             volumes = [
-              "${stackPath}/clickhouse-data:/var/lib/clickhouse"
-              "${stackPath}/clickhouse_config:/etc/clickhouse-server/config.d"
+              "${my.stack.path}/clickhouse-data:/var/lib/clickhouse"
+              "${config.environment.etc."stacks/rybbit/clickhouse_config".source}:/etc/clickhouse-server/config.d"
             ];
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
             healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:8123/ping";
@@ -79,11 +79,7 @@ in
             healthTimeout = "5s";
             healthRetries = 5;
             healthStartPeriod = "10s";
-            networks = [ networks.rybbit.ref ];
             networkAliases = [ "clickhouse" ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
           unitConfig = {
             X-RestartTrigger = [
@@ -92,28 +88,23 @@ in
           };
         };
 
-        rybbit-postgres = {
+        postgres = {
           containerConfig = {
-            # renovate: ignore
             image = "postgres:17.4";
-            volumes = [ "${stackPath}/postgres-data:/var/lib/postgresql/data" ];
+            volumes = [ "${my.stack.path}/postgres-data:/var/lib/postgresql/data" ];
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
             healthCmd = "pg_isready -U frog -d analytics";
             healthInterval = "3s";
             healthTimeout = "5s";
             healthRetries = 5;
             healthStartPeriod = "10s";
-            networks = [ networks.rybbit.ref ];
             networkAliases = [ "postgres" ];
-          };
-          serviceConfig = {
-            Restart = "always";
           };
         };
 
-        rybbit-backend = {
+        backend = {
           containerConfig = {
-            image = "ghcr.io/rybbit-io/rybbit-backend:${rybbitVersion}";
+            image = "ghcr.io/rybbit-io/rybbit-backend:v2.4.0";
             publishPorts = [ "127.0.0.1:3001:3001" ];
             environments = {
               NODE_ENV = "production";
@@ -127,89 +118,35 @@ in
             healthTimeout = "5s";
             healthRetries = 5;
             healthStartPeriod = "10s";
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
-            networks = [ networks.rybbit.ref ];
             networkAliases = [ "backend" ];
           };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = with containers; {
-            After = [
-              rybbit-clickhouse.ref
-              rybbit-postgres.ref
-            ];
-            Requires = [
-              rybbit-clickhouse.ref
-              rybbit-postgres.ref
-            ];
-          };
+          dependsOn = [
+            "clickhouse"
+            "postgres"
+          ];
         };
 
-        rybbit-client = {
+        client = {
           containerConfig = {
-            image = "ghcr.io/rybbit-io/rybbit-client:${rybbitVersion}";
+            image = "ghcr.io/rybbit-io/rybbit-client:v2.4.0";
             publishPorts = [ "127.0.0.1:3002:3002" ];
             environments = {
               NODE_ENV = "production";
             };
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
-            labels = [
-              "wud.tag.include=^\\d+\\.\\d+\\.\\d+$"
-            ];
-            networks = [ networks.rybbit.ref ];
             networkAliases = [ "client" ];
           };
-          serviceConfig = {
-            Restart = "always";
-          };
-          unitConfig = with containers; {
-            After = [ rybbit-backend.ref ];
-            Requires = [ rybbit-backend.ref ];
-          };
+          dependsOn = [ "backend" ];
         };
       };
     };
+  };
 
-  services = {
-    caddy.virtualHostsWithDefaults =
-      let
-        extraConfig = ''
-          import cloudflare-only
-          reverse_proxy http://127.0.0.1:3002
-          reverse_proxy /api/* http://127.0.0.1:3001
-        '';
-      in
-      {
-        "rybbit.keyruu.de" = {
-          inherit extraConfig;
-        };
-        "sorryihavetodothis.keyruu.de" = {
-          inherit extraConfig;
-        };
-      };
-
-    restic.backupsWithDefaults =
-      let
-        units =
-          with containers;
-          map quadlet.service [
-            rybbit-clickhouse
-            rybbit-postgres
-            rybbit-backend
-            rybbit-client
-          ];
-      in
-      {
-        rybbit = {
-          backupPrepareCommand = "${pkgs.systemd}/bin/systemctl stop ${builtins.concatStringsSep " " units}";
-          paths = [
-            stackPath
-          ];
-          backupCleanupCommand = "${pkgs.systemd}/bin/systemctl start ${builtins.concatStringsSep " " units}";
-        };
-      };
+  services.caddy.virtualHostsWithDefaults = {
+    "sorryihavetodothis.keyruu.de".extraConfig = ''
+      import cloudflare-only
+      reverse_proxy http://127.0.0.1:3002
+      reverse_proxy /api/* http://127.0.0.1:3001
+    '';
   };
 }
