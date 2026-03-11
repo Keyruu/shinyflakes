@@ -36,7 +36,7 @@ in
       containers = {
         speedtest-tracker = {
           containerConfig = {
-            image = "lscr.io/linuxserver/speedtest-tracker:1.13.10";
+            image = "lscr.io/linuxserver/speedtest-tracker:1.13.11";
             environments = {
               TZ = "Europe/Berlin";
               PUID = "1000";
