@@ -1,4 +1,4 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   my = config.services.my.searxng;
   inherit (config.virtualisation.quadlet) containers;

@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 let
   copyPasteShortcut = pkgs.writeShellApplication {
     name = "copyPasteShortcut";

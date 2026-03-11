@@ -1,7 +1,6 @@
 {
   config,
   options,
-  flake,
   lib,
   ...
 }:

@@ -40,7 +40,10 @@ in
                   options = {
                     enable = lib.mkEnableOption "proxy";
                     server = lib.mkOption {
-                      type = enum [ "nginx" "caddy" ];
+                      type = enum [
+                        "nginx"
+                        "caddy"
+                      ];
                       default = "nginx";
                       description = "Which reverse proxy server to use.";
                     };
@@ -134,43 +137,45 @@ in
     services.nginx.virtualHosts = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "nginx" && serviceCfg.port != null) {
-          ${serviceCfg.domain} = {
-            useACMEHost = serviceCfg.proxy.cert.host;
-            forceSSL = true;
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:${toString serviceCfg.port}";
-              proxyWebsockets = true;
-              extraConfig = lib.mkIf serviceCfg.proxy.whitelist.enable ''
-                ${lib.pipe config.services.mesh.people [
-                  (lib.filterAttrs (person: _: builtins.elem person serviceCfg.proxy.whitelist.people))
-                  (lib.mapAttrsToList (
-                    _: person: lib.mapAttrsToList (_: device: "allow ${device.ip};") person.devices
-                  ))
-                  lib.flatten
-                  (lib.concatStringsSep "\n")
-                ]}
+        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "nginx" && serviceCfg.port != null)
+          {
+            ${serviceCfg.domain} = {
+              useACMEHost = serviceCfg.proxy.cert.host;
+              forceSSL = true;
+              locations."/" = {
+                proxyPass = "http://127.0.0.1:${toString serviceCfg.port}";
+                proxyWebsockets = true;
+                extraConfig = lib.mkIf serviceCfg.proxy.whitelist.enable ''
+                  ${lib.pipe config.services.mesh.people [
+                    (lib.filterAttrs (person: _: builtins.elem person serviceCfg.proxy.whitelist.people))
+                    (lib.mapAttrsToList (
+                      _: person: lib.mapAttrsToList (_: device: "allow ${device.ip};") person.devices
+                    ))
+                    lib.flatten
+                    (lib.concatStringsSep "\n")
+                  ]}
 
-                allow 192.168.100.0/24;
-                deny all;
-              '';
+                  allow 192.168.100.0/24;
+                  deny all;
+                '';
+              };
             };
-          };
-        }
+          }
       ) config.services.my
     );
 
     services.caddy.virtualHostsWithDefaults = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
-        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "caddy" && serviceCfg.port != null) {
-          ${serviceCfg.domain} = {
-            extraConfig = ''
-              ${lib.optionalString serviceCfg.proxy.whitelist.enable "import cloudflare-only"}
-              reverse_proxy http://127.0.0.1:${toString serviceCfg.port}
-            '';
-          };
-        }
+        lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "caddy" && serviceCfg.port != null)
+          {
+            ${serviceCfg.domain} = {
+              extraConfig = ''
+                ${lib.optionalString serviceCfg.proxy.whitelist.enable "import cloudflare-only"}
+                reverse_proxy http://127.0.0.1:${toString serviceCfg.port}
+              '';
+            };
+          }
       ) config.services.my
     );
 
