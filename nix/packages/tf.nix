@@ -33,11 +33,16 @@ in
 # since providers are already pinned by nix (exact version + sha256), the
 # lock file adds no value so we delete stale state and reinit providers
 # each time so tofu always sees providers matching the current nix closure.
-pkgs.writeShellScriptBin "tofunix" ''
-  rm -f .terraform.lock.hcl
-  rm -rf .terraform/providers .terraform/plugin_path
+pkgs.writeShellApplication {
+  name = "tofunix";
+  runtimeInputs = [ ];
+  text = # bash
+    ''
+      rm -f .terraform.lock.hcl
+      rm -rf .terraform/providers .terraform/plugin_path
 
-  ${tofunix}/bin/tofunix init -input=false -backend=false > /dev/null 2>&1
+      ${tofunix}/bin/tofunix init -input=false -backend=false > /dev/null 2>&1
 
-  exec ${tofunix}/bin/tofunix "$@"
-''
+      exec ${tofunix}/bin/tofunix "$@"
+    '';
+}

@@ -35,15 +35,12 @@ let
             exit
           fi
 
-          # Check if the running instance is from the same nix store path
           CURRENT_STORE_PATH="${config.programs.noctalia-shell.package}"
           if [[ "$NOCTALIA_PATH" != "$CURRENT_STORE_PATH" ]]; then
             echo "Noctalia updated, restarting..." >&2
             killall .quickshell-wra || true
             ${shell}
-            # Wait for the new instance to be fully ready
-            sleep 2
-            # Retry the IPC call after restart
+            sleep 5
             ${shell} ipc call "$@"
             exit
           fi

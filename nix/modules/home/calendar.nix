@@ -3,80 +3,117 @@
   ...
 }:
 let
-  next-event = pkgs.writeShellScriptBin "next-event" ''
-    five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
-    khal list "$five_min_ago" 24h \
-      --day-format "" \
-      --notstarted \
-      --format "{start-end-time-style} {title}{repeat-symbol}" |
-      grep -Ev '↦|↔ |⇥' |
-      grep -v '^ ' |
-      sed -e 's/&/\&amp;/g' |
-      head -n 1 || echo "No events"
-  '';
-  next-events = pkgs.writeShellScriptBin "next-events" ''
-    khal list "$(date '+%Y-%m-%d %H:%M')" 7d \
-      --day-format "<i>{name}, {date}</i>" \
-      -f "{start-time}-{end-time} <b>{title}</b> ({location})" |
-      grep -Ev '↦|↔ |⇥' |
-      grep -v '^ ' |
-      sed -e 's/&/\&amp;/g'
-  '';
+  next-event = pkgs.writeShellApplication {
+    name = "next-event";
+    runtimeInputs = with pkgs; [
+      khal
+      gawk
+      gnused
+    ];
+    text = # bash
+      ''
+        five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
+        khal list "$five_min_ago" 24h \
+          --day-format "" \
+          --notstarted \
+          --format "{start-end-time-style} {title}{repeat-symbol}" |
+          grep -Ev '↦|↔ |⇥' |
+          grep -v '^ ' |
+          sed -e 's/&/\&amp;/g' |
+          head -n 1 || echo "No events"
+      '';
+  };
 
-  noctalia-event = pkgs.writeShellScriptBin "noctalia-event" ''
-    text=$(next-event | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }')
-    tooltip="<div align='left'>$(next-events | sed -z 's/\n/<br\/>/g')</div>"
+  next-events = pkgs.writeShellApplication {
+    name = "next-events";
+    runtimeInputs = with pkgs; [
+      khal
+      gawk
+      gnused
+    ];
+    text = # bash
+      ''
+        khal list "$(date '+%Y-%m-%d %H:%M')" 7d \
+          --day-format "<i>{name}, {date}</i>" \
+          -f "{start-time}-{end-time} <b>{title}</b> ({location})" |
+          grep -Ev '↦|↔ |⇥' |
+          grep -v '^ ' |
+          sed -e 's/&/\&amp;/g'
+      '';
+  };
 
-    jq -nc \
-      --arg text "$text" \
-      --arg tooltip "$tooltip" \
-      '{text: $text, tooltip: $tooltip}'
-  '';
+  noctalia-event = pkgs.writeShellApplication {
+    name = "noctalia-event";
+    runtimeInputs = with pkgs; [
+      jq
+      khal
+      gawk
+      gnused
+    ];
+    text = # bash
+      ''
+        text=$(next-event | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }')
+        tooltip="<div align='left'>$(next-events | sed -z 's/\n/<br\/>/g')</div>"
 
-  waybar-khal = pkgs.writeShellScriptBin "waybar-khal" ''
-    five_min_ago=$(date -d '-5 minutes' '+%Y-%m-%d %H:%M')
+        jq -nc \
+          --arg text "$text" \
+          --arg tooltip "$tooltip" \
+          '{text: $text, tooltip: $tooltip}'
+      '';
+  };
 
-    next_event=$(next-event)
+  khal-notify = pkgs.writeShellApplication {
+    name = "khal-notify";
+    runtimeInputs = with pkgs; [
+      khal
+      libnotify
+      gawk
+      gnused
+    ];
+    text = # bash
+      ''
+        now=$(date '+%Y-%m-%d %H:%M')
+        events=$(khal list "$now" 15m \
+          --day-format "" \
+          --notstarted \
+          --format "|{all-day}|• {start-time} <i>{title}</i> ({location})" |
+          grep -v '^ ' |
+          grep -v '^|True|' |
+          sed 's/^|False|//')
 
-    tooltip=$(next-events)
+        if [ -n "$events" ]; then
+          notify-send -u normal -i calendar "Upcoming events" "$events"
+        fi
+      '';
+  };
 
-    jq -nc \
-      --arg text "$next_event" \
-      --arg tooltip "$tooltip" \
-      '{text: $text, tooltip: $tooltip}'
-  '';
-
-  khal-notify = pkgs.writeShellScriptBin "khal-notify" ''
-    now=$(date '+%Y-%m-%d %H:%M')
-    events=$(khal list "$now" 15m \
-      --day-format "" \
-      --notstarted \
-      --format "|{all-day}|• {start-time} <i>{title}</i> ({location})" |
-      grep -v '^ ' |
-      grep -v '^|True|' |
-      sed 's/^|False|//')
-
-    if [ -n "$events" ]; then
-      notify-send -u normal -i calendar "Upcoming events" "$events"
-    fi
-  '';
-
-  khal-open-meet = pkgs.writeShellScriptBin "khal-open-meet" ''
-    in_five_min=$(date -d '+5 minutes' '+%Y-%m-%d %H:%M')
-    meet_url=$(khal at $in_five_min 2>/dev/null | grep -oP 'https://meet\.google\.com/[a-z0-9-]+' | head -n 1)
-    if [ -n "$meet_url" ]; then
-      ${pkgs.xdg-utils}/bin/xdg-open "$meet_url"
-    else
-      notify-send -i google-meet 'Could not find a meet URL'
-    fi
-  '';
+  khal-open-meet = pkgs.writeShellApplication {
+    name = "khal-open-meet";
+    runtimeInputs = with pkgs; [
+      khal
+      xdg-utils
+      libnotify
+      gawk
+      gnused
+      gnugrep
+    ];
+    text = # bash
+      ''
+        in_five_min=$(date -d '+5 minutes' '+%Y-%m-%d %H:%M')
+        meet_url=$(khal at "$in_five_min" 2>/dev/null | grep -oP 'https://meet\.google\.com/[a-z0-9-]+' | head -n 1) || true
+        if [ -n "$meet_url" ]; then
+          xdg-open "$meet_url"
+        else
+          notify-send -i google-meet 'Could not find a meet URL'
+        fi
+      '';
+  };
 in
 {
   home.packages = [
     next-event
     next-events
     noctalia-event
-    waybar-khal
     khal-notify
     khal-open-meet
   ];

@@ -30,9 +30,12 @@ in
       containers.gotify = {
         containerConfig = {
           image = "gotify/server:latest";
-          publishPorts = [ "127.0.0.1:${toString my.port}:80" ];
+          publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
           volumes = [ "${my.stack.path}/data:/app/data" ];
           environmentFiles = [ config.sops.templates."gotify.env".path ];
+          environments = {
+            GOTIFY_SERVER_PORT = "8080";
+          };
         };
       };
     };

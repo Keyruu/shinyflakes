@@ -5,23 +5,6 @@
   config,
   ...
 }:
-let
-  game-wrapper = pkgs.writeShellScriptBin "game-wrapper" ''
-    # save LD_PRELOAD value.
-    # It is set to empty for gamescope, but reset back to it's original value for the game process.
-    # This fixes stuttering after 30 minutes of gameplay, but doesn't break steam overlay.
-    LD_PRELOAD_SAVED="$LD_PRELOAD"
-    export LD_PRELOAD=""
-
-    exec gamemoderun \
-      gamescope -r 144 -w 2560 -h 1440 -f -F pixel \
-      --mangoapp \
-      --force-grab-cursor \
-      -- \
-      env LD_PRELOAD=$LD_PRELOAD_SAVED \
-      "$@"
-  '';
-in
 {
   imports = [
     inputs.nix-gaming.nixosModules.platformOptimizations
@@ -82,26 +65,21 @@ in
 
   programs.gpu-screen-recorder.enable = true;
 
-  environment.systemPackages =
-    with pkgs;
-    [
-      vulkan-tools
-      vulkan-loader
-      vulkan-validation-layers
-      vulkan-extension-layer
-      protontricks
-      winetricks
-      protonplus
-      libva-utils
-      lutris-free
-      (bottles.override { removeWarningPopup = true; })
-      (wineWow64Packages.full.override {
-        wineRelease = "staging";
-        mingwSupport = true;
-      })
-      ludusavi
-    ]
-    ++ [
-      game-wrapper
-    ];
+  environment.systemPackages = with pkgs; [
+    vulkan-tools
+    vulkan-loader
+    vulkan-validation-layers
+    vulkan-extension-layer
+    protontricks
+    winetricks
+    protonplus
+    libva-utils
+    lutris-free
+    (bottles.override { removeWarningPopup = true; })
+    (wineWow64Packages.full.override {
+      wineRelease = "staging";
+      mingwSupport = true;
+    })
+    ludusavi
+  ];
 }
