@@ -6,10 +6,6 @@
   ...
 }:
 {
-  imports = [
-    flake.modules.services.caddy
-  ];
-
   sops = {
     secrets = {
       caddyPasswordHash = { };

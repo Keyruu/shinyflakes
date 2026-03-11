@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   focusOrSpawn =
     workspaceName: appId: command:
@@ -67,7 +72,7 @@ in
       Super+Space hotkey-overlay-title="App Launcher" { spawn "vicinae" "toggle"; }
       Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri"; }
       Super+Shift+Space hotkey-overlay-title="1Password" { spawn "1password" "--ozone-platform-hint=wayland" "--quick-access" "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"; }
-      Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+      Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "${config.programs.noctalia-shell.package}/bin/noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
       Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://extensions/vicinae/clipboard/history"; }
       Super+X hotkey-overlay-title="Keyboard Pointer" { spawn "${pkgs.wl-kbptr}/bin/wl-kbptr" "-c" "$HOME/.config/wl-kbptr/floating"; }
 

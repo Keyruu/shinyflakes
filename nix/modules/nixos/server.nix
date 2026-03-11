@@ -15,6 +15,7 @@
 
     flake.modules.services.backup
     flake.modules.services.my
+    flake.modules.services.caddy
   ];
 
   user.name = "root";

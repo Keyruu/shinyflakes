@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   lib,
@@ -10,7 +11,7 @@ let
   layoutKdl = import ./layout.nix { inherit pkgs lib; };
   workspacesKdl = import ./workspaces.nix { inherit pkgs lib; };
   windowRulesKdl = import ./window-rules.nix { inherit pkgs lib; };
-  bindsKdl = import ./binds.nix { inherit pkgs lib; };
+  bindsKdl = import ./binds.nix { inherit config pkgs lib; };
   altTabKdl = import ./alt-tab.nix { inherit pkgs lib; };
 in
 {

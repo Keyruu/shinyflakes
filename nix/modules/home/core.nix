@@ -99,7 +99,6 @@ in
     claude-code
     codex
     opencode
-    opencode-desktop
     biome
 
     # gui apps
