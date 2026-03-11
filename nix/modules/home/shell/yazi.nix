@@ -21,6 +21,13 @@
         }
       ];
     };
+    initLua = ''
+      -- Disable image previews when running inside Neovim terminal
+      -- to prevent escape sequence leakage that triggers unwanted key inputs
+      if os.getenv("NVIM") then
+        require("preview"):set("image", false)
+      end
+    '';
     settings = {
       # preview.cache_dir = "$HOME/.cache/yazi";
       opener = {
