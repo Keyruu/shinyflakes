@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config, ... }:
 {
   programs.nvf.settings.vim = {
     utility = {
@@ -30,7 +30,14 @@
         };
       };
       yanky-nvim.enable = false;
-      yazi-nvim.enable = true;
+      yazi-nvim = {
+        enable = true;
+        setupOpts = {
+          # Use a separate yazi config with image/PDF previews disabled
+          # to prevent escape sequence leakage in Neovim's terminal
+          config_home = "${config.xdg.configHome}/yazi-nvim";
+        };
+      };
     };
     notes = {
       todo-comments.enable = true;

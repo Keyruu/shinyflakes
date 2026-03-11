@@ -19,7 +19,7 @@ let
           shell = "${config.programs.noctalia-shell.package}/bin/noctalia-shell";
         in
         ''
-          RAW_OUTPUT=$(noctalia-shell list --all --json 2>/dev/null)
+          RAW_OUTPUT=$(${shell} list --all --json 2>/dev/null)
 
           # invalid json, no instances running, so start noctalia-shell
           if [[ ! "$RAW_OUTPUT" == "["* ]]; then
@@ -27,19 +27,25 @@ let
             exit
           fi
 
-          NOCTALIA_PATH=$(noctalia-shell list --all --json | jq -r '.[] | .config_path | sub("/share/noctalia-shell/shell.qml$"; "")')
+          NOCTALIA_PATH=$(${shell} list --all --json | jq -r '.[] | .config_path | sub("/share/noctalia-shell/shell.qml$"; "")')
 
           # using dev version, don't kill the shell
-          if [[ "$NOCTALIA_PATH" =~ "_dirty" ]]; then
+          if [[ "$NOCTALIA_PATH" == *"_dirty"* ]]; then
             "$NOCTALIA_PATH/bin/noctalia-shell" ipc call "$@"
             exit
           fi
 
-          # different instance, kill previous instances
-          if [[ ! "$NOCTALIA_PATH" =~ ${shell} ]]; then
+          # Check if the running instance is from the same nix store path
+          CURRENT_STORE_PATH="${config.programs.noctalia-shell.package}"
+          if [[ "$NOCTALIA_PATH" != "$CURRENT_STORE_PATH" ]]; then
+            echo "Noctalia updated, restarting..." >&2
             killall .quickshell-wra || true
             ${shell}
+            # Wait for the new instance to be fully ready
             sleep 2
+            # Retry the IPC call after restart
+            ${shell} ipc call "$@"
+            exit
           fi
 
           ${shell} ipc call "$@"
@@ -232,7 +238,7 @@ in
   xdg.desktopEntries = {
     caffeine = {
       name = "Caffeine";
-      exec = "noctalia-ipc call idleInhibitor toggle";
+      exec = "noctalia-ipc idleInhibitor toggle";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -241,7 +247,7 @@ in
 
     notification-center = {
       name = "Notification Center";
-      exec = "noctalia-ipc call notifications toggleHistory";
+      exec = "noctalia-ipc notifications toggleHistory";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -250,7 +256,7 @@ in
 
     clear-notification = {
       name = "Clear Notifications";
-      exec = "noctalia-ipc call notifications clear";
+      exec = "noctalia-ipc notifications clear";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -259,7 +265,7 @@ in
 
     do-not-disturb = {
       name = "Toggle DND";
-      exec = "noctalia-ipc call notifications toggleDND";
+      exec = "noctalia-ipc notifications toggleDND";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
