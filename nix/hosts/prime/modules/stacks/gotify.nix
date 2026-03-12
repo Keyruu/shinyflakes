@@ -29,7 +29,7 @@ in
 
       containers.gotify = {
         containerConfig = {
-          image = "gotify/server:latest";
+          image = "gotify/server:2.9.1";
           publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
           volumes = [ "${my.stack.path}/data:/app/data" ];
           environmentFiles = [ config.sops.templates."gotify.env".path ];

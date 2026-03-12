@@ -1,7 +1,7 @@
 {
   config,
   flake,
-  pkgs,
+  perSystem,
   lib,
   ...
 }:
@@ -31,20 +31,11 @@
 
   services.caddy =
     let
-      # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
-      corazaCaddyVersion = "v2.2.0";
-
       inherit (flake.lib.cloudflare) all;
     in
     {
       enable = true;
-      package = pkgs.caddy.withPlugins {
-        plugins = [
-          "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
-        ];
-        hash = "sha256-e/GdUZ5IOKHvP83uLk4EH6oUROV7s0q8LF4b+Y3wook=";
-      };
-
+      package = perSystem.self.caddy;
       environmentFile = config.sops.templates."caddy.env".path;
 
       globalConfig = ''
