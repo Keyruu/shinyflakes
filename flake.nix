@@ -138,7 +138,7 @@
     };
 
     noctalia-qs = {
-      url = "github:noctalia-dev/noctalia-qs/locksurface";
+      url = "github:noctalia-dev/noctalia-qs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
