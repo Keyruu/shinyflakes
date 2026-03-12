@@ -33,7 +33,7 @@
 
   services = {
     kanidm = {
-      package = pkgs.kanidmWithSecretProvisioning_1_8;
+      package = pkgs.kanidmWithSecretProvisioning_1_9;
       server = {
         enable = true;
         settings = {
@@ -57,7 +57,7 @@
         systems.oauth2 = {
           traccar = {
             present = true;
-            displayName = "traccar.peeraten.net";
+            displayName = "Traccar";
             allowInsecureClientDisablePkce = true;
             basicSecretFile = config.sops.secrets.traccarClientSecret.path;
             originUrl = "https://traccar.peeraten.net/api/session/openid/callback";
