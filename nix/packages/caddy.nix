@@ -3,7 +3,7 @@ let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
   corazaCaddyVersion = "v2.2.0";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
-  caddySecurityVersion = "v1.1.45";
+  caddySecurityVersion = "v1.1.46";
 in
 pkgs.caddy.withPlugins {
   plugins = [
