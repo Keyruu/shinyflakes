@@ -22,6 +22,6 @@
     ./forgejo.nix
     ./invidious.nix
     ./freshrss.nix
-    ./kavita.nix
+    ./calibre-web.nix
   ];
 }
