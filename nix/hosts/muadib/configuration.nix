@@ -64,6 +64,7 @@ in
     };
     enp42s0.allowedTCPPorts = [
       6767
+      8080
     ];
   };
 

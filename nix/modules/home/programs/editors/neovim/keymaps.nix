@@ -223,7 +223,7 @@ _: {
       {
         key = "<leader>ff";
         mode = "n";
-        action = "function() Snacks.picker.files() end";
+        action = "function() Snacks.picker.files({ hidden = true}) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -239,7 +239,7 @@ _: {
       {
         key = "<leader>fb";
         mode = "n";
-        action = "function() Snacks.picker.buffers() end";
+        action = "function() Snacks.picker.buffers({hidden = true}) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -247,7 +247,7 @@ _: {
       {
         key = "<leader>e";
         mode = "n";
-        action = "function() Snacks.explorer() end";
+        action = "function() Snacks.explorer({auto_close = true}) end";
         desc = "File Explorer";
         silent = true;
         lua = true;

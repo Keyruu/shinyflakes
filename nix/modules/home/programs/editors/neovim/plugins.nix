@@ -1,5 +1,6 @@
 {
   pkgs,
+  perSystem,
   lib,
   config,
   ...
@@ -9,6 +10,7 @@
     utility = {
       direnv.enable = true;
       preview.glow.enable = true;
+      motion.flash-nvim.enable = true;
       snacks-nvim = {
         enable = true;
         setupOpts = {
@@ -30,7 +32,12 @@
           picker.enabled = true;
           notifier.enabled = true;
           quickfile.enabled = true;
-          terminal.enabled = true;
+          terminal = {
+            enabled = true;
+            win = {
+              stack = true;
+            };
+          };
           toggle.enabled = true;
         };
       };
@@ -174,10 +181,25 @@
             require('grug-far').setup({})
           '';
       };
+      nvim-biscuits = {
+        package = perSystem.self.nvim-biscuits;
+        setup = # lua
+          ''
+            require('nvim-biscuits').setup({
+              cursor_line_only = true,
+              default_config = {
+                max_length = 30,
+                min_distance = 10,
+                prefix_string = " ↑ "
+              },
+            })
+          '';
+      };
     };
 
     startPlugins = with pkgs.vimPlugins; [
       plenary-nvim
+      nvim-numbertoggle
     ];
   };
 }

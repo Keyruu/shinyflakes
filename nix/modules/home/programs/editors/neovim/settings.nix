@@ -20,6 +20,9 @@ _: {
       undodir = "/home/lucas/.vim/undodir";
 
       clipboard = "";
+
+      laststatus = 3;
+      splitkeep = "screen";
     };
 
     visuals = {
@@ -92,6 +95,12 @@ _: {
         };
       };
       colorizer.enable = true;
+      noice = {
+        enable = true;
+        setupOpts = {
+          messages.enabled = false;
+        };
+      };
     };
 
     comments.comment-nvim.enable = true;
