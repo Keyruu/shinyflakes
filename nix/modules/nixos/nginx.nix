@@ -17,7 +17,6 @@
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
     resolver.addresses = config.networking.nameservers;
-    sslDhparam = config.security.dhparams.params.nginx.path;
   };
 
   networking.firewall.allowedTCPPorts = [
