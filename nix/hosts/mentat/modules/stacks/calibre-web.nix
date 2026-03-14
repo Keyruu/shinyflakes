@@ -63,8 +63,8 @@ in
               image = "ghcr.io/crocodilestick/calibre-web-automated:v4.0.6";
               publishPorts = [ "127.0.0.1:${toString my.port}:8083" ];
               environments = {
-                PUID = my.stack.user.uid;
-                PGID = config.users.groups.books.gid;
+                PUID = toString my.stack.user.uid;
+                PGID = toString config.users.groups.books.gid;
                 TZ = "Europe/Berlin";
               };
               volumes = [
