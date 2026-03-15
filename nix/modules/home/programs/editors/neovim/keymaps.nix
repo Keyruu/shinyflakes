@@ -215,7 +215,7 @@ _: {
       {
         key = "<leader><space>";
         mode = "n";
-        action = "function() Snacks.picker.smart() end";
+        action = "function() Snacks.picker.smart({ hidden = true }) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -223,7 +223,7 @@ _: {
       {
         key = "<leader>ff";
         mode = "n";
-        action = "function() Snacks.picker.files({ hidden = true}) end";
+        action = "function() Snacks.picker.files({ hidden = true }) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -231,7 +231,7 @@ _: {
       {
         key = "<leader>fg";
         mode = "n";
-        action = "function() Snacks.picker.grep() end";
+        action = "function() Snacks.picker.grep({ hidden = true }) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -239,7 +239,7 @@ _: {
       {
         key = "<leader>fb";
         mode = "n";
-        action = "function() Snacks.picker.buffers({hidden = true}) end";
+        action = "function() Snacks.picker.buffers({ hidden = true }) end";
         desc = "Smart Find Files";
         silent = true;
         lua = true;
@@ -247,7 +247,7 @@ _: {
       {
         key = "<leader>e";
         mode = "n";
-        action = "function() Snacks.explorer({auto_close = true}) end";
+        action = "function() Snacks.explorer({ hidden = true, auto_close = true }) end";
         desc = "File Explorer";
         silent = true;
         lua = true;

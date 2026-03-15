@@ -6,11 +6,9 @@ jobs:
       hosts: ${{ steps.hosts.outputs.hosts }}
     steps:
       - uses: actions/checkout@v6
-      - name: Fetch submodules
-        run: |
-          git submodule init
-          git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
-          git submodule update --recursive
+      - uses: ./.forgejo/actions/fetch-submodules
+        with:
+          token: ${{ secrets.FORGEJO_PAT }}
       - name: Get host matrix
         id: hosts
         run: |
@@ -26,11 +24,9 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v6
-      - name: Fetch submodules
-        run: |
-          git submodule init
-          git config submodule."nix/modules/private".url "https://x-access-token:${{ secrets.FORGEJO_PAT }}@git.keyruu.de/lucas/privateflakes.git"
-          git submodule update --recursive
+      - uses: ./.forgejo/actions/fetch-submodules
+        with:
+          token: ${{ secrets.FORGEJO_PAT }}
       - name: Build host
         run: |
           nixos-rebuild build --flake .?submodules=1#${{ matrix.host }} --max-jobs 1

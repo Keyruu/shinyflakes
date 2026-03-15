@@ -1,0 +1,26 @@
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+
+jobs:
+  update-hash:
+    runs-on: nixos-x86_64-linux
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.forgejo/actions/fetch-submodules
+        with:
+          token: ${{ secrets.FORGEJO_PAT }}
+      - name: Update hash
+        run: nix run .#update-hash -- ${{ inputs.package }}
+      - name: Commit and push
+        run: |
+          git config user.name "Forgejo Actions"
+          git config user.email "actions@forgejo.keyruu.de"
+          git add nix/packages/${{ inputs.package }}.nix
+          git diff --cached --quiet || git commit -m "chore: update ${{ inputs.package }} hash"
+          git push

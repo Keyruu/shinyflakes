@@ -1,5 +1,6 @@
 {
   inputs,
+  perSystem,
   pkgs,
   ...
 }:
@@ -11,18 +12,8 @@ let
 
   tofunix = tofunix-lib.mkCliAio {
     plugins = [
-      (tofunix-lib.mkOpentofuProvider {
-        owner = "cloudflare";
-        repo = "cloudflare";
-        version = "5.15.0";
-        hash = "sha256-Yvi7bgpdj9Fl48rtolxkGdW9VhiJjiG7DdZlCQJnm/w=";
-      })
-      (tofunix-lib.mkOpentofuProvider {
-        owner = "hetznercloud";
-        repo = "hcloud";
-        version = "1.57.0";
-        hash = "sha256-x0qBzwP6tA42PuWJ1qleSBDYr48AP8khBW5fMMhs0ZQ=";
-      })
+      perSystem.self.tf-cloudflare
+      perSystem.self.tf-hcloud
     ];
     moduleConfig = ../terraform/main.nix;
   };

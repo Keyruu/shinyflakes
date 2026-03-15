@@ -1,0 +1,12 @@
+on:
+  push:
+    paths:
+      - nix/packages/tf-cloudflare.nix
+      - flake.lock
+
+jobs:
+  update-tf-cloudflare:
+    uses: ./.forgejo/workflows/update-hash.yml
+    with:
+      package: tf-cloudflare
+    secrets: inherit

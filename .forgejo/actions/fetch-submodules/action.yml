@@ -1,0 +1,12 @@
+inputs:
+  token:
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Fetch submodules
+      shell: bash
+      run: |
+        git submodule init
+        git config submodule."nix/modules/private".url "https://x-access-token:${{ inputs.token }}@git.keyruu.de/lucas/privateflakes.git"
+        git submodule update --recursive

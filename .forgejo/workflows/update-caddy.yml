@@ -1,0 +1,12 @@
+on:
+  push:
+    paths:
+      - nix/packages/caddy.nix
+      - flake.lock
+
+jobs:
+  update-caddy:
+    uses: ./.forgejo/workflows/update-hash.yml
+    with:
+      package: caddy
+    secrets: inherit

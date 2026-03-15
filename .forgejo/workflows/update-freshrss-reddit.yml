@@ -1,0 +1,11 @@
+on:
+  push:
+    paths:
+      - nix/packages/freshrss-reddit.nix
+
+jobs:
+  update-tf-cloudflare:
+    uses: ./.forgejo/workflows/update-hash.yml
+    with:
+      package: freshrss-reddit 
+    secrets: inherit
