@@ -1,5 +1,16 @@
 { config, ... }:
 {
+  sops = {
+    secrets.alertmanagerGotifyToken = { };
+
+    templates."alertmanager-gotify.env" = {
+      restartUnits = [ "alertmanager-gotify-bridge.service" ];
+      content = ''
+        GOTIFY_TOKEN=${config.sops.placeholder.alertmanagerGotifyToken}
+      '';
+    };
+  };
+
   users.groups.alertmanager = { };
   users.users.alertmanager = {
     isSystemUser = true;
@@ -8,6 +19,20 @@
   };
 
   services.prometheus = {
+    alertmanagerGotify = {
+      enable = true;
+      port = 3024;
+      bindAddress = "127.0.0.1";
+      messageAnnotation = "description";
+      titleAnnotation = "summary";
+      extendedDetails = true;
+      environmentFile = config.sops.templates."alertmanager-gotify.env".path;
+      gotifyEndpoint = {
+        host = "notify.keyruu.de";
+        port = 443;
+        tls = true;
+      };
+    };
     alertmanager = {
       enable = true;
       port = 3023;
@@ -43,6 +68,12 @@
               {
                 send_resolved = true;
                 to = "me@keyruu.de";
+              }
+            ];
+            webhook_configs = [
+              {
+                send_resolved = true;
+                url = "http://127.0.0.1:${toString config.services.prometheus.alertmanagerGotify.port}${config.services.prometheus.alertmanagerGotify.webhookPath}";
               }
             ];
           }
