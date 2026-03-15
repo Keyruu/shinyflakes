@@ -10,7 +10,7 @@ let
   };
 
   # renovate: datasource=terraform-provider depName=cloudflare/cloudflare
-  version = "5.15.0";
+  version = "5.18.0";
 in
 tofunix-lib.mkOpentofuProvider {
   owner = "cloudflare";
