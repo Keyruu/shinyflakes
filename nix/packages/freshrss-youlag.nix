@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=github-releases depName=civilblur/youlag
-  version = "v4.1.1";
+  version = "v4.2.0";
 in
 pkgs.fetchFromGitHub {
   owner = "civilblur";
