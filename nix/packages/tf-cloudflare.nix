@@ -8,10 +8,13 @@ let
     inherit pkgs;
     inherit (pkgs) lib;
   };
+
+  # renovate: datasource=terraform-provider depName=cloudflare/cloudflare
+  version = "5.15.0";
 in
 tofunix-lib.mkOpentofuProvider {
   owner = "cloudflare";
   repo = "cloudflare";
-  version = "5.15.0";
+  inherit version;
   hash = "sha256-Yvi7bgpdj9Fl48rtolxkGdW9VhiJjiG7DdZlCQJnm/w=";
 }
