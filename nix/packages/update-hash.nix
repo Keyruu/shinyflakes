@@ -23,7 +23,7 @@ pkgs.writeShellApplication {
     fakeHash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     sed -i "s|hash = \"[^\"]*\"|hash = \"$fakeHash\"|" "$file"
 
-    output=$(nix build ".#''${pkgName}" 2>&1) && exit_code=0 || exit_code=$?
+    output=$(nix build ".#''${pkgName}" 2>&1)
 
     correctHash=$(echo "$output" | grep 'got:' | grep -o 'sha256-[A-Za-z0-9+/=]*')
 
