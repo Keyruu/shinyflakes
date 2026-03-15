@@ -4,7 +4,7 @@ on:
       - nix/packages/freshrss-youlag.nix
 
 jobs:
-  update-tf-cloudflare:
+  update-freshrss-youlag:
     runs-on: nixos-x86_64-linux
     uses: ./.forgejo/workflows/update-hash.yml
     with:
