@@ -41,11 +41,13 @@ let
       Error: $errorMsg"
       fi
 
-      gotify push \
+      if ! gotify push \
         --url "https://notify.keyruu.de" \
         --title "$title" \
         --priority "$priority" \
-        "$message"
+        "$message"; then
+        echo "Failed to send gotify notification" >&2
+      fi
     '';
   };
 in
