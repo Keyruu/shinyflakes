@@ -82,7 +82,7 @@
       ],
       "postUpgradeTasks": {
         "commands": [
-          "nix run .#update-hash -- $(basename {{{packageFile}}} .nix)"
+          "bash -c 'nix run .#update-hash -- $(basename {{{packageFile}}} .nix)'"
         ],
         "fileFilters": [
           "nix/packages/**"

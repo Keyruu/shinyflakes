@@ -64,7 +64,7 @@
       ];
 
       allowedPostUpgradeCommands = [
-        "^nix run \\.#update-hash -- .+$"
+        "^bash -c 'nix run \\.#update-hash -- .+'$"
       ];
       nix.enabled = true;
       lockFileMaintenance = {
