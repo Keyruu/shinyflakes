@@ -10,7 +10,7 @@ let
   };
 
   # renovate: datasource=terraform-provider depName=hetznercloud/hcloud
-  version = "1.57.0";
+  version = "1.60.1";
 in
 tofunix-lib.mkOpentofuProvider {
   owner = "hetznercloud";
