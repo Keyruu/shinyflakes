@@ -22,7 +22,7 @@ pkgs.writeShellApplication {
 
     output=$(nix build ".#''${pkgName}" 2>&1) && exit_code=0 || exit_code=$?
 
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
       echo "Hash is already correct"
       exit 0
     fi
