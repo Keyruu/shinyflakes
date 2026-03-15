@@ -61,6 +61,9 @@
         # }
       ];
 
+      allowedPostUpgradeCommands = [
+        "^nix run \\.#update-hash -- .+$"
+      ];
       nix.enabled = true;
       lockFileMaintenance = {
         enabled = true;
