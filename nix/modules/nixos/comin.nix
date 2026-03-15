@@ -12,32 +12,41 @@ let
       GOTIFY_TOKEN=$(cat ${config.sops.secrets.cominGotifyToken.path})
       export GOTIFY_TOKEN
 
-      if [ "$COMIN_STATUS" = "success" ]; then
-        TITLE="Deployment Success: $COMIN_HOSTNAME"
-        PRIORITY=4
-        MESSAGE="Host: $COMIN_HOSTNAME
-      Status: $COMIN_STATUS
-      Git Ref: $COMIN_GIT_REF
-      Commit: $COMIN_GIT_MSG
-      Flake URL: $COMIN_FLAKE_URL
-      Generation: $COMIN_GENERATION"
+      status="''${COMIN_STATUS:-unknown}"
+      hostname="''${COMIN_HOSTNAME:-unknown}"
+      gitSha="''${COMIN_GIT_SHA:-}"
+      gitRef="''${COMIN_GIT_REF:-}"
+      gitMsg="''${COMIN_GIT_MSG:-}"
+      flakeUrl="''${COMIN_FLAKE_URL:-}"
+      generation="''${COMIN_GENERATION:-}"
+      errorMsg="''${COMIN_ERROR_MSG:-}"
+
+      if [ "$status" = "success" ]; then
+        title="Deployment Success: $hostname"
+        priority=4
+        message="Host: $hostname
+      Status: $status
+      Git Ref: $gitRef
+      Commit: $gitMsg
+      Flake URL: $flakeUrl
+      Generation: $generation"
       else
-        TITLE="Deployment Failed: $COMIN_HOSTNAME"
-        PRIORITY=8
-        MESSAGE="Host: $COMIN_HOSTNAME
-      Status: $COMIN_STATUS
-      Git Ref: $COMIN_GIT_REF
-      Commit: $COMIN_GIT_MSG
-      Flake URL: $COMIN_FLAKE_URL
-      Generation: $COMIN_GENERATION
-      Error: $COMIN_ERROR_MSG"
+        title="Deployment Failed: $hostname"
+        priority=8
+        message="Host: $hostname
+      Status: $status
+      Git Ref: $gitRef
+      Commit: $gitMsg
+      Flake URL: $flakeUrl
+      Generation: $generation
+      Error: $errorMsg"
       fi
 
       gotify push \
         --url "https://notify.keyruu.de" \
-        --title "$TITLE" \
-        --priority "$PRIORITY" \
-        "$MESSAGE"
+        --title "$title" \
+        --priority "$priority" \
+        "$message"
     '';
   };
 in
