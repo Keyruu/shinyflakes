@@ -26,6 +26,8 @@
     };
   };
 
+  nix.settings.trusted-users = [ "renovate" ];
+
   services.renovate = {
     enable = true;
     environment = {
