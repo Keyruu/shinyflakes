@@ -83,6 +83,7 @@
       repositoryCache = "enabled";
     };
     runtimePackages = with pkgs; [
+      bash
       gnupg
       openssh
       nodejs
