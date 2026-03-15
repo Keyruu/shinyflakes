@@ -14,7 +14,6 @@ let
 
       status="''${COMIN_STATUS:-unknown}"
       hostname="''${COMIN_HOSTNAME:-unknown}"
-      gitSha="''${COMIN_GIT_SHA:-}"
       gitRef="''${COMIN_GIT_REF:-}"
       gitMsg="''${COMIN_GIT_MSG:-}"
       flakeUrl="''${COMIN_FLAKE_URL:-}"
