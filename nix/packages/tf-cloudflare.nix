@@ -16,5 +16,5 @@ tofunix-lib.mkOpentofuProvider {
   owner = "cloudflare";
   repo = "cloudflare";
   inherit version;
-  hash = "sha256-Yvi7bgpdj9Fl48rtolxkGdW9VhiJjiG7DdZlCQJnm/w=";
+  hash = "sha256-fxEVnsWTg3syzQvAX2mgrGAmshUdD5xyFfc7A8XDW4E=";
 }
