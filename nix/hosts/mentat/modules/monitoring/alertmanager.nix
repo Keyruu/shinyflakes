@@ -22,6 +22,7 @@
     alertmanagerGotify = {
       enable = true;
       port = 3024;
+      debug = true;
       bindAddress = "127.0.0.1";
       messageAnnotation = "description";
       titleAnnotation = "summary";
