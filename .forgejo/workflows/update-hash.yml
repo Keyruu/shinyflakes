@@ -21,7 +21,8 @@ jobs:
         run: |
           git config user.name "Forgejo Actions"
           git config user.email "actions@forgejo.keyruu.de"
-          git remote set-url origin https://x-access-token:${{ secrets.FORGEJO_PAT }}@${{ forgejo.server_url }}/${{ forgejo.repository }}
+          SERVER_HOST=$(echo "${{ forgejo.server_url }}" | sed 's|https\?://||')
+          git remote set-url origin "https://x-access-token:${{ secrets.FORGEJO_PAT }}@${SERVER_HOST}/${{ forgejo.repository }}"
           git add nix/packages/${{ inputs.package }}.nix
           git diff --cached --quiet && exit 0
           git commit -m "chore: update ${{ inputs.package }} hash"
