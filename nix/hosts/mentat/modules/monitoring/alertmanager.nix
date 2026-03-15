@@ -32,6 +32,7 @@
         port = 443;
         tls = true;
       };
+      metrics.username = "lucas";
     };
     alertmanager = {
       enable = true;

@@ -214,6 +214,7 @@ in
     lmstudio
     winboat
     kdePackages.kdeconnect-kde
+    gotify-desktop
 
     # perSystem.self.numr
     # perSystem.self.glide-browser
