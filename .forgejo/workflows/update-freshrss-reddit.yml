@@ -1,7 +1,4 @@
 on:
-  push:
-    paths:
-      - nix/packages/freshrss-reddit.nix
   pull_request:
     paths:
       - nix/packages/freshrss-reddit.nix

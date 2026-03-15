@@ -1,7 +1,4 @@
 on:
-  push:
-    paths:
-      - nix/packages/freshrss-youlag.nix
   pull_request:
     paths:
       - nix/packages/freshrss-youlag.nix

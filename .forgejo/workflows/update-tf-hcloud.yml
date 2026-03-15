@@ -1,8 +1,4 @@
 on:
-  push:
-    paths:
-      - nix/packages/tf-hcloud.nix
-      - flake.lock
   pull_request:
     paths:
       - nix/packages/tf-hcloud.nix
