@@ -7,5 +7,5 @@ pkgs.fetchFromGitHub {
   owner = "civilblur";
   repo = "youlag";
   rev = version;
-  hash = "sha256-h0LN56NnbWiHUBbBLXvCV0cB1lJkpl1v6QL+U3qWQ+M=";
+  hash = "sha256-CmL7CBlZjD6qGTovCTvfn+um98gba5DPqtb/EVG/cR4=";
 }
