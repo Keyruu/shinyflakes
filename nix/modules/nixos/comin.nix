@@ -17,7 +17,6 @@ let
         PRIORITY=4
         MESSAGE="Host: $COMIN_HOSTNAME
       Status: $COMIN_STATUS
-      Git SHA: $COMIN_GIT_SHA
       Git Ref: $COMIN_GIT_REF
       Commit: $COMIN_GIT_MSG
       Flake URL: $COMIN_FLAKE_URL
@@ -27,7 +26,6 @@ let
         PRIORITY=8
         MESSAGE="Host: $COMIN_HOSTNAME
       Status: $COMIN_STATUS
-      Git SHA: $COMIN_GIT_SHA
       Git Ref: $COMIN_GIT_REF
       Commit: $COMIN_GIT_MSG
       Flake URL: $COMIN_FLAKE_URL
