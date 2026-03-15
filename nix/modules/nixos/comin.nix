@@ -16,18 +16,16 @@ let
       hostname="''${COMIN_HOSTNAME:-unknown}"
       gitRef="''${COMIN_GIT_REF:-}"
       gitMsg="''${COMIN_GIT_MSG:-}"
-      flakeUrl="''${COMIN_FLAKE_URL:-}"
       generation="''${COMIN_GENERATION:-}"
       errorMsg="''${COMIN_ERROR_MSG:-}"
 
-      if [ "$status" = "success" ]; then
+      if [ "$status" = "done" ]; then
         title="Deployment Success: $hostname"
         priority=4
         message="Host: $hostname
       Status: $status
       Git Ref: $gitRef
       Commit: $gitMsg
-      Flake URL: $flakeUrl
       Generation: $generation"
       else
         title="Deployment Failed: $hostname"
@@ -36,7 +34,6 @@ let
       Status: $status
       Git Ref: $gitRef
       Commit: $gitMsg
-      Flake URL: $flakeUrl
       Generation: $generation
       Error: $errorMsg"
       fi
