@@ -6,6 +6,7 @@ on:
 
 jobs:
   update-tf-hcloud:
+    runs-on: nixos-x86_64-linux
     uses: ./.forgejo/workflows/update-hash.yml
     with:
       package: tf-hcloud
