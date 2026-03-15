@@ -74,6 +74,21 @@
         "ghcr.io/analogj/scrutiny"
       ],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-omnibus$"
+    },
+    {
+      "description": "Update Nix package hashes after version bump",
+      "matchFileNames": [
+        "nix/packages/**"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "nix run .#update-hash -- $(basename {{{packageFile}}} .nix)"
+        ],
+        "fileFilters": [
+          "nix/packages/**"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }
