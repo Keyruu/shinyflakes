@@ -37,10 +37,6 @@ _: {
       globalStatus = true;
     };
 
-    dashboard.dashboard-nvim = {
-      enable = true;
-    };
-
     mini = {
       tabline.enable = true;
     };
