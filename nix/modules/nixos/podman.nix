@@ -9,6 +9,7 @@
     autoPrune = {
       enable = true;
       flags = [ "--all" ];
+      dates = "daily";
     };
     dockerCompat = true;
     dockerSocket.enable = true;
