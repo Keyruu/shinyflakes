@@ -67,10 +67,10 @@
           {
             name = "me";
             email_configs = [
-              {
-                send_resolved = true;
-                to = "me@keyruu.de";
-              }
+              # {
+              #   send_resolved = true;
+              #   to = "me@keyruu.de";
+              # }
             ];
             webhook_configs = [
               {
