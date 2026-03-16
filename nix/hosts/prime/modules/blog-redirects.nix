@@ -1,7 +1,8 @@
 _: {
-  services.caddy.virtualHostsWithDefaults = {
+  services.caddy.virtualHosts = {
     "oblivion.keyruu.de" = {
       extraConfig = ''
+        import coraza-waf
         import cloudflare-only
 
         redir /MacOS/Raycast* https://keyruu.de/blog/raycast/ permanent

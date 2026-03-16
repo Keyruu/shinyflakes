@@ -73,7 +73,8 @@
         };
       };
     };
-    caddy.virtualHostsWithDefaults."auth.peeraten.net".extraConfig = ''
+    caddy.virtualHosts."auth.peeraten.net".extraConfig = ''
+      import coraza-waf
       import cloudflare-only
 
       reverse_proxy https://${toString config.services.kanidm.server.settings.bindaddress} {

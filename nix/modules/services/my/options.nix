@@ -164,13 +164,14 @@ in
       ) config.services.my
     );
 
-    services.caddy.virtualHostsWithDefaults = lib.mkMerge (
+    services.caddy.virtualHosts = lib.mkMerge (
       lib.mapAttrsToList (
         _name: serviceCfg:
         lib.mkIf (serviceCfg.proxy.enable && serviceCfg.proxy.server == "caddy" && serviceCfg.port != null)
           {
             ${serviceCfg.domain} = {
               extraConfig = ''
+                import coraza-waf
                 ${lib.optionalString serviceCfg.proxy.whitelist.enable "import cloudflare-only"}
                 reverse_proxy http://127.0.0.1:${toString serviceCfg.port}
               '';

@@ -40,33 +40,11 @@ in
     };
     caddy.virtualHosts."notify.keyruu.de" = {
       extraConfig = ''
-        @websockets {
-          path /stream
-        }
-        handle @websockets {
-          reverse_proxy 127.0.0.1:${toString my.port} {
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-          }
-        }
+        import websocket /stream 127.0.0.1:${toString my.port}
 
         handle {
-          route {
-            coraza_waf {
-              load_owasp_crs
-              directives `
-                SecRuleEngine On
-                Include @coraza.conf-recommended
-                Include @crs-setup.conf.example
-                Include @owasp_crs/*.conf
-
-                # remove REQUEST-949-BLOCKING-EVALUATION bc of a lot of false positives
-                SecRuleRemoveById 949110
-                # somehow this blocks some http protocol, idfk 
-                SecRuleRemoveById 920420
-              `
-            }
-            reverse_proxy 127.0.0.1:${toString my.port}
-          }
+          import coraza-waf
+          reverse_proxy 127.0.0.1:${toString my.port}
         }
       '';
     };

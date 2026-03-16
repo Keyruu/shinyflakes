@@ -50,11 +50,7 @@ in
   services.my.rybbit = {
     port = 3002;
     domain = "rybbit.keyruu.de";
-    proxy = {
-      enable = true;
-      server = "caddy";
-      whitelist.enable = true;
-    };
+    proxy.enable = false;
     backup.enable = true;
     stack = {
       enable = true;
@@ -141,8 +137,40 @@ in
     };
   };
 
-  services.caddy.virtualHostsWithDefaults = {
+  services.caddy.virtualHosts = {
+    "rybbit.keyruu.de".extraConfig = ''
+      coraza_waf {
+        load_owasp_crs
+        directives `
+          SecRuleEngine On
+
+          # disable RCE rule for /api/track (blog URL paths in json.pathname look like unix commands)
+          SecRule REQUEST_URI "@beginsWith /api/track" \
+            "id:1004,\
+            phase:1,\
+            pass,\
+            nolog,\
+            ctl:ruleRemoveById=932260,\
+            ctl:ruleRemoveById=934110"
+
+          Include @coraza.conf-recommended
+          Include @crs-setup.conf.example
+          Include @owasp_crs/*.conf
+
+          SecRuleRemoveById 949110
+          SecRuleRemoveById 932370
+          SecRuleRemoveById 911100
+          SecRuleRemoveById 920420
+          SecRuleRemoveById 200002
+          SecRuleRemoveById 200003
+        `
+      }
+      import cloudflare-only
+      reverse_proxy http://127.0.0.1:${toString my.port}
+    '';
+
     "sorryihavetodothis.keyruu.de".extraConfig = ''
+      import coraza-waf
       import cloudflare-only
       reverse_proxy http://127.0.0.1:3002
       reverse_proxy /api/* http://127.0.0.1:3001

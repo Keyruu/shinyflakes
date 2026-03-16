@@ -1,9 +1,10 @@
 { perSystem, ... }:
 {
   services = {
-    caddy.virtualHostsWithDefaults = {
+    caddy.virtualHosts = {
       "keyruu.de" = {
         extraConfig = ''
+          import coraza-waf
           import cloudflare-only
 
           header {
@@ -18,6 +19,7 @@
       };
       "buymeaspezi.com" = {
         extraConfig = ''
+          import coraza-waf
           import cloudflare-only
 
           header {

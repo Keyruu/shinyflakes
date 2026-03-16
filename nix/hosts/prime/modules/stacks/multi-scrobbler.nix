@@ -79,8 +79,9 @@ in
     };
   };
 
-  services.caddy.virtualHostsWithDefaults."${my.domain}" = {
+  services.caddy.virtualHosts."${my.domain}" = {
     extraConfig = ''
+      import coraza-waf
       import cloudflare-only
 
       @protected not path /1*
