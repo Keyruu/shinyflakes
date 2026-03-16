@@ -13,8 +13,6 @@
     ./settings.nix
   ];
 
-  topology.extractors.quadlet.enable = false;
-
   # disable beeping motherboard speaker
   boot = {
     blacklistedKernelModules = [ "pcspkr" ];

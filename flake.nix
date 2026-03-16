@@ -158,28 +158,11 @@
     };
   };
 
-  # Load the blueprint with custom prefix
   outputs =
     inputs:
     inputs.blueprint {
       inherit inputs;
       nixpkgs.config.allowUnfree = true;
       prefix = "nix";
-    }
-    // inputs.flake-utils.lib.eachDefaultSystem (system: rec {
-      pkgs = import inputs.nixpkgs {
-        inherit system;
-        overlays = [ inputs.nix-topology.overlays.default ];
-      };
-
-      topology = import inputs.nix-topology {
-        inherit pkgs;
-        modules = [
-          # Your own file to define global topology. Works in principle like a nixos module but uses different options.
-          ./nix/topology.nix
-          # Inline module to inform topology of your existing NixOS hosts.
-          { inherit (inputs.self) nixosConfigurations; }
-        ];
-      };
-    });
+    };
 }
