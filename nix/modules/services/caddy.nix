@@ -49,15 +49,18 @@ in
               ctl:ruleRemoveById=942100,\
               ctl:ruleRemoveById=942540"
 
-            # disable rules for GitHub API/webhooks (issues, PRs, content)
-            SecRule REQUEST_URI "@rx /api/v1/repos/.*/(issues|pulls)/" \
+            # disable rules for Gitea/Forgejo API (issues, PRs, markdown bodies from Renovate)
+            SecRule REQUEST_URI "@beginsWith /api/v1/" \
               "id:1002,\
               phase:1,\
               pass,\
               nolog,\
+              ctl:ruleRemoveById=932140,\
+              ctl:ruleRemoveById=932230,\
               ctl:ruleRemoveById=932235,\
               ctl:ruleRemoveById=932250,\
               ctl:ruleRemoveById=932260,\
+              ctl:ruleRemoveById=941160,\
               ctl:ruleRemoveById=941180"
 
             # disable rules for issue content paths
@@ -66,17 +69,21 @@ in
               phase:1,\
               pass,\
               nolog,\
+              ctl:ruleRemoveById=932140,\
+              ctl:ruleRemoveById=932230,\
               ctl:ruleRemoveById=932235,\
               ctl:ruleRemoveById=932250,\
               ctl:ruleRemoveById=932260,\
+              ctl:ruleRemoveById=941160,\
               ctl:ruleRemoveById=941180"
 
-            # disable SSRF rule for /api/track (legitimate localhost referrers)
+            # disable SSRF and RCE rules for /api/track (legitimate localhost referrers, blog URL paths)
             SecRule REQUEST_URI "@beginsWith /api/track" \
               "id:1004,\
               phase:1,\
               pass,\
               nolog,\
+              ctl:ruleRemoveById=932260,\
               ctl:ruleRemoveById=934110"
 
 
@@ -90,6 +97,9 @@ in
             SecRuleRemoveById 911100
             # NOTE: somehow this blocks some http protocol, idfk 
             SecRuleRemoveById 920420
+            # NOTE: remove multipart body parsing failures (bufio: buffer full on large uploads)
+            SecRuleRemoveById 200002
+            SecRuleRemoveById 200003
           `
         }
       '';

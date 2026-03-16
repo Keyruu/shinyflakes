@@ -63,16 +63,16 @@
             lib.generators.mkLuaInline # lua
               ''
                 {
-                  mammouth = function()
+                  opencode_go = function()
                     return require("codecompanion.adapters").extend("openai_compatible", {
                       env = {
-                        url = "https://api.mammouth.ai/v1",
-                        api_key = "MAMMOUTH_API_KEY",
-                        chat_url = "/v1/chat/completions",
+                        url = "https://opencode.ai/zen/go/v1",
+                        api_key = "OPENCODE_API_KEY",
+                        chat_url = "/chat/completions",
                       },
                       schema = {
                         model = {
-                          default = "codestral-2508",
+                          default = "glm-5",
                         },
                       },
                     })
@@ -84,7 +84,7 @@
               adapter = "opencode";
             };
             inline = {
-              adapter = "mammouth";
+              adapter = "opencode_go";
               keymaps = {
                 accept_change = {
                   modes.n = "ga";
