@@ -69,11 +69,11 @@ in
 
         main = {
           containerConfig =
-            let
-              inherit (config.virtualisation.quadlet) builds;
-            in
+            # let
+            #   inherit (config.virtualisation.quadlet) builds;
+            # in
             {
-              image = builds.koito.ref;
+              image = "gabehf/koito:v0.1.7";
               publishPorts = [ "127.0.0.1:${toString my.port}:4110" ];
               volumes = [ "${my.stack.path}/data:/etc/koito" ];
               environmentFiles = [ config.sops.templates."koito-main.env".path ];
@@ -85,15 +85,15 @@ in
     };
   };
 
-  virtualisation.quadlet.builds.koito.buildConfig =
-    let
-      src = fetchGit {
-        url = "https://github.com/Keyruu/Koito.git";
-        rev = "fee7fb811c8b34cb70ef7f376907c41bbb4044b4";
-      };
-    in
-    {
-      workdir = "${src}";
-      file = "${src}/Dockerfile";
-    };
+  # virtualisation.quadlet.builds.koito.buildConfig =
+  #   let
+  #     src = fetchGit {
+  #       url = "https://github.com/Keyruu/Koito.git";
+  #       rev = "fee7fb811c8b34cb70ef7f376907c41bbb4044b4";
+  #     };
+  #   in
+  #   {
+  #     workdir = "${src}";
+  #     file = "${src}/Dockerfile";
+  #   };
 }
