@@ -3,12 +3,12 @@ let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
   corazaCaddyVersion = "v2.2.0";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
-  caddySecurityVersion = "v1.1.49";
+  caddySecurityVersion = "v1.1.50";
 in
 pkgs.caddy.withPlugins {
   plugins = [
     "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
     "github.com/greenpau/caddy-security@${caddySecurityVersion}"
   ];
-  hash = "sha256-d4XlTs3xHZJyYdQyJgUT7uEdWomWTXBsmTnDvTCNXNU=";
+  hash = "sha256-+fN8k5ptaDP0UuxbpA/THsiIGkEEfOYJsSLJHxFuWBk=";
 }
