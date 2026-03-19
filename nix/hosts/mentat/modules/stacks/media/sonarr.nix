@@ -17,7 +17,7 @@ in
       containers = {
         sonarr = {
           containerConfig = {
-            image = "ghcr.io/hotio/sonarr:release-4.0.16.2944";
+            image = "ghcr.io/hotio/sonarr:release-4.0.17.2952";
             environments = {
               PUID = "0";
               PGID = "0";
