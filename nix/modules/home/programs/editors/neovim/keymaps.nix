@@ -206,11 +206,13 @@ _: {
               Snacks.explorer({ 
                 hidden = true, 
                 auto_close = true, 
-                layout = { preset = "telescope", preview = true } 
+                layout = { preset = "default", preview = true } 
               }) 
-            end'';
-        desc = "Open Yazi file manager";
+            end
+          '';
+        desc = "Open Snacks.explorer)";
         silent = true;
+        lua = true;
       }
       {
         key = "_";

@@ -5,6 +5,26 @@
   ...
 }:
 {
+  xdg.desktopEntries.vicinae-deeplink = {
+    name = "Vicinae Deeplink Handler";
+    exec = "vicinae %u";
+    icon = "vicinae";
+    type = "Application";
+    categories = [
+      "System"
+      "Utility"
+    ];
+    genericName = "Vicinae Deeplink Handler";
+    comment = "Open Vicinae Deeplinks";
+    terminal = false;
+    noDisplay = true;
+    mimeType = [
+      "x-scheme-handler/vicinae"
+      "x-scheme-handler/raycast"
+      "x-scheme-handler/com.raycast"
+    ];
+  };
+
   imports = [
     inputs.vicinae.homeManagerModules.default
   ];

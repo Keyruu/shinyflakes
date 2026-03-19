@@ -217,6 +217,7 @@ in
     kdePackages.kdeconnect-kde
     gotify-desktop
     vial
+    jira-cli-go
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

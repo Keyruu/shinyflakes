@@ -37,13 +37,9 @@ _:
 
   window-rule {
       match app-id=r#"^dev.zed.Zed$"#
-      open-on-workspace "ide"
-  }
-
-  window-rule {
       match app-id=r#"^org.wezfurlong.wezterm$"#
       match app-id=r#"^Alacritty$"#
-      open-on-workspace "term"
+      open-on-workspace "work"
   }
 
   window-rule {

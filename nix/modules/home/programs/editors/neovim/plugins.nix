@@ -134,10 +134,6 @@
 
             vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end,   { desc = "opencode half page up" })
             vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "opencode half page down" })
-
-            -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
-            vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
-            vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
           '';
       };
     };
@@ -186,20 +182,6 @@
         setup = # lua
           ''
             require('grug-far').setup({})
-          '';
-      };
-      nvim-biscuits = {
-        package = perSystem.self.nvim-biscuits;
-        setup = # lua
-          ''
-            require('nvim-biscuits').setup({
-              cursor_line_only = true,
-              default_config = {
-                max_length = 30,
-                min_distance = 10,
-                prefix_string = " ↑ "
-              },
-            })
           '';
       };
     };

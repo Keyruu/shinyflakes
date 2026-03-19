@@ -1,4 +1,9 @@
-_: {
+{ flake, ... }:
+{
+  imports = [
+    flake.modules.private.opencode
+  ];
+
   programs.opencode = {
     enable = true;
     settings = {
@@ -14,6 +19,24 @@ _: {
           type = "remote";
           url = "http://100.67.0.2:30003/sse";
           enabled = true;
+        };
+        github = {
+          type = "remote";
+          url = "http://100.67.0.2:30000/sse";
+          enabled = true;
+        };
+        atlassian = {
+          type = "remote";
+          url = "http://100.67.0.2:30002/sse";
+          enabled = true;
+        };
+        context7 = {
+          type = "remote";
+          url = "https://mcp.context7.com/mcp";
+        };
+        gh_grep = {
+          type = "remote";
+          url = "https://mcp.grep.app";
         };
       };
       provider = {

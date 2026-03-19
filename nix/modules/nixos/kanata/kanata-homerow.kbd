@@ -1,6 +1,10 @@
 (defcfg
   process-unmapped-keys yes
   concurrent-tap-hold yes
+  linux-dev-names-exclude (
+    "ZSA Technology Labs Voyager"
+    "ZSA Technology Labs Voyager Keyboard"
+  )
 )
 
 (defsrc
