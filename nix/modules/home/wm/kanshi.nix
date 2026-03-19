@@ -19,20 +19,18 @@
           mainMonitor: secondaryMonitor:
           lib.concatStringsSep " && " [
             (moveWorkspace "browse" mainMonitor 1)
-            (moveWorkspace "ide" mainMonitor 2)
-            (moveWorkspace "term" mainMonitor 3)
-            (moveWorkspace "media" secondaryMonitor 1)
-            (moveWorkspace "social" secondaryMonitor 2)
+            (moveWorkspace "work" mainMonitor 2)
+            (moveWorkspace "social" secondaryMonitor 1)
+            (moveWorkspace "media" secondaryMonitor 2)
           ];
 
         moveAllWorkspacesToOne =
           monitor:
           lib.concatStringsSep " && " [
             (moveWorkspace "browse" monitor 1)
-            (moveWorkspace "ide" monitor 2)
-            (moveWorkspace "term" monitor 3)
+            (moveWorkspace "work" monitor 2)
+            (moveWorkspace "social" monitor 3)
             (moveWorkspace "media" monitor 4)
-            (moveWorkspace "social" monitor 5)
           ];
 
         homeMonitor = "Huawei Technologies Co., Inc. XWU-CBA 0x00000001";

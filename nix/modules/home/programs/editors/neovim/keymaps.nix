@@ -200,7 +200,15 @@ _: {
       {
         key = "-";
         mode = "n";
-        action = ":Yazi<CR>";
+        action = # lua
+          ''
+            function() 
+              Snacks.explorer({ 
+                hidden = true, 
+                auto_close = true, 
+                layout = { preset = "telescope", preview = true } 
+              }) 
+            end'';
         desc = "Open Yazi file manager";
         silent = true;
       }

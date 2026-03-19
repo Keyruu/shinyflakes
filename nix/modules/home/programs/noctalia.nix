@@ -204,6 +204,35 @@ in
       # colorSchemes.predefinedScheme = "Noctalia (default)";
       general = {
         radiusRatio = 1;
+        keybinds = {
+          keyDown = [
+            "Down"
+            "Ctrl+J"
+          ];
+          keyEnter = [
+            "Return"
+            "Enter"
+          ];
+          keyEscape = [
+            "Esc"
+          ];
+          keyLeft = [
+            "Left"
+            "Ctrl+H"
+          ];
+          keyRemove = [
+            "Backspace"
+            "Ctrl+X"
+          ];
+          keyRight = [
+            "Right"
+            "Ctrl+L"
+          ];
+          keyUp = [
+            "Up"
+            "Ctrl+K"
+          ];
+        };
       };
       wallpaper = {
         enabled = true;

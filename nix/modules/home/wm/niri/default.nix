@@ -28,42 +28,42 @@ in
     enable = true;
     package = pkgs.niri-unstable;
 
-    config = ''
-      xwayland-satellite {
-          path "${lib.getExe pkgs.xwayland-satellite}"
-      }
+    config = # kdl
+      ''
+        xwayland-satellite {
+            path "${lib.getExe pkgs.xwayland-satellite}"
+        }
 
-      spawn-at-startup "niriusd"
-      spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
-      spawn-at-startup "${config.programs.noctalia-shell.package}/bin/noctalia-shell"
-      spawn-at-startup "clipse" "-listen"
-      spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
-      spawn-at-startup "tailscale" "systray"
-      spawn-at-startup "distrobox" "enter" "mdm" "--" "exit"
-      spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
+        spawn-at-startup "niriusd"
+        spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
+        spawn-at-startup "${config.programs.noctalia-shell.package}/bin/noctalia-shell"
+        spawn-at-startup "clipse" "-listen"
+        spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
+        spawn-at-startup "distrobox" "enter" "mdm" "--" "exit"
+        spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
 
-      cursor {
-          xcursor-size 20
-          xcursor-theme "phinger-cursors-light"
-      }
+        cursor {
+            xcursor-size 20
+            xcursor-theme "phinger-cursors-light"
+        }
 
-      prefer-no-csd
-      hotkey-overlay { skip-at-startup false; }
-      screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+        prefer-no-csd
+        hotkey-overlay { skip-at-startup false; }
+        screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-      animations {}
+        animations {}
 
-      debug {
-          honor-xdg-activation-with-invalid-serial
-      }
+        debug {
+            honor-xdg-activation-with-invalid-serial
+        }
 
-      ${inputKdl}
-      ${outputsKdl}
-      ${layoutKdl}
-      ${workspacesKdl}
-      ${windowRulesKdl}
-      ${bindsKdl}
-      ${altTabKdl}
-    '';
+        ${inputKdl}
+        ${outputsKdl}
+        ${layoutKdl}
+        ${workspacesKdl}
+        ${windowRulesKdl}
+        ${bindsKdl}
+        ${altTabKdl}
+      '';
   };
 }

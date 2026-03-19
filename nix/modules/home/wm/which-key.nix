@@ -15,7 +15,7 @@
       font: ${config.user.font} 12
       background: "#222222d0"
       color: "#cdd6f4"
-      border: "#ffffff"
+      border: "#4079d6"
       separator: " ➜ "
       border_width: 2
       corner_r: 5
@@ -89,6 +89,27 @@
                 - key: "0"
                   desc: Reset Height
                   cmd: niri msg action reset-window-height
+            - key: "p"
+              desc: Programs
+              submenu:
+                - key: "t"
+                  desc: Terminal
+                  cmd: nirius focus-or-spawn -a Alacritty alacritty
+                - key: "b"
+                  desc: Browser
+                  cmd: nirius focus-or-spawn -a zen zen
+                - key: "z"
+                  desc: Zed
+                  cmd: nirius focus-or-spawn -a dev.zed.Zed zeditor
+                - key: "m"
+                  desc: Music
+                  cmd: nirius focus-or-spawn spotify
+                - key: "s"
+                  desc: Slack
+                  cmd: nirius focus-or-spawn -a Slack slack
+                - key: "o"
+                  desc: Obsidian
+                  cmd: scratch-niri obsidian obsidian
             - key: "w"
               desc: Workspaces
               submenu:
@@ -206,6 +227,9 @@
                 - key: "s"
                   desc: Switch Focus
                   cmd: niri msg action switch-focus-between-floating-and-tiling
+                - key: "m"
+                  desc: Toggle Follow Mode
+                  cmd: nirius toggle-follow-mode
             - key: "o"
               desc: Overview
               cmd: niri msg action toggle-overview

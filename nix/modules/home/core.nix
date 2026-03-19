@@ -97,6 +97,7 @@ in
     pipx
     impala
     claude-code
+    claude-code-acp
     codex
     opencode
     biome
@@ -215,6 +216,7 @@ in
     winboat
     kdePackages.kdeconnect-kde
     gotify-desktop
+    vial
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

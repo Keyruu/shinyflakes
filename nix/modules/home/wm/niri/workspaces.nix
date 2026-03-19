@@ -2,8 +2,7 @@ _:
 # kdl
 ''
   workspace "browse"
-  workspace "ide"
-  workspace "term"
-  workspace "media"
+  workspace "work"
   workspace "social"
+  workspace "media"
 ''

@@ -26,6 +26,7 @@ in
     anthropicKey = { };
     geminiKey = { };
     mammouthKey = { };
+    opencodeKey = { };
     hcloudToken = { };
     cloudflareToken = { };
   };
@@ -34,6 +35,7 @@ in
     ANTHROPIC_API_KEY=${config.sops.placeholder.anthropicKey}
     GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
     MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
+    OPENCODE_API_KEY=${config.sops.placeholder.opencodeKey}
     CLOUDFLARE_API_TOKEN=${config.sops.placeholder.cloudflareToken}
     HCLOUD_TOKEN=${config.sops.placeholder.hcloudToken}
     TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}
@@ -102,5 +104,9 @@ in
     };
     bat.enable = true;
     direnv.enable = true;
+    mise = {
+      enable = true;
+      enableFishIntegration = true;
+    };
   };
 }

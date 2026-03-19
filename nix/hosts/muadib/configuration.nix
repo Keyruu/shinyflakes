@@ -62,10 +62,13 @@ in
         57621
       ];
     };
-    enp42s0.allowedTCPPorts = [
-      6767
-      8080
-    ];
+    enp42s0 = {
+      allowedTCPPorts = [
+        6767
+        8080
+      ];
+      allowedUDPPorts = [ 2021 ];
+    };
   };
 
   services = {

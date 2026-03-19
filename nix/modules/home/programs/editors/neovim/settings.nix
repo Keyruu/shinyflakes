@@ -7,6 +7,8 @@ _: {
       expandtab = true;
       autoindent = true;
       smartindent = true;
+      ignorecase = true;
+      smartcase = true;
 
       wrap = false;
       termguicolors = true;
@@ -61,17 +63,6 @@ _: {
         next = "<C-n>";
         previous = "<C-p>";
         confirm = "<C-y>";
-      };
-    };
-
-    filetree.neo-tree = {
-      enable = true;
-      setupOpts = {
-        close_if_last_window = true;
-        filesystem.follow_current_file = {
-          enabled = true;
-          leave_dirs_open = false;
-        };
       };
     };
 

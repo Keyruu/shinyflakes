@@ -13,11 +13,11 @@
 
       [mode_floating]
       source=detect
-      label_color=#fffd
-      label_select_color=#fd0d
-      unselectable_bg_color=#2226
-      selectable_bg_color=#171a
-      selectable_border_color=#040c
+      label_color=#ffffffee
+      label_select_color=#f5a623ff
+      unselectable_bg_color=#1a1a2688
+      selectable_bg_color=#2a2d3aaa
+      selectable_border_color=#5b8cffcc
       label_font_family=${config.user.font}
       label_symbols=abcdefghijklmnopqrstuvwxyz
 

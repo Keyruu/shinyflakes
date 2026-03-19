@@ -16,6 +16,15 @@ _:
   }
 
   window-rule {
+      match app-id=r#"^obsidian$"#
+      opacity 0.96
+      default-column-width { proportion 0.88; }
+      default-window-height { proportion 0.88; }
+      open-floating true
+      open-maximized false
+  }
+
+  window-rule {
       match app-id=r#"^clipse$"#
       default-column-width {}
   }
@@ -52,6 +61,7 @@ _:
       match app-id=r#"^vesktop$"#
       match app-id=r#"^fluffychat$"#
       match app-id=r#"^Element$"#
+      match app-id=r#"^cinny$"#
       open-on-workspace "social"
       default-column-width { proportion 0.666; }
   }

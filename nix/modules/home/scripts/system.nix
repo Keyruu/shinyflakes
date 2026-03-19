@@ -75,50 +75,26 @@ let
     runtimeInputs = with pkgs; [
       jq
       niri
-      alacritty
       nirius
       coreutils
     ];
     text = # bash
       ''
-        window_id=$(niri msg -j windows | jq -r '.[] | select(.app_id == "scratchpad") | .id')
+        app_id=$1
+        shift
+        spawn_cmd=("$@")
+
+        window_id=$(niri msg -j windows | jq -r ".[] | select(.app_id == \"$app_id\") | .id")
 
         if [ -n "$window_id" ]; then
-          nirius scratchpad-show -a scratchpad
+          nirius scratchpad-show -a "$app_id"
           niri msg action set-window-height --id "$window_id" 88%
           niri msg action set-window-width --id "$window_id" 88%
         else
-          niri msg action spawn -- alacritty --class scratchpad
+          niri msg action spawn -- "''${spawn_cmd[@]}"
           sleep 0.5
-          nirius scratchpad-toggle -a scratchpad --no-move
+          nirius scratchpad-toggle -a "$app_id" --no-move
         fi
-      '';
-  };
-
-  ultrawide = pkgs.writeShellApplication {
-    name = "ultrawide";
-    runtimeInputs = with pkgs; [
-      jq
-      sway
-    ];
-    text = # bash
-      ''
-        CURRENT_WORKSPACE=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused==true) | .name')
-
-        for workspace in 1 2 3; do
-            swaymsg workspace number "$workspace"
-            OUTPUT_MODEL=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused==true) | .model')
-
-            if [ "$OUTPUT_MODEL" = "C34H89x" ]; then
-                swaymsg gaps left current set 440
-                swaymsg gaps right current set 440
-            else
-                swaymsg gaps left current set 0
-                swaymsg gaps right current set 0
-            fi
-        done
-
-        swaymsg workspace number "$CURRENT_WORKSPACE"
       '';
   };
 in
@@ -127,6 +103,5 @@ in
     copyPasteShortcut
     scratch
     scratch-niri
-    ultrawide
   ];
 }

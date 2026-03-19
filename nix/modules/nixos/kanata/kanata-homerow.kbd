@@ -1,82 +1,66 @@
-;; Home row mods QWERTY example with more complexity.
-;; Some of the changes from the basic example:
-;; - when a home row mod activates tap, the home row mods are disabled
-;;   while continuing to type rapidly
-;; - tap-hold-release helps make the hold action more responsive
-;; - pressing another key on the same half of the keyboard
-;;   as the home row mod will activate an early tap action
-
 (defcfg
   process-unmapped-keys yes
+  concurrent-tap-hold yes
 )
-(deflocalkeys-linux
-  fn 143
-)
+
 (defsrc
-  fn  a   s   d   f   h   j   k   l   ;   o   u
+  lalt a    s    d    f    h    j    k    l    ;    o    u    c    ,
 )
+
 (defvar
-  ;; Note: consider using different time values for your different fingers.
-  ;; For example, your pinkies might be slower to release keys and index
-  ;; fingers faster.
   tap-time 200
   hold-time 150
 
+  ;; Home keys excluded for cleaner mod-combos
   left-hand-keys (
     q w e r t
-    a s d f g
-    z x c v b
+    g
+    z x v b
   )
   right-hand-keys (
     y u i o p
-    h j k l ;
-    n m , . /
+    h
+    n m . /
   )
-)
-(deflayer base
-  @fn  @a  @s  @d  @f  h  @j  @k  @l  @;  o  @u
-)
-
-(deflayer nomods
-  @fn  a   s   d   f   h   j   k   l   ;  o  u
-)
-
-(deflayer arrows
-  _   _   _   _   _  left down up rght _  _  _
-)
-
-(deflayer umlauts
-  _   @ä  _   _   _  _   _   _   _   _  @ö  @ü
 )
 
 (deffakekeys
   to-base (layer-switch base)
-  to-umlauts (layer-switch umlauts)
 )
+
 (defalias
+  ;; Rapid typing logic
   tap (multi
     (layer-switch nomods)
     (on-idle-fakekey to-base tap 20)
   )
 
-  umlaut (multi
-    (on-idle-fakekey to-umlauts tap 1)
-    (on-idle-fakekey to-base tap 500)
-  )
+  ;; Layer toggle: Tap for LAlt, Hold for Arrows layer
+  nav (tap-hold 200 200 lalt (layer-while-held arrows))
 
-  ;; Umlaut macros using AltGr - auto-switch back to base layer
-  ä (macro RA-a (on-idle-fakekey to-base tap 1))
-  ö (macro RA-o (on-idle-fakekey to-base tap 1))
-  ü (macro RA-u (on-idle-fakekey to-base tap 1))
-
-  fn (layer-toggle arrows)
-  u (fork u @umlaut (lmet rmet))
-  s (fork (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lctl $left-hand-keys) (macro RA-s) (lalt ralt))
+  ;; Left Hand Mods (S-C-A-L + AltGr on C)
   a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lsft $left-hand-keys)
+  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lctl $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lalt $left-hand-keys)
   f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lmet $left-hand-keys)
+  c (tap-hold-release-keys $tap-time $hold-time (multi c @tap) ralt $left-hand-keys)
+
+  ;; Right Hand Mods (L-A-C-S + AltGr on ,)
   j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rmet $right-hand-keys)
   k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) lalt $right-hand-keys)
   l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) rctl $right-hand-keys)
   ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rsft $right-hand-keys)
+  , (tap-hold-release-keys $tap-time $hold-time (multi , @tap) ralt $right-hand-keys)
+)
+
+(deflayer base
+  @nav @a  @s  @d  @f  h  @j  @k  @l  @;  o  u  @c  @,
+)
+
+(deflayer nomods
+  lalt a    s    d    f    h    j    k    l    ;    o  u  c    ,
+)
+
+(deflayer arrows
+  _    _    _    _    _    left down up rght _    _  _  _    _
 )

@@ -4,13 +4,6 @@
   ...
 }:
 let
-  focusOrSpawn =
-    workspaceName: appId: command:
-    if workspaceName != null then
-      "nirius focus-or-spawn -a ${appId} ${command} && niri msg action focus-workspace ${workspaceName}"
-    else
-      "nirius focus-or-spawn -a ${appId} ${command}";
-
   workspaceBinds = lib.concatMapStrings (n: ''
     Alt+${toString n} hotkey-overlay-title=null { focus-workspace ${toString n}; }
     Alt+Shift+${toString n} hotkey-overlay-title=null { move-column-to-workspace ${toString n}; }
@@ -28,16 +21,6 @@ in
 
       XF86MonBrightnessUp hotkey-overlay-title=null { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "set" "+10%"; }
       XF86MonBrightnessDown hotkey-overlay-title=null { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "set" "10%-"; }
-
-      Alt+E hotkey-overlay-title="Terminal" { spawn-sh "${
-        focusOrSpawn "term" "Alacritty" "alacritty"
-      }"; }
-      Alt+C hotkey-overlay-title="Browser" { spawn-sh "${focusOrSpawn null "zen-beta" "zen-beta"}"; }
-      Alt+V hotkey-overlay-title="Code Editor" { spawn-sh "${
-        focusOrSpawn "ide" "dev.zed.Zed" "zeditor"
-      }"; }
-      Alt+M hotkey-overlay-title="Music" { spawn-sh "${focusOrSpawn "media" "spotify" "spotify"}"; }
-      Alt+A hotkey-overlay-title="Slack" { spawn-sh "${focusOrSpawn "social" "Slack" "slack"}"; }
 
       Alt+H hotkey-overlay-title="Focus Left" { focus-column-or-monitor-left; }
       Alt+J hotkey-overlay-title="Focus Down" { focus-window-or-workspace-down; }
@@ -69,24 +52,16 @@ in
       Alt+Period hotkey-overlay-title="Unstack Window" { expel-window-from-column; }
 
       Super+Space hotkey-overlay-title="App Launcher" { spawn "vicinae" "toggle"; }
-      Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri"; }
+      Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri" "scratchpad" "alacritty" "--class" "scratchpad"; }
       Super+Shift+Space hotkey-overlay-title="1Password" { spawn "1password" "--ozone-platform-hint=wayland" "--quick-access" "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"; }
       Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-ipc" "lockScreen" "lock"; }
       Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://extensions/vicinae/clipboard/history"; }
-      Super+X hotkey-overlay-title="Keyboard Pointer" { spawn "${pkgs.wl-kbptr}/bin/wl-kbptr" "-c" "$HOME/.config/wl-kbptr/floating"; }
+      Super+X hotkey-overlay-title="Keyboard Pointer" { spawn-sh "${pkgs.wl-kbptr}/bin/wl-kbptr -c $HOME/.config/wl-kbptr/floating"; }
 
       Super+Shift+4 hotkey-overlay-title="Screenshot" { screenshot; }
 
-      Super+C hotkey-overlay-title=null { spawn "copyPasteShortcut" "copy" "org.wezfurlong.wezterm" "Alacritty" "dev.zed.Zed" "foot" "scratchpad"; }
-      Super+V hotkey-overlay-title=null { spawn "copyPasteShortcut" "paste" "org.wezfurlong.wezterm" "Alacritty" "dev.zed.Zed" "foot" "scratchpad"; }
-      Super+A hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "a"; }
-      Super+T hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "t"; }
-      Super+K hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "k"; }
-      Super+W hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "w"; }
-      Super+R hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "r"; }
-      Super+F hotkey-overlay-title=null { spawn "${pkgs.wtype}/bin/wtype" "-M" "ctrl" "-k" "f"; }
-
       Alt+R hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }
+      Alt+M hotkey-overlay-title="Program Menu" { spawn "wlr-which-key" "--initial-keys" "n p"; }
       Alt+G hotkey-overlay-title="Which Key Menu" { spawn "wlr-which-key" "--initial-keys" "n"; }
       Alt+W hotkey-overlay-title="Workspace Menu" { spawn "wlr-which-key" "--initial-keys" "n w"; }
 
