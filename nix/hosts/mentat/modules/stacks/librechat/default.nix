@@ -123,7 +123,7 @@ in
 
         rag-api = {
           containerConfig = {
-            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:c35de9b49972f933acf68dda393828eca6ff0e4a91edb13ca351b2bcee65492a";
+            image = "ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest@sha256:d28751141f13e22457504b0c93d87ca7708763b2f676388a2300f9bf83868139";
             environments = {
               DB_HOST = quadlet.alias containers.librechat-vectordb;
               RAG_PORT = "8000";
