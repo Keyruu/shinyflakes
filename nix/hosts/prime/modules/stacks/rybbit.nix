@@ -172,8 +172,8 @@ in
     "sorryihavetodothis.keyruu.de".extraConfig = ''
       import coraza-waf
       import cloudflare-only
-      reverse_proxy http://127.0.0.1:3002
       reverse_proxy /api/* http://127.0.0.1:3001
+      reverse_proxy http://127.0.0.1:3002
     '';
   };
 }

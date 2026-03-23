@@ -147,6 +147,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    kubectl-nvim = {
+      url = "github:Ramilito/kubectl.nvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # web
     homepage = {
       url = "github:Keyruu/homepage";

@@ -184,6 +184,20 @@
             require('grug-far').setup({})
           '';
       };
+      jira-nvim = {
+        package = perSystem.self.jira-nvim;
+        setup = # lua
+          ''
+            require('jira').setup({})
+          '';
+      };
+      kubectl-nvim = {
+        package = perSystem.kubectl-nvim.default;
+        setup = # lua
+          ''
+            require('kubectl').setup({})
+          '';
+      };
     };
 
     startPlugins = with pkgs.vimPlugins; [

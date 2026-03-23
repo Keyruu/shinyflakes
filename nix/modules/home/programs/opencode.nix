@@ -39,6 +39,7 @@
           url = "https://mcp.grep.app";
         };
       };
+      plugin = [ "@mohak34/opencode-notifier@latest" ];
       provider = {
         mammouth = {
           npm = "@ai-sdk/openai-compatible";

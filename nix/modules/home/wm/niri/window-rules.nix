@@ -8,6 +8,7 @@ _:
 
   window-rule {
       match app-id=r#"^scratchpad$"#
+      match app-id=r#"^vicinae-script$"#
       opacity 0.96
       default-column-width { proportion 0.88; }
       default-window-height { proportion 0.88; }

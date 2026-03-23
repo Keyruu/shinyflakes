@@ -2,6 +2,7 @@
   config,
   inputs,
   perSystem,
+  pkgs,
   ...
 }:
 {
@@ -104,9 +105,21 @@
             notification-center = {
               alias = "nc";
             };
+            Alacritty = {
+              alias = "t";
+            };
+            slack = {
+              alias = "s";
+            };
+            spotify = {
+              alias = "m";
+            };
+            zen-beta = {
+              alias = "b";
+            };
           };
         };
-        "@knoopx/nix-0" = {
+        "@knoopx/vicinae-extension-nix-0" = {
           entrypoints = {
             home-manager-options = {
               alias = "nh";
@@ -122,4 +135,112 @@
       };
     };
   };
+
+  home.file =
+    let
+      scripts = ".local/share/vicinae/scripts";
+      jiraConfig = "/home/lucas/.config/.jira/.config.yml";
+
+      mkTerminalScript =
+        {
+          name,
+          title,
+          icon ? "🚀",
+          runtimeInputs ? [ ],
+          command,
+          appId ? "vicinae-script",
+          setup ? "",
+        }:
+        {
+          "${scripts}/${name}.sh".source = "${
+            pkgs.writeShellApplication {
+              inherit name;
+              runtimeInputs = runtimeInputs ++ [
+                pkgs.alacritty
+                pkgs.util-linux # setsid
+              ];
+              excludeShellChecks = [ "SC2016" ];
+              text = # bash
+                ''
+                  # @vicinae.schemaVersion 1
+                  # @vicinae.title ${title}
+                  # @vicinae.mode silent
+                  # @vicinae.icon ${icon}
+
+                  ${setup}
+                  setsid alacritty --class ${appId} -e bash -c ${pkgs.lib.escapeShellArg command} &>/dev/null &
+                '';
+            }
+          }/bin/${name}";
+        };
+
+      jiraSetup = # bash
+        ''
+          JIRA_API_TOKEN="$(cat ${config.sops.secrets.jiraToken.path})"
+          JIRA_CONFIG_FILE="${jiraConfig}"
+          export JIRA_API_TOKEN
+          export JIRA_CONFIG_FILE
+        '';
+    in
+    mkTerminalScript {
+      name = "list-issues";
+      title = "List Issues";
+      icon = "✅";
+      runtimeInputs = [ pkgs.jira-cli-go ];
+      setup = jiraSetup;
+      command = # bash
+        ''jira issue list -c "${jiraConfig}" -a"$(jira me)" -s~Done'';
+    }
+    // mkTerminalScript {
+      name = "create-issue";
+      title = "Create Issue";
+      icon = "📝";
+      runtimeInputs = with pkgs; [
+        jira-cli-go
+        fzf
+        jq
+        curl
+        wl-clipboard
+      ];
+      setup = jiraSetup;
+      command = # bash
+        ''
+          if ! jira issue create; then
+            echo "Issue creation was aborted or failed. Exiting."
+            read -r 
+            exit 1
+          fi
+
+          raw=$(jira issue list \
+            --paginate 1 \
+            --raw)
+          issueKey=$(echo "$raw" | jq -r '.[0].key // empty')
+
+          if [[ -z "$issueKey" ]]; then
+            echo "Failed to get newest issue."
+            read -r
+            exit 1
+          fi
+
+          wl-copy $issueKey
+          echo "Created and copied $issueKey"
+
+          jira issue move "$issueKey"
+          jira issue assign "$issueKey"
+        '';
+    }
+    // mkTerminalScript {
+      name = "k9s";
+      title = "K9s";
+      icon = "☸️";
+      runtimeInputs = [
+        pkgs.k9s
+        pkgs.fzf
+        pkgs.findutils
+      ];
+      command = # bash
+        ''
+          KUBECONFIG="$(find ~/.kube -maxdepth 1 -type f -name "*.yml" -o -name "*.yaml" -o -name "config" | fzf --prompt="Select kubeconfig: ")" k9s
+        '';
+    };
 }

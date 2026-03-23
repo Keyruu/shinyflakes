@@ -243,7 +243,7 @@ in
         enabled = true;
         sounds = {
           enabled = true;
-          excludedApps = "discord,firefox,chrome,chromium,edge,Slack";
+          excludedApps = "discord,firefox,chrome,chromium,edge,Slack,opencode";
         };
       };
       location = {
