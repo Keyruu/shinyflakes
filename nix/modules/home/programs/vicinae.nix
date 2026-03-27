@@ -240,7 +240,7 @@
       ];
       command = # bash
         ''
-          KUBECONFIG="$(find ~/.kube -maxdepth 1 -type f -name "*.yml" -o -name "*.yaml" -o -name "config" | fzf --prompt="Select kubeconfig: ")" k9s
+          select-k9s
         '';
     };
 }

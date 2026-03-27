@@ -19,7 +19,7 @@ in
     defaultSopsFile = ../../secrets.yaml;
     age = {
       keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
-      sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+      # sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     };
   };
 

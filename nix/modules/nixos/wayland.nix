@@ -82,23 +82,27 @@
     ELECTRON_OZONE_PLATFORM_HINT = "wayland";
     SDL_VIDEODRIVER = "wayland";
     CLUTTER_BACKEND = "wayland";
+    GTK_USE_PORTAL = "1";
     DIRENV_LOG_FORMAT = "";
   };
 
   xdg.portal = {
     enable = true;
     wlr.enable = false;
-    config.niri = {
-      default = [
-        "gnome"
+    config = {
+      common.default = [
         "gtk"
+        "gnome"
       ];
-      "org.freedesktop.impl.portal.Access" = "gtk";
-      "org.freedesktop.impl.portal.Notification" = "gtk";
-      "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
-      "org.freedesktop.impl.portal.FileChooser" = "gtk";
-      "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
-      "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+      niri = {
+        default = [
+          "gtk"
+          "gnome"
+        ];
+        "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+        "org.freedesktop.impl.portal.ScreenCast" = "gnome";
+        "org.freedesktop.impl.portal.Screenshot" = "gnome";
+      };
     };
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk

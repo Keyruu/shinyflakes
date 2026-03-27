@@ -166,6 +166,7 @@ in
         `
       }
       import cloudflare-only
+      reverse_proxy /api/* http://127.0.0.1:3001
       reverse_proxy http://127.0.0.1:${toString my.port}
     '';
 
@@ -173,7 +174,7 @@ in
       import coraza-waf
       import cloudflare-only
       reverse_proxy /api/* http://127.0.0.1:3001
-      reverse_proxy http://127.0.0.1:3002
+      reverse_proxy http://127.0.0.1:${toString my.port}
     '';
   };
 }
