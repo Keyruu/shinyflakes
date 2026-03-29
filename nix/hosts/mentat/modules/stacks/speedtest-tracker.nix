@@ -36,7 +36,7 @@ in
       containers = {
         speedtest-tracker = {
           containerConfig = {
-            image = "lscr.io/linuxserver/speedtest-tracker:1.13.11";
+            image = "lscr.io/linuxserver/speedtest-tracker:1.13.12";
             publishPorts = [ "127.0.0.1:${toString my.port}:80" ];
             environments = {
               TZ = "Europe/Berlin";
