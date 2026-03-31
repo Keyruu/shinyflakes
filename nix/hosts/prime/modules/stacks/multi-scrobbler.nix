@@ -64,7 +64,7 @@ in
 
       containers.multi-scrobbler = {
         containerConfig = {
-          image = "ghcr.io/foxxmd/multi-scrobbler:0.12.0";
+          image = "ghcr.io/foxxmd/multi-scrobbler:0.12.1";
           volumes = [ "${my.stack.path}/config:/config" ];
           environments = {
             TZ = "Europe/Berlin";
