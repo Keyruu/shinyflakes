@@ -97,7 +97,6 @@ in
     pipx
     impala
     claude-code
-    claude-code-acp
     codex
     opencode
     biome
