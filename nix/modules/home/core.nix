@@ -218,6 +218,7 @@ in
     gotify-desktop
     vial
     jira-cli-go
+    kdePackages.kdenlive
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

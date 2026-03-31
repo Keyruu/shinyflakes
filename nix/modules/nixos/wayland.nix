@@ -67,23 +67,26 @@
     };
   };
 
-  environment.variables = {
-    XDG_SESSION_TYPE = "wayland";
-    XDG_SESSION_DESKTOP = "niri";
-    XDG_CURRENT_DESKTOP = "niri";
-    MOZ_ENABLE_WAYLAND = "1";
-    MOZ_DBUS_REMOTE = "1";
-    ANKI_WAYLAND = "1";
-    NIXOS_OZONE_WL = "1";
-    QT_QPA_PLATFORM = "wayland";
-    QT_QPA_PLATFORMTHEME = "gtk3";
-    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    QS_ICON_THEME = "Papirus";
-    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-    SDL_VIDEODRIVER = "wayland";
-    CLUTTER_BACKEND = "wayland";
-    GTK_USE_PORTAL = "1";
-    DIRENV_LOG_FORMAT = "";
+  environment = {
+    variables = {
+      XDG_SESSION_TYPE = "wayland";
+      XDG_SESSION_DESKTOP = "niri";
+      XDG_CURRENT_DESKTOP = "niri";
+      MOZ_ENABLE_WAYLAND = "1";
+      MOZ_DBUS_REMOTE = "1";
+      ANKI_WAYLAND = "1";
+      NIXOS_OZONE_WL = "1";
+      QT_QPA_PLATFORM = "wayland";
+      QT_QPA_PLATFORMTHEME = "gtk3";
+      QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+      QS_ICON_THEME = "Papirus";
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+      SDL_VIDEODRIVER = "wayland";
+      CLUTTER_BACKEND = "wayland";
+      GTK_USE_PORTAL = "1";
+      DIRENV_LOG_FORMAT = "";
+    };
+    systemPackages = [ pkgs.nautilus ];
   };
 
   xdg.portal = {
@@ -91,17 +94,15 @@
     wlr.enable = false;
     config = {
       common.default = [
-        "gtk"
         "gnome"
       ];
       niri = {
         default = [
-          "gtk"
           "gnome"
         ];
         "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
-        "org.freedesktop.impl.portal.ScreenCast" = "gnome";
-        "org.freedesktop.impl.portal.Screenshot" = "gnome";
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
       };
     };
     extraPortals = with pkgs; [

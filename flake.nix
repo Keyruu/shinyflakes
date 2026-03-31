@@ -103,6 +103,10 @@
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    rycee = {
+      url = "gitlab:rycee/nur-expressions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     iio-sway = {
       url = "github:tbaumann/iio-sway";

@@ -1376,6 +1376,7 @@
         "nvf": "nvf",
         "pog": "pog",
         "quadlet-nix": "quadlet-nix",
+        "rycee": "rycee",
         "sirberus": "sirberus",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
@@ -1426,6 +1427,26 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
+      }
+    },
+    "rycee": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774843378,
+        "narHash": "sha256-8QLbY8F7UdxeQaW0KUVgr1/YPIupe+1lGjS5joR+ZCw=",
+        "owner": "rycee",
+        "repo": "nur-expressions",
+        "rev": "0a31b668e3ebb599f95dc518076d709e8dddb57c",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "rycee",
+        "repo": "nur-expressions",
+        "type": "gitlab"
       }
     },
     "sirberus": {

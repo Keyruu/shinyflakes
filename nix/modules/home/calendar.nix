@@ -118,29 +118,27 @@ in
     khal-open-meet
   ];
 
-  sops.secrets = {
-    gmailClientId = { };
-    gmailClientSecret = { };
-    sharedCalendarUser = { };
-    sharedCalendarPassword = { };
-  };
-
-  programs.khal = {
-    enable = true;
-    locale = {
-      timeformat = "%H:%M";
-      dateformat = "%Y-%m-%d";
-      longdateformat = "%Y-%m-%d";
-      datetimeformat = "%Y-%m-%d %H:%M";
-      longdatetimeformat = "%Y-%m-%d %H:%M";
+  programs = {
+    khal = {
+      enable = true;
+      locale = {
+        timeformat = "%H:%M";
+        dateformat = "%Y-%m-%d";
+        longdateformat = "%Y-%m-%d";
+        datetimeformat = "%Y-%m-%d %H:%M";
+        longdatetimeformat = "%Y-%m-%d %H:%M";
+      };
+      settings = {
+        default = {
+          timedelta = "5d";
+        };
+        view = {
+          agenda_event_format = "{calendar-color}{cancelled}{start-end-time-style} {title}{repeat-symbol}";
+        };
+      };
     };
-    settings = {
-      default = {
-        timedelta = "5d";
-      };
-      view = {
-        agenda_event_format = "{calendar-color}{cancelled}{start-end-time-style} {title}{repeat-symbol}";
-      };
+    khard = {
+      enable = true;
     };
   };
 
