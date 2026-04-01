@@ -63,7 +63,7 @@ in
       containers = {
         zigbee2mqtt = {
           containerConfig = {
-            image = "koenkk/zigbee2mqtt:2.9.1";
+            image = "koenkk/zigbee2mqtt:2.9.2";
             publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
             environments = {
               TZ = "Europe/Berlin";
