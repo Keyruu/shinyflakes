@@ -212,7 +212,8 @@ in
     zerotierone
     feishin
     lmstudio
-    winboat
+    # FIXME: winboat fails to compile
+    # winboat
     kdePackages.kdeconnect-kde
     gotify-desktop
     vial
