@@ -21,10 +21,10 @@
     gopls
     rust-analyzer
     typescript-language-server
-    nodePackages.typescript
+    typescript
     bash-language-server
     tailwindcss-language-server
-    nodePackages.vscode-json-languageserver
+    vscode-json-languageserver
     helm-ls
     terraform-ls
     yaml-language-server

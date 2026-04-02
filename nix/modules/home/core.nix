@@ -203,7 +203,6 @@ in
     kotlin-language-server
     terraform-ls
     stylua
-    nodePackages_latest.aws-cdk
     bubblewrap
     socat
     orca-slicer

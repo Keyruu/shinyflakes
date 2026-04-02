@@ -91,7 +91,7 @@
         astro = {
           init_options = {
             typescript = {
-              tsdk = "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib";
+              tsdk = "${pkgs.typescript}/lib/node_modules/typescript/lib";
             };
           };
         };
