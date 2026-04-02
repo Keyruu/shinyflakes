@@ -4,6 +4,8 @@
   linux-dev-names-exclude (
     "ZSA Technology Labs Voyager"
     "ZSA Technology Labs Voyager Keyboard"
+    "Keychron Keychron Q11"
+    "Keychron Keychron Q11 Keyboard"
   )
 )
 

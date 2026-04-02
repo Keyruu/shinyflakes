@@ -271,6 +271,24 @@ _: {
         silent = true;
         lua = true;
       }
+      {
+        key = "<leader>tp";
+        mode = "n";
+        action = # lua
+          ''
+            function()
+              Snacks.terminal("pi", {
+                win = {
+                  position = "right",
+                  width = 0.4,
+                },
+              })
+            end
+          '';
+        desc = "Toggle Pi Agent Terminal";
+        silent = true;
+        lua = true;
+      }
 
       {
         key = "<leader>bc";

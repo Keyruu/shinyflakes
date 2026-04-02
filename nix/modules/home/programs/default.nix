@@ -12,6 +12,7 @@
     ./nh.nix
     ./noctalia.nix
     ./opencode.nix
+    ./pi
     ./spotify.nix
     ./vicinae.nix
     ./waybar.nix
