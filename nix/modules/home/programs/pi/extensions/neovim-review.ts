@@ -20,7 +20,7 @@
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
-import { spawnSync, execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, unlinkSync, readFileSync, existsSync, rmdirSync } from "node:fs";
 import { resolve, basename, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -127,7 +127,20 @@ export default function (pi: ExtensionAPI) {
         ["Allow", "Block"]
       );
 
-      // Check if user edited the proposed file
+      // Wipe the temp buffers in Neovim
+      const escFile = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
+      nvimRemoteSend(nvimServer, `<C-\\><C-n>:bwipeout! ${escFile(currentFile)}<CR>:bwipeout! ${escFile(proposedFile)}<CR>`);
+
+      if (choice === "Block" || choice === undefined) {
+        // Clean up temp files
+        try { unlinkSync(currentFile); } catch {}
+        try { unlinkSync(proposedFile); } catch {}
+        try { rmdirSync(tmpDir); } catch {}
+        ctx.abort();
+        return { block: true, reason: "Blocked by user after reviewing diff" };
+      }
+
+      // Allow — but check if user edited the proposed file first
       let userEdited = false;
       try {
         const afterContent = readFileSync(proposedFile, "utf-8");
@@ -144,10 +157,6 @@ export default function (pi: ExtensionAPI) {
 
       if (userEdited) {
         return { block: true, reason: `User edited ${fileName} directly. Re-read the file to see their changes before making further edits.` };
-      }
-
-      if (choice === "Block" || choice === undefined) {
-        return { block: true, reason: "Blocked by user after reviewing diff" };
       }
 
       return undefined;
@@ -185,7 +194,17 @@ export default function (pi: ExtensionAPI) {
         return { block: true, reason: `User edited ${fileName} directly. Re-read the file to see their changes before making further edits.` };
       }
 
-      // User reviewed and didn't edit — allow the change
+      // User didn't edit — ask whether to apply or block and steer
+      const choice = await ctx.ui.select(
+        `${fileName}`,
+        ["Allow", "Block"]
+      );
+
+      if (choice === "Block" || choice === undefined) {
+        ctx.abort();
+        return { block: true, reason: "Blocked by user after reviewing diff" };
+      }
+
       return undefined;
     }
   });

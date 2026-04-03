@@ -159,7 +159,11 @@
                 theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
               },
               overrides = function(colors)
-                return {}
+                local palette = colors.palette
+                return {
+                  -- Dim unfocused windows
+                  NormalNC = { bg = palette.sumiInk0 },
+                }
               end,
               theme = "wave",
               background = {
