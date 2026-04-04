@@ -18,6 +18,9 @@ in
     '';
   };
 
+  # Allow the scanservjs container to reach saned on the host
+  networking.firewall.interfaces."podman0".allowedTCPPorts = [ 6566 ];
+
   services.my.scanservjs = {
     port = 8070;
     domain = "scan.port.peeraten.net";
@@ -35,7 +38,7 @@ in
       ];
       security.enable = true;
 
-      containers.scanservjs = {
+      containers.main = {
         containerConfig = {
           image = "docker.io/sbs20/scanservjs:v3.0.4";
           publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
@@ -134,7 +137,7 @@ in
     '';
   };
 
-  virtualisation.quadlet.containers.scanservjs-scanservjs.unitConfig."X-RestartTrigger" = [
+  virtualisation.quadlet.containers.scanservjs.unitConfig."X-RestartTrigger" = [
     config.environment.etc."stacks/scanservjs/config/config.local.js".source
   ];
 }
