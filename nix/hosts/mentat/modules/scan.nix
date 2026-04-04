@@ -35,7 +35,6 @@ in
         "output/lucas"
         "output/nadine"
         "config"
-        "data"
       ];
       security.enable = true;
 
@@ -50,11 +49,13 @@ in
           volumes = [
             "${my.stack.path}/output:/var/lib/scanservjs/output"
             "${my.stack.path}/config:/etc/scanservjs"
-            "${my.stack.path}/data:/usr/lib/scanservjs/data"
           ];
         };
         # scanservjs runs as root and needs to write to data/ and tmp dirs
-        security.readOnlyRootFilesystem = false;
+        security = {
+          readOnlyRootFilesystem = false;
+          dropAllCapabilities = false;
+        };
       };
     };
   };
