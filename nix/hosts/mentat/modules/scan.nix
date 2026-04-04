@@ -35,10 +35,11 @@ in
         "output/lucas"
         "output/nadine"
         "config"
+        "data"
       ];
       security.enable = true;
 
-      containers.main = {
+      containers.scanservjs = {
         containerConfig = {
           image = "docker.io/sbs20/scanservjs:v3.0.4";
           publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
@@ -49,9 +50,10 @@ in
           volumes = [
             "${my.stack.path}/output:/var/lib/scanservjs/output"
             "${my.stack.path}/config:/etc/scanservjs"
+            "${my.stack.path}/data:/usr/lib/scanservjs/data"
           ];
         };
-        # scanservjs needs longer timeouts for scanning
+        # scanservjs runs as root and needs to write to data/ and tmp dirs
         security.readOnlyRootFilesystem = false;
       };
     };
