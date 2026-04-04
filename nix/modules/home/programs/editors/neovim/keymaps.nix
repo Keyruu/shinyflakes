@@ -291,6 +291,14 @@ _: {
       }
 
       {
+        key = "<leader>tc";
+        mode = "n";
+        action = ":tabclose<CR>";
+        desc = "Close Tab";
+        silent = true;
+      }
+
+      {
         key = "<leader>bc";
         mode = "n";
         action = "]c";

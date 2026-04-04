@@ -107,14 +107,14 @@ export default function (pi: ExtensionAPI) {
     if (nvimServer) {
       // ── Running inside Neovim: open diff in a new tab ──
       // Escape any special characters for Neovim command-line
-      const escPath = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
+      const escString = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
 
       const cmd = [
         `<C-\\><C-n>`,                              // ensure normal mode
-        `:tabnew ${escPath(currentFile)}<CR>`,       // open current in new tab
+        `:tabnew ${escString(currentFile)}<CR>`,       // open current in new tab
         `:setlocal readonly nomodifiable bufhidden=wipe<CR>`,
         `:diffthis<CR>`,                             // diff left side
-        `:vsplit ${escPath(proposedFile)}<CR>`,      // open proposed on right
+        `:vsplit ${escString(proposedFile)}<CR>`,      // open proposed on right
         `:diffthis<CR>`,                             // diff right side
         `:wincmd l<CR>`,                             // focus proposed pane
       ].join("");
@@ -128,8 +128,7 @@ export default function (pi: ExtensionAPI) {
       );
 
       // Wipe the temp buffers in Neovim
-      const escFile = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
-      nvimRemoteSend(nvimServer, `<C-\\><C-n>:bwipeout! ${escFile(currentFile)}<CR>:bwipeout! ${escFile(proposedFile)}<CR>`);
+      nvimRemoteSend(nvimServer, `<C-\\><C-n>:bwipeout! ${escString(currentFile)}<CR>:bwipeout! ${escString(proposedFile)}<CR>`);
 
       if (choice === "Block" || choice === undefined) {
         // Clean up temp files
