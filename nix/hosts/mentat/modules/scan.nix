@@ -19,7 +19,7 @@ in
   };
 
   services.my.scanservjs = {
-    port = 8080;
+    port = 8070;
     domain = "scan.port.peeraten.net";
     proxy = {
       enable = true;
