@@ -31,9 +31,9 @@ in
     stack = {
       enable = true;
       directories = [
-        "output"
-        "output/lucas"
-        "output/nadine"
+        "scans"
+        "scans/lucas"
+        "scans/nadine"
         "config"
       ];
       security.enable = true;
@@ -47,7 +47,7 @@ in
           };
           addHosts = [ "host.containers.internal:host-gateway" ];
           volumes = [
-            "${my.stack.path}/output:/var/lib/scanservjs/output"
+            "${my.stack.path}/scans:/scans"
             "${my.stack.path}/config:/etc/scanservjs"
           ];
         };
@@ -63,63 +63,21 @@ in
   environment.etc."stacks/scanservjs/config/config.local.js" = {
     text = # js
       ''
-        module.exports = {
-          afterConfig(config) {
-            config.pipelines = [
-              {
-                extension: 'pdf',
-                description: 'Lucas - PDF',
-                commands: [
-                  'convert @- -quality 92 tmp-%04d.jpg && ls tmp-*.jpg',
-                  'convert @- scan-0000.pdf',
-                  'mv scan-0000.pdf ../output/lucas/ && ls ../output/lucas/scan-0000.pdf'
-                ]
-              },
-              {
-                extension: 'pdf',
-                description: 'Nadine - PDF',
-                commands: [
-                  'convert @- -quality 92 tmp-%04d.jpg && ls tmp-*.jpg',
-                  'convert @- scan-0000.pdf',
-                  'mv scan-0000.pdf ../output/nadine/ && ls ../output/nadine/scan-0000.pdf'
-                ]
-              },
-              {
-                extension: 'jpg',
-                description: 'Lucas - JPG',
-                commands: [
-                  'convert @- -quality 92 scan-%04d.jpg',
-                  'ls scan-*.jpg'
-                ],
-                afterAction: 'Move to Lucas'
-              },
-              {
-                extension: 'jpg',
-                description: 'Nadine - JPG',
-                commands: [
-                  'convert @- -quality 92 scan-%04d.jpg',
-                  'ls scan-*.jpg'
-                ],
-                afterAction: 'Move to Nadine'
-              }
-            ];
-          },
+        const options = { paths: ['/usr/lib/scanservjs'] };
+        const Process = require(require.resolve('./server/classes/process', options));
 
+        module.exports = {
           actions: [
             {
-              name: 'Move to Lucas',
+              name: 'Send to Lucas',
               async execute(fileInfo) {
-                const options = { paths: ['/usr/lib/scanservjs'] };
-                const Process = require(require.resolve('./server/classes/process', options));
-                return await Process.spawn("mv '" + fileInfo.fullname + "' /var/lib/scanservjs/output/lucas/");
+                return await Process.spawn("cp '" + fileInfo.fullname + "' /scans/lucas/");
               }
             },
             {
-              name: 'Move to Nadine',
+              name: 'Send to Nadine',
               async execute(fileInfo) {
-                const options = { paths: ['/usr/lib/scanservjs'] };
-                const Process = require(require.resolve('./server/classes/process', options));
-                return await Process.spawn("mv '" + fileInfo.fullname + "' /var/lib/scanservjs/output/nadine/");
+                return await Process.spawn("cp '" + fileInfo.fullname + "' /scans/nadine/");
               }
             }
           ]
