@@ -1025,6 +1025,23 @@
         "type": "github"
       }
     },
+    "nixpkgs-scanservjs": {
+      "locked": {
+        "lastModified": 1772489786,
+        "narHash": "sha256-7F/sdzgFyNNraA9+YhWajQh8Y4cQuQUIii3BfhXKvoQ=",
+        "ref": "scanservjs",
+        "rev": "cb63144f5dff4fae01d8eaccbeaba916348dbc8a",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/rhoriguchi/nixpkgs"
+      },
+      "original": {
+        "ref": "scanservjs",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/rhoriguchi/nixpkgs"
+      }
+    },
     "nixpkgs-small": {
       "locked": {
         "lastModified": 1774935083,
@@ -1353,6 +1370,7 @@
         "nix-topology": "nix-topology",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_5",
+        "nixpkgs-scanservjs": "nixpkgs-scanservjs",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable_2",
         "noctalia": "noctalia",
