@@ -95,8 +95,19 @@
               };
             };
           };
-          # nadine = {
-          # };
+          nadine = {
+            canAccess = [ "home" ];
+            devices = {
+              laptop = {
+                publicKey = "fpD7FpLgrvDn+AkoBTdD0sypjyaOnLZYCFpO3AGL2yU=";
+                ip = "100.67.0.9/32";
+              };
+              handy = {
+                publicKey = "P3NhS9iNpINQqqIpjg0wbGJkJD122TkLYs4pCFSW9jU=";
+                ip = "100.67.0.10/32";
+              };
+            };
+          };
           lucas = {
             canAccess = [ "home" ];
             devices = {
