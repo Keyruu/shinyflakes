@@ -12,6 +12,12 @@
  * prompts. Clicking Allow/Block on the notification resolves the review
  * just like picking in the TUI — whichever you interact with first wins.
  *
+ * AI comments: when reviewing a diff in Neovim you can add comments
+ * starting with `ai:` (in any comment syntax) to steer the agent.
+ * On Allow the file is written as-is (with the comments) and the
+ * agent is told to re-read the file, follow the instructions, and
+ * remove the ai: comments.
+ *
  * Remembers approved bash commands within a session so you only
  * approve once per unique command.
  *
@@ -239,21 +245,76 @@ async function selectWithNotification(
   return result.choice;
 }
 
-// ── Neovim diff helpers ──────────────────────────────────────────────
+// ── Edit helpers ─────────────────────────────────────────────────────
 
-function computeProposed(
+/**
+ * Apply all edits from the edits[] array to compute the proposed file content.
+ * Returns null if any oldText is not found in the content.
+ */
+function applyEdits(
   originalContent: string,
-  oldText: string,
-  newText: string,
+  edits: Array<{ oldText: string; newText: string }>,
 ): string | null {
-  const idx = originalContent.indexOf(oldText);
-  if (idx === -1) return null;
-  return (
-    originalContent.slice(0, idx) +
-    newText +
-    originalContent.slice(idx + oldText.length)
-  );
+  let content = originalContent;
+  for (const edit of edits) {
+    const idx = content.indexOf(edit.oldText);
+    if (idx === -1) return null;
+    content =
+      content.slice(0, idx) +
+      edit.newText +
+      content.slice(idx + edit.oldText.length);
+  }
+  return content;
 }
+
+/**
+ * Simple check for `ai:` markers anywhere in the content.
+ */
+function hasAiComments(content: string): boolean {
+  return /\bai:/.test(content);
+}
+
+/**
+ * Handle user edits to the proposed file. If the user left `ai:` comments
+ * the file is written as-is and the agent is told to follow the instructions
+ * and remove the comments. Otherwise the file is written directly.
+ *
+ * Returns a tool_call result to block the original edit, or undefined
+ * if the user didn't change anything.
+ */
+function handleUserEdits(
+  pi: ExtensionAPI,
+  afterContent: string,
+  proposedContent: string,
+  filePath: string,
+  fileName: string,
+  absolutePath: string,
+): { block: true; reason: string } | undefined {
+  if (afterContent === proposedContent) return undefined;
+
+  // Write the user's version to disk (including any ai: comments)
+  writeFileSync(absolutePath, afterContent, "utf-8");
+
+  // If the user left ai: comments, steer the agent to handle them
+  if (hasAiComments(afterContent)) {
+    pi.sendUserMessage(
+      `I edited \`${filePath}\` and left \`ai:\` comments with instructions. ` +
+      `Re-read the file, follow every \`ai:\` instruction, remove the \`ai:\` comment lines, and apply the changes.`,
+      { deliverAs: "steer" },
+    );
+    return {
+      block: true,
+      reason: `User left ai: comments on ${fileName}. Re-read the file, follow every ai: instruction, and remove the ai: comment lines.`,
+    };
+  }
+
+  return {
+    block: true,
+    reason: `User edited ${fileName} directly. Re-read the file to see their changes before making further edits.`,
+  };
+}
+
+// ── Neovim diff helpers ──────────────────────────────────────────────
 
 function nvimRemoteSend(server: string, keys: string) {
   spawnSync("nvim", ["--server", server, "--remote-send", keys], {
@@ -348,11 +409,8 @@ export default function (pi: ExtensionAPI) {
         }
       } catch {}
 
-      const result = computeProposed(
-        originalContent,
-        event.input.oldText,
-        event.input.newText,
-      );
+      // Edit tool input has edits[] array — apply all edits
+      const result = applyEdits(originalContent, event.input.edits);
       if (result === null) return undefined;
       proposedContent = result;
     } else if (isToolCallEventType("write", event)) {
@@ -415,23 +473,18 @@ export default function (pi: ExtensionAPI) {
         return { block: true, reason: "Blocked by user after reviewing diff" };
       }
 
-      let userEdited = false;
+      // Read back the proposed file — user may have edited it or left ai: comments
+      let afterContent = proposedContent;
       try {
-        const afterContent = readFileSync(proposedFile, "utf-8");
-        if (afterContent !== proposedContent) {
-          writeFileSync(absolutePath, afterContent, "utf-8");
-          userEdited = true;
-        }
+        afterContent = readFileSync(proposedFile, "utf-8");
       } catch {}
 
       cleanup(tmpDir, currentFile, proposedFile);
 
-      if (userEdited) {
-        return {
-          block: true,
-          reason: `User edited ${fileName} directly. Re-read the file to see their changes before making further edits.`,
-        };
-      }
+      const editResult = handleUserEdits(
+        pi, afterContent, proposedContent, filePath, fileName, absolutePath,
+      );
+      if (editResult) return editResult;
 
       return undefined;
     } else {
@@ -455,23 +508,18 @@ export default function (pi: ExtensionAPI) {
         },
       );
 
-      let userEdited = false;
+      // Read back the proposed file — user may have edited it or left ai: comments
+      let afterContent = proposedContent;
       try {
-        const afterContent = readFileSync(proposedFile, "utf-8");
-        if (afterContent !== proposedContent) {
-          writeFileSync(absolutePath, afterContent, "utf-8");
-          userEdited = true;
-        }
+        afterContent = readFileSync(proposedFile, "utf-8");
       } catch {}
 
       cleanup(tmpDir, currentFile, proposedFile);
 
-      if (userEdited) {
-        return {
-          block: true,
-          reason: `User edited ${fileName} directly. Re-read the file to see their changes before making further edits.`,
-        };
-      }
+      const editResult = handleUserEdits(
+        pi, afterContent, proposedContent, filePath, fileName, absolutePath,
+      );
+      if (editResult) return editResult;
 
       // Race TUI select against desktop notification
       const choice = await selectWithNotification(

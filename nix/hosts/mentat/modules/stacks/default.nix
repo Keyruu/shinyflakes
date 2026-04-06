@@ -23,5 +23,6 @@
     ./invidious.nix
     ./freshrss.nix
     ./calibre-web.nix
+    ./paperless.nix
   ];
 }

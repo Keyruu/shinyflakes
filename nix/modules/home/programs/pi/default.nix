@@ -1,15 +1,27 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   repoDir = "${config.home.homeDirectory}/shinyflakes/nix/modules/home/programs/pi";
   mkLink = config.lib.file.mkOutOfStoreSymlink;
+  small = import inputs.nixpkgs-small {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config.allowUnfree = true;
+  };
 in
 {
-  home.packages = with pkgs; [
-    pi-coding-agent
-    ddgr
-  ];
-
-  home.file.".pi/agent/extensions".source = mkLink "${repoDir}/extensions";
-  home.file.".pi/agent/AGENTS.md".source = mkLink "${repoDir}/AGENTS.md";
-  home.file.".pi/agent/skills".source = mkLink "${repoDir}/skills";
+  home = {
+    packages = with pkgs; [
+      small.pi-coding-agent
+      ddgr
+    ];
+    file = {
+      ".pi/agent/extensions".source = mkLink "${repoDir}/extensions";
+      ".pi/agent/AGENTS.md".source = mkLink "${repoDir}/AGENTS.md";
+      ".pi/agent/skills".source = mkLink "${repoDir}/skills";
+    };
+  };
 }
