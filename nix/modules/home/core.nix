@@ -10,6 +10,7 @@ let
   stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
   small = import inputs.nixpkgs-small {
     inherit (pkgs.stdenv.hostPlatform) system;
+    config.allowUnfree = true;
   };
 in
 {
