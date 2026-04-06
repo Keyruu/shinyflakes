@@ -100,7 +100,8 @@ in
     uv
     pipx
     impala
-    small.claude-code
+    # FIXME: broken on unstable https://github.com/NixOS/nixpkgs/issues/507045
+    # small.claude-code
     codex
     opencode
     biome
