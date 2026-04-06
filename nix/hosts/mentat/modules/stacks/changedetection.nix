@@ -7,7 +7,7 @@ in
 
   services.link-bypass.enable = true;
 
-  networking.firewall.interfaces."podman+".allowedTCPPorts = [ config.services.link-bypass.port ];
+  networking.firewall.interfaces.changedetection.allowedTCPPorts = [ config.services.link-bypass.port ];
 
   services.my.changedetection = {
     port = 5000;
