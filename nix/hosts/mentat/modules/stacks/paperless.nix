@@ -83,6 +83,10 @@ in
             networkAliases = [ "webserver" ];
           };
           dependsOn = [ "broker" ];
+          security = {
+            readOnlyRootFilesystem = false;
+            dropAllCapabilities = false;
+          };
         };
       };
     };
