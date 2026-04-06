@@ -63,17 +63,48 @@
 
   config =
     let
-      allIPs =
-        with builtins;
-        map (peer: peer.ip) (
-          concatMap (person: attrValues person.devices) (attrValues config.services.mesh.people)
-        );
+      allDevices = lib.concatLists (
+        lib.mapAttrsToList (
+          personName: person:
+          lib.mapAttrsToList (
+            deviceName: device: {
+              inherit (device) ip;
+              label = "${personName}.${deviceName}";
+            }
+          ) person.devices
+        ) config.services.mesh.people
+      );
+
+      allIPs = map (d: d.ip) allDevices;
+
+      # Validate IP format: must be a valid IPv4 address without subnet mask
+      isValidIPv4 = ip:
+        let
+          hasSlash = builtins.match ".*/.+" ip != null;
+          parts = builtins.match "([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)" ip;
+          octets = if parts != null then map lib.toInt parts else [ ];
+          octetsValid = builtins.all (o: o >= 0 && o <= 255) octets;
+        in
+        !hasSlash && parts != null && octetsValid;
+
+      invalidDevices = builtins.filter (d: !(isValidIPv4 d.ip)) allDevices;
+      formatInvalid = lib.concatStringsSep "\n" (
+        map (d: "  ${d.label}: ${d.ip}") invalidDevices
+      );
     in
     {
       assertions = [
         {
           assertion = allIPs == lib.unique allIPs;
           message = "Duplicate IPs detected in the mesh!";
+        }
+        {
+          assertion = invalidDevices == [ ];
+          message = ''
+            Invalid IPs detected in services.mesh.people!
+            IPs must be valid IPv4 addresses without subnet masks:
+            ${formatInvalid}
+          '';
         }
       ];
       services.mesh = {
