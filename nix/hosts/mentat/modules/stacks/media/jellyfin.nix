@@ -19,7 +19,7 @@ in
       containers = {
         jellyfin = {
           containerConfig = {
-            image = "ghcr.io/jellyfin/jellyfin:10.11.7";
+            image = "ghcr.io/jellyfin/jellyfin:10.11.8";
             volumes = [
               "${my.stack.path}/config:/config"
               "${my.stack.path}/cache:/cache"
