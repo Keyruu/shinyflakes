@@ -8,6 +8,9 @@
 }:
 let
   stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
+  unstable-small = import inputs.nixpkgs-unstable-small {
+    inherit (pkgs.stdenv.hostPlatform) system;
+  };
 in
 {
   imports = [
@@ -96,7 +99,7 @@ in
     uv
     pipx
     impala
-    stable.claude-code
+    unstable-small.claude-code
     codex
     opencode
     biome
