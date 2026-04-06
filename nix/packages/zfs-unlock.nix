@@ -1,13 +1,7 @@
-{
-  pkgs,
-  writeShellApplication,
-  zfs,
-  systemd,
-  ...
-}:
-writeShellApplication {
+{ pkgs, ... }:
+pkgs.writeShellApplication {
   name = "zfs-unlock";
-  runtimeInputs = [
+  runtimeInputs = with pkgs; [
     zfs
     systemd
   ];
