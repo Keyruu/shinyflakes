@@ -7,6 +7,8 @@ in
 {
   sops.secrets = {
     paperlessSecretKey = { };
+    paperlessUsername = { };
+    paperlessPassword = { };
   };
 
   sops.templates."paperless.env" = {
