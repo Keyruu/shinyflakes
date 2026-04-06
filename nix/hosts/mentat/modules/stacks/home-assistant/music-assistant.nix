@@ -22,7 +22,7 @@ in
       security.enable = false;
       containers.music-assistant = {
         containerConfig = {
-          image = "ghcr.io/music-assistant/server:2.8.1";
+          image = "ghcr.io/music-assistant/server:2.8.2";
           environments = {
             TZ = "Europe/Berlin";
           };
