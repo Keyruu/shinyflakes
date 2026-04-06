@@ -96,7 +96,7 @@ in
     uv
     pipx
     impala
-    claude-code
+    stable.claude-code
     codex
     opencode
     biome
