@@ -7,6 +7,8 @@ in
 
   services.link-bypass.enable = true;
 
+  networking.firewall.interfaces."podman+".allowedTCPPorts = [ config.services.link-bypass.port ];
+
   services.my.changedetection = {
     port = 5000;
     domain = "changedetection.lab.keyruu.de";
@@ -39,6 +41,7 @@ in
               BASE_URL = "https://${my.domain}";
               PLAYWRIGHT_DRIVER_URL = "ws://browser:3000";
             };
+            addHosts = [ "host.containers.internal:host-gateway" ];
             networkAliases = [ "changedetection" ];
           };
           dependsOn = [ "browser" ];
