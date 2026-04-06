@@ -4,12 +4,14 @@ let
 in
 {
   imports = [ flake.modules.private.link-bypass ];
-
   sops.secrets.bypassVpnConfig = { };
 
-  services.link-bypass.vpn = {
+  services.link-bypass = {
     enable = true;
-    configFile = config.sops.secrets.bypassVpnConfig.path;
+    vpn = {
+      enable = true;
+      configFile = config.sops.secrets.bypassVpnConfig.path;
+    };
   };
 
   networking.firewall.interfaces.changedetection.allowedTCPPorts = [
