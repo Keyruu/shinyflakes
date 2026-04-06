@@ -30,9 +30,9 @@ in
       user = {
         enable = true;
         name = "paperless";
-        uid = 1005;
+        uid = 1006;
         group = "paperless";
-        gid = 1005;
+        gid = 1006;
       };
       directories = [
         "data"
