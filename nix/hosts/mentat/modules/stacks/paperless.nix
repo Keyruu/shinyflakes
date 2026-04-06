@@ -14,6 +14,8 @@ in
     content = # sh
       ''
         PAPERLESS_SECRET_KEY=${config.sops.placeholder.paperlessSecretKey}
+        PAPERLESS_ADMIN_USER=${config.sops.placeholder.paperlessUsername}
+        PAPERLESS_ADMIN_PASSWORD=${config.sops.placeholder.paperlessPassword}
       '';
   };
 
@@ -77,6 +79,10 @@ in
             environments = {
               PAPERLESS_REDIS = "redis://${quadlet.alias containers.paperless-broker}:6379";
               PAPERLESS_URL = "https://${my.domain}";
+              PAPERLESS_OCR_LANGUAGE = "deu";
+              PAPERLESS_TIME_ZONE = "Europe/Berlin";
+              PAPERLESS_CONSUMER_POLLING = "10";
+              PAPERLESS_FILENAME_FORMAT = "{{ created_year }}/{{ correspondent }}/{{ title }}";
               USERMAP_UID = toString my.stack.user.uid;
               USERMAP_GID = toString my.stack.user.gid;
             };

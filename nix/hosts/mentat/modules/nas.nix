@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  perSystem,
+  pkgs,
+  ...
+}:
 let
   my = config.services.my.scrutiny;
 in
@@ -13,10 +18,19 @@ in
       package = pkgs.zfs_unstable;
       forceImportRoot = false;
       extraPools = [ "main" ];
+      requestEncryptionCredentials = false;
     };
   };
 
   networking.hostId = "7dddaca4";
+
+  environment.systemPackages = [ perSystem.self.zfs-unlock ];
+
+  systemd.targets.zfs-encrypted = {
+    description = "ZFS Encrypted Datasets Unlocked";
+    after = [ "zfs.target" ];
+    wants = [ "zfs.target" ];
+  };
 
   services = {
     zfs.autoScrub.enable = true;

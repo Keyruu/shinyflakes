@@ -17,6 +17,7 @@ in
     packages = with pkgs; [
       small.pi-coding-agent
       ddgr
+      skopeo
     ];
     file = {
       ".pi/agent/extensions".source = mkLink "${repoDir}/extensions";
