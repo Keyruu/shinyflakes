@@ -5,9 +5,16 @@ in
 {
   imports = [ flake.modules.private.link-bypass ];
 
-  services.link-bypass.enable = true;
+  sops.secrets.bypassVpnConfig = { };
 
-  networking.firewall.interfaces.changedetection.allowedTCPPorts = [ config.services.link-bypass.port ];
+  services.link-bypass.vpn = {
+    enable = true;
+    configFile = config.sops.secrets.bypassVpnConfig.path;
+  };
+
+  networking.firewall.interfaces.changedetection.allowedTCPPorts = [
+    config.services.link-bypass.port
+  ];
 
   services.my.changedetection = {
     port = 5000;
