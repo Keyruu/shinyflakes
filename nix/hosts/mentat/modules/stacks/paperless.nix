@@ -58,6 +58,10 @@ in
             ];
             networkAliases = [ "broker" ];
           };
+          security = {
+            readOnlyRootFilesystem = false;
+            dropAllCapabilities = false;
+          };
         };
 
         webserver = {
