@@ -8,10 +8,6 @@
 }:
 let
   stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
-  small = import inputs.nixpkgs-small {
-    inherit (pkgs.stdenv.hostPlatform) system;
-    config.allowUnfree = true;
-  };
 in
 {
   imports = [
@@ -100,8 +96,6 @@ in
     uv
     pipx
     impala
-    # FIXME: broken on unstable https://github.com/NixOS/nixpkgs/issues/507045
-    # small.claude-code
     codex
     opencode
     biome

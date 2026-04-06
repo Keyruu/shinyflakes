@@ -1,4 +1,15 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+let
+  small = import inputs.nixpkgs-small {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config.allowUnfree = true;
+  };
+in
 {
   home.packages = with pkgs; [
     claude-code-router
@@ -6,6 +17,7 @@
 
   programs.claude-code = {
     enable = true;
+    package = small.claude-code;
     settings = {
       hooks = {
         Stop = [
