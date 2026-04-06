@@ -8,6 +8,10 @@
  *   Tier 3 — Timed auto-approve: safe-looking bash commands (3s countdown)
  *   Tier 4 — Explicit approval: dangerous bash commands (rm, sudo, etc.)
  *
+ * Desktop notifications with clickable actions are shown alongside TUI
+ * prompts. Clicking Allow/Block on the notification resolves the review
+ * just like picking in the TUI — whichever you interact with first wins.
+ *
  * Remembers approved bash commands within a session so you only
  * approve once per unique command.
  *
@@ -18,7 +22,7 @@
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   mkdtempSync,
   writeFileSync,
@@ -87,7 +91,7 @@ const SAFE_PATTERNS: RegExp[] = [
   /^\s*uniq(\s|$)/,
   /^\s*cut\s/,
   /^\s*awk\s/,
-  /^\s*sed\s.*['"]?s[/|]/,  // sed substitution (read-only piped usage)
+  /^\s*sed\s.*['"]?s[/|]/,
   /^\s*git\s+(status|log|diff|show|branch|tag|stash\s+list|remote\s+-v)\b/,
   /^\s*git\s+ls-/,
   /^\s*gh\s+(pr|issue)\s+(list|view|status)\b/,
@@ -118,7 +122,124 @@ const SAFE_PATTERNS: RegExp[] = [
   /^\s*\[\s/,
 ];
 
-// ── Neovim diff helpers (from neovim-review.ts) ──────────────────────
+// ── Desktop notification with actions ────────────────────────────────
+
+interface NotifyHandle {
+  /** Resolves with the action id when clicked; never resolves on dismiss */
+  promise: Promise<string>;
+  /** Kill the notification process */
+  kill: () => void;
+}
+
+/**
+ * Send a desktop notification with clickable action buttons.
+ * Uses `notify-send --action` which blocks until an action is clicked
+ * or the notification is dismissed.
+ *
+ * Returns a promise that resolves ONLY when an action is clicked.
+ * If the notification is dismissed without clicking, the promise stays
+ * pending forever — intended for use with Promise.race so the TUI
+ * select can still win.
+ */
+function notifyWithActions(
+  title: string,
+  body: string,
+  actions: { id: string; label: string }[],
+): NotifyHandle {
+  const args = [
+    "--app-name=pi",
+    ...actions.flatMap((a) => ["--action", `${a.id}=${a.label}`]),
+    title,
+    body,
+  ];
+
+  const proc = spawn("notify-send", args, {
+    stdio: ["ignore", "pipe", "ignore"],
+  });
+
+  let stdout = "";
+  proc.stdout.on("data", (chunk: Buffer) => {
+    stdout += chunk.toString();
+  });
+
+  const promise = new Promise<string>((resolve) => {
+    proc.on("close", () => {
+      const action = stdout.trim();
+      // Only resolve when an action was actually clicked.
+      // On dismiss/expire action is empty → promise stays pending,
+      // so it can never win a Promise.race against the TUI.
+      if (action) resolve(action);
+    });
+    proc.on("error", () => {
+      // notify-send not available — never resolve, TUI wins
+    });
+  });
+
+  return { promise, kill: () => proc.kill() };
+}
+
+/**
+ * Race a TUI select dialog against a desktop notification with actions.
+ * Whichever the user interacts with first wins; the other is cancelled.
+ *
+ * - If an action is clicked on the notification → that choice wins, TUI is aborted
+ * - If the user picks in the TUI → that wins, notification process is killed
+ * - If the TUI times out → returns undefined (auto-allow), notification is killed
+ * - If the notification is dismissed without action → TUI continues unaffected
+ */
+async function selectWithNotification(
+  ctx: any,
+  tuiTitle: string,
+  options: string[],
+  notifTitle: string,
+  notifBody: string,
+  tuiOptions?: { timeout?: number },
+): Promise<string | undefined> {
+  const actions = options.map((label) => ({
+    id: label.toLowerCase().replace(/\s+/g, "_"),
+    label,
+  }));
+
+  // Map notification action ids back to TUI option labels
+  const idToLabel = new Map(actions.map((a, i) => [a.id, options[i]]));
+
+  const notif = notifyWithActions(notifTitle, notifBody, actions);
+  const abortCtrl = new AbortController();
+
+  type RaceResult =
+    | { source: "tui"; choice: string | undefined }
+    | { source: "notif"; choice: string | undefined };
+
+  const tuiPromise: Promise<RaceResult> = ctx.ui
+    .select(tuiTitle, options, {
+      ...tuiOptions,
+      signal: abortCtrl.signal,
+    })
+    .then((choice: string | undefined) => ({
+      source: "tui" as const,
+      choice,
+    }));
+
+  const notifPromise: Promise<RaceResult> = notif.promise.then(
+    (actionId: string) => ({
+      source: "notif" as const,
+      choice: idToLabel.get(actionId),
+    }),
+  );
+
+  const result = await Promise.race([tuiPromise, notifPromise]);
+
+  // Clean up the loser
+  if (result.source === "tui") {
+    notif.kill();
+  } else {
+    abortCtrl.abort();
+  }
+
+  return result.choice;
+}
+
+// ── Neovim diff helpers ──────────────────────────────────────────────
 
 function computeProposed(
   originalContent: string,
@@ -274,9 +395,13 @@ export default function (pi: ExtensionAPI) {
 
       nvimRemoteSend(nvimServer, cmd);
 
-      const choice = await ctx.ui.select(
+      // Race TUI select against desktop notification
+      const choice = await selectWithNotification(
+        ctx,
         `${fileName} — diff opened in Neovim tab`,
         ["Allow", "Block"],
+        `📝 pi: reviewing ${fileName}`,
+        `Diff opened in Neovim — click to respond`,
       );
 
       nvimRemoteSend(
@@ -348,7 +473,14 @@ export default function (pi: ExtensionAPI) {
         };
       }
 
-      const choice = await ctx.ui.select(`${fileName}`, ["Allow", "Block"]);
+      // Race TUI select against desktop notification
+      const choice = await selectWithNotification(
+        ctx,
+        `${fileName}`,
+        ["Allow", "Block"],
+        `📝 pi: reviewing ${fileName}`,
+        `Diff review complete — click to respond`,
+      );
 
       if (choice === "Block" || choice === undefined) {
         ctx.abort();
@@ -375,11 +507,14 @@ export default function (pi: ExtensionAPI) {
       return undefined;
     }
 
-    // Tier 4: Dangerous patterns require explicit approval
+    // Tier 4: Dangerous patterns require explicit approval (no timeout)
     if (DANGEROUS_PATTERNS.some((p) => p.test(normalized))) {
-      const choice = await ctx.ui.select(
+      const choice = await selectWithNotification(
+        ctx,
         `⚠️  Dangerous command:\n\n  ${command}\n\nApprove?`,
         ["Allow", "Allow + Remember", "Block"],
+        "⚠️ pi: dangerous command",
+        truncateDisplay(command, 200),
       );
 
       if (choice === "Allow + Remember") {
@@ -395,9 +530,12 @@ export default function (pi: ExtensionAPI) {
     }
 
     // Tier 3: Everything else gets timed auto-approve
-    const choice = await ctx.ui.select(
+    const choice = await selectWithNotification(
+      ctx,
       `🔍 bash: ${truncateDisplay(command, 120)}`,
       ["Allow", "Allow + Remember", "Block"],
+      "🔍 pi: bash command",
+      truncateDisplay(command, 200),
       { timeout: TIMED_APPROVE_MS },
     );
 
@@ -419,9 +557,12 @@ export default function (pi: ExtensionAPI) {
   // ── Unknown tools: timed approve ─────────────────────────────────
 
   async function handleUnknownTool(event: any, ctx: any) {
-    const choice = await ctx.ui.select(
+    const choice = await selectWithNotification(
+      ctx,
       `🔧 ${event.toolName}: review call?`,
       ["Allow", "Block"],
+      `🔧 pi: ${event.toolName}`,
+      `Tool call requires review`,
       { timeout: TIMED_APPROVE_MS },
     );
 
