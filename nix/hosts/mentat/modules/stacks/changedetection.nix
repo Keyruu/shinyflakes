@@ -1,8 +1,12 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   my = config.services.my.changedetection;
 in
 {
+  imports = [ flake.modules.private.link-bypass ];
+
+  services.link-bypass.enable = true;
+
   services.my.changedetection = {
     port = 5000;
     domain = "changedetection.lab.keyruu.de";
