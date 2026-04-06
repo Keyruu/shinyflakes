@@ -76,6 +76,7 @@ in
             ];
             environments = {
               PAPERLESS_REDIS = "redis://${quadlet.alias containers.paperless-broker}:6379";
+              PAPERLESS_URL = "https://${my.domain}";
               USERMAP_UID = toString my.stack.user.uid;
               USERMAP_GID = toString my.stack.user.gid;
             };
