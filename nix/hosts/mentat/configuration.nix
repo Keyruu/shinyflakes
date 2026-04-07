@@ -15,6 +15,7 @@
     flake.modules.nixos.locale
     flake.modules.nixos.nginx
     flake.modules.nixos.podman
+    flake.modules.services.monitoring
     flake.modules.nixos.beszel-agent
     flake.modules.nixos.syncthing
 
@@ -46,6 +47,18 @@
   #   flake = "github:Keyruu/shinyflakes";
   #   interfaces = [ "eth0" ];
   # };
+
+  services.monitoring = {
+    metrics = {
+      enable = true;
+      interface = "eth0";
+    };
+    logs = {
+      enable = true;
+      instance = "127.0.0.1";
+      lokiAddress = "http://127.0.0.1:3030";
+    };
+  };
 
   hardware.cpu.amd.ryzen-smu.enable = true;
 

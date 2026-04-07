@@ -1,11 +1,5 @@
 { config, lib, ... }:
 {
-  services.cadvisor = {
-    enable = true;
-    port = 3022;
-    extraOptions = [ "--docker_only=false" ];
-  };
-
   services.prometheus = {
     enable = true;
     listenAddress = "127.0.0.1";
@@ -17,11 +11,6 @@
     globalConfig.scrape_interval = "15s";
 
     exporters = {
-      node = {
-        enable = true;
-        port = 3021;
-        enabledCollectors = [ "systemd" ];
-      };
       zfs = {
         enable = true;
         listenAddress = "127.0.0.1";
@@ -57,9 +46,6 @@
           };
           loki = {
             mentat = config.services.loki.configuration.server.http_listen_port;
-          };
-          promtail = {
-            mentat = config.services.promtail.configuration.server.http_listen_port;
           };
           smartctl = {
             mentat = config.services.prometheus.exporters.smartctl.port;

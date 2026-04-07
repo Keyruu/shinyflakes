@@ -24,7 +24,7 @@ in
       lokiAddress = lib.mkOption {
         type = lib.types.str;
         default = "http://";
-        description = "Loki adress to push logs to";
+        description = "Loki address to push logs to (http://host:port)";
       };
     };
   };
@@ -35,14 +35,6 @@ in
       config.services.cadvisor.port
       config.services.comin.exporter.port
     ];
-
-    users = {
-      groups.promtail = { };
-      users.promtail = {
-        isSystemUser = true;
-        group = "promtail";
-      };
-    };
 
     services = {
       cadvisor = {
@@ -69,34 +61,61 @@ in
         };
       };
 
-      promtail = lib.mkIf cfg.logs.enable {
+      fluent-bit = lib.mkIf cfg.logs.enable {
         enable = true;
-        configuration = {
-          # We have no need for the HTTP or GRPC server
-          server.disable = true;
-
-          clients = [ { url = "${cfg.logs.lokiAddress}/loki/api/v1/push"; } ];
-
-          scrape_configs = [
-            {
-              job_name = "journal";
-              journal = {
-                max_age = "12h";
-                labels = {
-                  job = "systemd-journal";
-                  hostname = config.networking.hostName;
-                  inherit (config.services.monitoring.logs) instance;
-                };
-              };
-
-              relabel_configs = [
+        settings = {
+          service = {
+            flush = 5;
+            log_level = "info";
+          };
+          pipeline = {
+            inputs = [
+              {
+                name = "systemd";
+                tag = "host.journal";
+                read_from_tail = true;
+              }
+            ];
+            filters = [
+              {
+                name = "modify";
+                match = "host.journal";
+                Copy = [ "_SYSTEMD_UNIT unit" ];
+                Add = [
+                  "job systemd-journal"
+                  "hostname ${config.networking.hostName}"
+                  "instance ${cfg.logs.instance}"
+                ];
+              }
+              {
+                name = "record_modifier";
+                match = "host.journal";
+                allowlist_key = [
+                  "MESSAGE"
+                  "unit"
+                  "job"
+                  "hostname"
+                  "instance"
+                ];
+              }
+            ];
+            outputs = [
+              (
+                let
+                  parts = builtins.match "http://([^:]+):([0-9]+)" cfg.logs.lokiAddress;
+                in
                 {
-                  source_labels = [ "__journal__systemd_unit" ];
-                  target_label = "unit";
+                  name = "loki";
+                  match = "*";
+                  host = builtins.elemAt parts 0;
+                  port = lib.toInt (builtins.elemAt parts 1);
+                  label_keys = "$hostname,$job,$unit,$instance";
+                  drop_single_key = "raw";
+                  line_format = "json";
                 }
-              ];
-            }
-          ];
+              )
+            ];
+          };
         };
       };
     };
