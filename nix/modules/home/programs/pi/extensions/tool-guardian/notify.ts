@@ -146,7 +146,7 @@ export async function selectWithNotification(
   options: string[],
   notifTitle: string,
   notifBody: string,
-  tuiOptions?: { timeout?: number },
+  tuiOptions?: { timeout?: number; signal?: AbortSignal },
 ): Promise<string | undefined> {
   const actions = options.map((label) => ({
     id: label.toLowerCase().replace(/\s+/g, "_"),
@@ -158,6 +158,19 @@ export async function selectWithNotification(
     ? null
     : notifyWithActions(notifTitle, notifBody, actions);
   const abortCtrl = new AbortController();
+
+  // If an external signal aborts, also abort our internal controller and kill notification
+  if (tuiOptions?.signal) {
+    if (tuiOptions.signal.aborted) {
+      abortCtrl.abort();
+      notif?.kill();
+    } else {
+      tuiOptions.signal.addEventListener("abort", () => {
+        abortCtrl.abort();
+        notif?.kill();
+      }, { once: true });
+    }
+  }
 
   type RaceResult =
     | { source: "tui"; choice: string | undefined }

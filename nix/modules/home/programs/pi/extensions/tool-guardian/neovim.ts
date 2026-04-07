@@ -4,6 +4,14 @@
  * Opens the proposed changes in a Neovim diff tab (embedded or
  * standalone) and lets the user Allow/Block. Supports `ai:` comments
  * for steering the agent from within the diff.
+ *
+ * In embedded mode, buffer-local keybinds are set on the proposed
+ * (right) pane:
+ *   ga — Allow (guardian-accept: saves edits, closes diff)
+ *   gx — Block (guardian-reject: closes diff, rejects change)
+ *
+ * The keybinds race against the TUI select dialog and desktop
+ * notification — whichever the user interacts with first wins.
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -16,6 +24,7 @@ import {
   readFileSync,
   existsSync,
   rmdirSync,
+  watch,
 } from "node:fs";
 import { resolve, basename, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -95,6 +104,39 @@ function handleUserEdits(
   };
 }
 
+// ── Decision file watcher ────────────────────────────────────────────
+
+function watchForDecision(
+  tmpDir: string,
+  decisionFile: string,
+): { promise: Promise<string>; cancel: () => void } {
+  let watcher: ReturnType<typeof watch> | null = null;
+  let cancelled = false;
+
+  const promise = new Promise<string>((resolve) => {
+    try {
+      watcher = watch(tmpDir, (_eventType, filename) => {
+        if (cancelled || filename !== "decision") return;
+        try {
+          const decision = readFileSync(decisionFile, "utf-8").trim();
+          if (decision) {
+            cancelled = true;
+            watcher?.close();
+            resolve(decision);
+          }
+        } catch {}
+      });
+    } catch {}
+  });
+
+  const cancel = () => {
+    cancelled = true;
+    try { watcher?.close(); } catch {}
+  };
+
+  return { promise, cancel };
+}
+
 // ── Diff review (embedded Neovim) ────────────────────────────────────
 
 async function reviewInEmbeddedNvim(
@@ -111,6 +153,24 @@ async function reviewInEmbeddedNvim(
 ): Promise<{ block: true; reason: string } | undefined> {
   const esc = (p: string) =>
     p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
+  const luaStr = (s: string) =>
+    s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+
+  const decisionFile = join(tmpDir, "decision");
+
+  // Lua keybind functions for allow/block
+  const luaAllowFn = [
+    `vim.cmd('w')`,
+    `vim.fn.writefile({'allow'},'${luaStr(decisionFile)}')`,
+    `vim.cmd('bwipeout! ${luaStr(currentFile)}')`,
+    `vim.cmd('bwipeout!')`,
+  ].join(" ");
+
+  const luaBlockFn = [
+    `vim.fn.writefile({'block'},'${luaStr(decisionFile)}')`,
+    `vim.cmd('bwipeout! ${luaStr(currentFile)}')`,
+    `vim.cmd('bwipeout!')`,
+  ].join(" ");
 
   nvimRemoteSend(nvimServer, [
     `<C-\\><C-n>`,
@@ -120,30 +180,59 @@ async function reviewInEmbeddedNvim(
     `:vsplit ${esc(proposedFile)}<CR>`,
     `:diffthis<CR>`,
     `:wincmd l<CR>`,
+    // Buffer-local keybinds on the proposed (editable) pane
+    `:lua vim.keymap.set('n','ga',function() ${luaAllowFn} end,{buffer=true,desc='Guardian: Allow'})<CR>`,
+    `:lua vim.keymap.set('n','gx',function() ${luaBlockFn} end,{buffer=true,desc='Guardian: Block'})<CR>`,
   ].join(""));
 
-  const choice = await selectWithNotification(
+  // Watch for decision from Neovim keybind
+  const { promise: nvimDecision, cancel: cancelWatch } =
+    watchForDecision(tmpDir, decisionFile);
+
+  // AbortController to cancel TUI select when Neovim keybind wins
+  const externalAbort = new AbortController();
+
+  type RaceResult =
+    | { source: "tui"; choice: string | undefined }
+    | { source: "nvim"; choice: string };
+
+  const tuiPromise: Promise<RaceResult> = selectWithNotification(
     ctx,
-    `${fileName} — diff opened in Neovim tab`,
+    `${fileName} — diff in Neovim  [ga = allow, gx = block]`,
     ["Allow", "Block"],
     `📝 pi: reviewing ${fileName}`,
     `Diff opened in Neovim — click to respond`,
-  );
+    { signal: externalAbort.signal },
+  ).then((choice) => ({ source: "tui" as const, choice }));
 
-  nvimRemoteSend(
-    nvimServer,
-    `<C-\\><C-n>:bwipeout! ${esc(currentFile)}<CR>:bwipeout! ${esc(proposedFile)}<CR>`,
-  );
+  const nvimPromise: Promise<RaceResult> = nvimDecision.then((decision) => ({
+    source: "nvim" as const,
+    choice: decision === "allow" ? "Allow" : "Block",
+  }));
 
-  if (choice === "Block" || choice === undefined) {
-    cleanup(tmpDir, currentFile, proposedFile);
+  const result = await Promise.race([tuiPromise, nvimPromise]);
+
+  // Cancel the loser
+  cancelWatch();
+  if (result.source === "nvim") {
+    externalAbort.abort();
+  } else {
+    // TUI/notification won — clean up Neovim buffers from Node side
+    nvimRemoteSend(
+      nvimServer,
+      `<C-\\><C-n>:bwipeout! ${esc(currentFile)}<CR>:bwipeout! ${esc(proposedFile)}<CR>`,
+    );
+  }
+
+  if (result.choice === "Block" || result.choice === undefined) {
+    cleanup(tmpDir, currentFile, proposedFile, decisionFile);
     ctx.abort();
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
   let afterContent = proposedContent;
   try { afterContent = readFileSync(proposedFile, "utf-8"); } catch {}
-  cleanup(tmpDir, currentFile, proposedFile);
+  cleanup(tmpDir, currentFile, proposedFile, decisionFile);
 
   return handleUserEdits(pi, afterContent, proposedContent, filePath, fileName, absolutePath);
 }
