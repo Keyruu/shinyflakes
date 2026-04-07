@@ -195,13 +195,6 @@
             require('jira').setup({})
           '';
       };
-      kubectl-nvim = {
-        package = perSystem.kubectl-nvim.default;
-        setup = # lua
-          ''
-            require('kubectl').setup({})
-          '';
-      };
     };
 
     startPlugins = with pkgs.vimPlugins; [

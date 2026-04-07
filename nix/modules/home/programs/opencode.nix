@@ -1,4 +1,4 @@
-{ flake, ... }:
+{ flake, perSystem, ... }:
 {
   imports = [
     flake.modules.private.opencode
@@ -6,6 +6,7 @@
 
   programs.opencode = {
     enable = true;
+    package = perSystem.llm-agents.opencode;
     settings = {
       permission = {
         edit = "ask";

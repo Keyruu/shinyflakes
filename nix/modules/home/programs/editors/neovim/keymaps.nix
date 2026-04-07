@@ -349,9 +349,10 @@ _: {
       }
     ];
     luaConfigRC = {
-      codeCompanionAbbreviation = # lua
+      cmdAbbreviations = # lua
         ''
           vim.cmd([[cab cc CodeCompanion]])
+          vim.cmd([[cab tc tabclose]])
         '';
       terminalInactiveBackground = # lua
         ''
@@ -374,7 +375,20 @@ _: {
             end
           end
 
+          -- Core window movement events
           vim.api.nvim_create_autocmd({ "WinEnter", "WinLeave", "TermOpen", "BufWinEnter" }, {
+            callback = update_terminal_highlights,
+          })
+
+          -- When a float/window closes, focus returns but WinEnter may not re-fire
+          -- for the already-focused window. Use vim.schedule since window state
+          -- isn't settled yet when WinClosed fires.
+          vim.api.nvim_create_autocmd({ "WinClosed" }, {
+            callback = function() vim.schedule(update_terminal_highlights) end,
+          })
+
+          -- Tab switches and focus changes
+          vim.api.nvim_create_autocmd({ "TabEnter", "FocusGained", "BufEnter" }, {
             callback = update_terminal_highlights,
           })
         '';

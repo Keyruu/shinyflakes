@@ -96,8 +96,7 @@ in
     uv
     pipx
     impala
-    codex
-    opencode
+    perSystem.llm-agents.codex
     biome
 
     # gui apps
