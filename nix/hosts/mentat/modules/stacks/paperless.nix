@@ -21,6 +21,10 @@ in
       '';
   };
 
+  systemd.tmpfiles.rules = [
+    "A+ /main/documents/consume - - - - default:user:paperless:rwx,default:mask::rwx"
+  ];
+
   services.my.paperless = {
     port = 8000;
     domain = "paperless.lab.keyruu.de";
@@ -40,9 +44,6 @@ in
       };
       directories = [
         "data"
-        "media"
-        "export"
-        "consume"
         {
           path = "redisdata";
           mode = "0750";
@@ -74,9 +75,9 @@ in
             publishPorts = [ "127.0.0.1:${toString my.port}:8000" ];
             volumes = [
               "${my.stack.path}/data:/usr/src/paperless/data"
-              "${my.stack.path}/media:/usr/src/paperless/media"
-              "${my.stack.path}/export:/usr/src/paperless/export"
-              "${my.stack.path}/consume:/usr/src/paperless/consume"
+              "/main/documents/media:/usr/src/paperless/media"
+              "/main/documents/export:/usr/src/paperless/export"
+              "/main/documents/consume:/usr/src/paperless/consume"
             ];
             environments = {
               PAPERLESS_REDIS = "redis://${quadlet.alias containers.paperless-broker}:6379";
