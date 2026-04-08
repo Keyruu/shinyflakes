@@ -162,14 +162,14 @@ async function reviewInEmbeddedNvim(
   const luaAllowFn = [
     `vim.cmd('w')`,
     `vim.fn.writefile({'allow'},'${luaStr(decisionFile)}')`,
-    `vim.cmd('bwipeout! ${luaStr(currentFile)}')`,
-    `vim.cmd('bwipeout!')`,
+    `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}')`,
+    `vim.cmd('noautocmd bwipeout!')`,
   ].join(" ");
 
   const luaBlockFn = [
     `vim.fn.writefile({'block'},'${luaStr(decisionFile)}')`,
-    `vim.cmd('bwipeout! ${luaStr(currentFile)}')`,
-    `vim.cmd('bwipeout!')`,
+    `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}')`,
+    `vim.cmd('noautocmd bwipeout!')`,
   ].join(" ");
 
   nvimRemoteSend(nvimServer, [
@@ -220,7 +220,7 @@ async function reviewInEmbeddedNvim(
     // TUI/notification won — clean up Neovim buffers from Node side
     nvimRemoteSend(
       nvimServer,
-      `<C-\\><C-n>:bwipeout! ${esc(currentFile)}<CR>:bwipeout! ${esc(proposedFile)}<CR>`,
+      `<C-\\><C-n>:noautocmd bwipeout! ${esc(currentFile)}<CR>:noautocmd bwipeout! ${esc(proposedFile)}<CR>`,
     );
   }
 

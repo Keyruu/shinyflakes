@@ -17,6 +17,7 @@ in
   ];
 
   sops.secrets.copypartyPassword = { };
+  sops.secrets.copypartyBrotherPassword = { };
 
   networking.firewall.interfaces = {
     "${config.services.mesh.interface}".allowedTCPPorts = [ config.services.copyparty.settings.p ];
@@ -62,6 +63,9 @@ in
         "root" = {
           passwordFile = config.sops.secrets.copypartyPassword.path;
         };
+        "brother" = {
+          passwordFile = config.sops.secrets.copypartyBrotherPassword.path;
+        };
       };
 
       volumes = {
@@ -75,6 +79,13 @@ in
           path = "/main/dav/public";
           access = {
             r = "*";
+            rwmd = [ "root" ];
+          };
+        };
+        "/documents" = {
+          path = "/main/documents";
+          access = {
+            rw = [ "brother" ];
             rwmd = [ "root" ];
           };
         };
