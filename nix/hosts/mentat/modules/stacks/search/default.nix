@@ -35,6 +35,7 @@ in
         gluetun = {
           containerConfig = {
             image = "ghcr.io/qdm12/gluetun:v3.41.1";
+            publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
             addCapabilities = [ "NET_ADMIN" ];
             devices = [ "/dev/net/tun:/dev/net/tun" ];
             environmentFiles = [ config.sops.secrets.searxngGluetunEnv.path ];
