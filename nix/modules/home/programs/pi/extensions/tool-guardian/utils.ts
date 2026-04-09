@@ -27,6 +27,50 @@ export type BlockResult = ToolCallEventResult & { block: true; reason: string };
 
 export const READ_ONLY_TOOLS = new Set(["read", "ls", "find", "grep"]);
 
+// ── Blocked file paths ───────────────────────────────────────────────
+
+/** Patterns for files the agent must never access. */
+const BLOCKED_PATH_PATTERNS: RegExp[] = [
+  // SOPS / secrets
+  /\/run\/secrets\b/,
+  /secrets\.ya?ml$/,
+  /\.sops\.ya?ml$/,
+  /sops[\w-]*\.age/i,
+
+  // Environment files with secrets (but not .example/.sample templates)
+  /\.env$/,
+  /\.env\.(?!example|sample|template)[\w.]+$/,
+
+  // SSH
+  /\.ssh\//,
+  /id_(rsa|ed25519|ecdsa|dsa)(\.pub)?$/,
+  /authorized_keys$/,
+  /known_hosts$/,
+
+  // GPG / age keys
+  /\.gnupg\//,
+  /\.age$/,
+
+  // Token / credential files
+  /\.netrc$/,
+  /\.git-credentials$/,
+  /\.npmrc$/,
+  /\.docker\/config\.json$/,
+];
+
+/**
+ * Check if a file path matches any blocked pattern.
+ * Returns the block reason or undefined if allowed.
+ */
+export function isBlockedPath(filePath: string): string | undefined {
+  for (const pattern of BLOCKED_PATH_PATTERNS) {
+    if (pattern.test(filePath)) {
+      return `Access to ${filePath} is blocked (matches secret/sensitive file pattern)`;
+    }
+  }
+  return undefined;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 /** Truncate a string for display, adding an ellipsis if needed. */

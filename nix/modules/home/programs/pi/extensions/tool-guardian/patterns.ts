@@ -20,6 +20,7 @@ export const DANGEROUS_PATTERNS: RegExp[] = [
   /\bjira\s+issue\s+create\b/i,
   /\bnix\s+profile\s+(install|remove|upgrade)\b/i,
   /\bsed\s+.*-i\b/i,
+  /\bsops\b/i,
   /\bmcporter\s+call\s+\S+\.\w*(create|update|delete|merge|transition|add_comment)\w*\(/i,
 ];
 

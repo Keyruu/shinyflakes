@@ -30,7 +30,7 @@ import { join } from "node:path";
 import { handleFileMutation } from "./neovim.ts";
 import { handleBash, handleUnknownTool } from "./bash.ts";
 import { sendNotification } from "./notify.ts";
-import { GuardMode, READ_ONLY_TOOLS } from "./utils.ts";
+import { GuardMode, isBlockedPath, READ_ONLY_TOOLS } from "./utils.ts";
 
 /**
  * Remove leftover `.pi-guardian-*` temp dirs from previous sessions
@@ -101,6 +101,16 @@ export default function (pi: ExtensionAPI) {
   // ── Main tool_call gate ──────────────────────────────────────────
 
   pi.on("tool_call", async (event, ctx) => {
+    // Tier 0: Block access to sensitive files (always, even in yolo)
+    const filePath =
+      "input" in event && typeof event.input === "object" && event.input !== null
+        ? (event.input as Record<string, unknown>).path
+        : undefined;
+    if (typeof filePath === "string") {
+      const blocked = isBlockedPath(filePath);
+      if (blocked) return { block: true, reason: blocked };
+    }
+
     if (mode === GuardMode.Yolo) return undefined;
     if (!ctx.hasUI) return undefined;
 

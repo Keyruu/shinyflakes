@@ -12,7 +12,7 @@ import type { ExtensionContext, ToolCallEvent } from "@mariozechner/pi-coding-ag
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 import { DANGEROUS_PATTERNS, SAFE_PATTERNS } from "./patterns.ts";
 import { selectWithNotification } from "./notify.ts";
-import { type BlockResult, ReviewAction, truncate } from "./utils.ts";
+import { type BlockResult, isBlockedPath, ReviewAction, truncate } from "./utils.ts";
 
 const TIMED_APPROVE_MS = 5000;
 
@@ -51,6 +51,10 @@ export async function handleBash(
 
   const command = event.input.command;
   const normalized = normalizeCommand(command);
+
+  // Check if the command references any blocked paths
+  const blockedReason = isBlockedPath(command);
+  if (blockedReason) return { block: true, reason: blockedReason };
 
   if (approvedCommands.has(normalized)) return undefined;
 
