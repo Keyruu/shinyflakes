@@ -62,11 +62,12 @@ in
               "${my.stack.path}/redisdata:/data"
             ];
             networkAliases = [ "broker" ];
+            addCapabilities = [
+              "SETUID"
+              "SETGID"
+            ];
           };
-          security = {
-            readOnlyRootFilesystem = false;
-            dropAllCapabilities = false;
-          };
+          security.readOnlyRootFilesystem = false;
         };
 
         webserver = {
@@ -91,12 +92,15 @@ in
             };
             environmentFiles = [ config.sops.templates."paperless.env".path ];
             networkAliases = [ "webserver" ];
+            addCapabilities = [
+              "SETUID"
+              "SETGID"
+              "CHOWN"
+              "FOWNER"
+            ];
           };
           dependsOn = [ "broker" ];
-          security = {
-            readOnlyRootFilesystem = false;
-            dropAllCapabilities = false;
-          };
+          security.readOnlyRootFilesystem = false;
         };
       };
     };
