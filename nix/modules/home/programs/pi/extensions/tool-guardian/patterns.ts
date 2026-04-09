@@ -15,10 +15,11 @@ export const DANGEROUS_PATTERNS: RegExp[] = [
   /\bshutdown\b/i,
   /\bsystemctl\s+(start|stop|restart|enable|disable)\b/i,
   /\bgit\s+push\b/i,
-  /\bgit\s+push\s+--force/i,
   /\bgh\s+pr\s+merge\b/i,
   /\bgh\s+pr\s+create\b/i,
   /\bjira\s+issue\s+create\b/i,
+  /\bnix\s+profile\s+(install|remove|upgrade)\b/i,
+  /\bsed\s+.*-i\b/i,
 ];
 
 /** Safe patterns that auto-run without any prompt */
@@ -53,7 +54,7 @@ export const SAFE_PATTERNS: RegExp[] = [
   /^\s*uniq(\s|$)/,
   /^\s*cut\s/,
   /^\s*awk\s/,
-  /^\s*sed\s.*['"]?s[/|]/,
+  /^\s*sed\s+(?!.*-i).*['"]?s[/|]/,
   /^\s*git\s+(status|log|diff|show|branch|tag|stash\s+list|remote\s+-v)\b/,
   /^\s*git\s+ls-/,
   /^\s*gh\s+(pr|issue)\s+(list|view|status)\b/,
@@ -82,4 +83,9 @@ export const SAFE_PATTERNS: RegExp[] = [
   /^\s*dirname\s/,
   /^\s*test\s/,
   /^\s*\[\s/,
+  /^\s*mkdir\s+(-p\s+)?/,
+  /^\s*pnpx\s+mcporter\s/,
+  /^\s*tsc\s/,
+  /^\s*notify-send\s/,
+  /^\s*nix\s+flake\s+(lock|update)\b/,
 ];

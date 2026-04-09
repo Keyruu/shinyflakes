@@ -6,3 +6,4 @@ result
 .stfolder
 .terraform
 .terraform.lock.hcl
+.pi-guardian-*

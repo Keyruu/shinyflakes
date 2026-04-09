@@ -9,7 +9,9 @@
  * as a safe default on unsupported compositors.
  */
 
+import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { spawn, spawnSync } from "node:child_process";
+import { FOCUS_ACTIONS } from "./utils.ts";
 
 // ── Focus detection ──────────────────────────────────────────────────
 
@@ -50,14 +52,20 @@ function findTerminalPid(): number | null {
   return null;
 }
 
+/** Lazily resolve and cache the terminal PID. */
+function ensureTerminalPid(): number | null {
+  if (cachedTerminalPid === undefined) {
+    cachedTerminalPid = findTerminalPid();
+  }
+  return cachedTerminalPid;
+}
+
 /**
  * Check if the terminal running pi is currently the focused window.
  */
 export function isTerminalFocused(): boolean {
-  if (cachedTerminalPid === undefined) {
-    cachedTerminalPid = findTerminalPid();
-  }
-  if (cachedTerminalPid === null) return false;
+  const pid = ensureTerminalPid();
+  if (pid === null) return false;
 
   try {
     const result = spawnSync("niri", ["msg", "focused-window"], {
@@ -66,39 +74,54 @@ export function isTerminalFocused(): boolean {
       timeout: 500,
     });
     const pidMatch = (result.stdout ?? "").match(/PID:\s*(\d+)/);
-    if (pidMatch) {
-      return parseInt(pidMatch[1], 10) === cachedTerminalPid;
+    if (pidMatch?.[1]) {
+      return parseInt(pidMatch[1], 10) === pid;
     }
   } catch {}
   return false;
 }
 
-// ── Desktop notification with actions ────────────────────────────────
-
-interface NotifyHandle {
-  promise: Promise<string>;
-  kill: () => void;
-}
+// ── Focus terminal window ────────────────────────────────────────────
 
 /**
- * Send a desktop notification with clickable action buttons.
- *
- * Uses `notify-send --action` which blocks until an action is clicked
- * or the notification is dismissed. The promise resolves ONLY on click;
- * on dismiss it stays pending so it can never win a Promise.race.
+ * Focus the terminal window running pi via niri compositor.
+ * Finds the niri window ID by matching the cached terminal PID.
  */
-function notifyWithActions(
-  title: string,
-  body: string,
-  actions: { id: string; label: string }[],
-): NotifyHandle {
-  const args = [
-    "--app-name=pi",
-    ...actions.flatMap((a) => ["--action", `${a.id}=${a.label}`]),
-    title,
-    body,
-  ];
+export function focusTerminal(): void {
+  const pid = ensureTerminalPid();
+  if (pid === null) return;
 
+  try {
+    const result = spawnSync("niri", ["msg", "windows"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 500,
+    });
+    const blocks = (result.stdout ?? "").split(/(?=^Window ID )/m);
+    for (const block of blocks) {
+      const pidMatch = block.match(/PID:\s*(\d+)/);
+      const idMatch = block.match(/^Window ID\s+(\d+)/);
+      if (pidMatch?.[1] && idMatch?.[1] && parseInt(pidMatch[1], 10) === pid) {
+        spawn("niri", ["msg", "action", "focus-window", "--id", idMatch[1]], {
+          stdio: "ignore",
+        });
+        return;
+      }
+    }
+  } catch {}
+}
+
+// ── Notification helpers ─────────────────────────────────────────────
+
+/**
+ * Spawn `notify-send` and collect its stdout. Returns a promise that
+ * resolves with the action ID when the user clicks, or never resolves
+ * on dismiss. Also exposes `kill()` to cancel early.
+ */
+function spawnNotifySend(args: string[]): {
+  promise: Promise<string>;
+  kill: () => void;
+} {
   const proc = spawn("notify-send", args, {
     stdio: ["ignore", "pipe", "ignore"],
   });
@@ -119,15 +142,64 @@ function notifyWithActions(
   return { promise, kill: () => proc.kill() };
 }
 
+// ── Desktop notification with actions ────────────────────────────────
+
+interface NotifyHandle {
+  promise: Promise<string>;
+  kill: () => void;
+}
+
+/**
+ * Send a desktop notification with clickable action buttons.
+ *
+ * Uses `notify-send --action` which blocks until an action is clicked
+ * or the notification is dismissed. The promise resolves ONLY on click;
+ * on dismiss it stays pending so it can never win a Promise.race.
+ *
+ * A `default` action is included so clicking the notification body
+ * focuses the terminal without selecting any action.
+ */
+function notifyWithActions(
+  title: string,
+  body: string,
+  actions: { id: string; label: string }[],
+): NotifyHandle {
+  const args = [
+    "--app-name=pi",
+    "--action", "default=Focus",
+    ...actions.flatMap((a) => ["--action", `${a.id}=${a.label}`]),
+    title,
+    body,
+  ];
+
+  const { promise: rawPromise, kill } = spawnNotifySend(args);
+
+  const promise = new Promise<string>((resolve) => {
+    rawPromise.then((action) => {
+      if (action === "default") {
+        focusTerminal();
+      } else {
+        resolve(action);
+      }
+    });
+  });
+
+  return { promise, kill };
+}
+
 /**
  * Send a simple (non-interactive) desktop notification.
- * Only shown when the terminal is not focused.
+ * Only shown when the terminal is not focused. Clicking the
+ * notification body focuses the terminal.
  */
 export function sendNotification(title: string, body: string): void {
   if (isTerminalFocused()) return;
   try {
-    spawn("notify-send", ["--app-name=pi", title, body], {
-      stdio: "ignore",
+    const { promise } = spawnNotifySend([
+      "--app-name=pi", "--action", "default=Focus", title, body,
+    ]);
+    promise.then((action) => {
+      if (action === "default") focusTerminal();
     });
   } catch {}
 }
@@ -141,7 +213,7 @@ export function sendNotification(title: string, body: string): void {
  * When the terminal is focused the notification is skipped entirely.
  */
 export async function selectWithNotification(
-  ctx: any,
+  ctx: ExtensionContext,
   tuiTitle: string,
   options: string[],
   notifTitle: string,
@@ -196,6 +268,7 @@ export async function selectWithNotification(
     if (result.source === "tui") {
       notif.kill();
     } else {
+      if (FOCUS_ACTIONS.has(result.choice ?? "")) focusTerminal();
       abortCtrl.abort();
     }
 

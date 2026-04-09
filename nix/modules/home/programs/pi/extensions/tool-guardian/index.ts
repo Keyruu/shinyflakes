@@ -25,17 +25,49 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { readdirSync, rmdirSync, unlinkSync } from "node:fs";
+import { join } from "node:path";
 import { handleFileMutation } from "./neovim.ts";
 import { handleBash, handleUnknownTool } from "./bash.ts";
 import { sendNotification } from "./notify.ts";
+import { GuardMode, READ_ONLY_TOOLS } from "./utils.ts";
 
-type GuardMode = "guarded" | "yolo";
+/**
+ * Remove leftover `.pi-guardian-*` temp dirs from previous sessions
+ * that may not have been cleaned up (e.g. crash mid-review).
+ */
+function cleanupStaleTmpDirs(cwd: string): void {
+  try {
+    const scan = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (entry.isDirectory() && entry.name.startsWith(".pi-guardian-")) {
+          const tmpDir = join(dir, entry.name);
+          try {
+            for (const f of readdirSync(tmpDir)) {
+              try { unlinkSync(join(tmpDir, f)); } catch {}
+            }
+            rmdirSync(tmpDir);
+          } catch {}
+        }
+      }
+    };
+    scan(cwd);
+    // Also scan subdirectories one level deep (where most edits happen)
+    for (const entry of readdirSync(cwd, { withFileTypes: true })) {
+      if (entry.isDirectory() && !entry.name.startsWith(".")) {
+        try { scan(join(cwd, entry.name)); } catch {}
+      }
+    }
+  } catch {}
+}
 
 export default function (pi: ExtensionAPI) {
-  let mode: GuardMode = "guarded";
+  let mode = GuardMode.Guarded;
   const approvedCommands = new Set<string>();
+  const approvedTools = new Set<string>();
 
   pi.on("session_start", async (_event, ctx) => {
+    cleanupStaleTmpDirs(ctx.cwd);
     ctx.ui.notify("Tool guardian loaded (guarded mode)", "info");
   });
 
@@ -44,8 +76,8 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("guardian", {
     description: "Cycle guardian mode: guarded → yolo → guarded",
     handler: async (_args, ctx) => {
-      mode = mode === "guarded" ? "yolo" : "guarded";
-      const emoji = mode === "guarded" ? "🛡️" : "🤠";
+      mode = mode === GuardMode.Guarded ? GuardMode.Yolo : GuardMode.Guarded;
+      const emoji = mode === GuardMode.Guarded ? "🛡️" : "🤠";
       ctx.ui.notify(`${emoji} Guardian: ${mode} mode`, "info");
     },
   });
@@ -53,31 +85,27 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("guardian-clear", {
     description: "Clear remembered bash approvals for this session",
     handler: async (_args, ctx) => {
-      const count = approvedCommands.size;
+      const count = approvedCommands.size + approvedTools.size;
       approvedCommands.clear();
+      approvedTools.clear();
       ctx.ui.notify(`Cleared ${count} remembered approvals`, "info");
     },
   });
 
   // ── Agent done notification ──────────────────────────────────────
 
-  pi.on("agent_end", async (_event, ctx) => {
+  pi.on("agent_end", async (_event, _ctx) => {
     sendNotification("pi", "Agent finished processing");
   });
 
   // ── Main tool_call gate ──────────────────────────────────────────
 
   pi.on("tool_call", async (event, ctx) => {
-    if (mode === "yolo") return undefined;
+    if (mode === GuardMode.Yolo) return undefined;
     if (!ctx.hasUI) return undefined;
 
     // Tier 1: Auto-allow read-only tools
-    if (
-      event.toolName === "read" ||
-      event.toolName === "ls" ||
-      event.toolName === "find" ||
-      event.toolName === "grep"
-    ) {
+    if (READ_ONLY_TOOLS.has(event.toolName)) {
       return undefined;
     }
 
@@ -92,6 +120,6 @@ export default function (pi: ExtensionAPI) {
     }
 
     // Unknown tools: timed approve
-    return handleUnknownTool(event, ctx);
+    return handleUnknownTool(event, ctx, approvedTools);
   });
 }

@@ -14,7 +14,7 @@
  * notification — whichever the user interacts with first wins.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext, ToolCallEvent } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 import { spawnSync } from "node:child_process";
 import {
@@ -27,8 +27,8 @@ import {
   watch,
 } from "node:fs";
 import { resolve, basename, join } from "node:path";
-import { tmpdir } from "node:os";
 import { selectWithNotification } from "./notify.ts";
+import { type BlockResult, ReviewAction } from "./utils.ts";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -81,7 +81,7 @@ function handleUserEdits(
   filePath: string,
   fileName: string,
   absolutePath: string,
-): { block: true; reason: string } | undefined {
+): BlockResult | undefined {
   if (afterContent === proposedContent) return undefined;
 
   writeFileSync(absolutePath, afterContent, "utf-8");
@@ -141,7 +141,7 @@ function watchForDecision(
 
 async function reviewInEmbeddedNvim(
   pi: ExtensionAPI,
-  ctx: any,
+  ctx: ExtensionContext,
   nvimServer: string,
   filePath: string,
   fileName: string,
@@ -150,7 +150,7 @@ async function reviewInEmbeddedNvim(
   tmpDir: string,
   currentFile: string,
   proposedFile: string,
-): Promise<{ block: true; reason: string } | undefined> {
+): Promise<BlockResult | undefined> {
   const esc = (p: string) =>
     p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
   const luaStr = (s: string) =>
@@ -159,17 +159,26 @@ async function reviewInEmbeddedNvim(
   const decisionFile = join(tmpDir, "decision");
 
   // Lua keybind functions for allow/block
+  // Wrap bwipeout in vim.schedule so highlight-undo callbacks
+  // run before the buffer is destroyed (avoids "Invalid buffer id")
+  const scheduleWipe = (bufs: string) =>
+    `vim.schedule(function() ${bufs} end)`;
+
   const luaAllowFn = [
     `vim.cmd('w')`,
     `vim.fn.writefile({'allow'},'${luaStr(decisionFile)}')`,
-    `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}')`,
-    `vim.cmd('noautocmd bwipeout!')`,
+    scheduleWipe(
+      `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}') ` +
+      `vim.cmd('noautocmd bwipeout!')`
+    ),
   ].join(" ");
 
   const luaBlockFn = [
     `vim.fn.writefile({'block'},'${luaStr(decisionFile)}')`,
-    `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}')`,
-    `vim.cmd('noautocmd bwipeout!')`,
+    scheduleWipe(
+      `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}') ` +
+      `vim.cmd('noautocmd bwipeout!')`
+    ),
   ].join(" ");
 
   nvimRemoteSend(nvimServer, [
@@ -199,15 +208,15 @@ async function reviewInEmbeddedNvim(
   const tuiPromise: Promise<RaceResult> = selectWithNotification(
     ctx,
     `${fileName} — diff in Neovim  [ga = allow, gx = block]`,
-    ["Allow", "Block"],
+    [ReviewAction.Allow, ReviewAction.Block],
     `📝 pi: reviewing ${fileName}`,
-    `Diff opened in Neovim — click to respond`,
+    `${filePath} — diff opened in Neovim`,
     { signal: externalAbort.signal },
   ).then((choice) => ({ source: "tui" as const, choice }));
 
   const nvimPromise: Promise<RaceResult> = nvimDecision.then((decision) => ({
     source: "nvim" as const,
-    choice: decision === "allow" ? "Allow" : "Block",
+    choice: decision === "allow" ? ReviewAction.Allow : ReviewAction.Block,
   }));
 
   const result = await Promise.race([tuiPromise, nvimPromise]);
@@ -220,11 +229,11 @@ async function reviewInEmbeddedNvim(
     // TUI/notification won — clean up Neovim buffers from Node side
     nvimRemoteSend(
       nvimServer,
-      `<C-\\><C-n>:noautocmd bwipeout! ${esc(currentFile)}<CR>:noautocmd bwipeout! ${esc(proposedFile)}<CR>`,
+      `<C-\\><C-n>:lua vim.schedule(function() vim.cmd('noautocmd bwipeout! ${esc(currentFile)}') vim.cmd('noautocmd bwipeout! ${esc(proposedFile)}') end)<CR>`,
     );
   }
 
-  if (result.choice === "Block" || result.choice === undefined) {
+  if (result.choice === ReviewAction.Block || result.choice === undefined) {
     cleanup(tmpDir, currentFile, proposedFile, decisionFile);
     ctx.abort();
     return { block: true, reason: "Blocked by user after reviewing diff" };
@@ -241,7 +250,7 @@ async function reviewInEmbeddedNvim(
 
 async function reviewInStandaloneNvim(
   pi: ExtensionAPI,
-  ctx: any,
+  ctx: ExtensionContext,
   filePath: string,
   fileName: string,
   absolutePath: string,
@@ -249,7 +258,7 @@ async function reviewInStandaloneNvim(
   tmpDir: string,
   currentFile: string,
   proposedFile: string,
-): Promise<{ block: true; reason: string } | undefined> {
+): Promise<BlockResult | undefined> {
   spawnSync(
     "nvim",
     [
@@ -271,12 +280,12 @@ async function reviewInStandaloneNvim(
   const choice = await selectWithNotification(
     ctx,
     `${fileName}`,
-    ["Allow", "Block"],
+    [ReviewAction.Allow, ReviewAction.Block],
     `📝 pi: reviewing ${fileName}`,
-    `Diff review complete — click to respond`,
+    `${filePath} — diff review complete`,
   );
 
-  if (choice === "Block" || choice === undefined) {
+  if (choice === ReviewAction.Block || choice === undefined) {
     ctx.abort();
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
@@ -288,9 +297,9 @@ async function reviewInStandaloneNvim(
 
 export async function handleFileMutation(
   pi: ExtensionAPI,
-  event: any,
-  ctx: any,
-): Promise<{ block: true; reason: string } | undefined> {
+  event: ToolCallEvent,
+  ctx: ExtensionContext,
+): Promise<BlockResult | undefined> {
   let filePath: string;
   let originalContent = "";
   let proposedContent: string;
@@ -318,7 +327,9 @@ export async function handleFileMutation(
   const fileName = basename(filePath);
   const absolutePath = resolve(ctx.cwd, filePath);
 
-  const tmpDir = mkdtempSync(join(tmpdir(), "pi-guardian-"));
+  // Create temp dir next to the actual file so LSP can find tsconfig/project config
+  const fileDir = resolve(ctx.cwd, filePath, "..");
+  const tmpDir = mkdtempSync(join(fileDir, ".pi-guardian-"));
   const currentFile = join(tmpDir, `current_${fileName}`);
   const proposedFile = join(tmpDir, `proposed_${fileName}`);
   writeFileSync(currentFile, originalContent, "utf-8");

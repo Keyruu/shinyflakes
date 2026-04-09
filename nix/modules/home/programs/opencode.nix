@@ -39,6 +39,21 @@
           type = "remote";
           url = "https://mcp.grep.app";
         };
+        home-assistant = {
+          type = "stdio";
+          command = "docker";
+          args = [
+            "run"
+            "--rm"
+            "-i"
+            "-e"
+            "HOMEASSISTANT_URL=https://hass.peeraten.net"
+            "-e"
+            "HOMEASSISTANT_TOKEN={env:HASS_KEY}"
+            "ghcr.io/homeassistant-ai/ha-mcp:latest"
+          ];
+          enabled = true;
+        };
       };
       plugin = [ "@mohak34/opencode-notifier@latest" ];
       provider = {

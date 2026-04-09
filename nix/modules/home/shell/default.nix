@@ -32,6 +32,7 @@ in
     jiraToken = { };
     datadogApiKeyMp = { };
     datadogAppKeyMp = { };
+    hassKey = { };
   };
   sops.templates."shell.env".content = ''
     OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
@@ -46,6 +47,7 @@ in
     JIRA_API_TOKEN=${config.sops.placeholder.jiraToken}
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
+    HASS_KEY=${config.sops.placeholder.hassKey}
   '';
 
   home.sessionVariables = {
