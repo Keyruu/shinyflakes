@@ -20,6 +20,7 @@ export const DANGEROUS_PATTERNS: RegExp[] = [
   /\bjira\s+issue\s+create\b/i,
   /\bnix\s+profile\s+(install|remove|upgrade)\b/i,
   /\bsed\s+.*-i\b/i,
+  /\bmcporter\s+call\s+\S+\.\w*(create|update|delete|merge|transition|add_comment)\w*\(/i,
 ];
 
 /** Safe patterns that auto-run without any prompt */
@@ -84,7 +85,7 @@ export const SAFE_PATTERNS: RegExp[] = [
   /^\s*test\s/,
   /^\s*\[\s/,
   /^\s*mkdir\s+(-p\s+)?/,
-  /^\s*pnpx\s+mcporter\s/,
+  /^\s*pnpx\s+mcporter\s+(call\s+\S+\.[\w-]*(search|list|get|read|view|query|resolve|status|pick|docs)[\w-]*\(|(?!call))/i,
   /^\s*tsc\s/,
   /^\s*notify-send\s/,
   /^\s*nix\s+flake\s+(lock|update)\b/,
