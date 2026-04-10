@@ -24,11 +24,11 @@
  *   /guardian-clear — Clear the session approval memory
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { readdirSync, rmdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
-import { handleFileMutation } from "./neovim.ts";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { handleBash, handleUnknownTool } from "./bash.ts";
+import { handleFileMutation } from "./neovim.ts";
 import { sendNotification } from "./notify.ts";
 import { GuardMode, isBlockedPath, READ_ONLY_TOOLS } from "./utils.ts";
 
@@ -44,7 +44,9 @@ function cleanupStaleTmpDirs(cwd: string): void {
           const tmpDir = join(dir, entry.name);
           try {
             for (const f of readdirSync(tmpDir)) {
-              try { unlinkSync(join(tmpDir, f)); } catch {}
+              try {
+                unlinkSync(join(tmpDir, f));
+              } catch {}
             }
             rmdirSync(tmpDir);
           } catch {}
@@ -55,14 +57,16 @@ function cleanupStaleTmpDirs(cwd: string): void {
     // Also scan subdirectories one level deep (where most edits happen)
     for (const entry of readdirSync(cwd, { withFileTypes: true })) {
       if (entry.isDirectory() && !entry.name.startsWith(".")) {
-        try { scan(join(cwd, entry.name)); } catch {}
+        try {
+          scan(join(cwd, entry.name));
+        } catch {}
       }
     }
   } catch {}
 }
 
 export default function (pi: ExtensionAPI) {
-  let mode = GuardMode.Guarded;
+  let mode: GuardMode = GuardMode.Guarded;
   const approvedCommands = new Set<string>();
   const approvedTools = new Set<string>();
 

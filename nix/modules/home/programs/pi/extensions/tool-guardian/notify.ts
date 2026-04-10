@@ -9,63 +9,50 @@
  * as a safe default on unsupported compositors.
  */
 
-import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { spawn, spawnSync } from "node:child_process";
+import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { FOCUS_ACTIONS } from "./utils.ts";
 
-// ── Focus detection ──────────────────────────────────────────────────
-
-/** Cached terminal PID — found once by walking up the process tree */
-let cachedTerminalPid: number | null | undefined = undefined;
-
-const KNOWN_TERMINALS = new Set([
-  "alacritty", ".alacritty-wr",
-  "foot", "kitty", "wezterm", "wezterm-gui",
-  "gnome-terminal", "konsole", "xterm",
-]);
+// ── Window identification ─────────────────────────────────────────────
 
 /**
- * Walk up the process tree from the current process to find the
- * terminal emulator PID (e.g. Alacritty, foot, kitty).
+ * Cached niri window ID for the terminal running pi.
+ *
+ * Resolved once on first use by checking which window is currently
+ * focused (pi is always launched from a focused terminal). This
+ * avoids PID-based matching which breaks with terminals like
+ * Alacritty that share a single PID across all windows.
  */
-function findTerminalPid(): number | null {
+let cachedWindowId: string | null | undefined;
+
+/** Find the niri window ID of the currently focused window. */
+function findFocusedWindowId(): string | null {
   try {
-    let pid = process.ppid;
-    for (let i = 0; i < 20; i++) {
-      const ppidOut = spawnSync("ps", ["-o", "ppid=", "-p", String(pid)], {
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      const commOut = spawnSync("ps", ["-o", "comm=", "-p", String(pid)], {
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-
-      const comm = commOut.stdout?.trim().toLowerCase() ?? "";
-      if (KNOWN_TERMINALS.has(comm)) return pid;
-
-      const ppid = parseInt(ppidOut.stdout?.trim() ?? "", 10);
-      if (!ppid || ppid === pid || ppid <= 1) break;
-      pid = ppid;
-    }
+    const result = spawnSync("niri", ["msg", "focused-window"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 500,
+    });
+    const idMatch = (result.stdout ?? "").match(/^Window ID\s+(\d+)/m);
+    return idMatch?.[1] ?? null;
   } catch {}
   return null;
 }
 
-/** Lazily resolve and cache the terminal PID. */
-function ensureTerminalPid(): number | null {
-  if (cachedTerminalPid === undefined) {
-    cachedTerminalPid = findTerminalPid();
+/** Lazily resolve and cache the niri window ID. */
+function ensureWindowId(): string | null {
+  if (cachedWindowId === undefined) {
+    cachedWindowId = findFocusedWindowId();
   }
-  return cachedTerminalPid;
+  return cachedWindowId;
 }
 
 /**
  * Check if the terminal running pi is currently the focused window.
  */
 export function isTerminalFocused(): boolean {
-  const pid = ensureTerminalPid();
-  if (pid === null) return false;
+  const windowId = ensureWindowId();
+  if (windowId === null) return false;
 
   try {
     const result = spawnSync("niri", ["msg", "focused-window"], {
@@ -73,10 +60,8 @@ export function isTerminalFocused(): boolean {
       stdio: ["ignore", "pipe", "ignore"],
       timeout: 500,
     });
-    const pidMatch = (result.stdout ?? "").match(/PID:\s*(\d+)/);
-    if (pidMatch?.[1]) {
-      return parseInt(pidMatch[1], 10) === pid;
-    }
+    const idMatch = (result.stdout ?? "").match(/^Window ID\s+(\d+)/m);
+    return idMatch?.[1] === windowId;
   } catch {}
   return false;
 }
@@ -85,30 +70,15 @@ export function isTerminalFocused(): boolean {
 
 /**
  * Focus the terminal window running pi via niri compositor.
- * Finds the niri window ID by matching the cached terminal PID.
+ * Uses the cached niri window ID.
  */
 export function focusTerminal(): void {
-  const pid = ensureTerminalPid();
-  if (pid === null) return;
+  const windowId = ensureWindowId();
+  if (windowId === null) return;
 
-  try {
-    const result = spawnSync("niri", ["msg", "windows"], {
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "ignore"],
-      timeout: 500,
-    });
-    const blocks = (result.stdout ?? "").split(/(?=^Window ID )/m);
-    for (const block of blocks) {
-      const pidMatch = block.match(/PID:\s*(\d+)/);
-      const idMatch = block.match(/^Window ID\s+(\d+)/);
-      if (pidMatch?.[1] && idMatch?.[1] && parseInt(pidMatch[1], 10) === pid) {
-        spawn("niri", ["msg", "action", "focus-window", "--id", idMatch[1]], {
-          stdio: "ignore",
-        });
-        return;
-      }
-    }
-  } catch {}
+  spawn("niri", ["msg", "action", "focus-window", "--id", windowId], {
+    stdio: "ignore",
+  });
 }
 
 // ── Notification helpers ─────────────────────────────────────────────
@@ -166,7 +136,8 @@ function notifyWithActions(
 ): NotifyHandle {
   const args = [
     "--app-name=pi",
-    "--action", "default=Focus",
+    "--action",
+    "default=Focus",
     ...actions.flatMap((a) => ["--action", `${a.id}=${a.label}`]),
     title,
     body,
@@ -196,7 +167,11 @@ export function sendNotification(title: string, body: string): void {
   if (isTerminalFocused()) return;
   try {
     const { promise } = spawnNotifySend([
-      "--app-name=pi", "--action", "default=Focus", title, body,
+      "--app-name=pi",
+      "--action",
+      "default=Focus",
+      title,
+      body,
     ]);
     promise.then((action) => {
       if (action === "default") focusTerminal();
@@ -226,9 +201,7 @@ export async function selectWithNotification(
   }));
   const idToLabel = new Map(actions.map((a, i) => [a.id, options[i]]));
 
-  const notif = isTerminalFocused()
-    ? null
-    : notifyWithActions(notifTitle, notifBody, actions);
+  const notif = isTerminalFocused() ? null : notifyWithActions(notifTitle, notifBody, actions);
   const abortCtrl = new AbortController();
 
   // If an external signal aborts, also abort our internal controller and kill notification
@@ -237,10 +210,14 @@ export async function selectWithNotification(
       abortCtrl.abort();
       notif?.kill();
     } else {
-      tuiOptions.signal.addEventListener("abort", () => {
-        abortCtrl.abort();
-        notif?.kill();
-      }, { once: true });
+      tuiOptions.signal.addEventListener(
+        "abort",
+        () => {
+          abortCtrl.abort();
+          notif?.kill();
+        },
+        { once: true },
+      );
     }
   }
 
@@ -256,12 +233,10 @@ export async function selectWithNotification(
     }));
 
   if (notif) {
-    const notifPromise: Promise<RaceResult> = notif.promise.then(
-      (actionId: string) => ({
-        source: "notif" as const,
-        choice: idToLabel.get(actionId),
-      }),
-    );
+    const notifPromise: Promise<RaceResult> = notif.promise.then((actionId: string) => ({
+      source: "notif" as const,
+      choice: idToLabel.get(actionId),
+    }));
 
     const result = await Promise.race([tuiPromise, notifPromise]);
 

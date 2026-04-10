@@ -10,8 +10,8 @@
 
 import type { ExtensionContext, ToolCallEvent } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
-import { DANGEROUS_PATTERNS, SAFE_PATTERNS } from "./patterns.ts";
 import { selectWithNotification } from "./notify.ts";
+import { DANGEROUS_PATTERNS, SAFE_PATTERNS } from "./patterns.ts";
 import { type BlockResult, isBlockedPath, ReviewAction, truncate } from "./utils.ts";
 
 const TIMED_APPROVE_MS = 5000;
@@ -72,7 +72,13 @@ export async function handleBash(
       truncate(command, 200),
     );
 
-    return resolveChoice(choice, ctx, normalized, approvedCommands, "Dangerous command blocked by user");
+    return resolveChoice(
+      choice,
+      ctx,
+      normalized,
+      approvedCommands,
+      "Dangerous command blocked by user",
+    );
   }
 
   // Everything else: timed auto-approve
@@ -104,5 +110,11 @@ export async function handleUnknownTool(
     { timeout: TIMED_APPROVE_MS },
   );
 
-  return resolveChoice(choice, ctx, event.toolName, approvedTools, `${event.toolName} blocked by user`);
+  return resolveChoice(
+    choice,
+    ctx,
+    event.toolName,
+    approvedTools,
+    `${event.toolName} blocked by user`,
+  );
 }
