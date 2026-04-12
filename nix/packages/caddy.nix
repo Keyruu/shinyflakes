@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
-  corazaCaddyVersion = "v2.4.0";
+  corazaCaddyVersion = "v2.5.0";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
   caddySecurityVersion = "v1.1.61";
 in
@@ -10,5 +10,5 @@ pkgs.caddy.withPlugins {
     "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
     "github.com/greenpau/caddy-security@${caddySecurityVersion}"
   ];
-  hash = "sha256-Qq3wOThNiS05+S/9ByfGt/L7uAwkcEBHND5NySTjgBU=";
+  hash = "sha256-jjGzAL80XD80Zpk2P5m7+W8alQiRCoStvpsJPnGlTbY=";
 }
