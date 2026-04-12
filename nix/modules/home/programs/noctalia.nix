@@ -146,7 +146,7 @@ in
               maxTextLength.horizontal = 43;
             }
             {
-              id = "WiFi";
+              id = "Network";
             }
             {
               id = "Bluetooth";

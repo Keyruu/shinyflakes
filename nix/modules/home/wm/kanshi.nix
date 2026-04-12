@@ -2,7 +2,7 @@
 {
   services.kanshi = {
     enable = true;
-    systemdTarget = "niri.service";
+    systemdTarget = "";
     settings =
       let
         moveToMonitor =

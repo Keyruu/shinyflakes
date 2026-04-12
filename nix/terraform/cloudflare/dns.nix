@@ -110,6 +110,10 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
+        "*.tunnel" = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
       };
     };
 

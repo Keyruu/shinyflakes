@@ -7,5 +7,6 @@
     ./proxy.nix
     ./webpages.nix
     ./cockpit.nix
+    ./frp.nix
   ];
 }
