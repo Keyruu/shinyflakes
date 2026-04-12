@@ -14,26 +14,34 @@ perSystem.pog.pog.pog {
     }
     {
       name = "subdomain";
-      short = "s";
+      short = "d";
       description = "subdomain (result: <subdomain>.tunnel.peeraten.net)";
       required = true;
       argument = "NAME";
     }
     {
       name = "server";
-      description = "frp server address";
-      default = "100.67.0.1:7000";
+      description = "frp server host";
+      default = "100.67.0.1";
       argument = "ADDR";
     }
     {
+      name = "server-port";
+      short = "P";
+      description = "frp server port";
+      default = "7000";
+      argument = "PORT";
+    }
+    {
       name = "token-file";
-      short = "t";
+      short = "f";
       description = "path to file containing frp auth token";
       default = "";
       argument = "FILE";
     }
     {
       name = "token";
+      short = "t";
       description = "frp auth token (prefer --token-file)";
       default = "";
       argument = "TOKEN";
@@ -45,14 +53,12 @@ perSystem.pog.pog.pog {
       die "Either --token or --token-file is required"
     fi
 
-    AUTH_ARGS=""
+    TOKEN_VALUE="$token"
     if [ -n "$token_file" ]; then
       if [ ! -f "$token_file" ]; then
         die "Token file not found: $token_file"
       fi
-      AUTH_ARGS="--token-source file --token-source-file-path $token_file"
-    else
-      AUTH_ARGS="--token $token"
+      TOKEN_VALUE=$(cat "$token_file")
     fi
 
     blue "Exposing localhost:$port → https://$subdomain.tunnel.peeraten.net"
@@ -60,8 +66,10 @@ perSystem.pog.pog.pog {
 
     ${pkgs.frp}/bin/frpc http \
       --server-addr "$server" \
-      $AUTH_ARGS \
+      --server-port "$server_port" \
+      --token "$TOKEN_VALUE" \
+      --proxy-name "$subdomain" \
       --local-port "$port" \
-      --subdomain "$subdomain"
+      --sd "$subdomain"
   '';
 }

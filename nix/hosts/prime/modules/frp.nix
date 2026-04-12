@@ -4,6 +4,8 @@
     restartUnits = [ "frp.service" ];
   };
 
+  networking.firewall.interfaces.mesh0.allowedTCPPorts = [ 7000 ];
+
   services.frp = {
     enable = true;
     role = "server";

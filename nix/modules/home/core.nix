@@ -220,6 +220,7 @@ in
     # perSystem.self.numr
     # perSystem.self.glide-browser
     perSystem.self.wg-peer
+    perSystem.self.mesh-expose
     # perSystem.librepods.default
   ];
 }
