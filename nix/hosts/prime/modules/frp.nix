@@ -2,6 +2,7 @@
 {
   sops.secrets.frpToken = {
     restartUnits = [ "frp.service" ];
+    mode = "0444";
   };
 
   networking.firewall.interfaces.mesh0.allowedTCPPorts = [ 7000 ];
