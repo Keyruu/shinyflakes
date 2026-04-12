@@ -14,7 +14,7 @@
       bindAddr = "100.67.0.1";
       bindPort = 7000;
       proxyBindAddr = "127.0.0.1";
-      vhostHTTPPort = 8080;
+      vhostHTTPPort = 8023;
       subDomainHost = "tunnel.peeraten.net";
       auth.method = "token";
       auth.tokenSource = {
@@ -38,7 +38,7 @@
       tls ${config.security.acme.certs."tunnel.peeraten.net".directory}/fullchain.pem ${
         config.security.acme.certs."tunnel.peeraten.net".directory
       }/key.pem
-      reverse_proxy http://127.0.0.1:8080
+      reverse_proxy http://127.0.0.1:8023
     '';
   };
 }
