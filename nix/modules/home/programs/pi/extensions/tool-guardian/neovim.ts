@@ -30,28 +30,84 @@ import {
   uniqueId,
   watchForResponse,
 } from "./nvim-ipc.ts";
-import {
-  type AcceptedResult,
-  type BlockResult,
-  type MutationResult,
-  ReviewAction,
-} from "./utils.ts";
+import { type AcceptedResult, type MutationResult, ReviewAction } from "./utils.ts";
 
 export type { ResponseData };
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function hasAiComments(content: string): boolean {
-  return /\bai:/.test(content);
-}
-
 function accepted(fileName: string): AcceptedResult {
   return { accepted: true, message: `Applied changes to ${fileName}.` };
 }
 
+/** Extract `ai:` comment lines with their line numbers. */
+function extractAiComments(content: string): string[] {
+  const comments: string[] = [];
+  const lines = content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i]?.match(/\bai:\s*(.+)/);
+    if (match?.[1]) {
+      comments.push(`L${i + 1}: ${match[1].trim()}`);
+    }
+  }
+  return comments;
+}
+
+/** Compute a unified diff by shelling out to `diff -u`. */
+function computeUserDiff(proposed: string, final: string): string {
+  if (proposed === final) return "";
+
+  const dir = mkdtempSync(join(tmpdir(), "pi-guardian-diff-"));
+  const fileA = join(dir, "proposed");
+  const fileB = join(dir, "final");
+  writeFileSync(fileA, proposed, "utf-8");
+  writeFileSync(fileB, final, "utf-8");
+
+  const result = spawnSync(
+    "diff",
+    ["-u", "--minimal", "-L", "proposed", "-L", "edited", fileA, fileB],
+    {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    },
+  );
+
+  try {
+    unlinkSync(fileA);
+  } catch {}
+  try {
+    unlinkSync(fileB);
+  } catch {}
+  try {
+    rmdirSync(dir);
+  } catch {}
+
+  return (result.stdout ?? "").trim();
+}
+
+const MAX_DIFF_LEN = 2000;
+const MAX_DIFF_LINES = 60;
+
+/** Truncate a diff to keep the message reasonable. */
+function truncateDiff(diff: string): string {
+  const lines = diff.split("\n");
+  if (lines.length > MAX_DIFF_LINES) {
+    return `${lines.slice(0, MAX_DIFF_LINES).join("\n")}\n... (${lines.length - MAX_DIFF_LINES} more lines)`;
+  }
+  if (diff.length > MAX_DIFF_LEN) {
+    return `${diff.slice(0, MAX_DIFF_LEN)}\n... (truncated)`;
+  }
+  return diff;
+}
+
 /**
  * Check if the user modified the proposed content or left `ai:` comments.
- * Returns a BlockResult if the AI needs to react, or undefined if unmodified.
+ * Builds a rich feedback message with the actual diff and extracted
+ * instructions so the agent knows exactly what was changed and why.
+ *
+ * Returns an AcceptedResult (not BlockResult) because the user's version
+ * is already on disk and should be kept — this is an accept with edits,
+ * not a rejection.
  */
 function checkUserEdits(
   pi: ExtensionAPI,
@@ -59,25 +115,47 @@ function checkUserEdits(
   proposedContent: string,
   filePath: string,
   fileName: string,
-): BlockResult | undefined {
+): AcceptedResult | undefined {
   if (afterContent === proposedContent) return undefined;
 
-  if (hasAiComments(afterContent)) {
-    pi.sendUserMessage(
-      `I edited \`${filePath}\` and left \`ai:\` comments with instructions. ` +
-        `Re-read the file, follow every \`ai:\` instruction, remove the \`ai:\` comment lines, and apply the changes.`,
-      { deliverAs: "steer" },
-    );
-    return {
-      block: true,
-      reason: `User left ai: comments on ${fileName}. Re-read the file, follow every ai: instruction, and remove the ai: comment lines.`,
-    };
+  const diff = computeUserDiff(proposedContent, afterContent);
+  const aiComments = extractAiComments(afterContent);
+  const hasDiff = diff.length > 0;
+  const hasInstructions = aiComments.length > 0;
+
+  const parts: string[] = [`I reviewed your changes to \`${filePath}\` and made adjustments.`];
+
+  if (hasDiff) {
+    parts.push("");
+    parts.push("Here's what I changed (- your version, + my version):");
+    parts.push("```");
+    parts.push(truncateDiff(diff));
+    parts.push("```");
   }
 
-  return {
-    block: true,
-    reason: `User adjusted the proposed edit for ${fileName} and saved it. The file on disk already contains their version. Re-read it before making further edits.`,
-  };
+  if (hasInstructions) {
+    parts.push("");
+    parts.push("I also left these instructions in the file (lines starting with `ai:`):");
+    for (const c of aiComments) {
+      parts.push(`- ${c}`);
+    }
+    parts.push("");
+    parts.push("Follow every `ai:` instruction, then remove the `ai:` comment lines.");
+  }
+
+  const message = parts.join("\n");
+  pi.sendUserMessage(message, { deliverAs: "steer" });
+
+  // Build a concise tool result message
+  const reasonParts: string[] = [`User edited ${fileName} during review.`];
+  if (hasInstructions) {
+    reasonParts.push(`Instructions: ${aiComments.join("; ")}`);
+  }
+  if (hasDiff && !hasInstructions) {
+    reasonParts.push("The file on disk has their version. Re-read it before making further edits.");
+  }
+
+  return { accepted: true, message: reasonParts.join(" ") };
 }
 
 // ── Review context ───────────────────────────────────────────────────

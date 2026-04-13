@@ -76,20 +76,27 @@ local function close_review_tab(state)
     vim.api.nvim_set_current_tabpage(state.prev_tab)
   end
 
-  -- Wipe any buffers created during the review (scratch, orphans from tab ops)
-  -- File buffer is kept if it existed before review
+  -- Wipe any buffers created during the review (scratch, orphans from tab ops).
+  -- File buffer is kept if it existed before review.
+  -- Detach LSP clients before deleting to avoid "Invalid buffer id" errors.
   vim.schedule(function()
+    local function safe_delete(b)
+      if not vim.api.nvim_buf_is_valid(b) then
+        return
+      end
+      for _, client in pairs(vim.lsp.get_clients({ bufnr = b })) do
+        pcall(vim.lsp.buf_detach_client, b, client.id)
+      end
+      pcall(vim.api.nvim_buf_delete, b, { force = true })
+    end
+
     for _, b in ipairs(vim.api.nvim_list_bufs()) do
-      if
-        not state.bufs_before[b]
-        and vim.api.nvim_buf_is_valid(b)
-        and b ~= state.file_buf
-      then
-        pcall(vim.api.nvim_buf_delete, b, { force = true })
+      if not state.bufs_before[b] and b ~= state.file_buf then
+        safe_delete(b)
       end
     end
-    if not state.file_buf_existed and vim.api.nvim_buf_is_valid(state.file_buf) then
-      pcall(vim.api.nvim_buf_delete, state.file_buf, { force = true })
+    if not state.file_buf_existed then
+      safe_delete(state.file_buf)
     end
   end)
 
