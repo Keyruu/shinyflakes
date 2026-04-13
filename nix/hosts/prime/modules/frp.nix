@@ -27,7 +27,8 @@
   };
 
   security.acme.certs."tunnel.peeraten.net" = {
-    domain = "*.tunnel.peeraten.net";
+    group = "caddy";
+    extraDomainNames = [ "*.tunnel.peeraten.net" ];
     dnsProvider = "cloudflare";
     dnsPropagationCheck = true;
     environmentFile = config.sops.secrets.cloudflare.path;

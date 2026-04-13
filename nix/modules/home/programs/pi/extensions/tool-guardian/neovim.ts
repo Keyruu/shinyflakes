@@ -153,6 +153,7 @@ async function reviewInEmbeddedNvim(
   tmpDir: string,
   currentFile: string,
   proposedFile: string,
+  reason?: string,
 ): Promise<BlockResult | undefined> {
   const esc = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
   const luaStr = (s: string) => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
@@ -205,9 +206,10 @@ async function reviewInEmbeddedNvim(
     | { source: "tui"; choice: string | undefined }
     | { source: "nvim"; choice: string };
 
+  const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
   const tuiPromise: Promise<RaceResult> = selectWithNotification(
     ctx,
-    `${fileName} — diff in Neovim  [ga = allow, gx = block]`,
+    `${fileName} — diff in Neovim  [ga = allow, gx = block]${reasonSuffix}`,
     [ReviewAction.Allow, ReviewAction.Block],
     `📝 pi: reviewing ${fileName}`,
     `${filePath} — diff opened in Neovim`,
@@ -260,6 +262,7 @@ async function reviewInStandaloneNvim(
   tmpDir: string,
   currentFile: string,
   proposedFile: string,
+  reason?: string,
 ): Promise<BlockResult | undefined> {
   spawnSync(
     "nvim",
@@ -293,9 +296,10 @@ async function reviewInStandaloneNvim(
   );
   if (editResult) return editResult;
 
+  const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
   const choice = await selectWithNotification(
     ctx,
-    `${fileName}`,
+    `${fileName}${reasonSuffix}`,
     [ReviewAction.Allow, ReviewAction.Block],
     `📝 pi: reviewing ${fileName}`,
     `${filePath} — diff review complete`,
@@ -375,6 +379,13 @@ async function doHandleFileMutation(
 
   const nvimServer = process.env.NVIM;
 
+  // Extract reason from the tool call input
+  const reason = isToolCallEventType("edit", event)
+    ? ((event.input as Record<string, unknown>).reason as string | undefined)
+    : isToolCallEventType("write", event)
+      ? ((event.input as Record<string, unknown>).reason as string | undefined)
+      : undefined;
+
   if (nvimServer) {
     return reviewInEmbeddedNvim(
       pi,
@@ -387,6 +398,7 @@ async function doHandleFileMutation(
       tmpDir,
       currentFile,
       proposedFile,
+      reason,
     );
   } else {
     return reviewInStandaloneNvim(
@@ -399,6 +411,7 @@ async function doHandleFileMutation(
       tmpDir,
       currentFile,
       proposedFile,
+      reason,
     );
   }
 }

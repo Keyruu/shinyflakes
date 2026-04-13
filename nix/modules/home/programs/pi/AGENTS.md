@@ -41,11 +41,35 @@ For small/obvious changes (typo fix, single value change), just do it.
   never **what** (which the code already shows)
 - Remove existing noise comments when touching code nearby
 
-## Stay in Scope
+## Complete Ownership
 
-- Do exactly what was asked. Don't "improve" or refactor adjacent code
-- Don't rename, reformat, or restructure things you weren't asked to touch
-- If you spot something worth improving, mention it — don't silently fix it
+If you find it, you fix it. There is no "out of scope."
+
+- Discovered a bug while working on something else → own it, fix it
+- Found a broken reference, outdated config, or wrong value → fix it now
+- Don't say "this is a separate issue" or "should I fix this?" — just fix it
+- If a discovered issue is large, mention it and propose a fix before diving in
+- Small fixes (typos, dead code, obvious errors) — just do them inline
+
+## Root Cause Focus
+
+Solve problems, not symptoms. Every fix should address the underlying cause.
+
+- Don't add workarounds, try-catches, or special cases to suppress errors
+- Ask "why?" until you reach the fundamental issue
+- If a fix feels like duct tape, it probably is — dig deeper
+- A proper fix might take longer but prevents the problem from resurfacing
+
+## Complete Deliverables
+
+Finish what you start. No partial solutions.
+
+- No "basic implementation, expand later"
+- No TODO comments or placeholder code
+- Handle edge cases for the feature being built
+- Error handling in place, follows existing patterns
+- If scope is genuinely too large, break it into complete steps — each step
+  should be fully functional on its own
 
 ## Prefer Small Changes
 
