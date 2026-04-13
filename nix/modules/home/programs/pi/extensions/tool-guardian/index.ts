@@ -5,7 +5,7 @@
  *
  *   Tier 1 — Auto-allow: read-only tools (read, ls, find, grep)
  *   Tier 2 — Neovim diff: file mutations (edit, write) open in Neovim
- *   Tier 3 — Timed auto-approve: safe-looking bash commands (3s countdown)
+ *   Tier 3 — Timed auto-approve: safe-looking bash commands (5s countdown)
  *   Tier 4 — Explicit approval: dangerous bash commands (rm, sudo, etc.)
  *
  * Desktop notifications are shown only when the terminal is not focused.
@@ -33,8 +33,9 @@
  *   /guardian-clear — Clear the session approval memory
  */
 
-import { readdirSync, rmdirSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
 import {
   createEditToolDefinition,
   createWriteToolDefinition,
@@ -42,38 +43,21 @@ import {
   type ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
 import { handleBash, handleUnknownTool } from "./bash.ts";
-import { handleFileMutation } from "./neovim.ts";
+import { reviewFileDiff } from "./neovim.ts";
 import { sendNotification } from "./notify.ts";
 import { createReviewScope, hasFilters, isInReviewScope } from "./scope.ts";
 import { GuardMode, isBlockedPath, READ_ONLY_TOOLS } from "./utils.ts";
 
 /**
- * Remove leftover `.pi-guardian-*` temp dirs from previous sessions
- * that may not have been cleaned up (e.g. crash mid-review).
+ * Remove leftover pi-guardian payload/response files from /tmp.
  */
-function cleanupStaleTmpDirs(cwd: string): void {
+function cleanupStaleTmpFiles(): void {
   try {
-    const scan = (dir: string) => {
-      for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (entry.isDirectory() && entry.name.startsWith(".pi-guardian-")) {
-          const tmpDir = join(dir, entry.name);
-          try {
-            for (const f of readdirSync(tmpDir)) {
-              try {
-                unlinkSync(join(tmpDir, f));
-              } catch {}
-            }
-            rmdirSync(tmpDir);
-          } catch {}
-        }
-      }
-    };
-    scan(cwd);
-    // Also scan subdirectories one level deep (where most edits happen)
-    for (const entry of readdirSync(cwd, { withFileTypes: true })) {
-      if (entry.isDirectory() && !entry.name.startsWith(".")) {
+    const tmp = tmpdir();
+    for (const entry of readdirSync(tmp)) {
+      if (entry.startsWith("pi-guardian-")) {
         try {
-          scan(join(cwd, entry.name));
+          unlinkSync(`${tmp}/${entry}`);
         } catch {}
       }
     }
@@ -91,11 +75,6 @@ function updateStatus(ctx: ExtensionContext, mode: GuardMode): void {
   ctx.ui.setStatus(GUARDIAN_STATUS_KEY, text);
 }
 
-function resolveExecutionRoot(ctx: ExtensionContext | undefined): string {
-  if (ctx && typeof ctx.cwd === "string" && ctx.cwd.length > 0) return ctx.cwd;
-  return process.cwd();
-}
-
 export default function (pi: ExtensionAPI) {
   let mode: GuardMode = GuardMode.Guarded;
   const approvedCommands = new Set<string>();
@@ -108,7 +87,10 @@ export default function (pi: ExtensionAPI) {
   const baseWrite = createWriteToolDefinition(process.cwd());
 
   // Extend tool schemas with a `reason` property.
-  // Typebox schemas are JSON Schema objects at runtime, so we spread and extend directly.
+  // These are JSON Schema objects at runtime (from Typebox). We spread
+  // and extend directly. The `as any` casts are needed because the
+  // extended shape no longer matches Typebox's Static<T> inference —
+  // runtime behavior is correct but the type system can't verify it.
   const editParams = {
     ...baseEdit.parameters,
     properties: {
@@ -133,6 +115,98 @@ export default function (pi: ExtensionAPI) {
     required: [...(baseWrite.parameters.required ?? []), "reason"],
   };
 
+  /**
+   * Run the native tool, then show a diff review if in scope.
+   * On reject, restore the original file content.
+   */
+  async function executeWithReview(
+    toolName: "edit" | "write",
+    toolCallId: string,
+    params: Record<string, unknown>,
+    signal: AbortSignal | undefined,
+    onUpdate: unknown,
+    ctx: ExtensionContext,
+  ) {
+    const filePath = params.path as string;
+    const absolutePath = resolve(ctx.cwd, filePath);
+    const reason = params.reason as string | undefined;
+
+    // Snapshot before native tool writes
+    let originalContent = "";
+    try {
+      if (existsSync(absolutePath)) originalContent = readFileSync(absolutePath, "utf-8");
+    } catch {}
+
+    // Run native tool (writes to disk). Split by tool type so
+    // TypeScript can narrow the parameter shapes without `as any`.
+    // biome-ignore lint/suspicious/noImplicitAnyLet: result type varies by branch (EditToolDetails | undefined)
+    let result;
+    if (toolName === "edit") {
+      const def = createEditToolDefinition(ctx.cwd);
+      result = await def.execute(
+        toolCallId,
+        {
+          path: params.path as string,
+          edits: params.edits as Array<{ oldText: string; newText: string }>,
+        },
+        signal,
+        onUpdate as Parameters<typeof def.execute>[3],
+        ctx,
+      );
+    } else {
+      const def = createWriteToolDefinition(ctx.cwd);
+      result = await def.execute(
+        toolCallId,
+        { path: params.path as string, content: params.content as string },
+        signal,
+        onUpdate as Parameters<typeof def.execute>[3],
+        ctx,
+      );
+    }
+
+    // Read what was actually written
+    let proposedContent = originalContent;
+    try {
+      if (existsSync(absolutePath)) proposedContent = readFileSync(absolutePath, "utf-8");
+    } catch {}
+
+    // Skip review if: yolo mode, no UI, content unchanged (edit error), or out of scope
+    if (mode === GuardMode.Yolo) return result;
+    if (!ctx.hasUI) return result;
+    if (proposedContent === originalContent) return result;
+    if (!isInReviewScope(filePath, reviewScope)) return result;
+
+    // Show diff review
+    const reviewResult = await reviewFileDiff(pi, ctx, {
+      filePath,
+      absolutePath,
+      originalContent,
+      proposedContent,
+      reason,
+    });
+
+    if (reviewResult && "block" in reviewResult && reviewResult.block) {
+      // Restore original content
+      try {
+        writeFileSync(absolutePath, originalContent, "utf-8");
+      } catch {}
+      return {
+        content: [{ type: "text" as const, text: reviewResult.reason }],
+        details: undefined,
+      };
+    }
+
+    // Accepted (possibly with user edits — file already has final content)
+    if (reviewResult && "accepted" in reviewResult) {
+      return {
+        content: [{ type: "text" as const, text: reviewResult.message }],
+        details: undefined,
+      };
+    }
+
+    return result;
+  }
+
   pi.registerTool({
     ...baseEdit,
     description: `${baseEdit.description} Include a non-empty \`reason\` explaining why.`,
@@ -154,15 +228,9 @@ export default function (pi: ExtensionAPI) {
       }
       return args;
     },
-    async execute(toolCallId, params, signal, onUpdate, toolCtx) {
-      const nativeEdit = createEditToolDefinition(resolveExecutionRoot(toolCtx));
-      return nativeEdit.execute(
-        toolCallId,
-        { path: params.path, edits: params.edits },
-        signal,
-        onUpdate,
-        toolCtx,
-      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async execute(toolCallId, params, signal, onUpdate, ctx): Promise<any> {
+      return executeWithReview("edit", toolCallId, params, signal, onUpdate, ctx);
     },
   });
 
@@ -175,22 +243,16 @@ export default function (pi: ExtensionAPI) {
     ],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parameters: writeParams as any,
-    async execute(toolCallId, params, signal, onUpdate, toolCtx) {
-      const nativeWrite = createWriteToolDefinition(resolveExecutionRoot(toolCtx));
-      return nativeWrite.execute(
-        toolCallId,
-        { path: params.path, content: params.content },
-        signal,
-        onUpdate,
-        toolCtx,
-      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async execute(toolCallId, params, signal, onUpdate, ctx): Promise<any> {
+      return executeWithReview("write", toolCallId, params, signal, onUpdate, ctx);
     },
   });
 
   // ── Lifecycle ────────────────────────────────────────────────────
 
   pi.on("session_start", async (_event, ctx) => {
-    cleanupStaleTmpDirs(ctx.cwd);
+    cleanupStaleTmpFiles();
     updateStatus(ctx, mode);
     const scopeInfo = hasFilters(reviewScope) ? " (scoped)" : "";
     ctx.ui.notify(`Tool guardian loaded (guarded mode${scopeInfo})`, "info");
@@ -226,8 +288,8 @@ export default function (pi: ExtensionAPI) {
 
   // ── Main tool_call gate ──────────────────────────────────────────
 
-  pi.on("tool_call", async (event, ctx) => {
-    // Tier 0: Block access to sensitive files (always, even in yolo)
+  pi.on("tool_call", async (event, _ctx) => {
+    // Block access to sensitive files (always, even in yolo)
     const filePath =
       "input" in event && typeof event.input === "object" && event.input !== null
         ? (event.input as Record<string, unknown>).path
@@ -238,31 +300,20 @@ export default function (pi: ExtensionAPI) {
     }
 
     if (mode === GuardMode.Yolo) return undefined;
-    if (!ctx.hasUI) return undefined;
+    if (!_ctx.hasUI) return undefined;
 
-    // Tier 1: Auto-allow read-only tools
-    if (READ_ONLY_TOOLS.has(event.toolName)) {
-      return undefined;
-    }
+    // Auto-allow read-only tools
+    if (READ_ONLY_TOOLS.has(event.toolName)) return undefined;
 
-    // Tier 2: Neovim diff review for file mutations
-    if (event.toolName === "edit" || event.toolName === "write") {
-      const mutPath =
-        "input" in event && typeof event.input === "object" && event.input !== null
-          ? (event.input as Record<string, unknown>).path
-          : undefined;
-      if (typeof mutPath === "string" && !isInReviewScope(mutPath, reviewScope)) {
-        return undefined;
-      }
-      return handleFileMutation(pi, event, ctx);
-    }
+    // edit/write review is handled in execute() — let them through
+    if (event.toolName === "edit" || event.toolName === "write") return undefined;
 
-    // Tier 3 & 4: Bash command review
+    // Bash command review
     if (event.toolName === "bash") {
-      return handleBash(event, ctx, approvedCommands);
+      return handleBash(event, _ctx, approvedCommands);
     }
 
     // Unknown tools: timed approve
-    return handleUnknownTool(event, ctx, approvedTools);
+    return handleUnknownTool(event, _ctx, approvedTools);
   });
 }

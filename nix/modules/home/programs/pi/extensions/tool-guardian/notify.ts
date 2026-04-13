@@ -137,7 +137,7 @@ function notifyWithActions(
   const args = [
     "--app-name=pi",
     "--action",
-    "default=Focus",
+    "default=",
     ...actions.flatMap((a) => ["--action", `${a.id}=${a.label}`]),
     title,
     body,
@@ -166,13 +166,7 @@ function notifyWithActions(
 export function sendNotification(title: string, body: string): void {
   if (isTerminalFocused()) return;
   try {
-    const { promise } = spawnNotifySend([
-      "--app-name=pi",
-      "--action",
-      "default=Focus",
-      title,
-      body,
-    ]);
+    const { promise } = spawnNotifySend(["--app-name=pi", "--action", "default=", title, body]);
     promise.then((action) => {
       if (action === "default") focusTerminal();
     });

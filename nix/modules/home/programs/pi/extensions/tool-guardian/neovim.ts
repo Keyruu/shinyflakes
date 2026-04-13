@@ -1,91 +1,66 @@
 /**
  * Neovim diff review for file mutations (edit / write).
  *
- * Opens the proposed changes in a Neovim diff tab (embedded or
- * standalone) and lets the user Allow/Block. Supports `ai:` comments
- * for steering the agent from within the diff.
+ * Uses the pi-guardian.nvim lua plugin to open a diff tab:
+ *   Left pane:  scratch buffer with ORIGINAL content (readonly)
+ *   Right pane: the ACTUAL file with PROPOSED changes (full LSP)
  *
- * In embedded mode, buffer-local keybinds are set on the proposed
- * (right) pane:
- *   ga — Allow (guardian-accept: saves edits, closes diff)
- *   gx — Block (guardian-reject: closes diff, rejects change)
+ * Keybinds in the diff tab (set by the lua plugin):
+ *   ga — Accept (writes file, closes diff)
+ *   gx — Reject (restores original, closes diff)
+ *   g+ — Expand diff context
+ *   g- — Shrink diff context
  *
  * The keybinds race against the TUI select dialog and desktop
  * notification — whichever the user interacts with first wins.
+ *
+ * Supports `ai:` comments for steering the agent from within the diff.
  */
 
 import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmdirSync,
-  unlinkSync,
-  watch,
-  writeFileSync,
-} from "node:fs";
-import { basename, join, resolve } from "node:path";
-import type { ExtensionAPI, ExtensionContext, ToolCallEvent } from "@mariozechner/pi-coding-agent";
-import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
+import { mkdtempSync, readFileSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, join } from "node:path";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { selectWithNotification } from "./notify.ts";
-import { type BlockResult, ReviewAction } from "./utils.ts";
+import {
+  luaStr,
+  nvimRemoteSend,
+  type ResponseData,
+  uniqueId,
+  watchForResponse,
+} from "./nvim-ipc.ts";
+import {
+  type AcceptedResult,
+  type BlockResult,
+  type MutationResult,
+  ReviewAction,
+} from "./utils.ts";
+
+export type { ResponseData };
 
 // ── Helpers ──────────────────────────────────────────────────────────
-
-function cleanup(tmpDir: string, ...files: string[]) {
-  for (const f of files) {
-    try {
-      unlinkSync(f);
-    } catch {}
-  }
-  try {
-    rmdirSync(tmpDir);
-  } catch {}
-}
-
-function nvimRemoteSend(server: string, keys: string) {
-  spawnSync("nvim", ["--server", server, "--remote-send", keys], {
-    stdio: "ignore",
-  });
-}
-
-/**
- * Apply all edits from the edits[] array to compute the proposed file
- * content. Returns null if any oldText is not found.
- */
-function applyEdits(
-  originalContent: string,
-  edits: Array<{ oldText: string; newText: string }>,
-): string | null {
-  let content = originalContent;
-  for (const edit of edits) {
-    const idx = content.indexOf(edit.oldText);
-    if (idx === -1) return null;
-    content = content.slice(0, idx) + edit.newText + content.slice(idx + edit.oldText.length);
-  }
-  return content;
-}
 
 function hasAiComments(content: string): boolean {
   return /\bai:/.test(content);
 }
 
+function accepted(fileName: string): AcceptedResult {
+  return { accepted: true, message: `Applied changes to ${fileName}.` };
+}
+
 /**
- * Handle user edits to the proposed file. If the user left `ai:`
- * comments the file is written as-is and the agent is steered to
- * follow the instructions.
+ * Check if the user modified the proposed content or left `ai:` comments.
+ * Returns a BlockResult if the AI needs to react, or undefined if unmodified.
  */
-function handleUserEdits(
+function checkUserEdits(
   pi: ExtensionAPI,
   afterContent: string,
   proposedContent: string,
   filePath: string,
   fileName: string,
-  absolutePath: string,
 ): BlockResult | undefined {
   if (afterContent === proposedContent) return undefined;
-
-  writeFileSync(absolutePath, afterContent, "utf-8");
 
   if (hasAiComments(afterContent)) {
     pi.sendUserMessage(
@@ -105,165 +80,119 @@ function handleUserEdits(
   };
 }
 
-// ── Decision file watcher ────────────────────────────────────────────
+// ── Review context ───────────────────────────────────────────────────
 
-function watchForDecision(
-  tmpDir: string,
-  decisionFile: string,
-): { promise: Promise<string>; cancel: () => void } {
-  let watcher: ReturnType<typeof watch> | null = null;
-  let cancelled = false;
-
-  const promise = new Promise<string>((resolve) => {
-    try {
-      watcher = watch(tmpDir, (_eventType, filename) => {
-        if (cancelled || filename !== "decision") return;
-        try {
-          const decision = readFileSync(decisionFile, "utf-8").trim();
-          if (decision) {
-            cancelled = true;
-            watcher?.close();
-            resolve(decision);
-          }
-        } catch {}
-      });
-    } catch {}
-  });
-
-  const cancel = () => {
-    cancelled = true;
-    try {
-      watcher?.close();
-    } catch {}
-  };
-
-  return { promise, cancel };
+interface ReviewContext {
+  pi: ExtensionAPI;
+  ctx: ExtensionContext;
+  filePath: string;
+  fileName: string;
+  absolutePath: string;
+  originalContent: string;
+  proposedContent: string;
+  reason?: string;
 }
 
 // ── Diff review (embedded Neovim) ────────────────────────────────────
 
 async function reviewInEmbeddedNvim(
-  pi: ExtensionAPI,
-  ctx: ExtensionContext,
+  rc: ReviewContext,
   nvimServer: string,
-  filePath: string,
-  fileName: string,
-  absolutePath: string,
-  proposedContent: string,
-  tmpDir: string,
-  currentFile: string,
-  proposedFile: string,
-  reason?: string,
-): Promise<BlockResult | undefined> {
-  const esc = (p: string) => p.replace(/\\/g, "\\\\").replace(/ /g, "\\ ");
-  const luaStr = (s: string) => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+): Promise<MutationResult | undefined> {
+  const { pi, ctx, filePath, fileName, absolutePath, originalContent, proposedContent, reason } =
+    rc;
 
-  const decisionFile = join(tmpDir, "decision");
+  const id = uniqueId();
+  const payloadFile = join(tmpdir(), `pi-guardian-payload-${id}.json`);
+  const responseFile = join(tmpdir(), `pi-guardian-response-${id}.json`);
 
-  // Lua keybind functions for allow/block
-  // Wrap bwipeout in vim.schedule so highlight-undo callbacks
-  // run before the buffer is destroyed (avoids "Invalid buffer id")
-  const scheduleWipe = (bufs: string) => `vim.schedule(function() ${bufs} end)`;
+  writeFileSync(
+    payloadFile,
+    JSON.stringify({
+      path: absolutePath,
+      original: originalContent,
+      proposed: proposedContent,
+      reason: reason || null,
+      response_file: responseFile,
+    }),
+    "utf-8",
+  );
 
-  const luaAllowFn = [
-    `vim.cmd('w')`,
-    `vim.fn.writefile({'allow'},'${luaStr(decisionFile)}')`,
-    scheduleWipe(
-      `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}') vim.cmd('noautocmd bwipeout!')`,
-    ),
-  ].join(" ");
-
-  const luaBlockFn = [
-    `vim.fn.writefile({'block'},'${luaStr(decisionFile)}')`,
-    scheduleWipe(
-      `vim.cmd('noautocmd bwipeout! ${luaStr(currentFile)}') vim.cmd('noautocmd bwipeout!')`,
-    ),
-  ].join(" ");
+  const { promise: nvimResponse, cancel: cancelWatch } = watchForResponse(responseFile);
 
   nvimRemoteSend(
     nvimServer,
-    [
-      `<C-\\><C-n>`,
-      `:tabnew ${esc(currentFile)}<CR>`,
-      `:setlocal readonly nomodifiable bufhidden=wipe<CR>`,
-      `:diffthis<CR>`,
-      `:vsplit ${esc(proposedFile)}<CR>`,
-      `:diffthis<CR>`,
-      `:wincmd l<CR>`,
-      // Buffer-local keybinds on the proposed (editable) pane
-      `:lua vim.keymap.set('n','ga',function() ${luaAllowFn} end,{buffer=true,desc='Guardian: Allow'})<CR>`,
-      `:lua vim.keymap.set('n','gx',function() ${luaBlockFn} end,{buffer=true,desc='Guardian: Block'})<CR>`,
-    ].join(""),
+    `<C-\\><C-n>:lua require('pi-guardian').review_from_file('${luaStr(payloadFile)}')<CR>`,
   );
 
-  // Watch for decision from Neovim keybind
-  const { promise: nvimDecision, cancel: cancelWatch } = watchForDecision(tmpDir, decisionFile);
-
-  // AbortController to cancel TUI select when Neovim keybind wins
   const externalAbort = new AbortController();
 
   type RaceResult =
     | { source: "tui"; choice: string | undefined }
-    | { source: "nvim"; choice: string };
+    | { source: "nvim"; data: ResponseData };
 
   const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
   const tuiPromise: Promise<RaceResult> = selectWithNotification(
     ctx,
-    `${fileName} — diff in Neovim  [ga = allow, gx = block]${reasonSuffix}`,
+    `${fileName} — diff in Neovim  [ga = accept, gx = reject]${reasonSuffix}`,
     [ReviewAction.Allow, ReviewAction.Block],
     `📝 pi: reviewing ${fileName}`,
     `${filePath} — diff opened in Neovim`,
     { signal: externalAbort.signal },
   ).then((choice) => ({ source: "tui" as const, choice }));
 
-  const nvimPromise: Promise<RaceResult> = nvimDecision.then((decision) => ({
+  const nvimPromise: Promise<RaceResult> = nvimResponse.then((data) => ({
     source: "nvim" as const,
-    choice: decision === "allow" ? ReviewAction.Allow : ReviewAction.Block,
+    data,
   }));
 
   const result = await Promise.race([tuiPromise, nvimPromise]);
-
-  // Cancel the loser
   cancelWatch();
+
   if (result.source === "nvim") {
     externalAbort.abort();
-  } else {
-    // TUI/notification won — clean up Neovim buffers from Node side
-    nvimRemoteSend(
-      nvimServer,
-      `<C-\\><C-n>:lua vim.schedule(function() vim.cmd('noautocmd bwipeout! ${esc(currentFile)}') vim.cmd('noautocmd bwipeout! ${esc(proposedFile)}') end)<CR>`,
+
+    if (result.data.decision === "block") {
+      ctx.abort();
+      return { block: true, reason: "Blocked by user after reviewing diff" };
+    }
+
+    const afterContent = result.data.content ?? proposedContent;
+    return (
+      checkUserEdits(pi, afterContent, proposedContent, filePath, fileName) ?? accepted(fileName)
     );
   }
 
+  // TUI/notification won — tell nvim to clean up
+  nvimRemoteSend(
+    nvimServer,
+    `<C-\\><C-n>:lua vim.schedule(function() ` +
+      `local g = require('pi-guardian') ` +
+      `if g._active_reject then g._active_reject() end ` +
+      `end)<CR>`,
+  );
+
   if (result.choice === ReviewAction.Block || result.choice === undefined) {
-    cleanup(tmpDir, currentFile, proposedFile, decisionFile);
     ctx.abort();
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
-  let afterContent = proposedContent;
-  try {
-    afterContent = readFileSync(proposedFile, "utf-8");
-  } catch {}
-  cleanup(tmpDir, currentFile, proposedFile, decisionFile);
-
-  return handleUserEdits(pi, afterContent, proposedContent, filePath, fileName, absolutePath);
+  // TUI said Allow — nvim didn't write the file, do it here
+  writeFileSync(absolutePath, proposedContent, "utf-8");
+  return accepted(fileName);
 }
 
 // ── Diff review (standalone Neovim) ──────────────────────────────────
 
-async function reviewInStandaloneNvim(
-  pi: ExtensionAPI,
-  ctx: ExtensionContext,
-  filePath: string,
-  fileName: string,
-  absolutePath: string,
-  proposedContent: string,
-  tmpDir: string,
-  currentFile: string,
-  proposedFile: string,
-  reason?: string,
-): Promise<BlockResult | undefined> {
+async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult | undefined> {
+  const { pi, ctx, filePath, fileName, absolutePath, originalContent, proposedContent, reason } =
+    rc;
+  const tmpDir = mkdtempSync(join(tmpdir(), "pi-guardian-"));
+  const currentFile = join(tmpDir, `current_${basename(filePath)}`);
+  const proposedFile = join(tmpDir, `proposed_${basename(filePath)}`);
+  writeFileSync(currentFile, originalContent, "utf-8");
+  writeFileSync(proposedFile, proposedContent, "utf-8");
+
   spawnSync(
     "nvim",
     [
@@ -284,17 +213,22 @@ async function reviewInStandaloneNvim(
   try {
     afterContent = readFileSync(proposedFile, "utf-8");
   } catch {}
-  cleanup(tmpDir, currentFile, proposedFile);
 
-  const editResult = handleUserEdits(
-    pi,
-    afterContent,
-    proposedContent,
-    filePath,
-    fileName,
-    absolutePath,
-  );
-  if (editResult) return editResult;
+  try {
+    unlinkSync(currentFile);
+  } catch {}
+  try {
+    unlinkSync(proposedFile);
+  } catch {}
+  try {
+    rmdirSync(tmpDir);
+  } catch {}
+
+  if (afterContent !== proposedContent) {
+    writeFileSync(absolutePath, afterContent, "utf-8");
+    const editResult = checkUserEdits(pi, afterContent, proposedContent, filePath, fileName);
+    if (editResult) return editResult;
+  }
 
   const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
   const choice = await selectWithNotification(
@@ -310,108 +244,55 @@ async function reviewInStandaloneNvim(
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
-  return undefined;
+  writeFileSync(absolutePath, proposedContent, "utf-8");
+  return accepted(fileName);
 }
 
 // ── Review queue ────────────────────────────────────────────────────
 
-/**
- * Serialize diff reviews so only one runs at a time.
- * Without this, rapid edit/write calls open multiple diff tabs
- * simultaneously, causing competing keybinds and buffer wipes.
- */
 let reviewQueue: Promise<unknown> = Promise.resolve();
 
-// ── Public handler ───────────────────────────────────────────────────
+// ── Public API ───────────────────────────────────────────────────────
 
-export function handleFileMutation(
+/**
+ * Show a diff review for a file mutation. Serialized through a queue
+ * so only one review is active at a time.
+ *
+ * Callers provide the original and proposed content — this module
+ * does not compute edits itself. The native tool has already written
+ * the file to disk; on reject the caller is responsible for restoring.
+ */
+export function reviewFileDiff(
   pi: ExtensionAPI,
-  event: ToolCallEvent,
   ctx: ExtensionContext,
-): Promise<BlockResult | undefined> {
-  const result = new Promise<BlockResult | undefined>((resolve) => {
+  opts: {
+    filePath: string;
+    absolutePath: string;
+    originalContent: string;
+    proposedContent: string;
+    reason?: string;
+  },
+): Promise<MutationResult | undefined> {
+  const result = new Promise<MutationResult | undefined>((resolve) => {
     reviewQueue = reviewQueue.then(async () => {
-      resolve(await doHandleFileMutation(pi, event, ctx));
+      const rc: ReviewContext = {
+        pi,
+        ctx,
+        filePath: opts.filePath,
+        fileName: basename(opts.filePath),
+        absolutePath: opts.absolutePath,
+        originalContent: opts.originalContent,
+        proposedContent: opts.proposedContent,
+        reason: opts.reason,
+      };
+
+      const nvimServer = process.env.NVIM;
+      if (nvimServer) {
+        resolve(await reviewInEmbeddedNvim(rc, nvimServer));
+      } else {
+        resolve(await reviewInStandaloneNvim(rc));
+      }
     });
   });
   return result;
-}
-
-async function doHandleFileMutation(
-  pi: ExtensionAPI,
-  event: ToolCallEvent,
-  ctx: ExtensionContext,
-): Promise<BlockResult | undefined> {
-  let filePath: string;
-  let originalContent = "";
-  let proposedContent: string;
-
-  if (isToolCallEventType("edit", event)) {
-    filePath = event.input.path;
-    try {
-      const abs = resolve(ctx.cwd, filePath);
-      if (existsSync(abs)) originalContent = readFileSync(abs, "utf-8");
-    } catch {}
-    const result = applyEdits(originalContent, event.input.edits);
-    if (result === null) return undefined;
-    proposedContent = result;
-  } else if (isToolCallEventType("write", event)) {
-    filePath = event.input.path;
-    try {
-      const abs = resolve(ctx.cwd, filePath);
-      if (existsSync(abs)) originalContent = readFileSync(abs, "utf-8");
-    } catch {}
-    proposedContent = event.input.content;
-  } else {
-    return undefined;
-  }
-
-  const fileName = basename(filePath);
-  const absolutePath = resolve(ctx.cwd, filePath);
-
-  // Create temp dir next to the actual file so LSP can find tsconfig/project config
-  const fileDir = resolve(ctx.cwd, filePath, "..");
-  const tmpDir = mkdtempSync(join(fileDir, ".pi-guardian-"));
-  const currentFile = join(tmpDir, `current_${fileName}`);
-  const proposedFile = join(tmpDir, `proposed_${fileName}`);
-  writeFileSync(currentFile, originalContent, "utf-8");
-  writeFileSync(proposedFile, proposedContent, "utf-8");
-
-  const nvimServer = process.env.NVIM;
-
-  // Extract reason from the tool call input
-  const reason = isToolCallEventType("edit", event)
-    ? ((event.input as Record<string, unknown>).reason as string | undefined)
-    : isToolCallEventType("write", event)
-      ? ((event.input as Record<string, unknown>).reason as string | undefined)
-      : undefined;
-
-  if (nvimServer) {
-    return reviewInEmbeddedNvim(
-      pi,
-      ctx,
-      nvimServer,
-      filePath,
-      fileName,
-      absolutePath,
-      proposedContent,
-      tmpDir,
-      currentFile,
-      proposedFile,
-      reason,
-    );
-  } else {
-    return reviewInStandaloneNvim(
-      pi,
-      ctx,
-      filePath,
-      fileName,
-      absolutePath,
-      proposedContent,
-      tmpDir,
-      currentFile,
-      proposedFile,
-      reason,
-    );
-  }
 }

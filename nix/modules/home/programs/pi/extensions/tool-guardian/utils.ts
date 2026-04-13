@@ -25,6 +25,12 @@ export type GuardMode = (typeof GuardMode)[keyof typeof GuardMode];
 /** A tool call that was blocked by the guardian. */
 export type BlockResult = ToolCallEventResult & { block: true; reason: string };
 
+/** The diff review accepted and the file is already written to disk. */
+export type AcceptedResult = { accepted: true; message: string };
+
+/** Possible outcomes from a file mutation review. */
+export type MutationResult = BlockResult | AcceptedResult;
+
 // ── Auto-allowed read-only tools ─────────────────────────────────────
 
 export const READ_ONLY_TOOLS = new Set(["read", "ls", "find", "grep"]);
