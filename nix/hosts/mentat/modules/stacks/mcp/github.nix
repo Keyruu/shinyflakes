@@ -9,7 +9,7 @@ let
   oapiPort = 30100;
 
   # renovate: datasource=docker depName=ghcr.io/github/github-mcp-server
-  mcpVersion = "v0.33.0";
+  mcpVersion = "v0.34.0";
 in
 {
   sops.secrets.githubToken.owner = "root";
