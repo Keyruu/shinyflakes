@@ -9,7 +9,7 @@ in
 
   virtualisation.quadlet.containers.isponsorblocktv = {
     containerConfig = {
-      image = "ghcr.io/dmunozv04/isponsorblocktv:v2.6.1";
+      image = "ghcr.io/dmunozv04/isponsorblocktv:v2.7.0";
       networks = [
         "host"
       ];
