@@ -3,6 +3,7 @@
   # Bind mount /data/share into /srv/nfs
   fileSystems."/srv/samba" = {
     device = "/main";
+    fsType = "auto";
     options = [ "bind" ];
   };
 

@@ -38,7 +38,6 @@ in
         spawn-at-startup "systemd-run" "--user" "--scope" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
         spawn-at-startup "kanshi"
         spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
-        spawn-at-startup "${config.programs.noctalia-shell.package}/bin/noctalia-shell"
         spawn-at-startup "clipse" "-listen"
         spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
         spawn-at-startup "distrobox" "enter" "mdm" "--" "exit"

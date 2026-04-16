@@ -15,16 +15,6 @@ import { FOCUS_ACTIONS } from "./utils.ts";
 
 // ── Window identification ─────────────────────────────────────────────
 
-/**
- * Cached niri window ID for the terminal running pi.
- *
- * Resolved once on first use by checking which window is currently
- * focused (pi is always launched from a focused terminal). This
- * avoids PID-based matching which breaks with terminals like
- * Alacritty that share a single PID across all windows.
- */
-let cachedWindowId: string | null | undefined;
-
 /** Find the niri window ID of the currently focused window. */
 function findFocusedWindowId(): string | null {
   try {
@@ -39,20 +29,19 @@ function findFocusedWindowId(): string | null {
   return null;
 }
 
-/** Lazily resolve and cache the niri window ID. */
-function ensureWindowId(): string | null {
-  if (cachedWindowId === undefined) {
-    cachedWindowId = findFocusedWindowId();
-  }
-  return cachedWindowId;
-}
+/**
+ * Resolved eagerly at module load time — pi is always launched from
+ * a focused terminal, so the currently focused window IS our terminal.
+ * Lazy init would be wrong: first use happens when a notification fires,
+ * at which point the user has likely switched away.
+ */
+const terminalWindowId: string | null = findFocusedWindowId();
 
 /**
  * Check if the terminal running pi is currently the focused window.
  */
 export function isTerminalFocused(): boolean {
-  const windowId = ensureWindowId();
-  if (windowId === null) return false;
+  if (terminalWindowId === null) return false;
 
   try {
     const result = spawnSync("niri", ["msg", "focused-window"], {
@@ -61,7 +50,7 @@ export function isTerminalFocused(): boolean {
       timeout: 500,
     });
     const idMatch = (result.stdout ?? "").match(/^Window ID\s+(\d+)/m);
-    return idMatch?.[1] === windowId;
+    return idMatch?.[1] === terminalWindowId;
   } catch {}
   return false;
 }
@@ -73,10 +62,9 @@ export function isTerminalFocused(): boolean {
  * Uses the cached niri window ID.
  */
 export function focusTerminal(): void {
-  const windowId = ensureWindowId();
-  if (windowId === null) return;
+  if (terminalWindowId === null) return;
 
-  spawn("niri", ["msg", "action", "focus-window", "--id", windowId], {
+  spawn("niri", ["msg", "action", "focus-window", "--id", terminalWindowId], {
     stdio: "ignore",
   });
 }
