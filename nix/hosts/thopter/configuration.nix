@@ -100,8 +100,6 @@ in
     shell = pkgs.fish;
   };
 
-  nixpkgs.config.allowUnfree = true;
-
   nix.package = lib.mkForce pkgs.lixPackageSets.stable.lix;
 
   nix.settings.trusted-users = [
