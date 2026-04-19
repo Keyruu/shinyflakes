@@ -33,6 +33,7 @@ in
     datadogApiKeyMp = { };
     datadogAppKeyMp = { };
     hassKey = { };
+    openrouterKey = { };
   };
   sops.templates."shell.env".content = ''
     OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
@@ -48,6 +49,7 @@ in
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
     HASS_KEY=${config.sops.placeholder.hassKey}
+    OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
   '';
 
   home.sessionVariables = {

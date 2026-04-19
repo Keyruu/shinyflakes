@@ -2,5 +2,16 @@
   "showHardwareCursor": true,
   "lastChangelogVersion": "0.66.1",
   "defaultProvider": "opencode-go",
-  "defaultModel": "glm-5.1"
+  "defaultModel": "glm-5.1",
+  "enabledModels": [
+    "openrouter/qwen/qwen3.5-35b-a3b",
+    "openrouter/qwen/qwen3.6-plus",
+    "openrouter/qwen/qwen3.5-27b",
+    "openrouter/google/gemma-4-31b-it",
+    "opencode-go/glm-5",
+    "opencode-go/glm-5.1",
+    "opencode-go/kimi-k2.5",
+    "anthropic/claude-opus-4-6",
+    "anthropic/claude-sonnet-4-6"
+  ]
 }

@@ -90,7 +90,7 @@ function M.review(payload)
   Buffers.reset_win_options(right_win)
   vim.cmd("wincmd =")
 
-  local left_bar, right_bar = Highlights.build_winbars(rel_path, payload.reason)
+  local left_bar, right_bar = Highlights.build_winbars(rel_path)
   vim.wo[left_win].winbar = left_bar
   vim.wo[right_win].winbar = right_bar
 
@@ -116,6 +116,91 @@ function M.review(payload)
       vim.cmd("syncbind")
     end
   end, DIFF_SETTLE_MS)
+
+  -- Show reason as a floating popup (dismiss with q/Esc)
+  if payload.reason and payload.reason ~= "" then
+    local MAX_WIDTH = 90
+    local lines = {}
+    local current = ""
+    for word in payload.reason:gmatch("%S+") do
+      if #current + #word + 1 > MAX_WIDTH and current ~= "" then
+        lines[#lines + 1] = current
+        current = word
+      else
+        current = current == "" and word or (current .. " " .. word)
+      end
+    end
+    if current ~= "" then
+      lines[#lines + 1] = current
+    end
+
+    local popup_w = 0
+    for _, l in ipairs(lines) do
+      local len = vim.fn.strdisplaywidth(l)
+      if len > popup_w then popup_w = len end
+    end
+    popup_w = math.min(popup_w + 4, math.floor(vim.o.columns * 0.8))
+
+    local buf = vim.api.nvim_create_buf(false, true)
+    local display_lines = { "  📝 Why:" }
+    for _, l in ipairs(lines) do
+      display_lines[#display_lines + 1] = "  " .. l
+    end
+    display_lines[#display_lines + 1] = ""
+    display_lines[#display_lines + 1] = "  Press q or Esc to dismiss"
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, display_lines)
+    vim.bo[buf].buftype = "nofile"
+    vim.bo[buf].bufhidden = "wipe"
+    vim.bo[buf].modifiable = false
+    vim.bo[buf].filetype = "pi-guardian-reason"
+
+    local win = vim.api.nvim_open_win(buf, true, {
+      relative = "editor",
+      row = math.floor((vim.o.lines - #display_lines) / 2),
+      col = math.floor((vim.o.columns - popup_w) / 2),
+      width = popup_w,
+      height = #display_lines,
+      style = "minimal",
+      border = "rounded",
+      title = " reason ",
+      title_pos = "center",
+      noautocmd = true,
+      zindex = 50,
+    })
+    vim.wo[win].winhl = "FloatBorder:DiagnosticWarn,NormalFloat:Normal"
+    vim.wo[win].cursorline = false
+    vim.wo[win].number = false
+    vim.wo[win].relativenumber = false
+    vim.wo[win].signcolumn = "no"
+
+    for _, b in ipairs({ buf, file_buf, orig_buf }) do
+      vim.keymap.set("n", "q", function()
+        if vim.api.nvim_win_is_valid(win) then
+          pcall(vim.api.nvim_win_close, win, true)
+        end
+      end, { buffer = b, nowait = true })
+      vim.keymap.set("n", "<Esc>", function()
+        if vim.api.nvim_win_is_valid(win) then
+          pcall(vim.api.nvim_win_close, win, true)
+        end
+      end, { buffer = b, nowait = true })
+    end
+
+    -- Auto-cleanup: wipe buffer when window closes
+    vim.api.nvim_create_autocmd("WinClosed", {
+      pattern = tostring(win),
+      once = true,
+      callback = function()
+        -- Remove q/Esc mappings from diff buffers when popup closes
+        for _, b in ipairs({ file_buf, orig_buf }) do
+          if vim.api.nvim_buf_is_valid(b) then
+            pcall(vim.keymap.del, "n", "q", { buffer = b })
+            pcall(vim.keymap.del, "n", "<Esc>", { buffer = b })
+          end
+        end
+      end,
+    })
+  end
 
   -- Build review state
   ---@type PiGuardianReviewState

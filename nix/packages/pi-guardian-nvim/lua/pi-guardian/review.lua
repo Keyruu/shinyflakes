@@ -58,7 +58,9 @@ local function close_review_tab(state)
     end
   end
 
-  -- Close remaining windows in the review tab
+  -- Close remaining windows in the review tab. Delete the TabClose
+  -- augroup first so our own autocmd doesn't fire during teardown.
+  pcall(vim.api.nvim_del_augroup_by_name, "PiGuardianTabClose")
   if vim.api.nvim_tabpage_is_valid(state.review_tab) then
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(state.review_tab)) do
       if vim.api.nvim_win_is_valid(win) then

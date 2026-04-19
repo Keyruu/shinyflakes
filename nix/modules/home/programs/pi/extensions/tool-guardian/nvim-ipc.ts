@@ -58,27 +58,39 @@ export function watchForResponse(responseFile: string): {
   let watcher: ReturnType<typeof watch> | null = null;
   let cancelled = false;
 
+  /** Read and resolve if the response file already has valid content. */
+  function tryResolve(resolvePromise: (data: ResponseData) => void): boolean {
+    try {
+      const raw = readFileSync(responseFile, "utf-8").trim();
+      if (raw) {
+        const data = JSON.parse(raw) as ResponseData;
+        cancelled = true;
+        watcher?.close();
+        try {
+          unlinkSync(responseFile);
+        } catch {}
+        resolvePromise(data);
+        return true;
+      }
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        console.error(`[guardian] malformed response JSON in ${responseFile}: ${err.message}`);
+      }
+    }
+    return false;
+  }
+
   const promise = new Promise<ResponseData>((resolvePromise) => {
     try {
       watcher = watch(dir, (_eventType, filename) => {
         if (cancelled || filename !== file) return;
-        try {
-          const raw = readFileSync(responseFile, "utf-8").trim();
-          if (raw) {
-            const data = JSON.parse(raw) as ResponseData;
-            cancelled = true;
-            watcher?.close();
-            try {
-              unlinkSync(responseFile);
-            } catch {}
-            resolvePromise(data);
-          }
-        } catch (err) {
-          if (err instanceof SyntaxError) {
-            console.error(`[guardian] malformed response JSON in ${responseFile}: ${err.message}`);
-          }
-        }
+        tryResolve(resolvePromise);
       });
+
+      // Check for a response that arrived between watcher setup and
+      // the first OS event — fs.watch only fires on *changes*, so a
+      // write that lands right after our watch() call is missed silently.
+      tryResolve(resolvePromise);
     } catch {}
   });
 

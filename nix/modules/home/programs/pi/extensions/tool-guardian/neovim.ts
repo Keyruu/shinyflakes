@@ -241,7 +241,7 @@ async function reviewInEmbeddedNvim(
     );
   }
 
-  // TUI/notification won — tell nvim to clean up
+  // TUI/notification won — dismiss nvim review (both Allow and Block)
   nvimRemoteSend(
     nvimServer,
     `<C-\\><C-n>:lua vim.schedule(function() ` +
@@ -303,9 +303,10 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
   } catch {}
 
   if (afterContent !== proposedContent) {
+    // Write user-edited version to disk for the checkUserEdits flow,
+    // but don't return early — the TUI select below decides allow/block.
+    // If blocked, we restore originalContent below.
     writeFileSync(absolutePath, afterContent, "utf-8");
-    const editResult = checkUserEdits(pi, afterContent, proposedContent, filePath, fileName);
-    if (editResult) return editResult;
   }
 
   const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
@@ -318,11 +319,21 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
   );
 
   if (choice === ReviewAction.Block || choice === undefined) {
+    // Restore original — file may have user-edited content on disk
+    writeFileSync(absolutePath, originalContent, "utf-8");
     ctx.abort();
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
-  writeFileSync(absolutePath, proposedContent, "utf-8");
+  // Allowed — send user edits feedback if they modified the proposed content
+  if (afterContent !== proposedContent) {
+    // User's edited version is already on disk, keep it
+    const editResult = checkUserEdits(pi, afterContent, proposedContent, filePath, fileName);
+    if (editResult) return editResult;
+  } else {
+    writeFileSync(absolutePath, proposedContent, "utf-8");
+  }
+
   return accepted(fileName);
 }
 
