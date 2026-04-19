@@ -12,6 +12,10 @@ in
       enable = true;
       configFile = config.sops.secrets.bypassVpnConfig.path;
     };
+    sync = {
+      enable = true;
+      cleanup = true;
+    };
   };
 
   networking.firewall.interfaces.changedetection.allowedTCPPorts = [
