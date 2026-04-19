@@ -79,6 +79,8 @@
 
   sops.defaultSopsFile = ../../secrets.yaml;
 
+  nixpkgs.config.allowUnfree = true;
+
   # revision of the flake the configuration was built from.
   # $ nixos-version --configuration-revision
   system.configurationRevision = if (flake ? rev) then flake.rev else flake.dirtyRev;
