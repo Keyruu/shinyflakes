@@ -17,7 +17,7 @@ in
       security.enable = false;
       containers.esphome = {
         containerConfig = {
-          image = "ghcr.io/esphome/esphome:2026.4.0";
+          image = "ghcr.io/esphome/esphome:2026.4.1";
           environments = {
             TZ = "Europe/Berlin";
           };
