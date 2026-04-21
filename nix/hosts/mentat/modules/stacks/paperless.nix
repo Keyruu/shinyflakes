@@ -63,6 +63,7 @@ in
             ];
             networkAliases = [ "broker" ];
             addCapabilities = [
+              "DAC_OVERRIDE"
               "SETUID"
               "SETGID"
             ];
