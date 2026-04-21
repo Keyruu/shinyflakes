@@ -66,6 +66,7 @@ in
               "DAC_OVERRIDE"
               "SETUID"
               "SETGID"
+              "SETPCAP"
             ];
           };
           security = {
