@@ -68,7 +68,10 @@ in
               "SETGID"
             ];
           };
-          security.readOnlyRootFilesystem = false;
+          security = {
+            noNewPrivileges = false;
+            readOnlyRootFilesystem = false;
+          };
         };
 
         webserver = {
