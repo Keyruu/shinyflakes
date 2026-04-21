@@ -49,12 +49,6 @@ function M.review(payload)
   local proposed_lines, proposed_eol = Buffers.split_content(payload.proposed)
   local rel_path = vim.fn.fnamemodify(payload.path, ":~:.")
 
-  -- Snapshot existing buffers so we can clean orphans after close
-  local bufs_before = {}
-  for _, b in ipairs(vim.api.nvim_list_bufs()) do
-    bufs_before[b] = true
-  end
-
   local prev_diffopt = vim.go.diffopt
   Diffopt.set_context(Diffopt.DEFAULT_CONTEXT)
 
@@ -219,7 +213,6 @@ function M.review(payload)
     original_eol = original_eol,
     file_was_modified = file_was_modified,
     file_buf_existed = file_buf_existed,
-    bufs_before = bufs_before,
     on_cleanup = function()
       M._active_reject = nil
     end,

@@ -15,6 +15,9 @@
  * notification — whichever the user interacts with first wins.
  *
  * Supports `ai:` comments for steering the agent from within the diff.
+ * On accept, `ai:` lines are stripped from the file and instructions
+ * are delivered via a steer (user-role) message — no re-read needed
+ * unless the user made manual edits beyond the ai: comments.
  */
 
 import { spawnSync } from "node:child_process";
@@ -51,6 +54,17 @@ function extractAiComments(content: string): string[] {
     }
   }
   return comments;
+}
+
+/** Remove lines containing `ai:` comments, preserving other content. */
+function stripAiComments(content: string): string {
+  const lines = content.split("\n");
+  const stripped = lines.filter((line) => !/\bai:\s*/.test(line));
+  // Preserve trailing newline if original had one
+  if (content.endsWith("\n") && !stripped.join("\n").endsWith("\n")) {
+    return stripped.join("\n") + "\n";
+  }
+  return stripped.join("\n");
 }
 
 /** Compute a unified diff by shelling out to `diff -u`. */
@@ -101,61 +115,75 @@ function truncateDiff(diff: string): string {
 }
 
 /**
- * Check if the user modified the proposed content or left `ai:` comments.
- * Builds a rich feedback message with the actual diff and extracted
- * instructions so the agent knows exactly what was changed and why.
+ * Process user edits from diff review:
+ * 1. Extract ai: instructions from the edited content
+ * 2. Strip ai: comment lines and write clean version to disk
+ * 3. Send steer (user-role) message with instructions and/or diff
+ * 4. Return an accepted result
  *
- * Returns an AcceptedResult (not BlockResult) because the user's version
- * is already on disk and should be kept — this is an accept with edits,
- * not a rejection.
+ * Steer messages have `role: "user"` so models treat them as
+ * real instructions — much stronger than tool-result text.
+ *
+ * If the file only had ai: comments (no other edits), the model
+ * does NOT need to re-read — instructions are in the steer message
+ * and the file on disk is already clean.
  */
-function checkUserEdits(
+function processUserEdits(
   pi: ExtensionAPI,
   afterContent: string,
   proposedContent: string,
   filePath: string,
   fileName: string,
+  absolutePath: string,
 ): AcceptedResult | undefined {
-  if (afterContent === proposedContent) return undefined;
-
-  const diff = computeUserDiff(proposedContent, afterContent);
   const aiComments = extractAiComments(afterContent);
-  const hasDiff = diff.length > 0;
+  const cleanContent = stripAiComments(afterContent);
+  const hasRealEdits = cleanContent !== proposedContent;
   const hasInstructions = aiComments.length > 0;
 
-  const parts: string[] = [`I reviewed your changes to \`${filePath}\` and made adjustments.`];
+  if (!hasRealEdits && !hasInstructions) return undefined;
 
-  if (hasDiff) {
-    parts.push("");
-    parts.push("Here's what I changed (- your version, + my version):");
-    parts.push("```");
-    parts.push(truncateDiff(diff));
-    parts.push("```");
-  }
+  // Write the clean (ai:-stripped) version to disk
+  writeFileSync(absolutePath, cleanContent, "utf-8");
 
-  if (hasInstructions) {
-    parts.push("");
-    parts.push("I also left these instructions in the file (lines starting with `ai:`):");
-    for (const c of aiComments) {
-      parts.push(`- ${c}`);
+  // Build steer message
+  const steerParts: string[] = [];
+
+  if (hasRealEdits) {
+    steerParts.push(`I reviewed your changes to \`${filePath}\` and made adjustments.`);
+    const diff = computeUserDiff(proposedContent, cleanContent);
+    if (diff) {
+      steerParts.push("");
+      steerParts.push("Here's what I changed (- your version, + my version):");
+      steerParts.push("```");
+      steerParts.push(truncateDiff(diff));
+      steerParts.push("```");
     }
-    parts.push("");
-    parts.push("Follow every `ai:` instruction, then remove the `ai:` comment lines.");
+    steerParts.push("");
+    steerParts.push("Re-read the file before making further edits — the version on disk has my changes.");
   }
 
-  const message = parts.join("\n");
-  pi.sendUserMessage(message, { deliverAs: "steer" });
-
-  // Build a concise tool result message
-  const reasonParts: string[] = [`User edited ${fileName} during review.`];
   if (hasInstructions) {
-    reasonParts.push(`Instructions: ${aiComments.join("; ")}`);
-  }
-  if (hasDiff && !hasInstructions) {
-    reasonParts.push("The file on disk has their version. Re-read it before making further edits.");
+    if (!hasRealEdits) {
+      steerParts.push(`I reviewed your changes to \`${filePath}\`.`);
+    }
+    steerParts.push("");
+    steerParts.push("I have these instructions for you:");
+    for (const c of aiComments) {
+      steerParts.push(`- ${c}`);
+    }
+    steerParts.push("");
+    steerParts.push("Follow every instruction above.");
   }
 
-  return { accepted: true, message: reasonParts.join(" ") };
+  pi.sendUserMessage(steerParts.join("\n"), { deliverAs: "steer" });
+
+  // Build concise tool result
+  const resultParts: string[] = [`Applied changes to ${fileName}.`];
+  if (hasInstructions) resultParts.push("User instructions delivered separately.");
+  if (hasRealEdits) resultParts.push("File on disk has user edits — re-read before further changes.");
+
+  return { accepted: true, message: resultParts.join(" ") };
 }
 
 // ── Review context ───────────────────────────────────────────────────
@@ -237,7 +265,8 @@ async function reviewInEmbeddedNvim(
 
     const afterContent = result.data.content ?? proposedContent;
     return (
-      checkUserEdits(pi, afterContent, proposedContent, filePath, fileName) ?? accepted(fileName)
+      processUserEdits(pi, afterContent, proposedContent, filePath, fileName, absolutePath) ??
+      accepted(fileName)
     );
   }
 
@@ -302,11 +331,14 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
     rmdirSync(tmpDir);
   } catch {}
 
+  // Write ai:-stripped version to disk before TUI select so the file
+  // reflects user edits minus ai: comments. If blocked, we restore
+  // originalContent below so this write doesn't matter.
   if (afterContent !== proposedContent) {
-    // Write user-edited version to disk for the checkUserEdits flow,
-    // but don't return early — the TUI select below decides allow/block.
-    // If blocked, we restore originalContent below.
-    writeFileSync(absolutePath, afterContent, "utf-8");
+    const cleanContent = stripAiComments(afterContent);
+    if (cleanContent !== proposedContent) {
+      writeFileSync(absolutePath, cleanContent, "utf-8");
+    }
   }
 
   const reasonSuffix = reason ? `\n  Why: ${reason}` : "";
@@ -325,16 +357,11 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
-  // Allowed — send user edits feedback if they modified the proposed content
-  if (afterContent !== proposedContent) {
-    // User's edited version is already on disk, keep it
-    const editResult = checkUserEdits(pi, afterContent, proposedContent, filePath, fileName);
-    if (editResult) return editResult;
-  } else {
-    writeFileSync(absolutePath, proposedContent, "utf-8");
-  }
-
-  return accepted(fileName);
+  // Allowed — process user edits (strips ai: comments, writes clean version, sends steer)
+  return (
+    processUserEdits(pi, afterContent, proposedContent, filePath, fileName, absolutePath) ??
+    accepted(fileName)
+  );
 }
 
 // ── Review queue ────────────────────────────────────────────────────

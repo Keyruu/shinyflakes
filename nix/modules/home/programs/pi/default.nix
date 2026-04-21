@@ -20,6 +20,7 @@ in
       ".pi/agent/AGENTS.md".source = mkLink "${repoDir}/AGENTS.md";
       ".pi/agent/skills".source = mkLink "${repoDir}/skills";
       ".pi/agent/settings.json".source = mkLink "${repoDir}/settings.json";
+      ".pi/agent/models.json".source = mkLink "${repoDir}/models.json";
 
       # Extensions — symlink individually so we can inject node_modules for LSP
       ".pi/agent/extensions/neovim-cursor-fix.ts".source =

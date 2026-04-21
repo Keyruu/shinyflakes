@@ -13,8 +13,11 @@
  * the TUI — whichever you interact with first wins.
  *
  * AI comments: when reviewing a diff in Neovim you can add comments
- * starting with `ai:` to steer the agent. On Allow the file is written
- * as-is and the agent is told to follow the instructions and remove them.
+ * starting with `ai:` to steer the agent. On Allow the ai: lines are
+ * stripped from the file and the instructions are delivered via a
+ * steer (user-role) message so the agent doesn't need to re-read
+ * the file just to clean them up. Only manual edits beyond ai: comments
+ * trigger a re-read instruction.
  *
  * Also sends a "finished" desktop notification when the agent completes
  * a prompt (only when the terminal is not focused).

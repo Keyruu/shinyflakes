@@ -20,7 +20,6 @@ local M = {}
 ---@field original_eol boolean
 ---@field file_was_modified boolean
 ---@field file_buf_existed boolean
----@field bufs_before table<integer, boolean>
 ---@field on_cleanup fun()|nil
 
 ---@param state PiGuardianReviewState
@@ -78,8 +77,8 @@ local function close_review_tab(state)
     vim.api.nvim_set_current_tabpage(state.prev_tab)
   end
 
-  -- Wipe any buffers created during the review (scratch, orphans from tab ops).
-  -- File buffer is kept if it existed before review.
+  -- Wipe only the buffers this review created (orig scratch + file if new).
+  -- Previous approach deleted ALL unknown buffers which raced with queued reviews.
   -- Detach LSP clients before deleting to avoid "Invalid buffer id" errors.
   vim.schedule(function()
     local function safe_delete(b)
@@ -92,11 +91,7 @@ local function close_review_tab(state)
       pcall(vim.api.nvim_buf_delete, b, { force = true })
     end
 
-    for _, b in ipairs(vim.api.nvim_list_bufs()) do
-      if not state.bufs_before[b] and b ~= state.file_buf then
-        safe_delete(b)
-      end
-    end
+    safe_delete(state.orig_buf)
     if not state.file_buf_existed then
       safe_delete(state.file_buf)
     end
