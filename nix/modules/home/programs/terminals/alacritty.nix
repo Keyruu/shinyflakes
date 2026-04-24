@@ -6,6 +6,7 @@
     theme = "dracula";
     settings = {
       window = {
+        opacity = 0.9;
         decorations = "Buttonless";
         padding = {
           x = 10;

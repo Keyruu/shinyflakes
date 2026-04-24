@@ -9,11 +9,20 @@ _:
   window-rule {
       match app-id=r#"^scratchpad$"#
       match app-id=r#"^vicinae-script$"#
-      opacity 0.96
+      background-effect {
+          blur true
+      }
       default-column-width { proportion 0.88; }
       default-window-height { proportion 0.88; }
       open-floating true
       open-maximized false
+  }
+
+  window-rule {
+      match app-id=r#"^Alacritty$"#
+      background-effect {
+          blur true
+      }
   }
 
   window-rule {

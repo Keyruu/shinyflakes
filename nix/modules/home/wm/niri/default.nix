@@ -22,6 +22,7 @@ in
   home.packages = with pkgs; [
     nirius
     iio-niri
+    xwayland-satellite
   ];
 
   programs.niri = {
@@ -30,9 +31,7 @@ in
 
     config = # kdl
       ''
-        xwayland-satellite {
-            path "${lib.getExe pkgs.xwayland-satellite}"
-        }
+        xwayland-satellite {}
 
         spawn-at-startup "niriusd"
         spawn-at-startup "systemd-run" "--user" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
