@@ -213,7 +213,6 @@ in
     # winboat
     kdePackages.kdeconnect-kde
     gotify-desktop
-    vial
     jira-cli-go
     kdePackages.kdenlive
 
