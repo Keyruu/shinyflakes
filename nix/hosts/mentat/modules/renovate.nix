@@ -74,6 +74,9 @@
         schedule = [ "after 4am and before 5am every day" ];
       };
       osvVulnerabilityAlerts = true;
+      prConcurrentLimit = 0;
+      branchConcurrentLimit = 0;
+      prHourlyLimit = 0;
 
       # Recommended defaults from https://github.com/NuschtOS/nixos-modules/blob/db6f2a33500dadb81020b6e5d4281b4820d1b862/modules/renovate.nix
       cachePrivatePackages = true;
