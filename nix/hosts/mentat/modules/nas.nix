@@ -49,7 +49,7 @@ in
 
   virtualisation.quadlet.containers.scrutiny = {
     containerConfig = {
-      image = "ghcr.io/analogj/scrutiny:v0.8.6-omnibus";
+      image = "ghcr.io/analogj/scrutiny:v0.9.1-omnibus";
       addCapabilities = [
         "SYS_RAWIO"
         "SYS_ADMIN"
