@@ -35,7 +35,7 @@ in
         }
 
         spawn-at-startup "niriusd"
-        spawn-at-startup "systemd-run" "--user" "--scope" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
+        spawn-at-startup "systemd-run" "--user" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
         spawn-at-startup "kanshi"
         spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
         spawn-at-startup "clipse" "-listen"
