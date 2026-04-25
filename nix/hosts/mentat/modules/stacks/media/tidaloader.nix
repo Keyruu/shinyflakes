@@ -29,7 +29,7 @@ in
       containers = {
         tidaloader = {
           containerConfig = {
-            image = "ghcr.io/rayz3r0/tidaloader:latest@sha256:91c3255f9e4e4b90aa725db0dd31a2a0bc1f6bfdbec36345d9f82be082a775cf";
+            image = "ghcr.io/rayz3r0/tidaloader:latest@sha256:9eca34863edc49b9ec0223e9249f82965c8ae85f6a17436a67d959fcbb8bcffd";
             publishPorts = [ "127.0.0.1:${toString my.port}:8001" ];
             volumes = [
               "/main/media/Music/downloads/tidaloader:/music"
