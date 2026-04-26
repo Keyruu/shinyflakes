@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
   "lastChangelogVersion": "0.68.0",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "glm-5.1",
   "enabledModels": [
     "openrouter/qwen/qwen3.5-35b-a3b",
     "openrouter/qwen/qwen3.6-plus",

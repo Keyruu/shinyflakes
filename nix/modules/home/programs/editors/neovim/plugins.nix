@@ -144,7 +144,7 @@
         setup = # lua
           ''
             require('kanagawa').setup({
-              transparent = false,
+              transparent = true,
               terminalColors = false,
               colors = {
                 palette = {

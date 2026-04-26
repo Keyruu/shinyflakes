@@ -11,6 +11,7 @@ _:
       match app-id=r#"^vicinae-script$"#
       background-effect {
           blur true
+          xray false
       }
       default-column-width { proportion 0.88; }
       default-window-height { proportion 0.88; }
@@ -23,6 +24,11 @@ _:
       background-effect {
           blur true
       }
+  }
+
+  window-rule {
+      match app-id=r#"^kitty$"#
+      draw-border-with-background false
   }
 
   window-rule {
@@ -49,6 +55,7 @@ _:
       match app-id=r#"^dev.zed.Zed$"#
       match app-id=r#"^org.wezfurlong.wezterm$"#
       match app-id=r#"^Alacritty$"#
+      match app-id=r#"^kitty$"#
       open-on-workspace "work"
   }
 
@@ -89,5 +96,13 @@ _:
   layer-rule {
       match namespace=r#"^noctalia-overview*"#
       place-within-backdrop true
+  }
+
+  layer-rule {
+      match namespace=r#"^vicinae$"#
+      background-effect {
+          blur true
+          xray false
+      }
   }
 ''
