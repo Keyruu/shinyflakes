@@ -27,7 +27,7 @@ in
         hister = {
           security.readOnlyRootFilesystem = false;
           containerConfig = {
-            image = "ghcr.io/asciimoo/hister:v0.4.0";
+            image = "ghcr.io/asciimoo/hister:v0.13.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:4433" ];
             user = "1000:1000";
             volumes = [
