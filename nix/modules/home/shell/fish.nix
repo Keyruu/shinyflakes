@@ -59,6 +59,10 @@
           echo $history[1]
         end
         abbr -a !! --position anywhere --function last_history_item
+
+        if status is-interactive; and not set -q TMUX
+          sesh connect .
+        end
       '';
   };
 }

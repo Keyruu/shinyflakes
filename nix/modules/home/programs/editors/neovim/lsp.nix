@@ -8,6 +8,7 @@
       trouble.enable = true;
       lspSignature.enable = true;
       inlayHints.enable = true;
+      presets.tailwindcss-language-server.enable = true;
 
       servers = {
         nixd = {
@@ -125,12 +126,11 @@
       };
       go.enable = true;
       rust.enable = true;
-      ts.enable = true;
+      typescript.enable = true;
       bash.enable = true;
       css.enable = true;
       html.enable = true;
       python.enable = true;
-      tailwind.enable = true;
       markdown = {
         enable = true;
         extensions.render-markdown-nvim.enable = true;
