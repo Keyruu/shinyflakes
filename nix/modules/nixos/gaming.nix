@@ -76,7 +76,7 @@
     libva-utils
     # FIXME: openldap broken https://github.com/NixOS/nixpkgs/issues/513245
     # lutris-free
-    (bottles.override { removeWarningPopup = true; })
+    # (bottles.override { removeWarningPopup = true; })
     (wineWow64Packages.full.override {
       wineRelease = "staging";
       mingwSupport = true;
