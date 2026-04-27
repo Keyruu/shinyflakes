@@ -78,7 +78,7 @@ in
 
         webserver = {
           containerConfig = {
-            image = "ghcr.io/paperless-ngx/paperless-ngx:2.20.14";
+            image = "ghcr.io/paperless-ngx/paperless-ngx:2.20.15";
             publishPorts = [ "127.0.0.1:${toString my.port}:8000" ];
             volumes = [
               "${my.stack.path}/data:/usr/src/paperless/data"
