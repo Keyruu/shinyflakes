@@ -1,6 +1,6 @@
 { config, flake, ... }:
 let
-  karaokeDomain = "29112025karaoke.keyruu.de";
+  karaokeDomain = "29042026karaoke.keyruu.de";
   stackPath = "/etc/stacks/pikaraoke";
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
@@ -22,16 +22,14 @@ in
 
   virtualisation.quadlet.containers.pikaraoke = {
     containerConfig = {
-      image = "docker.io/vicwomg/pikaraoke:latest";
+      image = "docker.io/vicwomg/pikaraoke:1.19.0";
       publishPorts = [ "${config.services.mesh.ip}:5555:5555" ];
-      exec = [
-        "-u"
-        "https://${karaokeDomain}"
-        "--admin-password"
-        "rasenschach"
-        "--limit-user-songs-by"
-        "3"
-      ];
+      entrypoint = [ "/bin/sh" "-c" ''
+        exec pikaraoke \
+          -u "https://${karaokeDomain}" \
+          --admin-password "$KARAOKE_ADMIN_PASSWORD" \
+          --limit-user-songs-by 3
+      '' ];
       volumes = [
         "${stackPath}/songs:/app/pikaraoke-songs"
       ];
