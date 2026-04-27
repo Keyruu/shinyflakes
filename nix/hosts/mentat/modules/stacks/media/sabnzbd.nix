@@ -33,8 +33,8 @@ in
             ];
           };
           unitConfig = {
-            After = [ containers.media-gluetun.ref ];
-            Requires = [ containers.media-gluetun.ref ];
+            After = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
+            Requires = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
           };
         };
       };

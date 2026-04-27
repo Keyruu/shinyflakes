@@ -74,6 +74,8 @@ in
             "rag-api"
           ];
           unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
             X-RestartTrigger = [
               config.environment.etc."stacks/librechat/api/librechat.yaml".source
             ];

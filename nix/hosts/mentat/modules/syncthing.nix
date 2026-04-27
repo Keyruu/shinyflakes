@@ -1,5 +1,9 @@
 { config, ... }:
 {
+  systemd.services.syncthing = {
+    after = [ "zfs-encrypted.target" ];
+    requires = [ "zfs-encrypted.target" ];
+  };
   sops.secrets.syncthingAdminPassword = { };
 
   services.syncthing = {

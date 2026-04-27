@@ -27,6 +27,10 @@ in
               "/main/media/Music/library:/music:ro"
             ];
           };
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
       };
     };

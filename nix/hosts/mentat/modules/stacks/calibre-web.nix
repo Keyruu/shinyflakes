@@ -74,6 +74,10 @@ in
                 "${my.stack.path}/plugins:/plugins"
               ];
             };
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
           };
         };
       };
