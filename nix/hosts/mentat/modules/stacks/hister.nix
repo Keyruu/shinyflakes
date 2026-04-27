@@ -35,7 +35,7 @@ in
             ];
             environments = {
               HISTER__SERVER__BASE_URL = "https://${my.domain}";
-              HISTER__APP__DIRECTORY = "/hister/data";
+              HISTER_DATA_DIR = "/hister/data";
             };
           };
         };
