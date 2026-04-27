@@ -199,6 +199,55 @@ quadlet-nix, so stacks never need to set it.
 - `stack.security.{ enable, dropAllCapabilities, noNewPrivileges,
   readOnlyRootFilesystem, memoryLimit, pidsLimit }` — stack-level security
 
+## ZFS Encryption & Service Gating
+
+Mentat uses ZFS native encryption on datasets under `main/encrypted`. Datasets
+are **not** auto-unlocked at boot — a manual unlock step is required.
+
+### How It Works
+
+1. **Boot**: Server starts normally. Encrypted datasets remain locked and
+   unmounted. Services depending on them do not start.
+2. **Unlock**: SSH in and run `sudo zfs-unlock`. This loads encryption keys,
+   mounts datasets, and activates `zfs-encrypted.target`.
+3. **Services start**: All services with `zfs = true` are `wantedBy` the target
+   and auto-start once it activates.
+
+### Infrastructure (defined in `nix/hosts/mentat/modules/nas.nix`)
+
+- `zfs-encrypted.target` — systemd target representing "datasets are unlocked"
+- `zfs-encrypted-check.service` — oneshot gate that verifies `keystatus =
+  available` before the target can activate
+- `zfs-unlock` — shell script package (`nix/packages/zfs-unlock.nix`) that runs
+  `zfs load-key -a`, `zfs mount -a`, and `systemctl start zfs-encrypted.target`
+
+### Service Option: `services.my.<name>.zfs`
+
+Set `zfs = true` on any service that depends on encrypted ZFS datasets:
+
+```nix
+services.my.immich = {
+  zfs = true;  # wires up zfs-encrypted.target dependency
+  port = 2283;
+  # ...
+};
+```
+
+For **stack-based services**, this automatically:
+- Adds `After` and `Requires` on `zfs-encrypted.target` to all stack containers
+- Adds `wantedBy = [ "zfs-encrypted.target" ]` to all stack container services
+
+For **non-stack services** (e.g., syncthing, copyparty, restic), wire up
+manually:
+
+```nix
+systemd.services.syncthing = {
+  after = [ "zfs-encrypted.target" ];
+  requires = [ "zfs-encrypted.target" ];
+  wantedBy = [ "zfs-encrypted.target" ];
+};
+```
+
 ## Quadlet Configuration Best Practices
 
 ### Key Notes

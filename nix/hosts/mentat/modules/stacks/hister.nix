@@ -17,7 +17,7 @@ in
       security.enable = true;
 
       containers = {
-        main = {
+        hister = {
           containerConfig = {
             image = "ghcr.io/asciimoo/hister:v0.4.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:4433" ];
