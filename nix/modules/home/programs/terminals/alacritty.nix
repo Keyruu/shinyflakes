@@ -28,6 +28,19 @@
         color = "#003753";
         duration = 200;
       };
+      hints.enabled = [
+        {
+          command = "xdg-open";
+          hyperlinks = true;
+          post_processing = true;
+          persist = false;
+          regex = "(mailto:|https://|http://|file://)[^\\u0000-\\u001F\\u007F-\\u009F<>\"\\s{-}\\^⟨⟩\`$]+";
+          binding = {
+            key = "E";
+            mods = "Control|Shift";
+          };
+        }
+      ];
       keyboard.bindings = [
         {
           key = "N";

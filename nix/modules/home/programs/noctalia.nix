@@ -100,7 +100,8 @@ in
         position = "top";
         backgroundOpacity = 0;
         showCapsule = true;
-        floating = true;
+        barType = "floating";
+        marginHorizontal = "12px";
         useSeparateOpacity = true;
         widgets = {
           left = [

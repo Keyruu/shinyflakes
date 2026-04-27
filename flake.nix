@@ -159,6 +159,11 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    hister = {
+      url = "github:asciimoo/hister";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # web
     homepage = {
       url = "github:Keyruu/homepage";

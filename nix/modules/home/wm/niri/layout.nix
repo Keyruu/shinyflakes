@@ -35,8 +35,8 @@ _:
       gaps 4
 
       struts {
-          left 0
-          right 0
+          left 12
+          right 12
           top 0
           bottom 0
       }

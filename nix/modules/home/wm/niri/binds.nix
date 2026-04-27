@@ -22,10 +22,10 @@ in
       XF86MonBrightnessUp hotkey-overlay-title=null { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "set" "+10%"; }
       XF86MonBrightnessDown hotkey-overlay-title=null { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "set" "10%-"; }
 
-      Alt+H hotkey-overlay-title="Focus Left" { focus-column-or-monitor-left; }
+      Alt+H hotkey-overlay-title="Focus Left" { focus-column-left; }
       Alt+J hotkey-overlay-title="Focus Down" { focus-window-or-workspace-down; }
       Alt+K hotkey-overlay-title="Focus Up" { focus-window-or-workspace-up; }
-      Alt+L hotkey-overlay-title="Focus Right" { focus-column-or-monitor-right; }
+      Alt+L hotkey-overlay-title="Focus Right" { focus-column-right; }
       Alt+Shift+H hotkey-overlay-title="Move Window Left" { move-column-left; }
       Alt+Shift+J hotkey-overlay-title="Move Window Down" { move-window-down-or-to-workspace-down; }
       Alt+Shift+K hotkey-overlay-title="Move Window Up" { move-window-up-or-to-workspace-up; }

@@ -13,6 +13,7 @@
         zen
         zen-bin
         .zen-wrapped
+        librewolf
       '';
       mode = "0755";
     };

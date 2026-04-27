@@ -1,0 +1,37 @@
+{ config, ... }:
+let
+  my = config.services.my.hister;
+in
+{
+  services.my.hister = {
+    port = 4433;
+    domain = "hister.lab.keyruu.de";
+    proxy = {
+      enable = true;
+      whitelist.enable = true;
+    };
+    backup.enable = true;
+    stack = {
+      enable = true;
+      directories = [ "data" ];
+      security.enable = true;
+
+      containers = {
+        main = {
+          containerConfig = {
+            image = "ghcr.io/asciimoo/hister:v0.4.0";
+            publishPorts = [ "127.0.0.1:${toString my.port}:4433" ];
+            user = "1000:1000";
+            volumes = [
+              "${my.stack.path}/data:/hister/data"
+            ];
+            environments = {
+              HISTER__SERVER__BASE_URL = "https://${my.domain}";
+              HISTER__APP__DIRECTORY = "/hister/data";
+            };
+          };
+        };
+      };
+    };
+  };
+}

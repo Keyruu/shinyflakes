@@ -221,5 +221,6 @@ in
     perSystem.self.wg-peer
     perSystem.self.mesh-expose
     # perSystem.librepods.default
+    perSystem.hister.default
   ];
 }

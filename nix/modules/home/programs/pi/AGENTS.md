@@ -150,34 +150,40 @@ Common usage:
 
 Tools: `searxng_web_search`, `web_url_read`
 
-## `github` — GitHub Access (41 tools)
+## `gh` — GitHub CLI
 
-Full GitHub integration — PRs, issues, repos, branches, releases, code search,
-and more.
+Use the `gh` CLI directly for GitHub operations — PRs, issues, repos, releases,
+code search, and more. Already authenticated.
 
 Common usage:
 
-- `mcporter call github.list_pull_requests owner="org" repo="repo"` — list PRs
-- `mcporter call github.create_pull_request owner="org" repo="repo" title="feat: stuff" head="feature-branch" base="main"`
-  — create PR
-- `mcporter call github.pull_request_read method="get" owner="org" repo="repo" pullNumber=42`
-  — view PR details
-- `mcporter call github.pull_request_read method="get_diff" owner="org" repo="repo" pullNumber=42`
-  — view PR diff
-- `mcporter call github.list_issues owner="org" repo="repo"` — list issues
-- `mcporter call github.issue_read owner="org" repo="repo" issue_number=123`
-  — view issue
-- `mcporter call github.search_code query="content:useState language:TypeScript org:vercel"`
-  — search code
-- `mcporter call github.search_pull_requests query="is:open review:required" owner="org" repo="repo"`
-  — search PRs
-- `mcporter call github.get_file_contents owner="org" repo="repo" path="src/main.ts"`
-  — get file contents
-- `mcporter call github.list_commits owner="org" repo="repo" sha="main"` —
-  list commits
-- `mcporter call github.create_branch owner="org" repo="repo" branch="feature-x"`
-  — create branch
-- `mcporter call github.get_me` — get authenticated user info
+```bash
+# PRs
+gh pr list -R org/repo
+gh pr create -R org/repo --title "feat: stuff" --head feature-branch --base main
+gh pr view 42 -R org/repo
+gh pr diff 42 -R org/repo
+gh pr merge 42 -R org/repo
+
+# Issues
+gh issue list -R org/repo
+gh issue view 123 -R org/repo
+gh issue create -R org/repo --title "Bug title" --body "description"
+
+# Code search
+gh search code "useState" --language=TypeScript --owner=vercel
+
+# Repos & releases
+gh release list -R org/repo
+gh release view v1.0.0 -R org/repo
+gh repo view org/repo
+
+# Commits & branches
+gh api repos/org/repo/commits?sha=main | jq '.[].sha'
+
+# Authenticated user
+gh auth status
+```
 
 # `atlassian` — Jira & Confluence Access (72 tools)
 
@@ -244,3 +250,34 @@ Common usage:
   — query docs
 
 Tools: `resolve-library-id`, `query-docs`
+
+---
+
+# CLI Tools
+
+## `skopeo` — Container Image Inspection
+
+Use `skopeo` to inspect remote container images — check digests, tags,
+architectures, and labels without pulling.
+
+Common usage:
+
+```bash
+# Inspect image metadata (digest, tags, labels, architecture)
+skopeo inspect docker://ghcr.io/org/image:tag
+
+# List all available tags
+skopeo list-tags docker://ghcr.io/org/image
+
+# Get just the digest
+skopeo inspect docker://ghcr.io/org/image:tag | jq -r '.Digest'
+
+# Inspect specific architecture
+skopeo inspect --override-arch arm64 docker://ghcr.io/org/image:tag
+
+# Compare digests between tags
+skopeo inspect docker://ghcr.io/org/image:latest | jq -r '.Digest'
+skopeo inspect docker://ghcr.io/org/image:v1.0.0 | jq -r '.Digest'
+```
+
+Use skopeo to find versioned tags when a compose file only specifies `latest`.
