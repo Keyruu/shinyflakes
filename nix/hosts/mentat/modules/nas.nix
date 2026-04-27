@@ -38,7 +38,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.zfs}/bin/zfs get -H -o value keystatus main/encrypted | grep -q available'";
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.zfs}/bin/zfs get -H -o value keystatus main/encrypted | grep -qx available'";
     };
   };
 
