@@ -13,7 +13,14 @@ in
     backup.enable = true;
     stack = {
       enable = true;
-      directories = [ "data" ];
+      directories = [
+        {
+          path = "data";
+          mode = "0750";
+          owner = "1000";
+          group = "1000";
+        }
+      ];
       security.enable = true;
 
       containers = {
