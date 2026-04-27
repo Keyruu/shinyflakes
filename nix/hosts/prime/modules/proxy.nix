@@ -37,7 +37,7 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
-    "29112025karaoke.keyruu.de" = {
+    "29042026karaoke.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 5555;
       cloudflare = false;
