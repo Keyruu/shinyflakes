@@ -43,7 +43,7 @@ in
       containers = {
         main = {
           containerConfig = {
-            image = "ghcr.io/dgtlmoon/changedetection.io:0.54.10";
+            image = "ghcr.io/dgtlmoon/changedetection.io:0.55.1";
             publishPorts = [ "127.0.0.1:${toString my.port}:5000" ];
             volumes = [
               "${my.stack.path}/data:/datastore"
