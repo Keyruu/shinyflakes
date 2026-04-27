@@ -3,6 +3,7 @@
   systemd.services.restic-rest-server = {
     after = [ "zfs-encrypted.target" ];
     requires = [ "zfs-encrypted.target" ];
+    wantedBy = [ "zfs-encrypted.target" ];
   };
   users.groups.restic = { };
   users.users.restic = {

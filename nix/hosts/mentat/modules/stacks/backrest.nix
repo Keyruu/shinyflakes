@@ -15,6 +15,7 @@ in
   };
 
   services.my.backrest = {
+    zfs = true;
     port = 9898;
     domain = "backrest.lab.keyruu.de";
     proxy.enable = true;
@@ -47,10 +48,6 @@ in
               "${my.stack.path}/tmp:/tmp"
               "/main/backup/restic:/main/backup/restic"
             ];
-          };
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
           };
         };
       };

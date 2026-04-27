@@ -358,6 +358,18 @@ in
                     else
                       withNetwork;
 
+                  withZfs =
+                    if svc.zfs then
+                      withDeps
+                      // {
+                        unitConfig = withDeps.unitConfig // {
+                          After = (withDeps.unitConfig.After or [ ]) ++ [ "zfs-encrypted.target" ];
+                          Requires = (withDeps.unitConfig.Requires or [ ]) ++ [ "zfs-encrypted.target" ];
+                        };
+                      }
+                    else
+                      withDeps;
+
                   securityAttrs = lib.foldl' (
                     acc: field:
                     let
@@ -371,15 +383,36 @@ in
                   ) { } securityFields;
                   withSecurity =
                     if secCfg.enable then
-                      withDeps
+                      withZfs
                       // {
-                        containerConfig = withDeps.containerConfig // securityAttrs;
+                        containerConfig = withZfs.containerConfig // securityAttrs;
                       }
                     else
-                      withDeps;
+                      withZfs;
                 in
                 {
                   ${fullName} = withSecurity;
+                }
+              ) stackCfg.containers
+            )
+          ) enabledStacks
+        )
+      );
+    }
+
+    {
+      systemd.services = lib.mkMerge (
+        lib.concatLists (
+          lib.mapAttrsToList (
+            stackName: svc:
+            let
+              stackCfg = svc.stack;
+              containerCount = builtins.length (lib.attrNames stackCfg.containers);
+            in
+            lib.optionals (stackCfg.enable && svc.zfs) (
+              lib.mapAttrsToList (
+                shortName: _: {
+                  ${prefixName stackName containerCount shortName}.wantedBy = [ "zfs-encrypted.target" ];
                 }
               ) stackCfg.containers
             )

@@ -19,6 +19,7 @@ in
   };
 
   services.my.tidaloader = {
+    zfs = true;
     port = 8001;
     domain = "tidaloader.lab.keyruu.de";
     proxy.enable = true;
@@ -40,10 +41,6 @@ in
               QUEUE_AUTO_PROCESS = "true";
             };
             environmentFiles = [ config.sops.templates."tidaloader.env".path ];
-          };
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
           };
         };
       };

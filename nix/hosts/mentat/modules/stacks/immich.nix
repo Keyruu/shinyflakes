@@ -4,6 +4,7 @@ let
 in
 {
   services.my.immich = {
+    zfs = true;
     port = 2283;
     domain = "immich.lab.keyruu.de";
     proxy.enable = true;
@@ -43,10 +44,6 @@ in
             "redis"
             "database"
           ];
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
-          };
         };
 
         machine-learning = {

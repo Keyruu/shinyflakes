@@ -16,6 +16,7 @@ in
       domain = "books.port.peeraten.net";
     in
     {
+      zfs = true;
       port = 8083;
       inherit domain;
       proxy = {
@@ -74,10 +75,6 @@ in
                 "${my.stack.path}/plugins:/plugins"
               ];
             };
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
-          };
           };
         };
       };

@@ -5,6 +5,7 @@ let
 in
 {
   services.my.bazarr = {
+    zfs = true;
     port = 6767;
     domain = "bazarr.lab.keyruu.de";
     proxy.enable = true;
@@ -35,8 +36,8 @@ in
             ];
           };
           unitConfig = {
-            After = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
-            Requires = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
           };
         };
       };

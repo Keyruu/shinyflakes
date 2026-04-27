@@ -4,6 +4,7 @@ let
 in
 {
   services.my.navidrome = {
+    zfs = true;
     port = 4533;
     domain = "navidrome.lab.keyruu.de";
     proxy.enable = true;
@@ -26,10 +27,6 @@ in
               "${my.stack.path}/data:/data"
               "/main/media/Music/library:/music:ro"
             ];
-          };
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
           };
         };
       };

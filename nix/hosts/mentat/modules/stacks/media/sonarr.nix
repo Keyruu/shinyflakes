@@ -5,6 +5,7 @@ let
 in
 {
   services.my.sonarr = {
+    zfs = true;
     port = 8989;
     domain = "sonarr.lab.keyruu.de";
     proxy.enable = true;
@@ -34,8 +35,8 @@ in
             ];
           };
           unitConfig = {
-            After = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
-            Requires = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
           };
         };
       };

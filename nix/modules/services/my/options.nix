@@ -30,6 +30,11 @@ in
           {
             options = {
               enable = lib.mkEnableOption "my service";
+              zfs = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Whether this service depends on encrypted ZFS datasets. Wires up zfs-encrypted.target dependencies.";
+              };
               port = lib.mkOption {
                 type = lib.types.nullOr lib.types.port;
                 default = null;

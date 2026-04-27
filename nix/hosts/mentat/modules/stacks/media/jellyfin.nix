@@ -4,6 +4,7 @@ let
 in
 {
   services.my.jellyfin = {
+    zfs = true;
     port = 8096;
     domain = "jellyfin.lab.keyruu.de";
     proxy.enable = true;
@@ -29,10 +30,6 @@ in
               "127.0.0.1:${toString my.port}:8096"
               "${config.services.mesh.ip}:${toString my.port}:8096"
             ];
-          };
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
           };
         };
       };

@@ -11,6 +11,7 @@ in
   systemd.services.copyparty = {
     after = [ "zfs-encrypted.target" ];
     requires = [ "zfs-encrypted.target" ];
+    wantedBy = [ "zfs-encrypted.target" ];
   };
   systemd.tmpfiles.rules = [
     "d /etc/stacks/copyparty 0770 root root"

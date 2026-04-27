@@ -16,6 +16,7 @@ in
   environment.etc."stacks/librechat/api/librechat.yaml".source = ./librechat.yaml;
 
   services.my.librechat = {
+    zfs = true;
     port = 3080;
     domain = "chat.lab.keyruu.de";
     proxy.enable = true;
@@ -74,8 +75,6 @@ in
             "rag-api"
           ];
           unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
             X-RestartTrigger = [
               config.environment.etc."stacks/librechat/api/librechat.yaml".source
             ];

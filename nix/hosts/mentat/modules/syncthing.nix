@@ -3,6 +3,7 @@
   systemd.services.syncthing = {
     after = [ "zfs-encrypted.target" ];
     requires = [ "zfs-encrypted.target" ];
+    wantedBy = [ "zfs-encrypted.target" ];
   };
   sops.secrets.syncthingAdminPassword = { };
 

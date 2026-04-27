@@ -26,6 +26,7 @@ in
   ];
 
   services.my.paperless = {
+    zfs = true;
     port = 8000;
     domain = "paperless.lab.keyruu.de";
     proxy = {
@@ -106,10 +107,6 @@ in
           };
           dependsOn = [ "broker" ];
           security.readOnlyRootFilesystem = false;
-          unitConfig = {
-            After = [ "zfs-encrypted.target" ];
-            Requires = [ "zfs-encrypted.target" ];
-          };
         };
       };
     };

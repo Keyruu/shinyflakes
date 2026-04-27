@@ -5,6 +5,7 @@ let
 in
 {
   services.my.sabnzbd = {
+    zfs = true;
     port = 8022;
     domain = "sabnzbd.lab.keyruu.de";
     proxy.enable = true;
@@ -33,8 +34,8 @@ in
             ];
           };
           unitConfig = {
-            After = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
-            Requires = [ "zfs-encrypted.target" containers.media-gluetun.ref ];
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
           };
         };
       };
