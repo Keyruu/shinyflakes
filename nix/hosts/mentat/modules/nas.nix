@@ -28,8 +28,18 @@ in
 
   systemd.targets.zfs-encrypted = {
     description = "ZFS Encrypted Datasets Unlocked";
+    after = [ "zfs-encrypted-check.service" ];
+    requires = [ "zfs-encrypted-check.service" ];
+  };
+
+  systemd.services.zfs-encrypted-check = {
+    description = "Check ZFS Encrypted Datasets Are Unlocked";
     after = [ "zfs.target" ];
-    wants = [ "zfs.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.zfs}/bin/zfs get -H -o value keystatus main/encrypted | grep -q available'";
+    };
   };
 
   services = {
