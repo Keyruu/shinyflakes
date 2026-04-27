@@ -41,6 +41,10 @@ in
             };
             environmentFiles = [ config.sops.templates."tidaloader.env".path ];
           };
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
       };
     };

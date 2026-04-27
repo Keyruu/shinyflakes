@@ -48,6 +48,10 @@ in
               "/main/backup/restic:/main/backup/restic"
             ];
           };
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
       };
     };

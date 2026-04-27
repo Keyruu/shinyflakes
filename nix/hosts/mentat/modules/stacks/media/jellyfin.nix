@@ -30,6 +30,10 @@ in
               "${config.services.mesh.ip}:${toString my.port}:8096"
             ];
           };
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
       };
     };

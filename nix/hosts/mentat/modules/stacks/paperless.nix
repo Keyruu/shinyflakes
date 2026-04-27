@@ -106,6 +106,10 @@ in
           };
           dependsOn = [ "broker" ];
           security.readOnlyRootFilesystem = false;
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
       };
     };

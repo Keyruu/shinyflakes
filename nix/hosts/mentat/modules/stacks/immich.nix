@@ -43,6 +43,10 @@ in
             "redis"
             "database"
           ];
+          unitConfig = {
+            After = [ "zfs-encrypted.target" ];
+            Requires = [ "zfs-encrypted.target" ];
+          };
         };
 
         machine-learning = {
