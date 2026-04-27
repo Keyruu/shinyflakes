@@ -10,5 +10,5 @@ pkgs.caddy.withPlugins {
     "github.com/corazawaf/coraza-caddy/v2@${corazaCaddyVersion}"
     "github.com/greenpau/caddy-security@${caddySecurityVersion}"
   ];
-  hash = "sha256-2atujn9ADuNYXbY7pi79ighCaxonqhXWv6yGNdF1WxY=";
+  hash = "sha256-Mhp5V5NXYeSTF2/lI1ceNLaeJ9dUYE1HScAOAqSaBjU=";
 }

@@ -74,7 +74,8 @@
     winetricks
     protonplus
     libva-utils
-    lutris-free
+    # FIXME: openldap broken https://github.com/NixOS/nixpkgs/issues/513245
+    # lutris-free
     (bottles.override { removeWarningPopup = true; })
     (wineWow64Packages.full.override {
       wineRelease = "staging";
