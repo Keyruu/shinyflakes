@@ -31,16 +31,17 @@ in
         "/bin/sh"
         "-c"
         ''
+          cp /app/cookies-ro.txt /tmp/cookies.txt
           exec pikaraoke \
             -u "https://${karaokeDomain}" \
             --admin-password "$KARAOKE_ADMIN_PASSWORD" \
             --limit-user-songs-by 3 \
-            --ytdl-args "--cookies /app/cookies.txt"
+            --ytdl-args "--cookies /tmp/cookies.txt"
         ''
       ];
       volumes = [
         "${stackPath}/songs:/app/pikaraoke-songs"
-        "${config.sops.secrets.karaokeCookies.path}:/app/cookies.txt:ro"
+        "${config.sops.secrets.karaokeCookies.path}:/app/cookies-ro.txt:ro"
       ];
       environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
     };
