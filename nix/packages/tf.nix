@@ -25,7 +25,7 @@ in
 # lock file adds no value so we delete stale state and reinit providers
 # each time so tofu always sees providers matching the current nix closure.
 pkgs.writeShellApplication {
-  name = "tofunix";
+  name = "tf";
   runtimeInputs = [ ];
   text = # bash
     ''

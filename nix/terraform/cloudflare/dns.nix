@@ -114,6 +114,10 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
+        "*.karaoke" = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
       };
     };
 

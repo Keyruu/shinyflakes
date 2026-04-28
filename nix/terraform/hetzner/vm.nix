@@ -5,7 +5,7 @@
       name = "sleipnir";
       server_type = "cx22";
       image = "ubuntu-24.04";
-      datacenter = "nbg1-dc3";
+      location = "nbg1";
       firewall_ids = [ ref.hcloud_firewall.cloudflare-https.id ];
       labels = {
         cloudflare = "";
