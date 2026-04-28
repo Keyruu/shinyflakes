@@ -44,6 +44,10 @@
             content = "autoconfig.migadu.com";
             proxied = false;
           };
+          "*.karaoke" = {
+            content = "sleipnir.keyruu.de";
+            proxied = false;
+          };
         };
 
         mx = {
@@ -114,10 +118,7 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
-        "*.karaoke" = {
-          content = "sleipnir.peeraten.net";
-          proxied = false;
-        };
+
       };
     };
 

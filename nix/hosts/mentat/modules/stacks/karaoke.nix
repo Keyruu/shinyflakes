@@ -10,7 +10,10 @@ in
     "d ${stackPath}/songs 0750 root root"
   ];
 
-  sops.secrets.karaokeAdminPassword = { };
+  sops.secrets = {
+    karaokeAdminPassword = { };
+    karaokeCookies = { };
+  };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
       (quadlet.service containers.pikaraoke)
@@ -31,11 +34,13 @@ in
           exec pikaraoke \
             -u "https://${karaokeDomain}" \
             --admin-password "$KARAOKE_ADMIN_PASSWORD" \
-            --limit-user-songs-by 3
+            --limit-user-songs-by 3 \
+            --ytdl-args "--cookies /app/cookies.txt"
         ''
       ];
       volumes = [
         "${stackPath}/songs:/app/pikaraoke-songs"
+        "${config.sops.secrets.karaokeCookies.path}:/app/cookies.txt:ro"
       ];
       environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
     };

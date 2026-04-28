@@ -37,7 +37,6 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
-
   };
 
   mkProxyHost =
@@ -139,14 +138,16 @@ in
       '';
     };
 
-    # websocket path is split out bc coraza can't handle the upgrade
     "*.karaoke.keyruu.de" = {
       extraConfig = ''
-        tls ${config.security.acme.certs."karaoke.keyruu.de".directory}/fullchain.pem ${config.security.acme.certs."karaoke.keyruu.de".directory}/key.pem
+        tls ${config.security.acme.certs."karaoke.keyruu.de".directory}/fullchain.pem ${
+          config.security.acme.certs."karaoke.keyruu.de".directory
+        }/key.pem
         reverse_proxy http://${mentat}:5555
       '';
     };
 
+    # websocket path is split out bc coraza can't handle the upgrade
     "hass.peeraten.net" = {
       extraConfig = ''
         import websocket /api/websocket http://${mentat}:8123
