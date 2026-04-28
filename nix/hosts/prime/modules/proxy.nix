@@ -1,6 +1,7 @@
-{ lib, config, ... }:
+{ lib, config, flake, ... }:
 let
   mentat = config.services.mesh.people.lucas.devices.mentat.ip;
+  inherit (flake.lib) karaokeDomain;
   proxyHosts = {
     "traccar.peeraten.net" = {
       proxyHost = mentat;
@@ -37,6 +38,11 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
+    "${karaokeDomain}" = {
+      proxyHost = mentat;
+      proxyPort = 5555;
+      cloudflare = false;
+    };
   };
 
   mkProxyHost =
@@ -54,14 +60,6 @@ let
     };
 in
 {
-  security.acme.certs."karaoke.keyruu.de" = {
-    group = "caddy";
-    extraDomainNames = [ "*.karaoke.keyruu.de" ];
-    dnsProvider = "cloudflare";
-    dnsPropagationCheck = true;
-    environmentFile = config.sops.secrets.cloudflare.path;
-  };
-
   services.caddy.virtualHosts = (lib.mapAttrs (_: mkProxyHost) proxyHosts) // {
     "git.keyruu.de" = {
       extraConfig = ''
@@ -135,15 +133,6 @@ in
         reverse_proxy http://${mentat}:3004 {
         	header_up X-Real-Ip {remote_host}
         }
-      '';
-    };
-
-    "*.karaoke.keyruu.de" = {
-      extraConfig = ''
-        tls ${config.security.acme.certs."karaoke.keyruu.de".directory}/fullchain.pem ${
-          config.security.acme.certs."karaoke.keyruu.de".directory
-        }/key.pem
-        reverse_proxy http://${mentat}:5555
       '';
     };
 

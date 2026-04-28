@@ -1,9 +1,8 @@
 { config, flake, ... }:
 let
-  karaokeDomain = "29042026.karaoke.keyruu.de";
   stackPath = "/etc/stacks/pikaraoke";
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
+  inherit (flake.lib) quadlet karaokeDomain;
 in
 {
   systemd.tmpfiles.rules = [

@@ -53,6 +53,8 @@ rec {
     ]
   );
 
+  karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
+
   hostMatrix = {
     host = builtins.attrNames flake.nixosConfigurations;
   };
