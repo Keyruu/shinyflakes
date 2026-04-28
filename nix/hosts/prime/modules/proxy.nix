@@ -37,11 +37,7 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
-    "29042026karaoke.keyruu.de" = {
-      proxyHost = mentat;
-      proxyPort = 5555;
-      cloudflare = false;
-    };
+
   };
 
   mkProxyHost =
@@ -59,6 +55,14 @@ let
     };
 in
 {
+  security.acme.certs."karaoke.keyruu.de" = {
+    group = "caddy";
+    extraDomainNames = [ "*.karaoke.keyruu.de" ];
+    dnsProvider = "cloudflare";
+    dnsPropagationCheck = true;
+    environmentFile = config.sops.secrets.cloudflare.path;
+  };
+
   services.caddy.virtualHosts = (lib.mapAttrs (_: mkProxyHost) proxyHosts) // {
     "git.keyruu.de" = {
       extraConfig = ''
@@ -136,6 +140,13 @@ in
     };
 
     # websocket path is split out bc coraza can't handle the upgrade
+    "*.karaoke.keyruu.de" = {
+      extraConfig = ''
+        tls ${config.security.acme.certs."karaoke.keyruu.de".directory}/fullchain.pem ${config.security.acme.certs."karaoke.keyruu.de".directory}/key.pem
+        reverse_proxy http://${mentat}:5555
+      '';
+    };
+
     "hass.peeraten.net" = {
       extraConfig = ''
         import websocket /api/websocket http://${mentat}:8123

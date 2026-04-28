@@ -58,10 +58,13 @@ let
       srcPanelConfig = null;
     };
 
-  # only Work has a real container — Personal lives in the default context
-  # ("none"). a Personal container alone doesn't isolate anything that the
-  # default doesn't already; the isolation matters between containers.
   containers = {
+    personal = mkContainer {
+      id = "personal";
+      name = "Personal";
+      color = "blue";
+      icon = "fingerprint";
+    };
     work = mkContainer {
       id = "work";
       name = "Work";
@@ -75,7 +78,7 @@ let
       id = "personal";
       name = "Personal";
       color = "blue";
-      ctxId = "none";
+      ctxId = "personal";
     };
     work = mkPanel {
       id = "work";

@@ -4,38 +4,43 @@ let
   # vomnibar (matches the previous policy block), plus unmap of <c-e> which
   # vimium-c uses as scrollDown by default and conflicts with shell editing
   # in any focused input.
-  keyMappings = ''
-    unmap <c-e>
-
-    unmap t
-    map t Vomnibar.activate preferTabs="new"
-    map T Vomnibar.activateTabSelection
-    map o Vomnibar.activateInNewTab preferTabs="new"
-    map O Vomnibar.activate
-  '';
+  keyMappings = [
+    "#!no-check"
+    "unmap <c-e>"
+    ""
+    "unmap t"
+    "map t Vomnibar.activate preferTabs=\"new\""
+    "map T Vomnibar.activateTabSelection"
+    "map o Vomnibar.activateInNewTab preferTabs=\"new\""
+    "map O Vomnibar.activate"
+    ""
+  ];
 
   # Format: "alias|alias2: URL Description". %s is the query.
   # First entry is what searchUrl points at — used as the default engine.
-  searchEngines = ''
-    k|kagi: https://kagi.com/search?q=%s Kagi
-    np: https://search.nixos.org/packages?channel=unstable&query=%s Nix Packages
-    no: https://search.nixos.org/options?channel=unstable&query=%s Nix Options
-    nw: https://wiki.nixos.org/w/index.php?search=%s NixOS Wiki
-    d|ddg|duckduckgo: https://duckduckgo.com/?q=%s DuckDuckGo
-    gh|github: https://github.com/search?q=%s GitHub
-    w|wiki: https://en.wikipedia.org/w/index.php?search=%s Wikipedia
-    y|yt: https://www.youtube.com/results?search_query=%s YouTube
-  '';
+  searchEngines = [
+    "k|kagi: https://kagi.com/search?q=%s Kagi"
+    "np: https://search.nixos.org/packages?channel=unstable&query=%s Nix Packages"
+    "no: https://search.nixos.org/options?channel=unstable&query=%s Nix Options"
+    "nw: https://wiki.nixos.org/w/index.php?search=%s NixOS Wiki"
+    "d|ddg|duckduckgo: https://duckduckgo.com/?q=%s DuckDuckGo"
+    "gh|github: https://github.com/search?q=%s GitHub"
+    "w|wiki: https://en.wikipedia.org/w/index.php?search=%s Wikipedia"
+    "y|yt: https://www.youtube.com/results?search_query=%s YouTube"
+    ""
+  ];
 
   # Vimium-c's import accepts the same JSON shape it exports: metadata at the
   # top + arbitrary AllowedOptions keys. Unknown keys get ignored, missing
   # keys fall back to defaults.
   exportJson = {
     name = "Vimium C";
-    # ver string — matches example export; importer logs but doesn't reject
+    "@time" = "1/1/2025, 12:00:00 AM";
+    time = 1735689600000;
     environment = {
       extension = "2.12.3";
       platform = "linux";
+      firefox = 149;
     };
     keyLayout = 2;
     vimSync = true;
