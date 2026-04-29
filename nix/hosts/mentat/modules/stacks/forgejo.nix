@@ -162,7 +162,7 @@ in
       containers = {
         server = {
           containerConfig = {
-            image = "codeberg.org/forgejo/forgejo:15.0.0";
+            image = "codeberg.org/forgejo/forgejo:15.0.1";
             publishPorts = [
               "127.0.0.1:${toString my.port}:3000"
               "222:22"
