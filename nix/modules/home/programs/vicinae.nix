@@ -105,7 +105,7 @@
             notification-center = {
               alias = "nc";
             };
-            Alacritty = {
+            foot = {
               alias = "t";
             };
             slack = {
@@ -156,7 +156,7 @@
             pkgs.writeShellApplication {
               inherit name;
               runtimeInputs = runtimeInputs ++ [
-                pkgs.alacritty
+                pkgs.foot
                 pkgs.util-linux # setsid
               ];
               excludeShellChecks = [ "SC2016" ];
@@ -168,7 +168,7 @@
                   # @vicinae.icon ${icon}
 
                   ${setup}
-                  setsid alacritty --class ${appId} -e bash -c ${pkgs.lib.escapeShellArg command} &>/dev/null &
+                  setsid footclient --app-id ${appId} -- bash -c ${pkgs.lib.escapeShellArg command} &>/dev/null &
                 '';
             }
           }/bin/${name}";

@@ -133,6 +133,14 @@ in
       userChrome = ''
         #TabsToolbar { display: none !important; }
         #sidebar-box #sidebar-header { display: none !important; }
+
+        /* Color navbar based on active container tab */
+        :root:has(.tabbrowser-tab[selected].identity-color-blue) #nav-bar {
+            background-color: color-mix(in srgb, #37adff 15%, transparent) !important;
+        }
+        :root:has(.tabbrowser-tab[selected].identity-color-orange) #nav-bar {
+            background-color: color-mix(in srgb, #ff9f00 15%, transparent) !important;
+        }
       '';
       extensions = {
         packages = with perSystem.firefox-addons; [

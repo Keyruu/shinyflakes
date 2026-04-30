@@ -93,6 +93,12 @@ let
     ver = "5.3.0";
     settings = {
       hideEmptyPanels = false;
+      colorizeTabs = true;
+      colorizeTabsSrc = "domain";
+      colorizeTabsBranches = false;
+      colorizeTabsBranchesSrc = "url";
+      inheritCustomColor = true;
+      newTabCtxReopen = true;
     };
     inherit containers;
     sidebar = {

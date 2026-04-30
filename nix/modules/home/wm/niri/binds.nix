@@ -52,7 +52,7 @@ in
       Alt+Period hotkey-overlay-title="Unstack Window" { expel-window-from-column; }
 
       Super+Space hotkey-overlay-title="App Launcher" { spawn "vicinae" "toggle"; }
-      Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri" "scratchpad" "alacritty" "--class" "scratchpad"; }
+      Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri" "scratchpad" "footclient" "--app-id" "scratchpad"; }
       Super+Shift+Space hotkey-overlay-title="1Password" { spawn "1password" "--ozone-platform-hint=wayland" "--quick-access" "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"; }
       Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-ipc" "lockScreen" "lock"; }
       Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://extensions/vicinae/clipboard/history"; }

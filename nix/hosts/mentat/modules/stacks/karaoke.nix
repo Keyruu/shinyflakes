@@ -6,12 +6,12 @@ let
 in
 {
   systemd.tmpfiles.rules = [
-    "d ${stackPath}/songs 0750 root root"
+    "d ${stackPath}/songs 0755 1000 1000"
   ];
 
   sops.secrets = {
     karaokeAdminPassword = { };
-    karaokeCookies = { };
+    karaokeCookies = { mode = "0444"; };
   };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
@@ -31,6 +31,7 @@ in
         "-c"
         ''
           cp /app/cookies-ro.txt /tmp/cookies.txt
+          chmod 644 /tmp/cookies.txt
           exec pikaraoke \
             -u "https://${karaokeDomain}" \
             --admin-password "$KARAOKE_ADMIN_PASSWORD" \
@@ -39,7 +40,7 @@ in
         ''
       ];
       volumes = [
-        "${stackPath}/songs:/app/pikaraoke-songs"
+        "${stackPath}/songs:/home/pikaraoke/pikaraoke-songs"
         "${config.sops.secrets.karaokeCookies.path}:/app/cookies-ro.txt:ro"
       ];
       environmentFiles = [ config.sops.templates."pikaraoke.env".path ];

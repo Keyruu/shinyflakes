@@ -2,6 +2,7 @@
 {
   programs.foot = {
     enable = true;
+    server.enable = true;
     settings = {
       main = {
         term = "xterm-256color";
@@ -48,7 +49,7 @@
       };
 
       key-bindings = {
-        show-urls-launch = "Alt_L";
+        show-urls-launch = "Control+Shift+e";
       };
     };
   };

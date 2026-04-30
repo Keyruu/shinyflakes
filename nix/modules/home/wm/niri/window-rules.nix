@@ -55,6 +55,7 @@ _:
       match app-id=r#"^dev.zed.Zed$"#
       match app-id=r#"^org.wezfurlong.wezterm$"#
       match app-id=r#"^Alacritty$"#
+      match app-id=r#"^foot$"#
       match app-id=r#"^kitty$"#
       open-on-workspace "work"
   }

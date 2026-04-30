@@ -94,7 +94,7 @@
               submenu:
                 - key: "t"
                   desc: Terminal
-                  cmd: nirius focus-or-spawn -a Alacritty alacritty
+                  cmd: nirius focus-or-spawn -a foot footclient
                 - key: "b"
                   desc: Browser
                   cmd: nirius focus-or-spawn -a zen zen
