@@ -10,11 +10,11 @@ let
   };
 
   # renovate: datasource=terraform-provider depName=cloudflare/cloudflare
-  version = "5.19.0";
+  version = "5.19.1";
 in
 tofunix-lib.mkOpentofuProvider {
   owner = "cloudflare";
   repo = "cloudflare";
   inherit version;
-  hash = "sha256-fT6O0MqK8+Rrk1e99its0wFJT4Po8aCCa26m8WaOFmQ=";
+  hash = "sha256-HCTxAhVbXrykDfPEpdl7kotejGnALH9INUqB1RjW1O8=";
 }
