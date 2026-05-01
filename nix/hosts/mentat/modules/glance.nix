@@ -42,19 +42,6 @@ let
     everthing-smart-home = "UCrVLgIniVg6jW38uVqDRIiQ";
     hardware-haven = "UCgdTVe88YVSrOZ9qKumhULQ";
   };
-
-  # dynamic bookmarks: all enabled services with proxy
-  all_services = lib.listToAttrs (
-    lib.sort (a: b: a.title < b.title) (
-      lib.map (bm: { name = bm.title; value = bm; }) (
-        builtins.mapAttrsToList (name: cfg: {
-          title = name;
-          url = "https://${cfg.domain}";
-          same-tab = false;
-        }) (lib.filterAttrs (_: cfg: cfg.enable && cfg.proxy.enable) config.services.my)
-      )
-    )
-  );
 in
 {
   services = {
@@ -85,7 +72,22 @@ in
                     groups = [
                       {
                         title = "Services";
-                        links = lib.mapAttrsToList (_: link: link) all_services;
+                        links = let
+                          matched = lib.filterAttrs
+                            (_: cfg: cfg.enable && cfg.proxy.enable)
+                            config.services.my;
+                          links_list = lib.mapAttrsToList (name: cfg: {
+                            title = name;
+                            url = "https://${cfg.domain}";
+                            same-tab = false;
+                          }) matched;
+                          sorted = if links_list == [] then [] else
+                            lib.sort (a: b: a.title < b.title) links_list;
+                        in lib.mapAttrsToList (_: link: link) (
+                          lib.listToAttrs (
+                            lib.map (bm: { name = bm.title; value = bm; }) sorted
+                          )
+                        );
                       }
                     ];
                   }
