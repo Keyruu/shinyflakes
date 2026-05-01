@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
-  "lastChangelogVersion": "0.70.2",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "lastChangelogVersion": "0.70.6",
+  "defaultProvider": "openrouter",
+  "defaultModel": "qwen/qwen3.6-27b",
   "enabledModels": [
     "openrouter/qwen/qwen3.5-35b-a3b",
     "openrouter/qwen/qwen3.6-plus",
@@ -13,6 +13,7 @@
     "opencode-go/kimi-k2.5",
     "opencode-go/kimi-k2.6",
     "anthropic/claude-opus-4-6",
-    "anthropic/claude-sonnet-4-6"
+    "anthropic/claude-sonnet-4-6",
+    "openrouter/qwen/qwen3.6-27b"
   ]
 }

@@ -5,7 +5,7 @@
     config = {
       volume = 65;
       ytdl-format = "bestvideo+bestaudio/best";
-      ytdl-raw-options = "sub-lang=en,write-subs=,embed-subs=,cookies-from-browser=firefox:$\{HOME}\/.zen/";
+      ytdl-raw-options = "sub-lang=en,write-subs=,embed-subs=,cookies-from-browser=firefox";
       slang = "en,eng";
       gpu-context = "wayland";
     };

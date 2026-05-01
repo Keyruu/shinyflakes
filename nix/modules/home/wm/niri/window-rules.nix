@@ -48,6 +48,7 @@ _:
   window-rule {
       match app-id=r#"^zen$"#
       match app-id=r#"^zen-beta$"#
+      match app-id=r#"^qutebrowser"#
       open-on-workspace "browse"
   }
 

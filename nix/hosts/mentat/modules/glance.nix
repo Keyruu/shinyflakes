@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   my = config.services.my.glance;
+
   subreddits = {
     self-hosted = [
       "selfhosted"
@@ -41,6 +42,19 @@ let
     everthing-smart-home = "UCrVLgIniVg6jW38uVqDRIiQ";
     hardware-haven = "UCgdTVe88YVSrOZ9qKumhULQ";
   };
+
+  # dynamic bookmarks: all enabled services with proxy
+  all_services = lib.listToAttrs (
+    lib.sort (a: b: a.title < b.title) (
+      lib.map (bm: { name = bm.title; value = bm; }) (
+        builtins.mapAttrsToList (name: cfg: {
+          title = name;
+          url = "https://${cfg.domain}";
+          same-tab = false;
+        }) (lib.filterAttrs (_: cfg: cfg.enable && cfg.proxy.enable) config.services.my)
+      )
+    )
+  );
 in
 {
   services = {
@@ -58,8 +72,31 @@ in
           inherit (my) port;
         };
         pages = [
+          # page 1 — all services
           {
-            name = "Home";
+            name = "Services";
+            slug = "services";
+            columns = [
+              {
+                size = "full";
+                widgets = [
+                  {
+                    type = "bookmarks";
+                    groups = [
+                      {
+                        title = "Services";
+                        links = lib.mapAttrsToList (_: link: link) all_services;
+                      }
+                    ];
+                  }
+                ];
+              }
+            ];
+          }
+          # page 2 — social (reddit, youtube, hackernews, etc.)
+          {
+            name = "Social";
+            slug = "social";
             columns = [
               {
                 size = "small";
@@ -136,6 +173,85 @@ in
                       "go-gitea/gitea"
                       "immich-app/immich"
                       "syncthing/syncthing"
+                    ];
+                  }
+                ];
+              }
+            ];
+          }
+          # page 3 — infrastructure (server stats, monitoring, admin links)
+          {
+            name = "Infrastructure";
+            slug = "infra";
+            columns = [
+              {
+                size = "full";
+                widgets = [
+                  {
+                    type = "server-stats";
+                    servers = [
+                      {
+                        type = "local";
+                        name = "Mentat";
+                        hide-swap = false;
+                        hide-mountpoints-by-default = false;
+                        mountpoints = {
+                          "/" = {
+                            name = "Root";
+                            hide = false;
+                          };
+                        };
+                      }
+                    ];
+                  }
+                  {
+                    type = "monitor";
+                    cache = "1m";
+                    title = "Monitoring";
+                    sites = [
+                      {
+                        title = "Cockpit";
+                        url = "https://mentat.lab.keyruu.de";
+                        icon = "si:red-hat";
+                      }
+                      {
+                        title = "Grafana";
+                        url = "https://monitoring.lab.keyruu.de";
+                        icon = "si:grafana";
+                      }
+                      {
+                        title = "Prometheus";
+                        url = "https://monitoring.lab.keyruu.de/prometheus/";
+                        icon = "si:prometheus";
+                      }
+                    ];
+                  }
+                  {
+                    type = "bookmarks";
+                    groups = [
+                      {
+                        title = "Admin";
+                        links = [
+                          {
+                            title = "Cockpit";
+                            url = "https://mentat.lab.keyruu.de";
+                            icon = "si:red-hat";
+                            same-tab = false;
+                          }
+                          {
+                            title = "Grafana";
+                            url = "https://monitoring.lab.keyruu.de";
+                            icon = "si:grafana";
+                            same-tab = false;
+                          }
+                          {
+                            title = "Prometheus";
+                            url = "https://monitoring.lab.keyruu.de/prometheus/";
+                            icon = "si:prometheus";
+                            same-tab = false;
+                          }
+                        ];
+                      }
                     ];
                   }
                 ];

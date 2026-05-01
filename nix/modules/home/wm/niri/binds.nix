@@ -50,6 +50,9 @@ in
       Alt+Shift+F hotkey-overlay-title="Fullscreen" { fullscreen-window; }
       Alt+Comma hotkey-overlay-title="Stack Window" { consume-window-into-column; }
       Alt+Period hotkey-overlay-title="Unstack Window" { expel-window-from-column; }
+      Alt+Bracketright hotkey-overlay-title="Next Tab" { focus-window-down; }
+      Alt+Bracketleft hotkey-overlay-title="Prev Tab" { focus-window-up; }
+      Alt+Slash hotkey-overlay-title="Toggle Tabbed" { toggle-column-tabbed-display; }
 
       Super+Space hotkey-overlay-title="App Launcher" { spawn "vicinae" "toggle"; }
       Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri" "scratchpad" "footclient" "--app-id" "scratchpad"; }

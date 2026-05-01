@@ -40,7 +40,7 @@
         set -g @mode_indicator_sync_mode_style 'bg=${gray_medium},fg=${gray_dark}'
         set -g @mode_indicator_empty_mode_style 'bg=${cyan_soft},fg=${gray_dark}'
 
-        set-option -sa terminal-overrides ",xterm*:Tc:Smulx=\E[4::%p1%dm:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m"
+        set-option -sa terminal-overrides ",xterm*:Tc"
         set -g focus-events on
         set -g extended-keys on
         set -g extended-keys-format csi-u

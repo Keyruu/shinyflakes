@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   inputs,
   perSystem,
@@ -149,26 +150,23 @@
           runtimeInputs ? [ ],
           command,
           appId ? "vicinae-script",
-          setup ? "",
+          hold ? true,
         }:
         {
           "${scripts}/${name}.sh".source = "${
             pkgs.writeShellApplication {
               inherit name;
-              runtimeInputs = runtimeInputs ++ [
-                pkgs.foot
-                pkgs.util-linux # setsid
-              ];
+              inherit runtimeInputs;
               excludeShellChecks = [ "SC2016" ];
               text = # bash
                 ''
                   # @vicinae.schemaVersion 1
                   # @vicinae.title ${title}
-                  # @vicinae.mode silent
+                  # @vicinae.mode terminal
+                  # @vicinae.terminal {"hold": ${lib.boolToString hold}, "appId": "${appId}"}
                   # @vicinae.icon ${icon}
 
-                  ${setup}
-                  setsid footclient --app-id ${appId} -- bash -c ${pkgs.lib.escapeShellArg command} &>/dev/null &
+                  ${command}
                 '';
             }
           }/bin/${name}";
@@ -187,9 +185,11 @@
       title = "List Issues";
       icon = "✅";
       runtimeInputs = [ pkgs.jira-cli-go ];
-      setup = jiraSetup;
       command = # bash
-        ''jira issue list -c "${jiraConfig}" -a"$(jira me)" -s~Done'';
+        ''
+          ${jiraSetup}
+          jira issue list -c "${jiraConfig}" -a"$(jira me)" -s~Done
+        '';
     }
     // mkTerminalScript {
       name = "create-issue";
@@ -202,9 +202,9 @@
         curl
         wl-clipboard
       ];
-      setup = jiraSetup;
       command = # bash
         ''
+          ${jiraSetup}
           if ! jira issue create; then
             echo "Issue creation was aborted or failed. Exiting."
             read -r 
@@ -222,7 +222,7 @@
             exit 1
           fi
 
-          wl-copy $issueKey
+          wl-copy "$issueKey"
           echo "Created and copied $issueKey"
 
           jira issue move "$issueKey"
@@ -241,6 +241,17 @@
       command = # bash
         ''
           select-k9s
+        '';
+    }
+    // mkTerminalScript {
+      name = "mesh-tunnel";
+      title = "Mesh Tunnel";
+      icon = "🔒";
+      hold = false;
+      runtimeInputs = [ pkgs.fzf ];
+      command = # bash
+        ''
+          mesh-tunnel
         '';
     };
 }

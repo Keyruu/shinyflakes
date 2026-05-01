@@ -13,7 +13,7 @@
 
   programs.zen-browser = {
     enable = true;
-    setAsDefaultBrowser = true;
+    setAsDefaultBrowser = false;
     inherit (config.programs.firefox) policies;
     profiles.default = {
       isDefault = true;
