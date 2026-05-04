@@ -72,22 +72,16 @@ in
                     groups = [
                       {
                         title = "Services";
-                        links = let
-                          matched = lib.filterAttrs
-                            (_: cfg: cfg.enable && cfg.proxy.enable)
-                            config.services.my;
-                          links_list = lib.mapAttrsToList (name: cfg: {
-                            title = name;
-                            url = "https://${cfg.domain}";
-                            same-tab = false;
-                          }) matched;
-                          sorted = if links_list == [] then [] else
-                            lib.sort (a: b: a.title < b.title) links_list;
-                        in lib.mapAttrsToList (_: link: link) (
-                          lib.listToAttrs (
-                            lib.map (bm: { name = bm.title; value = bm; }) sorted
-                          )
-                        );
+                        links =
+                          let
+                            matched = lib.filterAttrs (_: cfg: cfg.proxy.enable) config.services.my;
+                            links = lib.mapAttrsToList (name: cfg: {
+                              title = name;
+                              url = "https://${cfg.domain}";
+                              same-tab = false;
+                            }) matched;
+                          in
+                          lib.sort (a: b: a.title < b.title) links;
                       }
                     ];
                   }

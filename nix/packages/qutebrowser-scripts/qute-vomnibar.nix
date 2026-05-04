@@ -21,7 +21,8 @@ pkgs.writeShellApplication {
     SESSION_FILE="$QUTE_DATA_DIR/sessions/default.yml"
     if [ -f "$SESSION_FILE" ]; then
       TABS=$(yq eval '
-        .windows[].tabs[] | .history[-1] | "🗂️ " + .title + "\t" + .url
+        .windows[].tabs | to_entries[] |
+        "🗂️ " + ((.key + 1) | tostring) + ": " + .value.history[-1].title
       ' "$SESSION_FILE" 2>/dev/null)
       [ -n "$TABS" ] && ENTRIES="$TABS"
     fi
@@ -50,7 +51,8 @@ pkgs.writeShellApplication {
     VALUE_PART=$(echo "$SELECTION" | cut -f2)
 
     if echo "$DISPLAY_PART" | grep -q '^🗂️'; then
-      echo "tab-select $VALUE_PART" >> "$QUTE_FIFO"
+      TAB_INDEX=$(echo "$DISPLAY_PART" | sed 's/^🗂️ \([0-9]*\):.*/\1/')
+      echo "tab-focus $TAB_INDEX" >> "$QUTE_FIFO"
       exit 0
     fi
 

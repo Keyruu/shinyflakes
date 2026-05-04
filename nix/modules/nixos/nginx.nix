@@ -5,11 +5,6 @@
     defaults.email = "me@keyruu.de";
   };
 
-  security.dhparams = {
-    enable = true;
-    params.nginx = { };
-  };
-
   services.nginx = {
     enable = true;
     recommendedGzipSettings = true;

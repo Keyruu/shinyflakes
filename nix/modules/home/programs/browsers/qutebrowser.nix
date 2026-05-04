@@ -49,7 +49,6 @@ in
         webgl = true;
         headers = {
           accept_language = "en-US,en;q=0.5";
-          user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
         };
         javascript.clipboard = "access";
 
@@ -145,8 +144,8 @@ in
         "]]" = "navigate next";
         "[[" = "navigate prev";
 
-        "M" = "hint links spawn mpv {hint-url}";
-        ",m" = "spawn mpv {url}";
+        "M" = "hint links spawn --detach mpv {hint-url}";
+        ",m" = "spawn --detach mpv {url}";
 
         ",p" = "spawn --userscript ${scripts}/bin/qute-1pass";
 

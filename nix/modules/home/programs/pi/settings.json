@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
-  "lastChangelogVersion": "0.70.6",
-  "defaultProvider": "openrouter",
-  "defaultModel": "qwen/qwen3.6-27b",
+  "lastChangelogVersion": "0.71.0",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-6",
   "enabledModels": [
     "openrouter/qwen/qwen3.5-35b-a3b",
     "openrouter/qwen/qwen3.6-plus",
