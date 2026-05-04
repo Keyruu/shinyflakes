@@ -32,7 +32,7 @@ in
       containers = {
         backrest = {
           containerConfig = {
-            image = "ghcr.io/garethgeorge/backrest:v1.12.1";
+            image = "ghcr.io/garethgeorge/backrest:v1.13.0";
             environmentFiles = [ config.sops.templates."backrest.env".path ];
             environments = {
               BACKREST_DATA = "/data";
