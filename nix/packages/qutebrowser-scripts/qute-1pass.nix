@@ -1,63 +1,113 @@
 { pkgs }:
 pkgs.writeShellApplication {
   name = "qute-1pass";
-  runtimeInputs = with pkgs; [ vicinae jq wl-clipboard gawk gnused systemd coreutils ];
-  excludeShellChecks = [ "SC2001" "SC2181" ];
+  runtimeInputs = with pkgs; [
+    vicinae
+    jq
+    wl-clipboard
+    gawk
+    gnused
+    systemd
+    coreutils
+    bash
+  ];
+  excludeShellChecks = [
+    "SC1003"
+    "SC2001"
+    "SC2181"
+    "SC2016"
+  ];
   text = ''
     set +e
     export PATH="/run/wrappers/bin:$PATH"
 
     _op() {
       systemd-run --user --pipe --wait --quiet \
-        /run/wrappers/bin/op "$@" 2>/dev/null
+        op "$@" 2>/dev/null
     }
 
     js_escape() {
-      sed "s,[\\\\\\\'\"\\/],\\\\\&,g" <<< "$1"
+      local s="$1"
+      s=$(printf '%s' "$s" | sed 's/\\/\\\\/g; s/"/\\"/g; s/'"'"'/\\'"'"'/g; s/`/\\`/g')
+      s=$(printf '%s' "$s" | tr '\n' ' ')
+      printf '%s' "$s"
     }
 
     fill_form_js() {
+      local submit="$1"
       cat <<JSEOF
     (function() {
+      var username = "$(js_escape "$USERNAME")";
+      var password = "$(js_escape "$PASSWORD")";
+      var doSubmit = $([ "$submit" = "1" ] && echo "true" || echo "false");
+
       function isVisible(el) {
         var s = getComputedStyle(el);
-        return s.visibility === "visible" && s.display !== "none" && s.opacity !== "0"
+        return s.visibility !== "hidden" && s.display !== "none" && s.opacity !== "0"
           && el.offsetWidth > 0 && el.offsetHeight > 0;
       }
-      var filled = false;
-      document.querySelectorAll("form").forEach(function(form) {
-        var pw = form.querySelector('input[type="password"]');
-        if (!pw) return;
-        pw.focus(); pw.value = "$(js_escape "$PASSWORD")";
-        pw.dispatchEvent(new Event("input", {bubbles:true}));
-        pw.dispatchEvent(new Event("change", {bubbles:true}));
-        pw.blur();
-        var user = form.querySelector('input[type="text"], input[type="email"]');
-        if (user && isVisible(user)) {
-          user.focus(); user.value = "$(js_escape "$USERNAME")";
-          user.dispatchEvent(new Event("input", {bubbles:true}));
-          user.dispatchEvent(new Event("change", {bubbles:true}));
-          user.blur();
-        }
-        filled = true;
-      });
-      if (!filled) {
-        var pw = document.querySelector('input[type="password"]');
-        if (pw) {
-          pw.focus(); pw.value = "$(js_escape "$PASSWORD")";
-          pw.dispatchEvent(new Event("input", {bubbles:true}));
-          pw.dispatchEvent(new Event("change", {bubbles:true}));
-        }
-        var user = document.querySelector('input[type="text"], input[type="email"]');
-        if (user && isVisible(user)) {
-          user.focus(); user.value = "$(js_escape "$USERNAME")";
-          user.dispatchEvent(new Event("input", {bubbles:true}));
-          user.dispatchEvent(new Event("change", {bubbles:true}));
-        }
+
+      function fillInput(el, value) {
+        if (!el) return;
+        var proto = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+        if (proto && proto.set) proto.set.call(el, value);
+        else el.value = value;
+        el.dispatchEvent(new Event('input', {bubbles: true}));
+        el.dispatchEvent(new Event('change', {bubbles: true}));
       }
+
+      function findPassword(root) {
+        return root.querySelector('input[type="password"]:not([hidden])');
+      }
+
+      function findUsername(root) {
+        var selectors = [
+          'input[autocomplete="username"]',
+          'input[autocomplete="email"]',
+          'input[name="username"]',
+          'input[name="login"]',
+          'input[name="user"]',
+          'input[name="email"]',
+          'input[id="username"]',
+          'input[id="login"]',
+          'input[id="email"]',
+          'input[type="email"]',
+          'input[type="text"]'
+        ];
+        for (var i = 0; i < selectors.length; i++) {
+          var el = root.querySelector(selectors[i]);
+          if (el && isVisible(el)) return el;
+        }
+        return null;
+      }
+
+      function fillScope(root) {
+        var pw = findPassword(root);
+        if (!pw) return false;
+        fillInput(pw, password);
+        var user = findUsername(root);
+        if (user) fillInput(user, username);
+        if (doSubmit) {
+          var form = pw.closest('form');
+          if (form) {
+            var btn = form.querySelector('button[type="submit"], input[type="submit"]')
+              || form.querySelector('button:not([type="button"])');
+            if (btn) btn.click();
+            else form.requestSubmit();
+          }
+        }
+        return true;
+      }
+
+      var forms = document.querySelectorAll('form');
+      var filled = false;
+      forms.forEach(function(f) { if (findPassword(f)) filled = fillScope(f) || filled; });
+      if (!filled) fillScope(document);
     })();
     JSEOF
     }
+
+    MODE="''${1:-fill}"
 
     if [ -z "$QUTE_FIFO" ]; then
       echo "This script must be run as a qutebrowser userscript" >&2
@@ -101,8 +151,17 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    ITEM=$(_op item get "$ITEM_ID" --format json)
-    if [ $? -ne 0 ] || [ -z "$ITEM" ]; then
+    RESULT=$(systemd-run --user --pipe --wait --quiet bash -c "
+      ITEM=\$(op item get '$ITEM_ID' --format json 2>/dev/null)
+      echo \"\$ITEM\"
+      echo '___SEPARATOR___'
+      op item get '$ITEM_ID' --otp 2>/dev/null || true
+    ")
+
+    ITEM=$(echo "$RESULT" | sed '/^___SEPARATOR___$/,$d')
+    TOTP=$(echo "$RESULT" | sed '1,/^___SEPARATOR___$/d')
+
+    if [ -z "$ITEM" ]; then
       echo "message-error '1Password: failed to get item'" >> "$QUTE_FIFO"
       exit 1
     fi
@@ -115,10 +174,10 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    JS=$(fill_form_js | sed 's,//.*$,,' | tr '\n' ' ')
+    SUBMIT=$([ "$MODE" = "submit" ] && echo "1" || echo "0")
+    JS=$(fill_form_js "$SUBMIT" | tr '\n' ' ')
     echo "jseval -q $JS" >> "$QUTE_FIFO"
 
-    TOTP=$(_op item get "$ITEM_ID" --otp) || true
     if [ -n "$TOTP" ]; then
       echo "$TOTP" | wl-copy
       echo "message-info '1Password: filled $FULL_DOMAIN (TOTP copied to clipboard)'" >> "$QUTE_FIFO"

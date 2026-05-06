@@ -148,6 +148,7 @@ in
         ",m" = "spawn --detach mpv {url}";
 
         ",p" = "spawn --userscript ${scripts}/bin/qute-1pass";
+        ",P" = "spawn --userscript ${scripts}/bin/qute-1pass submit";
 
         "r" = "reload";
         "R" = "reload -f";
