@@ -18,7 +18,7 @@ in
       containers = {
         nzbhydra2 = {
           containerConfig = {
-            image = "lscr.io/linuxserver/nzbhydra2:8.8.0";
+            image = "lscr.io/linuxserver/nzbhydra2:8.8.1";
             environments = {
               PUID = "0";
               PGID = "0";
