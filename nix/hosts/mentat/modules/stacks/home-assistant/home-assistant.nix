@@ -40,7 +40,7 @@ in
         security.enable = false;
         containers.home-assistant = {
           containerConfig = {
-            image = "ghcr.io/home-assistant/home-assistant:2026.5.0";
+            image = "ghcr.io/home-assistant/home-assistant:2026.5.1";
             environments = {
               TZ = "Europe/Berlin";
               OPENAI_BASE_URL = "https://api.mistral.ai/v1";
