@@ -36,6 +36,7 @@ in
       directories = [
         "data"
       ];
+      network.enable = true;
 
       containers = {
         koito = {
