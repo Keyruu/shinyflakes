@@ -13,7 +13,7 @@ in
 
   sops.templates = {
     "koito-main.env" = {
-      restartUnits = [ (quadlet.service containers.koito-main) ];
+      restartUnits = [ (quadlet.service containers.koito) ];
       content = ''
         KOITO_SQLITE_ENABLED=true
         KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
