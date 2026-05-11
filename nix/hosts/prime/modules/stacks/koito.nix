@@ -15,6 +15,7 @@ in
     "koito-main.env" = {
       restartUnits = [ (quadlet.service containers.koito-main) ];
       content = ''
+        KOITO_SQLITE_ENABLED=true
         KOITO_DATABASE_URL=postgres://postgres:${config.sops.placeholder.koitoDbPassword}@db:5432/koitodb
         KOITO_ALLOWED_HOSTS=${my.domain},koito:4110
         KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
