@@ -92,11 +92,15 @@ in
 {
   home.packages = with pkgs; [
     firefoxpwa
+    tridactyl-native
   ];
 
   programs.librewolf = {
     enable = true;
-    nativeMessagingHosts = [ pkgs.firefoxpwa ];
+    nativeMessagingHosts = with pkgs; [
+      firefoxpwa
+      tridactyl-native
+    ];
     policies =
       let
         mkExtensionSettings = builtins.mapAttrs (
@@ -153,6 +157,7 @@ in
           languagetool-fixed
           pwas-for-firefox
           sponsorblock
+          tridactyl
         ];
       };
     };

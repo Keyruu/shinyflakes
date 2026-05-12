@@ -31,7 +31,7 @@
       in
       # tmux
       ''
-        set -g @mode_indicator_empty_prompt ' NORMAL '
+        set -g @mode_indicator_empty_prompt ' TMUX '
         set -g @mode_indicator_prefix_prompt ' PREFIX '
         set -g @mode_indicator_copy_prompt ' COPY '
         set -g @mode_indicator_sync_prompt ' SYNC '

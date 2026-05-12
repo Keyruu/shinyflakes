@@ -15,9 +15,9 @@
   programs.dconf.enable = true;
 
   xdg.mime.defaultApplications = {
-    "text/html" = "qutebrowser-open.desktop";
-    "x-scheme-handler/http" = "qutebrowser-open.desktop";
-    "x-scheme-handler/https" = "qutebrowser-open.desktop";
+    "text/html" = "glide-browser.desktop";
+    "x-scheme-handler/http" = "glide-browser.desktop";
+    "x-scheme-handler/https" = "glide-browser.desktop";
     "x-scheme-handler/discord" = "vesktop.desktop";
     "x-scheme-handler/sgnl" = "signal.desktop";
     "x-scheme-handler/signalcaptcha" = "signal.desktop";

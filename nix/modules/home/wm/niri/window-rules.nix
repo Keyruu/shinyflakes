@@ -46,6 +46,12 @@ _:
   }
 
   window-rule {
+      match app-id=r#"^glide-editor$"#
+      open-floating true
+      opacity 0.85
+  }
+
+  window-rule {
       match app-id=r#"^zen$"#
       match app-id=r#"^zen-beta$"#
       match app-id=r#"^qutebrowser"#
@@ -57,6 +63,7 @@ _:
       match app-id=r#"^org.wezfurlong.wezterm$"#
       match app-id=r#"^Alacritty$"#
       match app-id=r#"^foot$"#
+      match app-id=r#"^footclient$"#
       match app-id=r#"^kitty$"#
       open-on-workspace "work"
   }

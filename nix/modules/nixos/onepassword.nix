@@ -14,6 +14,9 @@
         zen-bin
         .zen-wrapped
         librewolf
+        glide-browser
+        glide
+        .glide-browser-wrapped
       '';
       mode = "0755";
     };

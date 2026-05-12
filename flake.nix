@@ -164,6 +164,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    glide = {
+      url = "github:glide-browser/glide.nix";
+      # optionally: follow your flake's inputs
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # web
     homepage = {
       url = "github:Keyruu/homepage";

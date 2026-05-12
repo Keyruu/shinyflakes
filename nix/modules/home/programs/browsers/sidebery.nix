@@ -12,12 +12,7 @@ let
       icon,
     }:
     {
-      inherit
-        id
-        name
-        color
-        icon
-        ;
+      inherit id name color icon;
       cookieStoreId = "";
       proxified = false;
       proxy = null;
@@ -32,26 +27,24 @@ let
       id,
       name,
       color,
+      icon,
       ctxId,
+      moveRules ? [ ],
     }:
     {
       # PanelType.tabs from src/enums.ts — numeric, not the string "tabs".
       # isTabsPanel() does a strict === check so a string here means the
       # panel imports but never registers as a tabs panel and stays hidden.
       type = 2;
-      inherit id name color;
-      iconSVG = "icon_tabs";
+      inherit id name color moveRules;
+      iconSVG = icon;
+      newTabCtx = ctxId;
+      dropTabCtx = ctxId;
       iconIMG = "";
       iconIMGSrc = "";
-      # locked = always visible, can't be removed via drag-out
-      lockedPanel = true;
+      lockedPanel = false;
       skipOnSwitching = false;
       noEmpty = false;
-      # new tabs in this panel auto-open in the bound container
-      newTabCtx = ctxId;
-      # tabs dropped onto this panel get reopened in the container
-      dropTabCtx = ctxId;
-      moveRules = [ ];
       moveExcludedTo = -1;
       bookmarksFolderId = -1;
       newTabBtns = [ ];
@@ -71,6 +64,18 @@ let
       color = "orange";
       icon = "briefcase";
     };
+    banking = mkContainer {
+      id = "banking";
+      name = "Banking";
+      color = "green";
+      icon = "dollar";
+    };
+    shopping = mkContainer {
+      id = "shopping";
+      name = "Shopping";
+      color = "pink";
+      icon = "cart";
+    };
   };
 
   panels = {
@@ -78,32 +83,51 @@ let
       id = "personal";
       name = "Personal";
       color = "blue";
+      icon = "fingerprint";
       ctxId = "personal";
     };
     work = mkPanel {
       id = "work";
       name = "Work";
       color = "orange";
+      icon = "briefcase";
       ctxId = "work";
+      moveRules = [
+        { id = "0RXbX7C6l6fB"; active = true; url = "myposter.atlassian.net"; name = "Atlassian"; }
+        { id = "NK5P6Jnbh-fB"; active = true; url = "meet.google.com"; name = "Meet"; }
+        { id = "jz7lDojXmcgB"; active = true; url = "calendar.google.com"; name = "Calendar"; }
+        { id = "spJOO10EqGNN"; active = true; url = "app.datadoghq.eu"; name = "Datadog"; }
+        { id = "tsnExVCbDdm-"; active = true; url = "console.aws.amazon.com"; name = "AWS"; }
+      ];
     };
   };
 
   backup = {
-    # required by Sidebery's importer (Info.getMajVer); any 5.x works
-    ver = "5.3.0";
+    ver = "5.5.2";
     settings = {
       hideEmptyPanels = false;
       colorizeTabs = true;
-      colorizeTabsSrc = "domain";
-      colorizeTabsBranches = false;
-      colorizeTabsBranchesSrc = "url";
-      inheritCustomColor = true;
       newTabCtxReopen = true;
+      previewTabsPageModeFallback = "n";
+      previewTabsInlineHeight = 70;
+      previewTabsWinOffsetX = 6;
+      previewTabsWinOffsetY = 36;
+    };
+    keybindings = {
+      "_execute_sidebar_action" = "Ctrl+E";
+      activate = "Alt+Space";
+      reset_selection = "Alt+R";
+      loop_panels_forwards = "Ctrl+Shift+N";
+      new_tab_on_panel = "Ctrl+Space";
+      new_tab_in_group = "Ctrl+Shift+Space";
+      up = "Alt+Up";
+      down = "Alt+Down";
+      up_shift = "Alt+Shift+Up";
+      down_shift = "Alt+Shift+Down";
     };
     inherit containers;
     sidebar = {
       inherit panels;
-      # order in the nav bar; trailing buttons are Sidebery's built-in nav btns
       nav = [
         "personal"
         "work"

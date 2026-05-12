@@ -657,6 +657,29 @@
         "type": "github"
       }
     },
+    "glide": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1777767341,
+        "narHash": "sha256-lV2i2hBWxUKU2dgHza9SGfizOsV+uUcTQD/De+6/X3M=",
+        "owner": "glide-browser",
+        "repo": "glide.nix",
+        "rev": "790c9d37e3dcf9bb04ae4486a0320b999a8eec32",
+        "type": "github"
+      },
+      "original": {
+        "owner": "glide-browser",
+        "repo": "glide.nix",
+        "type": "github"
+      }
+    },
     "hister": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -1439,6 +1462,7 @@
         "disko": "disko",
         "firefox-addons": "firefox-addons",
         "flake-utils": "flake-utils_2",
+        "glide": "glide",
         "hister": "hister",
         "home-manager": "home-manager",
         "homepage": "homepage",
