@@ -8,17 +8,19 @@
     inputs.glide.homeModules.default
   ];
 
-  home.file.".glide-browser/native-messaging-hosts/com.1password.1password.json".text = builtins.toJSON {
-    name = "com.1password.1password";
-    description = "1Password BrowserSupport";
-    path = "/run/wrappers/bin/1Password-BrowserSupport";
-    type = "stdio";
-    allowed_extensions = [
-      "{0a75d802-9aed-41e7-8daa-24c067386e82}"
-      "{25fc87fa-4d31-4fee-b5c1-c32a7844c063}"
-      "{d634138d-c276-4fc8-924b-40a0ea21d284}"
-    ];
-  };
+  home.file.".glide-browser/native-messaging-hosts/com.1password.1password.json".text =
+    builtins.toJSON
+      {
+        name = "com.1password.1password";
+        description = "1Password BrowserSupport";
+        path = "/run/wrappers/bin/1Password-BrowserSupport";
+        type = "stdio";
+        allowed_extensions = [
+          "{0a75d802-9aed-41e7-8daa-24c067386e82}"
+          "{25fc87fa-4d31-4fee-b5c1-c32a7844c063}"
+          "{d634138d-c276-4fc8-924b-40a0ea21d284}"
+        ];
+      };
 
   programs.glide-browser = {
     enable = true;
@@ -59,21 +61,51 @@
     ''
       /// <reference path="./glide.d.ts" />
 
+      function scrollPage(tab_id: number, pixels: number, viewportFraction?: number) {
+        return glide.content.execute((px: number, vf: number | null) => {
+          function findScrollable(): Element {
+            let el: Element | null = document.activeElement;
+            while (el && el !== document.documentElement) {
+              if (el.scrollHeight > el.clientHeight) {
+                const style = getComputedStyle(el);
+                if (/auto|scroll/.test(style.overflowY)) return el;
+              }
+              el = el.parentElement;
+            }
+            const candidates = document.querySelectorAll("*");
+            let best: Element | null = null;
+            let bestArea = 0;
+            for (const c of candidates) {
+              if (c.scrollHeight > c.clientHeight + 1) {
+                const style = getComputedStyle(c);
+                if (/auto|scroll/.test(style.overflowY)) {
+                  const area = c.clientWidth * c.clientHeight;
+                  if (area > bestArea) { best = c; bestArea = area; }
+                }
+              }
+            }
+            return best ?? document.scrollingElement ?? document.documentElement;
+          }
+          const delta = vf != null ? window.innerHeight * vf : px;
+          findScrollable().scrollBy({ top: delta, behavior: "auto" });
+        }, { tab_id, args: [pixels, viewportFraction ?? null] });
+      }
+
       glide.keymaps.set("normal", "k", async () => {
         const tab = await glide.tabs.active();
-        if (tab?.id) await glide.content.execute(() => window.scrollBy(0, -200), { tab_id: tab.id });
+        if (tab?.id) await scrollPage(tab.id, -200);
       }, { description: "Scroll up" });
       glide.keymaps.set("normal", "j", async () => {
         const tab = await glide.tabs.active();
-        if (tab?.id) await glide.content.execute(() => window.scrollBy(0, 200), { tab_id: tab.id });
+        if (tab?.id) await scrollPage(tab.id, 200);
       }, { description: "Scroll down" });
       glide.keymaps.set("normal", "d", async () => {
         const tab = await glide.tabs.active();
-        if (tab?.id) await glide.content.execute(() => window.scrollBy(0, window.innerHeight * 0.25), { tab_id: tab.id });
+        if (tab?.id) await scrollPage(tab.id, 0, 0.25);
       }, { description: "Scroll quarter page down" });
       glide.keymaps.set("normal", "u", async () => {
         const tab = await glide.tabs.active();
-        if (tab?.id) await glide.content.execute(() => window.scrollBy(0, -window.innerHeight * 0.25), { tab_id: tab.id });
+        if (tab?.id) await scrollPage(tab.id, 0, -0.25);
       }, { description: "Scroll quarter page up" });
 
       // History navigation (H/L instead of <C-h>/<C-l>)
@@ -93,17 +125,14 @@
         await glide.keys.send("tab ");
       }, { description: "Search open tabs" });
 
-      // URL opening (matching vimium-c: o = new tab, O = current tab)
       glide.keymaps.set("normal", "o", "tab_new");
       glide.keymaps.set("normal", "O", async () => {
         await glide.excmds.execute("commandline_show");
       }, { description: "Open URL in current tab" });
 
-      // Reload
       glide.keymaps.set("normal", "r", "reload");
       glide.keymaps.set("normal", "R", "reload_hard");
 
-      // Clipboard
       glide.keymaps.set("normal", "p", async () => {
         const text = await navigator.clipboard.readText();
         if (text) await glide.excmds.execute("tab_new " + text);
@@ -114,7 +143,6 @@
         if (text && tab?.id) await browser.tabs.update(tab.id, { url: text });
       }, { description: "Open clipboard URL in current tab" });
 
-      // Command line navigation with <C-j>/<C-k>
       glide.keymaps.set("command", "<C-j>", "commandline_focus_next");
       glide.keymaps.set("command", "<C-k>", "commandline_focus_back");
 
@@ -127,11 +155,15 @@
         if (!tab?.id) return;
 
         const result = await glide.content.execute(() => {
-          const el = document.activeElement as HTMLTextAreaElement | HTMLInputElement | null;
-          if (!el || !("value" in el)) return null;
+          const el = document.activeElement as HTMLElement | null;
+          if (!el) return null;
+          const isEditable = el.isContentEditable;
+          const hasValue = "value" in el;
+          if (!isEditable && !hasValue) return null;
           const rect = el.getBoundingClientRect();
           return {
-            text: el.value,
+            text: hasValue ? (el as HTMLTextAreaElement).value : el.innerText,
+            contentEditable: isEditable,
             x: Math.round(rect.x + window.screenX),
             y: Math.round(rect.y + window.screenY),
             w: Math.round(rect.width),
@@ -174,69 +206,72 @@
         await foot;
 
         const edited = await glide.fs.read(tmpfile, "utf8");
-        await glide.content.execute((newText: string) => {
-          const el = document.activeElement as HTMLTextAreaElement | HTMLInputElement | null;
-          if (!el || !("value" in el)) return;
-          el.value = newText;
-          el.dispatchEvent(new Event("input", { bubbles: true }));
-        }, { tab_id: tab.id, args: [edited] });
+        await glide.content.execute((newText: string, wasContentEditable: boolean) => {
+          const el = document.activeElement as HTMLElement | null;
+          if (!el) return;
+          if (wasContentEditable || el.isContentEditable) {
+            el.focus();
+            document.execCommand("selectAll");
+            document.execCommand("insertText", false, newText);
+          } else if ("value" in el) {
+            (el as HTMLTextAreaElement).value = newText;
+            el.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }, { tab_id: tab.id, args: [edited, result.contentEditable] });
       });
 
 
       glide.excmds.create({ name: "omni", description: "Search tabs, bookmarks, history, or the web" }, async () => {
-        const tabs = await browser.tabs.query({});
-        const bookmarks = await browser.bookmarks.search({});
-        const history = await browser.history.search({ text: "", maxResults: 500 });
+        const [tabs, bookmarks, history, containers] = await Promise.all([
+          browser.tabs.query({}),
+          browser.bookmarks.search({}),
+          browser.history.search({ text: "", maxResults: 500 }),
+          browser.contextualIdentities.query({}),
+        ]);
 
-        type Entry = { kind: "tab"; id: number; line: string }
-                   | { kind: "bookmark"; url: string; line: string }
-                   | { kind: "history"; url: string; line: string };
+        const containerMap = new Map(containers.map(c => [c.cookieStoreId, c]));
 
-        const entries: Entry[] = [
-          ...tabs.filter(t => t.id != null).map(t => ({
-            kind: "tab" as const,
-            id: t.id!,
-            line: `''${t.active ? "▶" : "🗂️"} ''${t.title}\t''${t.url}`,
-          })),
+        const options: Parameters<typeof glide.commandline.show>[0]["options"] = [
+          ...tabs.filter(t => t.id != null).map(t => {
+            const container = t.cookieStoreId ? containerMap.get(t.cookieStoreId) : undefined;
+            const prefix = t.active ? "▶" : "🗂️";
+            const suffix = container ? ` [''${container.name}]` : "";
+            return {
+              label: `''${prefix} ''${t.title}''${suffix}`,
+              description: t.url ?? "",
+              execute() { browser.tabs.update(t.id!, { active: true }); },
+            };
+          }),
           ...bookmarks.filter(bm => bm.url).map(bm => ({
-            kind: "bookmark" as const,
-            url: bm.url!,
-            line: `⭐ ''${bm.title}\t''${bm.url}`,
+            label: `⭐ ''${bm.title}`,
+            description: bm.url!,
+            execute() { browser.tabs.create({ url: bm.url! }); },
           })),
           ...history.filter(h => h.url).map(h => ({
-            kind: "history" as const,
-            url: h.url!,
-            line: `🕐 ''${h.title}\t''${h.url}`,
+            label: `🕐 ''${h.title}`,
+            description: h.url!,
+            execute() { browser.tabs.create({ url: h.url! }); },
           })),
+          {
+            label: "🔍 Search the web",
+            description: "Open a Kagi search",
+            matches() { return true; },
+            execute({ input }) {
+              if (!input) return;
+              const isUrl = /^https?:\/\//i.test(input)
+                || /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}(\/|$)/.test(input);
+              if (isUrl) {
+                const url = input.startsWith("http") ? input : `https://''${input}`;
+                browser.tabs.create({ url });
+              } else {
+                const q = encodeURIComponent(input);
+                browser.tabs.create({ url: `https://kagi.com/search?q=''${q}` });
+              }
+            },
+          },
         ];
 
-        const input = entries.map(e => e.line).join("\n");
-
-        const proc = await glide.process.spawn("vicinae", [
-          "dmenu",
-          "-p", "Open",
-          "-s", `Results {count}`,
-        ], { check_exit_code: false });
-
-        await proc.stdin.write(input);
-        proc.stdin.close();
-
-        const result = await proc.wait();
-        const selected = (await result.stdout.text()).trim();
-
-        if (!selected) return;
-
-        const match = entries.find(e => e.line === selected);
-        if (match) {
-          if (match.kind === "tab") {
-            await browser.tabs.update(match.id, { active: true });
-          } else {
-            await browser.tabs.create({ url: match.url });
-          }
-        } else {
-          const query = encodeURIComponent(selected);
-          await browser.tabs.create({ url: `https://kagi.com/search?q=''${query}` });
-        }
+        await glide.commandline.show({ title: "Open", options });
       });
 
       glide.o.native_tabs = "hide";

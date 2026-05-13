@@ -46,7 +46,7 @@ in
     TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}
     TF_VAR_hcloud_token=${config.sops.placeholder.hcloudToken}
     JIRA_API_TOKEN=${config.sops.placeholder.jiraToken}
-    DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
+    DATADOG_API_KEY_MP=${config.sops.placeholder.datadogApiKeyMp}
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
     HASS_KEY=${config.sops.placeholder.hassKey}
     OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
