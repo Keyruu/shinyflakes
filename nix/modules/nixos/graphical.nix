@@ -1,5 +1,9 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
+  imports = [
+    inputs.vicinae.nixosModules.default
+  ];
+
   environment.systemPackages = with pkgs; [
     libnotify
     mesa

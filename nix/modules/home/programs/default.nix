@@ -10,7 +10,8 @@
     ./kanidm.nix
     ./kubie.nix
     ./nh.nix
-    ./noctalia.nix
+    # ./noctalia.nix
+    ./dms.nix
     ./opencode.nix
     ./pi
     ./spotify.nix

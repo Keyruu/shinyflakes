@@ -1,0 +1,24 @@
+{
+  "dark": {
+    "name": "Noctalia Dark",
+    "primary": "#4079d6",
+    "primaryText": "#111111",
+    "primaryContainer": "#2a5499",
+    "secondary": "#89b4fa",
+    "surface": "#111111",
+    "surfaceText": "#cdd6f4",
+    "surfaceVariant": "#1E1E1E",
+    "surfaceVariantText": "#828282",
+    "surfaceTint": "#4079d6",
+    "background": "#111111",
+    "backgroundText": "#cdd6f4",
+    "outline": "#3c3c3c",
+    "surfaceContainer": "#161616",
+    "surfaceContainerHigh": "#1E1E1E",
+    "surfaceContainerHighest": "#282828",
+    "error": "#f38ba8",
+    "warning": "#f9e2af",
+    "info": "#89b4fa",
+    "matugen_type": "scheme-tonal-spot"
+  }
+}
