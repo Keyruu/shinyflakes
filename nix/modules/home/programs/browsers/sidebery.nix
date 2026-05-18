@@ -85,6 +85,11 @@ let
       color = "blue";
       icon = "fingerprint";
       ctxId = "personal";
+      moveRules = [
+        { id = "dR4cX9Kv2mPQ"; active = true; url = "discord.com"; name = "Discord"; }
+        { id = "mT6vN3Wk8pRJ"; active = true; url = "open.spotify.com"; name = "Spotify"; }
+        { id = "kL2wP8Qn5vXM"; active = true; url = "app.element.io"; name = "Element"; }
+      ];
     };
     work = mkPanel {
       id = "work";
@@ -98,6 +103,7 @@ let
         { id = "jz7lDojXmcgB"; active = true; url = "calendar.google.com"; name = "Calendar"; }
         { id = "spJOO10EqGNN"; active = true; url = "app.datadoghq.eu"; name = "Datadog"; }
         { id = "tsnExVCbDdm-"; active = true; url = "console.aws.amazon.com"; name = "AWS"; }
+        { id = "qW8nR5Lx3hYZ"; active = true; url = "app.slack.com"; name = "Slack"; }
       ];
     };
   };

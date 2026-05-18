@@ -67,7 +67,7 @@ PluginComponent {
 
             StyledText {
                 text: root.eventText
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
                 color: Theme.surfaceText
                 anchors.verticalCenter: parent.verticalCenter
                 elide: Text.ElideRight

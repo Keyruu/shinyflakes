@@ -5,5 +5,6 @@
     # ./caffeine.nix
     ./notif.nix
     ./colorpicker.nix
+    ./chat.nix
   ];
 }

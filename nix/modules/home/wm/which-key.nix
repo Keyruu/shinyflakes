@@ -110,6 +110,9 @@
                 - key: "o"
                   desc: Obsidian
                   cmd: scratch-niri obsidian obsidian
+                - key: "n"
+                  desc: Notepad
+                  cmd: dms ipc call notepad toggle
             - key: "w"
               desc: Workspaces
               submenu:

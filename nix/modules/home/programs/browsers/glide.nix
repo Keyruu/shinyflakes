@@ -31,7 +31,18 @@
       NoDefaultBookmarks = true;
       OfferToSaveLogins = false;
       TranslateEnabled = false;
+      Permissions = {
+        Notifications = {
+          Allow = [
+            "https://app.slack.com"
+            "https://discord.com"
+            "https://open.spotify.com"
+            "https://app.element.io"
+          ];
+        };
+      };
       Preferences = {
+        "browser.startup.page" = 3;
         "browser.ctrlTab.sortByRecentlyUsed" = true;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         "browser.toolbars.bookmarks.visibility" = "never";
@@ -149,6 +160,49 @@
       glide.keymaps.set("normal", "<leader><leader>", "omni");
       glide.keymaps.set("normal", "<leader>c", "config_reload");
       glide.keymaps.set("normal", "<leader>e", "editor");
+      glide.keymaps.set("normal", "<leader>C", "chat");
+      glide.keymaps.set("normal", "<leader>m", "move_tab");
+
+      glide.excmds.create({ name: "move_tab", description: "Move current tab to another window" }, async () => {
+        const currentTab = await glide.tabs.active();
+        if (!currentTab?.id) return;
+        const windows = await browser.windows.getAll({ populate: true });
+        const otherWindows = windows.filter(w => w.id !== currentTab.windowId);
+        if (otherWindows.length === 0) {
+          await browser.windows.create({ tabId: currentTab.id });
+          return;
+        }
+        async function moveAndFocus(tabId: number, windowId: number) {
+          await browser.tabs.move(tabId, { windowId, index: -1 });
+          await browser.tabs.update(tabId, { active: true });
+          await browser.windows.update(windowId, { focused: true });
+        }
+        if (otherWindows.length === 1) {
+          await moveAndFocus(currentTab.id, otherWindows[0].id!);
+          return;
+        }
+        const options = otherWindows.map(w => {
+          const title = w.tabs?.[0]?.title ?? "Window";
+          const tabCount = w.tabs?.length ?? 0;
+          return {
+            label: `''${title} (''${tabCount} tabs)`,
+            description: w.tabs?.map(t => t.title).join(", ") ?? "",
+            execute() { moveAndFocus(currentTab.id!, w.id!); },
+          };
+        });
+        await glide.commandline.show({ title: "Move tab to window", options });
+      });
+
+      glide.excmds.create({ name: "chat", description: "Open chat window with Slack and Discord" }, async () => {
+        await browser.windows.create({ url: [
+          "https://app.slack.com",
+          "https://discord.com/app",
+          "https://open.spotify.com",
+        ]});
+        await new Promise(r => setTimeout(r, 500));
+        await glide.process.execute("niri", ["msg", "action", "move-window-to-workspace", "social", "--focus", "false"]);
+        await glide.process.execute("niri", ["msg", "action", "set-column-width", "66%"]);
+      });
 
       glide.excmds.create({ name: "editor", description: "Edit focused textarea in external editor" }, async () => {
         const tab = await glide.tabs.active();
@@ -275,6 +329,7 @@
       });
 
       glide.o.native_tabs = "hide";
+      glide.o.switch_mode_on_focus = false;
       glide.styles.add(css`
         :root:has(.tabbrowser-tab[selected].identity-color-blue) :is(#nav-bar) {
           background-color: color-mix(in srgb, #37adff 15%, transparent) !important;

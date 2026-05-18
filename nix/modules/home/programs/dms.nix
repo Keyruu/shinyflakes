@@ -28,10 +28,15 @@
       };
     };
 
+    session = {
+      wallpaperPath = ../themes/dark-bg.jpg;
+    };
+
     settings = {
       currentThemeName = "custom";
       customThemeFile = "${config.home.homeDirectory}/.config/DankMaterialShell/theme.json";
       blurEnabled = true;
+      blurWallpaperOnOverview = true;
       use24HourClock = true;
       clockDateFormat = "ddd dd.MM.";
       showOccupiedWorkspacesOnly = true;
@@ -53,134 +58,154 @@
       fadeToDpmsEnabled = true;
       fadeToDpmsGracePeriod = 5;
 
-      barConfigs =
-        let
-          commonBar = {
-            enabled = true;
-            position = 0;
-            showOnLastDisplay = true;
-            transparency = 0.7;
-            widgetTransparency = 1.0;
-            noBackground = false;
-            spacing = 5;
-            innerPadding = 5;
-            bottomGap = 0;
+      barConfigs = [
+        {
+          enabled = true;
+          position = 0;
+          showOnLastDisplay = true;
+          transparency = 0.7;
+          widgetTransparency = 1.0;
+          noBackground = false;
+          spacing = 5;
+          innerPadding = 5;
+          bottomGap = 0;
 
-            leftWidgets = [
-              {
-                id = "launcherButton";
-                enabled = true;
-              }
-              {
-                id = "workspaceSwitcher";
-                enabled = true;
-              }
-              {
-                id = "runningApps";
-                enabled = true;
-                runningAppsCompactMode = true;
-                runningAppsCurrentWorkspace = true;
-              }
-              {
-                id = "focusedWindow";
-                enabled = true;
-              }
-            ];
-
-            centerWidgets = [
-              {
-                id = "music";
-                enabled = true;
-              }
-            ];
-
-            rightWidgets = [
-              {
-                id = "systemTray";
-                enabled = true;
-              }
-              {
-                id = "khalNextEvent";
-                enabled = true;
-              }
-              {
-                id = "cpuUsage";
-                enabled = true;
-                minimumWidth = true;
-                showLabel = false;
-              }
-              {
-                id = "memUsage";
-                enabled = true;
-                minimumWidth = true;
-                showLabel = false;
-                showSwap = false;
-              }
-              {
-                id = "battery";
-                enabled = true;
-              }
-
-              {
-                id = "controlCenterButton";
-                enabled = true;
-                showNetworkIcon = true;
-                showBluetoothIcon = true;
-                showAudioIcon = true;
-                showAudioPercent = false;
-                showMicIcon = true;
-                showMicPercent = false;
-                showBrightnessIcon = false;
-              }
-              {
-                id = "clock";
-                enabled = true;
-              }
-              {
-                id = "idleInhibitor";
-                enabled = true;
-              }
-              {
-                id = "notificationButton";
-                enabled = true;
-              }
-            ];
-
-            scrollEnabled = true;
-            scrollXBehavior = "column";
-            scrollYBehavior = "workspace";
-            maximizeDetection = true;
-            squareCorners = false;
-            visible = true;
-            autoHide = false;
-            popupGapsAuto = true;
-            popupGapsManual = 4;
-          };
-        in
-        [
-          (
-            commonBar
-            // {
-              id = "default";
-              name = "Main Bar";
-              screenPreferences = [ "all" ];
-              fontScale = 1.0;
-              iconScale = 1.0;
+          leftWidgets = [
+            {
+              id = "launcherButton";
+              enabled = true;
             }
-          )
-          (
-            commonBar
-            // {
-              id = "laptop";
-              name = "Laptop Bar";
-              screenPreferences = [ "eDP-1" ];
-              fontScale = 0.85;
-              iconScale = 0.85;
+            {
+              id = "workspaceSwitcher";
+              enabled = true;
             }
-          )
-        ];
+            {
+              id = "runningApps";
+              enabled = true;
+              runningAppsCompactMode = true;
+              runningAppsCurrentWorkspace = true;
+            }
+            {
+              id = "focusedWindow";
+              enabled = true;
+            }
+          ];
+
+          centerWidgets = [
+            {
+              id = "music";
+              enabled = true;
+            }
+          ];
+
+          rightWidgets = [
+            {
+              id = "systemTray";
+              enabled = true;
+            }
+            {
+              id = "khalNextEvent";
+              enabled = true;
+            }
+            {
+              id = "cpuUsage";
+              enabled = true;
+              minimumWidth = true;
+              showLabel = false;
+            }
+            {
+              id = "memUsage";
+              enabled = true;
+              minimumWidth = true;
+              showLabel = false;
+              showSwap = false;
+            }
+            {
+              id = "battery";
+              enabled = true;
+            }
+
+            {
+              id = "controlCenterButton";
+              enabled = true;
+              showNetworkIcon = true;
+              showBluetoothIcon = true;
+              showAudioIcon = true;
+              showAudioPercent = false;
+              showMicIcon = true;
+              showMicPercent = false;
+              showBrightnessIcon = false;
+            }
+            {
+              id = "clock";
+              enabled = true;
+            }
+            {
+              id = "idleInhibitor";
+              enabled = true;
+            }
+            {
+              id = "notificationButton";
+              enabled = true;
+            }
+          ];
+
+          scrollEnabled = true;
+          scrollXBehavior = "column";
+          scrollYBehavior = "workspace";
+          maximizeDetection = true;
+          squareCorners = false;
+          visible = true;
+          autoHide = false;
+          popupGapsAuto = true;
+          popupGapsManual = 4;
+          id = "default";
+          name = "Bar";
+          screenPreferences = [ "all" ];
+          fontScale = 0.85;
+          iconScale = 0.85;
+        }
+      ];
     };
   };
 
   xdg.configFile."DankMaterialShell/theme.json".source = ./dms/theme.json;
+
+  xdg.desktopEntries = {
+    dms-caffeine = {
+      name = "Caffeine";
+      exec = "dms ipc call inhibit toggle";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "caffeine";
+    };
+
+    dms-notification-center = {
+      name = "Notification Center";
+      exec = "dms ipc call notifications toggle";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "notifications";
+    };
+
+    dms-clear-notifications = {
+      name = "Clear Notifications";
+      exec = "dms ipc call notifications close";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "notification-disabled";
+    };
+
+    dms-notepad = {
+      name = "Notepad";
+      exec = "dms ipc call notepad toggle";
+      terminal = false;
+      type = "Application";
+      categories = [ "Utility" ];
+      icon = "accessories-text-editor";
+    };
+  };
 }
