@@ -8,63 +8,67 @@ _: {
         desc = "Exit terminal mode";
       }
 
+      # C-h/j/k/l: navigate nvim splits and cross into tmux panes when at
+      # the edge. <Cmd> executes the ex-command without changing modes, so
+      # the same mapping works in normal and terminal mode without leaking
+      # keystrokes into the embedded shell.
       {
         key = "<C-h>";
         mode = "n";
-        action = "<C-w>h";
-        desc = "Move to left window";
+        action = "<Cmd>TmuxNavigateLeft<CR>";
+        desc = "Window/pane left";
         silent = true;
       }
       {
         key = "<C-h>";
         mode = "t";
-        action = "<C-\\><C-n><C-w>h";
-        desc = "Move to left window from terminal";
+        action = "<Cmd>TmuxNavigateLeft<CR>";
+        desc = "Window/pane left (from terminal)";
         silent = true;
       }
 
       {
         key = "<C-j>";
         mode = "n";
-        action = "<C-w>j";
-        desc = "Move to bottom window";
+        action = "<Cmd>TmuxNavigateDown<CR>";
+        desc = "Window/pane down";
         silent = true;
       }
       {
         key = "<C-j>";
         mode = "t";
-        action = "<C-\\><C-n><C-w>j";
-        desc = "Move to bottom window from terminal";
+        action = "<Cmd>TmuxNavigateDown<CR>";
+        desc = "Window/pane down (from terminal)";
         silent = true;
       }
 
       {
         key = "<C-k>";
         mode = "n";
-        action = "<C-w>k";
-        desc = "Move to top window";
+        action = "<Cmd>TmuxNavigateUp<CR>";
+        desc = "Window/pane up";
         silent = true;
       }
       {
         key = "<C-k>";
         mode = "t";
-        action = "<C-\\><C-n><C-w>k";
-        desc = "Move to top window from terminal";
+        action = "<Cmd>TmuxNavigateUp<CR>";
+        desc = "Window/pane up (from terminal)";
         silent = true;
       }
 
       {
         key = "<C-l>";
         mode = "n";
-        action = "<C-w>l";
-        desc = "Move to right window";
+        action = "<Cmd>TmuxNavigateRight<CR>";
+        desc = "Window/pane right";
         silent = true;
       }
       {
         key = "<C-l>";
         mode = "t";
-        action = "<C-\\><C-n><C-w>l";
-        desc = "Move to right window from terminal";
+        action = "<Cmd>TmuxNavigateRight<CR>";
+        desc = "Window/pane right (from terminal)";
         silent = true;
       }
 
@@ -272,6 +276,15 @@ _: {
         lua = true;
       }
       {
+        key = "<leader>tT";
+        mode = "n";
+        # Delegates to the tmux-side `prefix B` toggle so spawn/hide/restore
+        # behavior matches and the pane is tagged with @is_nvim_term.
+        action = ''<Cmd>silent !tmux term-toggle<CR>'';
+        desc = "Toggle bottom tmux term";
+        silent = true;
+      }
+      {
         key = "<leader>tp";
         mode = "n";
         action = # lua
@@ -288,6 +301,14 @@ _: {
         desc = "Toggle Pi Agent Terminal";
         silent = true;
         lua = true;
+      }
+      {
+        key = "<leader>tP";
+        mode = "n";
+        # Delegates to the tmux-side `prefix P` toggle (@is_pi tagged pane).
+        action = ''<Cmd>silent !tmux pi-toggle<CR>'';
+        desc = "Toggle pi in tmux pane";
+        silent = true;
       }
 
       {

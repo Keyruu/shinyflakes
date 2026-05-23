@@ -34,8 +34,6 @@ in
 
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  fileSystems."/home".neededForBoot = true;
-
   services.mesh = {
     inherit (mesh.people.lucas.devices.carryall) ip;
     client = {

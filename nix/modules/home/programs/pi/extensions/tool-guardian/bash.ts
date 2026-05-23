@@ -16,6 +16,7 @@ import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 import { selectWithNotification } from "./notify.ts";
 import { type ResponseData, requestNvimApproval } from "./nvim-ipc.ts";
 import { DANGEROUS_PATTERNS, SAFE_PATTERNS } from "./patterns.ts";
+import { resolveNvimTarget, tmuxFocusLastPane, tmuxFocusPane } from "./tmux.ts";
 import { type BlockResult, isBlockedPath, ReviewAction, truncate } from "./utils.ts";
 
 const TIMED_APPROVE_MS = 5000;
@@ -81,14 +82,15 @@ interface RaceOptions {
  */
 async function raceApproval(opts: RaceOptions): Promise<string | undefined> {
   const { ctx, tuiTitle, options, notifTitle, notifBody, timeout } = opts;
-  const nvimServer = process.env.NVIM;
+  const target = resolveNvimTarget();
 
-  if (!nvimServer) {
+  if (!target) {
     return selectWithNotification(ctx, tuiTitle, options, notifTitle, notifBody, { timeout });
   }
 
   const toolName = notifTitle.replace(/^[^\w]*/, "").replace(/^pi:\s*/, "");
-  const nvim = requestNvimApproval(nvimServer, {
+  tmuxFocusPane(target.paneId);
+  const nvim = requestNvimApproval(target.socket, {
     tool_name: toolName,
     display: tuiTitle,
     dangerous: !timeout,
@@ -112,6 +114,7 @@ async function raceApproval(opts: RaceOptions): Promise<string | undefined> {
   }));
 
   const result = await Promise.race([tuiPromise, nvimPromise]);
+  if (target.paneId) tmuxFocusLastPane();
 
   if (result.source === "nvim") {
     externalAbort.abort();

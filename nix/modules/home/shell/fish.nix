@@ -21,8 +21,13 @@
       starship_transient_rprompt_func = "starship module time";
       rebuild = # fish
         ''
+          argparse 'o/offline' -- $argv; or return
           set config_name (if test (count $argv) -gt 0; echo $argv[1]; else; hostname; end)
-          sudo nixos-rebuild switch --flake ~/shinyflakes\?submodules=1#$config_name
+          set -l flags
+          if set -q _flag_offline
+            set flags --offline
+          end
+          sudo nixos-rebuild switch --flake ~/shinyflakes\?submodules=1#$config_name $flags
         '';
     };
 

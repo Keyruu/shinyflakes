@@ -28,6 +28,56 @@
         green_soft = "#A3BE8C";
         blue_muted = "#81A1C1";
         cyan_soft = "#88C0D0";
+
+        # Toggle a single tagged pane per session. Spawn / hide (detach as
+        # background window) / restore to current window. Tagged via a
+        # pane-option so the marker survives shell restarts/clears.
+        mkToggle =
+          {
+            name,
+            tag,
+            split,
+            size,
+            cmd ? "",
+            full ? false,
+          }:
+          let
+            fullFlag = lib.optionalString full "-f";
+          in
+          pkgs.writeShellScript "tmux-${name}-toggle" ''
+            set -e
+            target=$(tmux list-panes -s -F '#{pane_id} #{window_id} #{@${tag}}' \
+              | awk '$3==1 {print $1, $2; exit}')
+            if [ -z "$target" ]; then
+              tmux split-window ${fullFlag} ${split} -l ${size} -c "#{pane_current_path}" ${cmd}
+              tmux set -p @${tag} 1
+              exit 0
+            fi
+            pane_id=$(echo "$target" | awk '{print $1}')
+            win_id=$(echo "$target" | awk '{print $2}')
+            cur_win=$(tmux display -p '#{window_id}')
+            if [ "$win_id" = "$cur_win" ]; then
+              tmux break-pane -d -s "$pane_id"
+            else
+              tmux join-pane ${fullFlag} ${split} -l ${size} -s "$pane_id"
+            fi
+          '';
+
+        piToggle = mkToggle {
+          name = "pi";
+          tag = "is_pi";
+          split = "-h";
+          size = "40%";
+          cmd = "pi";
+          full = true;
+        };
+
+        termToggle = mkToggle {
+          name = "term";
+          tag = "is_nvim_term";
+          split = "-v";
+          size = "30%";
+        };
       in
       # tmux
       ''
@@ -44,6 +94,10 @@
         set -g focus-events on
         set -g extended-keys on
         set -g extended-keys-format csi-u
+        # Declare that the outer terminal can carry extended-key sequences,
+        # so tmux actually forwards modifyOtherKeys / kitty-kbd to apps that
+        # request them (e.g. pi's TUI needs this for Shift+Enter).
+        set -as terminal-features '*:extkeys'
         set -g mouse on
 
         set -g prefix C-b
@@ -51,12 +105,27 @@
 
         set -g detach-on-destroy off
         bind -N "last-session (via sesh)" L run-shell "sesh last"
-        bind-key "T" run-shell "sesh connect \"$(sesh list --icons | fzf-tmux -p 80%,70% --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' --bind 'tab:down,btab:up' --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' --preview-window 'right:55%' --preview 'sesh preview {}')\""
 
         bind h select-pane -L
         bind j select-pane -D
         bind k select-pane -U
         bind l select-pane -R
+
+        # vim-tmux-navigator: C-h/j/k/l navigates nvim splits and tmux panes
+        # transparently. If the current pane is running nvim (or fzf), the
+        # keys are forwarded into it; otherwise tmux moves between panes.
+        # nvf wraps nvim via mnw so `comm` shows `.nvim-wrapped` — the regex
+        # tolerates a leading dot and an optional `-wrapped` suffix.
+        is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +\\.?(\\S+/)?g?(view|l?n?vim?x?|fzf)(-wrapped)?(diff)?$'"
+        bind-key -n C-h if-shell "$is_vim" 'send-keys C-h' 'select-pane -L'
+        bind-key -n C-j if-shell "$is_vim" 'send-keys C-j' 'select-pane -D'
+        bind-key -n C-k if-shell "$is_vim" 'send-keys C-k' 'select-pane -U'
+        bind-key -n C-l if-shell "$is_vim" 'send-keys C-l' 'select-pane -R'
+        # In copy-mode, plain tmux navigation (no nvim forwarding needed)
+        bind-key -T copy-mode-vi C-h select-pane -L
+        bind-key -T copy-mode-vi C-j select-pane -D
+        bind-key -T copy-mode-vi C-k select-pane -U
+        bind-key -T copy-mode-vi C-l select-pane -R
 
         bind x kill-pane
 
@@ -91,12 +160,27 @@
         bind '"' split-window -v -c "#{pane_current_path}"
         bind '%' split-window -h -c "#{pane_current_path}"
 
+        # Expose toggles as named commands so external callers (nvim, scripts)
+        # can invoke them via `tmux pi-toggle` / `tmux term-toggle`.
+        # send-keys can't trigger key bindings (keys go to the pty, not the
+        # tmux client input handler), so we need real tmux commands.
+        set -s command-alias[100] pi-toggle='run-shell ${piToggle}'
+        set -s command-alias[101] term-toggle='run-shell ${termToggle}'
+
+        # Toggle pi pane: spawn / hide (detach to bg window) / restore.
+        # Pi auto-detects the sibling nvim pane for diffs and approval modals.
+        bind P pi-toggle
+        # Toggle bottom shell pane, same lifecycle as pi.
+        bind T term-toggle
+
         # ── Which-key menu (C-Space, no prefix needed) ──
         bind -n C-Space display-menu -T " tmux " -x C -y C \
           "─── Windows ───"                          "" "" \
           "New window           (c)"                 c new-window \
           "Split horizontal     (-)"                 - "split-window -v -c '#{pane_current_path}'" \
           "Split vertical       (|)"                 | "split-window -h -c '#{pane_current_path}'" \
+          "Pi toggle            (P)"                 P pi-toggle \
+          "Bottom term toggle   (T)"                 T term-toggle \
           "Next window       (M-L)"                  n next-window \
           "Previous window   (M-H)"                  p previous-window \
           "Select window"                            w choose-tree \

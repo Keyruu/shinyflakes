@@ -245,6 +245,16 @@
     startPlugins = with pkgs.vimPlugins; [
       plenary-nvim
       nvim-numbertoggle
+      # Seamless C-h/j/k/l navigation between nvim splits and tmux panes.
+      # Tmux side configured in nix/modules/home/shell/tmux.nix.
+      # Default mappings disabled (see globals below) — we route C-h/j/k/l
+      # through keymaps.nix using <Cmd>TmuxNavigate*<CR> for both normal and
+      # terminal mode, which avoids leaking the command text into :terminal.
+      vim-tmux-navigator
     ];
+
+    globals = {
+      tmux_navigator_no_mappings = 1;
+    };
   };
 }

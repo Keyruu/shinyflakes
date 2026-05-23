@@ -12,6 +12,7 @@
     ./nh.nix
     # ./noctalia.nix
     ./dms.nix
+    ./satty.nix
     ./opencode.nix
     ./pi
     ./spotify.nix

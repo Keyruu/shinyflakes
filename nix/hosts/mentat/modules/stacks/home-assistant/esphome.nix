@@ -13,7 +13,7 @@ in
     backup.enable = true;
     stack = {
       enable = true;
-      directories = [ "config" ];
+      directories = [ "config" "platformio" ];
       security.enable = false;
       containers.esphome = {
         containerConfig = {
@@ -29,6 +29,7 @@ in
           ];
           volumes = [
             "${my.stack.path}/config:/config"
+            "${my.stack.path}/platformio:/root/.platformio"
           ];
           networks = [
             "host"

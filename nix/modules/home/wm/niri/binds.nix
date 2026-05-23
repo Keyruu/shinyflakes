@@ -61,7 +61,10 @@ in
       Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://launch/clipboard/history"; }
       Super+X hotkey-overlay-title="Keyboard Pointer" { spawn-sh "${pkgs.wl-kbptr}/bin/wl-kbptr -c $HOME/.config/wl-kbptr/floating"; }
 
-      Super+Shift+4 hotkey-overlay-title="Screenshot" { screenshot; }
+      Print hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
+      Shift+Print hotkey-overlay-title="Screenshot Screen" { spawn "screenshot" "screen"; }
+      Ctrl+Print hotkey-overlay-title="Screenshot All" { spawn "screenshot" "all"; }
+      Super+Shift+4 hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
 
       Alt+R hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }
       Alt+M hotkey-overlay-title="Program Menu" { spawn "wlr-which-key" "--initial-keys" "n p"; }

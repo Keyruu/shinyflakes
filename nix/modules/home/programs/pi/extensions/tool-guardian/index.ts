@@ -13,10 +13,8 @@
  * the TUI — whichever you interact with first wins.
  *
  * AI comments: when reviewing a diff in Neovim you can add comments
- * starting with `ai:` to steer the agent. On Allow the ai: lines are
  * stripped from the file and the instructions are delivered via a
  * steer (user-role) message so the agent doesn't need to re-read
- * the file just to clean them up. Only manual edits beyond ai: comments
  * trigger a re-read instruction.
  *
  * Also sends a "finished" desktop notification when the agent completes
@@ -231,11 +229,25 @@ export default function (pi: ExtensionAPI) {
       }
       return args;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async execute(toolCallId, params, signal, onUpdate, ctx): Promise<any> {
-      return executeWithReview("edit", toolCallId, params, signal, onUpdate, ctx);
+    async execute(
+      toolCallId: string,
+      params: unknown,
+      signal: AbortSignal | undefined,
+      onUpdate: unknown,
+      ctx: ExtensionContext,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): Promise<any> {
+      return executeWithReview(
+        "edit",
+        toolCallId,
+        params as Record<string, unknown>,
+        signal,
+        onUpdate,
+        ctx,
+      );
     },
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 
   pi.registerTool({
     ...baseWrite,
@@ -247,10 +259,25 @@ export default function (pi: ExtensionAPI) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parameters: writeParams as any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async execute(toolCallId, params, signal, onUpdate, ctx): Promise<any> {
-      return executeWithReview("write", toolCallId, params, signal, onUpdate, ctx);
+    async execute(
+      toolCallId: string,
+      params: unknown,
+      signal: AbortSignal | undefined,
+      onUpdate: unknown,
+      ctx: ExtensionContext,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): Promise<any> {
+      return executeWithReview(
+        "write",
+        toolCallId,
+        params as Record<string, unknown>,
+        signal,
+        onUpdate,
+        ctx,
+      );
     },
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 
   // ── Lifecycle ────────────────────────────────────────────────────
 

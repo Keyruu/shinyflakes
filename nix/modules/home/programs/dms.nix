@@ -21,6 +21,7 @@
     enableClipboardPaste = true;
     enableCalendarEvents = true;
 
+    managePluginSettings = true;
     plugins = {
       khalNextEvent = {
         enable = true;
@@ -34,12 +35,12 @@
 
     settings = {
       currentThemeName = "custom";
-      customThemeFile = "${config.home.homeDirectory}/.config/DankMaterialShell/theme.json";
+      customThemeFile = ./dms/theme.json;
       blurEnabled = true;
       blurWallpaperOnOverview = true;
       use24HourClock = true;
       clockDateFormat = "ddd dd.MM.";
-      showOccupiedWorkspacesOnly = true;
+      showOccupiedWorkspacesOnly = false;
       runningAppsCurrentWorkspace = true;
       scrollTitleEnabled = true;
       soundsEnabled = true;

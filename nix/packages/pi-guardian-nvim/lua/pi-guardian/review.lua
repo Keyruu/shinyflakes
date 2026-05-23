@@ -80,7 +80,12 @@ local function close_review_tab(state)
   -- Wipe only the buffers this review created (orig scratch + file if new).
   -- Previous approach deleted ALL unknown buffers which raced with queued reviews.
   -- Detach LSP clients before deleting to avoid "Invalid buffer id" errors.
-  vim.schedule(function()
+  -- Use vim.defer_fn instead of vim.schedule: LSP startup uses multi-level
+  -- scheduling (FileType → schedule(level1) → schedule(start_config)), so a
+  -- plain vim.schedule races between those levels and deletes the buffer
+  -- before start_config calls vim.fs.root(buf). The defer gives LSP's full
+  -- async init chain time to complete.
+  vim.defer_fn(function()
     local function safe_delete(b)
       if not vim.api.nvim_buf_is_valid(b) then
         return
@@ -95,7 +100,7 @@ local function close_review_tab(state)
     if not state.file_buf_existed then
       safe_delete(state.file_buf)
     end
-  end)
+  end, 200)
 
   if state.on_cleanup then
     state.on_cleanup()

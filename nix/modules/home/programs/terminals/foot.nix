@@ -1,5 +1,9 @@
 { config, ... }:
 {
+  xdg.configFile."xdg-terminals.list".text = ''
+    footclient.desktop
+  '';
+
   programs.foot = {
     enable = true;
     server.enable = true;

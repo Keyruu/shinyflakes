@@ -20,6 +20,15 @@ _:
   }
 
   window-rule {
+      match app-id=r#"^com\.gabm\.satty$"#
+      default-column-width { proportion 0.88; }
+      default-window-height { proportion 0.88; }
+      open-floating true
+      open-maximized false
+      open-fullscreen false
+  }
+
+  window-rule {
       match app-id=r#"^Alacritty$"#
       background-effect {
           blur true

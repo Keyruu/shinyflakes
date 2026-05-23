@@ -21,4 +21,6 @@
     flake.modules.nixos.plymouth
     flake.modules.nixos.podman
   ];
+
+  fileSystems."/home".neededForBoot = true;
 }

@@ -6,5 +6,6 @@
     ./notif.nix
     ./colorpicker.nix
     ./chat.nix
+    ./screenshot.nix
   ];
 }

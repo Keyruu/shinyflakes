@@ -14,10 +14,7 @@
  * The keybinds race against the TUI select dialog and desktop
  * notification — whichever the user interacts with first wins.
  *
- * Supports `ai:` comments for steering the agent from within the diff.
- * On accept, `ai:` lines are stripped from the file and instructions
  * are delivered via a steer (user-role) message — no re-read needed
- * unless the user made manual edits beyond the ai: comments.
  */
 
 import { spawnSync } from "node:child_process";
@@ -33,6 +30,7 @@ import {
   uniqueId,
   watchForResponse,
 } from "./nvim-ipc.ts";
+import { resolveNvimTarget, tmuxFocusLastPane, tmuxFocusPane } from "./tmux.ts";
 import { type AcceptedResult, type MutationResult, ReviewAction } from "./utils.ts";
 
 export type { ResponseData };
@@ -43,7 +41,6 @@ function accepted(fileName: string): AcceptedResult {
   return { accepted: true, message: `Applied changes to ${fileName}.` };
 }
 
-/** Extract `ai:` comment lines with their line numbers. */
 function extractAiComments(content: string): string[] {
   const comments: string[] = [];
   const lines = content.split("\n");
@@ -56,7 +53,6 @@ function extractAiComments(content: string): string[] {
   return comments;
 }
 
-/** Remove lines containing `ai:` comments, preserving other content. */
 function stripAiComments(content: string): string {
   const lines = content.split("\n");
   const stripped = lines.filter((line) => !/\bai:\s*/.test(line));
@@ -116,15 +112,12 @@ function truncateDiff(diff: string): string {
 
 /**
  * Process user edits from diff review:
- * 1. Extract ai: instructions from the edited content
- * 2. Strip ai: comment lines and write clean version to disk
  * 3. Send steer (user-role) message with instructions and/or diff
  * 4. Return an accepted result
  *
  * Steer messages have `role: "user"` so models treat them as
  * real instructions — much stronger than tool-result text.
  *
- * If the file only had ai: comments (no other edits), the model
  * does NOT need to re-read — instructions are in the steer message
  * and the file on disk is already clean.
  */
@@ -143,7 +136,6 @@ function processUserEdits(
 
   if (!hasRealEdits && !hasInstructions) return undefined;
 
-  // Write the clean (ai:-stripped) version to disk
   writeFileSync(absolutePath, cleanContent, "utf-8");
 
   // Build steer message
@@ -204,6 +196,7 @@ interface ReviewContext {
 async function reviewInEmbeddedNvim(
   rc: ReviewContext,
   nvimServer: string,
+  tmuxPane: string | null,
 ): Promise<MutationResult | undefined> {
   const { pi, ctx, filePath, fileName, absolutePath, originalContent, proposedContent, reason } =
     rc;
@@ -225,6 +218,9 @@ async function reviewInEmbeddedNvim(
   );
 
   const { promise: nvimResponse, cancel: cancelWatch } = watchForResponse(responseFile);
+
+  // Focus the nvim pane (no-op when embedded via $NVIM — paneId is null).
+  tmuxFocusPane(tmuxPane);
 
   nvimRemoteSend(
     nvimServer,
@@ -254,6 +250,8 @@ async function reviewInEmbeddedNvim(
 
   const result = await Promise.race([tuiPromise, nvimPromise]);
   cancelWatch();
+  // Restore focus to pi's pane (no-op when not in tmux or no pane switch happened).
+  if (tmuxPane) tmuxFocusLastPane();
 
   if (result.source === "nvim") {
     externalAbort.abort();
@@ -331,8 +329,6 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
     rmdirSync(tmpDir);
   } catch {}
 
-  // Write ai:-stripped version to disk before TUI select so the file
-  // reflects user edits minus ai: comments. If blocked, we restore
   // originalContent below so this write doesn't matter.
   if (afterContent !== proposedContent) {
     const cleanContent = stripAiComments(afterContent);
@@ -357,7 +353,6 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
     return { block: true, reason: "Blocked by user after reviewing diff" };
   }
 
-  // Allowed — process user edits (strips ai: comments, writes clean version, sends steer)
   return (
     processUserEdits(pi, afterContent, proposedContent, filePath, fileName, absolutePath) ??
     accepted(fileName)
@@ -402,9 +397,9 @@ export function reviewFileDiff(
         reason: opts.reason,
       };
 
-      const nvimServer = process.env.NVIM;
-      if (nvimServer) {
-        resolve(await reviewInEmbeddedNvim(rc, nvimServer));
+      const target = resolveNvimTarget();
+      if (target) {
+        resolve(await reviewInEmbeddedNvim(rc, target.socket, target.paneId));
       } else {
         resolve(await reviewInStandaloneNvim(rc));
       }
