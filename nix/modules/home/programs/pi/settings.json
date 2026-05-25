@@ -1,6 +1,6 @@
 {
   "showHardwareCursor": true,
-  "lastChangelogVersion": "0.74.0",
+  "lastChangelogVersion": "0.75.4",
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
   "enabledModels": [
