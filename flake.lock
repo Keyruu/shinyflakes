@@ -1123,6 +1123,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-cockpit-zfs": {
+      "locked": {
+        "lastModified": 1779228623,
+        "narHash": "sha256-GpDTemNQGBj23YLdx9O/OKmWjvRFMrXBMUdo8SELTwc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "15de5069c4519a4fda6642462cae6a3f36795476",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "15de5069c4519a4fda6642462cae6a3f36795476",
+        "type": "github"
+      }
+    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1777168982,
@@ -1525,6 +1541,7 @@
         "nix-topology": "nix-topology",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_6",
+        "nixpkgs-cockpit-zfs": "nixpkgs-cockpit-zfs",
         "nixpkgs-scanservjs": "nixpkgs-scanservjs",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable_2",

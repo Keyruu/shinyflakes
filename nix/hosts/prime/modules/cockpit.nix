@@ -2,10 +2,12 @@
   config,
   pkgs,
   lib,
+  inputs,
   ...
 }:
 let
   my = config.services.my.mentat-cockpit;
+  cockpitPkgs = import inputs.nixpkgs-cockpit-zfs { inherit (pkgs.stdenv.hostPlatform) system; };
 in
 {
   networking.firewall.interfaces.mesh0.allowedTCPPorts = [ my.port ];
@@ -19,9 +21,9 @@ in
     cockpit = {
       inherit (my) enable;
       inherit (my) port;
-      plugins = with pkgs; [
-        cockpit-zfs
-        cockpit-podman
+      plugins = [
+        cockpitPkgs.cockpit-zfs
+        pkgs.cockpit-podman
       ];
       settings = {
         WebService = {
