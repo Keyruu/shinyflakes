@@ -613,24 +613,6 @@
         "type": "github"
       }
     },
-    "flake-utils_5": {
-      "inputs": {
-        "systems": "systems_10"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "git-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1552,7 +1534,6 @@
         "pog": "pog",
         "quadlet-nix": "quadlet-nix",
         "rycee": "rycee",
-        "sirberus": "sirberus",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "tofunix": "tofunix",
@@ -1603,27 +1584,6 @@
         "type": "gitlab"
       }
     },
-    "sirberus": {
-      "inputs": {
-        "flake-utils": "flake-utils_5",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1757705887,
-        "narHash": "sha256-XGSz6jk7c5+BjirrVY5vfcQjV1rFE4ZG5GJjETJu5Jg=",
-        "owner": "Keyruu",
-        "repo": "sirberus",
-        "rev": "11103e6c05f23329a4a6acae64adb847821b6f92",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Keyruu",
-        "repo": "sirberus",
-        "type": "github"
-      }
-    },
     "sops-nix": {
       "inputs": {
         "nixpkgs": [
@@ -1647,7 +1607,7 @@
     "spicetify-nix": {
       "inputs": {
         "nixpkgs": "nixpkgs_8",
-        "systems": "systems_11"
+        "systems": "systems_10"
       },
       "locked": {
         "lastModified": 1779607677,
@@ -1709,21 +1669,6 @@
       }
     },
     "systems_12": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_13": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -2021,7 +1966,7 @@
     "vicinae": {
       "inputs": {
         "nixpkgs": "nixpkgs_9",
-        "systems": "systems_12"
+        "systems": "systems_11"
       },
       "locked": {
         "lastModified": 1779634186,
@@ -2043,7 +1988,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "systems": "systems_13",
+        "systems": "systems_12",
         "vicinae": "vicinae_2"
       },
       "locked": {

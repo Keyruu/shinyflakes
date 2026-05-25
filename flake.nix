@@ -79,11 +79,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sirberus = {
-      url = "github:Keyruu/sirberus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     copyparty.url = "github:9001/copyparty";
 
     pog.url = "github:jpetrucciani/pog";

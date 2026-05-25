@@ -11,7 +11,6 @@
     ./network.nix
     ./nginx.nix
     ./samba.nix
-    ./sirberus.nix
     ./adguard.nix
     ./copyparty.nix
     ./syncthing.nix
