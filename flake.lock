@@ -794,11 +794,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1772651552,
-        "narHash": "sha256-dvT9KjMSPzN5XmVlm3z406jRaPp6V/jFwLgfGFSS/hw=",
+        "lastModified": 1779723235,
+        "narHash": "sha256-YY5TNwqFK68U6LFQBFfbSHmeDUrA1G7PcFpqbOMT7Zw=",
         "owner": "Keyruu",
         "repo": "homepage",
-        "rev": "d76efa45ae0ae5bc768cae2246164d2c3714ede5",
+        "rev": "c5fe6cb7aa929983dbb02b081b7a892a5ac348c2",
         "type": "github"
       },
       "original": {
