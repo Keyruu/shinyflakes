@@ -13,9 +13,11 @@
  * resolution runs again.
  */
 
-import { execFileSync, spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { type ResponseData, uniqueId, watchForResponse } from "./nvim-ipc.ts";
 
 export interface NvimTarget {
   socket: string;
@@ -191,4 +193,119 @@ export function tmuxFocusPane(paneId: string | null): void {
 export function tmuxFocusLastPane(): void {
   if (!process.env.TMUX) return;
   spawnSync("tmux", ["select-pane", "-l"], { stdio: "ignore" });
+}
+
+export interface TmuxApprovalPayload {
+  tool_name: string;
+  display: string;
+  dangerous: boolean;
+  /** Raw command/code to syntax-highlight in the popup body. */
+  command?: string;
+  /** bat language for the command (default "bash"). */
+  language?: string;
+}
+
+/**
+ * Show a tool-call approval prompt as a tmux popup.
+ *
+ * Uses `display-popup -E` running a tiny bash menu that writes the chosen
+ * decision to a response file. We watch the file for completion; cancel
+ * closes the popup via `display-popup -C` so the TUI/notification surfaces
+ * can win the race cleanly.
+ *
+ * Decisions match the nvim modal: "allow" | "allow_remember" | "block".
+ */
+export function requestTmuxApproval(payload: TmuxApprovalPayload): {
+  promise: Promise<ResponseData>;
+  cancel: () => void;
+} {
+  const id = uniqueId();
+  const responseFile = join(tmpdir(), `pi-guardian-tmux-response-${id}.json`);
+  const scriptFile = join(tmpdir(), `pi-guardian-tmux-script-${id}.sh`);
+
+  // `read -n1` is a single-keystroke prompt — no Enter required, faster than
+  // shelling out to fzf and works without extra deps. `a` = allow, `r` =
+  // allow+remember, `b` = block. Anything else just closes the popup so the
+  // other surfaces can still win.
+  //
+  // ANSI colors: 31=red, 33=yellow, 36=cyan, 32=green, 90=gray, 1=bold.
+  // bat handles the command body; we wrap labels/keys manually so the
+  // popup stays readable without 256-color terminfo gymnastics.
+  const headerColor = payload.dangerous ? "1;31" : "1;36";
+  const headerText = payload.dangerous
+    ? `⚠️  DANGEROUS  ${payload.tool_name}`
+    : `🔍  ${payload.tool_name}`;
+  const bodyFile = join(tmpdir(), `pi-guardian-tmux-body-${id}`);
+  writeFileSync(bodyFile, payload.command ?? payload.display, "utf-8");
+  const lang = payload.language ?? "bash";
+
+  const script = `#!/usr/bin/env bash
+clear
+printf '\x1b[${headerColor}m%s\x1b[0m\n\n' ${shellQuote(headerText)}
+if command -v bat >/dev/null 2>&1; then
+  bat --paging=never --style=plain --color=always --language=${shellQuote(lang)} ${shellQuote(bodyFile)} 2>/dev/null \
+    || cat ${shellQuote(bodyFile)}
+else
+  cat ${shellQuote(bodyFile)}
+fi
+printf '\n\x1b[90m───\x1b[0m\n\n'
+printf '  \x1b[1;32m[a]\x1b[0m allow    \x1b[1;33m[r]\x1b[0m allow + remember    \x1b[1;31m[b]\x1b[0m block    \x1b[90m[q]\x1b[0m dismiss\n\n'
+printf '\x1b[1m> \x1b[0m'
+read -n1 -s key
+case "$key" in
+  a) decision=allow ;;
+  r) decision=allow_remember ;;
+  b) decision=block ;;
+  *) rm -f ${shellQuote(bodyFile)}; exit 0 ;;
+esac
+rm -f ${shellQuote(bodyFile)}
+printf '{"decision":"%s"}' "$decision" > ${shellQuote(responseFile)}
+`;
+  writeFileSync(scriptFile, script, { mode: 0o700 });
+
+  const { promise, cancel: cancelWatch } = watchForResponse(responseFile);
+
+  // Spawn (not spawnSync) so the popup runs concurrently with the TUI race.
+  const child = spawn(
+    "tmux",
+    [
+      "display-popup",
+      "-E",
+      "-w",
+      "70%",
+      "-h",
+      "30%",
+      "-T",
+      ` ${payload.dangerous ? "⚠️  approval" : "🔍  approval"} `,
+      "bash",
+      scriptFile,
+    ],
+    { stdio: "ignore", detached: false },
+  );
+  child.on("error", () => {});
+
+  const cleanupScript = () => {
+    try {
+      unlinkSync(scriptFile);
+    } catch {}
+    try {
+      unlinkSync(bodyFile);
+    } catch {}
+  };
+  promise.then(cleanupScript, cleanupScript);
+
+  return {
+    promise,
+    cancel: () => {
+      cancelWatch();
+      // -C closes any open popup on the current client. Cheap no-op if the
+      // popup already exited.
+      spawnSync("tmux", ["display-popup", "-C"], { stdio: "ignore" });
+      cleanupScript();
+    },
+  };
+}
+
+function shellQuote(s: string): string {
+  return `'${s.replace(/'/g, `'\\''`)}'`;
 }
