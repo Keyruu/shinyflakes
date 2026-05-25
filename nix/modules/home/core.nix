@@ -94,7 +94,6 @@ in
     kubectl
     devspace
     uv
-    pipx
     impala
     perSystem.llm-agents.codex
     biome
