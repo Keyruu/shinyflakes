@@ -1,4 +1,19 @@
 { lib, pkgs, ... }:
+let
+  # Emits current playing track via MPRIS, or a single space when nothing is
+  # playing — hyprlock falls back to "Sample Text" on empty output.
+  nowPlaying = pkgs.writeShellApplication {
+    name = "hyprlock-now-playing";
+    runtimeInputs = [ pkgs.playerctl ];
+    text = ''
+      if [ "$(playerctl status 2>/dev/null)" = Playing ]; then
+        playerctl metadata --format '♪ {{artist}} — {{title}}' 2>/dev/null
+      else
+        echo ' '
+      fi
+    '';
+  };
+in
 {
   # Display font for the giant clock. Rubik is a wide, rounded geometric sans;
   # the Black weight gives the chunky StretchPro-ish look. From nixpkgs.
@@ -20,7 +35,8 @@
         {
           monitor = "";
           path = "${../themes/dark-bg.jpg}";
-          blur_passes = 0;
+          blur_passes = 2;
+          blur_size = 6;
           contrast = 0.8916;
           brightness = 0.8172;
           vibrancy = 0.1696;
@@ -66,7 +82,7 @@
         {
           monitor = "";
           # only render when a player is actively Playing, otherwise stay empty
-          text = ''cmd[update:2000] [ "$(${lib.getExe pkgs.playerctl} status 2>/dev/null)" = Playing ] && ${lib.getExe pkgs.playerctl} metadata --format '♪ {{artist}} — {{title}}' 2>/dev/null'';
+          text = "cmd[update:2000] ${lib.getExe nowPlaying}";
           color = "rgba(147, 196, 255, 1)";
           font_size = 16;
           font_family = "Maple Mono Normal NL NF";
