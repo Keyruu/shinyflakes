@@ -45,7 +45,7 @@ in
   services.my.multi-scrobbler = {
     port = 9078;
     domain = "scrobble.keyruu.de";
-    proxy.enable = true;
+    proxy.enable = false;
     stack = {
       enable = true;
       user = {
