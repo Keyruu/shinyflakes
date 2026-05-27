@@ -45,7 +45,7 @@ in
             #   inherit (config.virtualisation.quadlet) builds;
             # in
             {
-              image = "gabehf/koito:v0.2.1";
+              image = "gabehf/koito:v0.3.1";
               publishPorts = [ "127.0.0.1:${toString my.port}:4110" ];
               volumes = [ "${my.stack.path}/data:/etc/koito" ];
               environmentFiles = [ config.sops.templates."koito-main.env".path ];
