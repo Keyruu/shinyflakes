@@ -38,7 +38,7 @@
       ];
       events = {
         before-sleep = "${lib.getExe' pkgs.systemd "loginctl"} lock-session";
-        lock = "${config.programs.noctalia-shell.package}/bin/noctalia-shell ipc call lockScreen lock";
+        lock = lib.getExe pkgs.hyprlock;
         unlock = screenOn;
         after-resume = screenOn;
       };

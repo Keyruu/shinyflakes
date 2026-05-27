@@ -118,6 +118,7 @@ in
     mise = {
       enable = true;
       enableFishIntegration = true;
+      globalConfig.settings.disable_tools = [ "aqua:aws/aws-cli" ];
     };
   };
 }

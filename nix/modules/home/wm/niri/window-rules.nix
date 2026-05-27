@@ -123,4 +123,10 @@ _:
           xray false
       }
   }
+  layer-rule {
+      match namespace=r#"^wayle-bar.*"#
+      background-effect {
+          blur true
+      }
+  }
 ''

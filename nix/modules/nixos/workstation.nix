@@ -20,7 +20,10 @@
     flake.modules.nixos.nice
     flake.modules.nixos.plymouth
     flake.modules.nixos.podman
+    flake.modules.nixos.sudo-notify
   ];
+
+  services.sudo-notify.enable = true;
 
   fileSystems."/home".neededForBoot = true;
 }

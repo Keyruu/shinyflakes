@@ -1,58 +1,112 @@
 { lib, pkgs, ... }:
 {
+  # Display font for the giant clock. Rubik is a wide, rounded geometric sans;
+  # the Black weight gives the chunky StretchPro-ish look. From nixpkgs.
+  home.packages = [ pkgs.rubik ];
+
   programs.hyprlock = {
     enable = true;
 
     settings = {
       general = {
+        no_fade_in = false;
+        grace = 0;
+        disable_loading_bar = false;
         hide_cursor = true;
         ignore_empty_input = true;
       };
 
-      auth.fingerprint = {
-        enabled = true;
-        ready_message = "<span>  </span>";
-        present_message = "<span foreground='##94E2D5'>  </span>";
-      };
-
       background = [
         {
+          monitor = "";
           path = "${../themes/dark-bg.jpg}";
+          blur_passes = 0;
+          contrast = 0.8916;
+          brightness = 0.8172;
+          vibrancy = 0.1696;
+          vibrancy_darkness = 0.0;
         }
       ];
 
       label = [
+        # Time — hour
         {
+          monitor = "";
+          text = ''cmd[update:1000] echo "<span>$(${lib.getExe' pkgs.coreutils-full "date"} +"%H")</span>"'';
+          color = "rgba(255, 255, 255, 1)";
+          font_size = 175;
+          font_family = "Rubik Black";
+          position = "0, 280";
+          halign = "center";
+          valign = "center";
+        }
+        # Time — minute
+        {
+          monitor = "";
+          text = ''cmd[update:1000] echo "<span>$(${lib.getExe' pkgs.coreutils-full "date"} +"%M")</span>"'';
+          color = "rgba(70, 130, 220, 1)";
+          font_size = 175;
+          font_family = "Rubik Black";
+          position = "0, 110";
+          halign = "center";
+          valign = "center";
+        }
+        # Day, Month, Date
+        {
+          monitor = "";
+          text = ''cmd[update:1000] ${lib.getExe' pkgs.coreutils-full "date"} +"%d %B, %a."'';
+          color = "rgba(180, 180, 180, 0.75)";
+          font_size = 22;
+          font_family = "Maple Mono Normal NL NF";
+          position = "0, -8";
+          halign = "center";
+          valign = "center";
+        }
+        # Now playing (via playerctl, silent if no player)
+        {
+          monitor = "";
+          # only render when a player is actively Playing, otherwise stay empty
+          text = ''cmd[update:2000] [ "$(${lib.getExe pkgs.playerctl} status 2>/dev/null)" = Playing ] && ${lib.getExe pkgs.playerctl} metadata --format '♪ {{artist}} — {{title}}' 2>/dev/null'';
+          color = "rgba(147, 196, 255, 1)";
+          font_size = 16;
+          font_family = "Maple Mono Normal NL NF";
+          position = "0, 40";
+          halign = "center";
+          valign = "bottom";
+        }
+        # Fingerprint prompt
+        {
+          monitor = "";
           text = "$FPRINTPROMPT";
-          font_size = 50;
-          position = "-6, 0"; # the unicode symbol is slightly out of center
-        }
-        {
-          text = "$TIME";
-          valign = "top";
-          halign = "left";
-          position = "15, -10";
-        }
-        {
-          text = ''cmd[update:10000] echo "$(${lib.getExe' pkgs.coreutils-full "cat"} /sys/class/power_supply/BAT0/capacity)%"'';
-          valign = "top";
-          halign = "right";
-          position = "-15, -10";
+          color = "rgba(216, 222, 233, 0.80)";
+          font_size = 14;
+          font_family = "Cantarell";
+          position = "0, -350";
+          halign = "center";
+          valign = "center";
         }
       ];
 
-      input-field = {
-        position = "0, -70";
-        outline_thickness = 0;
-        dots_size = 0.2;
-        fade_on_empty = false;
-        swap_font_color = true;
-        placeholder_text = "";
-        font_family = "monospace";
-        font_color = "rgba(254, 254, 254, 1.0)";
-        inner_color = "rgba(0, 0, 0, 0.0)";
-        check_color = "rgba(148, 226, 213, 1.0)";
-      };
+      input-field = [
+        {
+          monitor = "";
+          size = "300, 60";
+          outline_thickness = 2;
+          dots_size = 0.2;
+          dots_spacing = 0.2;
+          dots_center = true;
+          outer_color = "rgba(0, 0, 0, 0)";
+          inner_color = "rgba(255, 255, 255, 0.1)";
+          font_color = "rgb(200, 200, 200)";
+          fade_on_empty = false;
+          font_family = "Cantarell";
+          placeholder_text = ''<span foreground="##ffffff99">Enter Pass</span>'';
+          hide_input = false;
+          position = "0, -290";
+          halign = "center";
+          valign = "center";
+        }
+      ];
     };
   };
 }

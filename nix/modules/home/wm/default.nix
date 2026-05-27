@@ -5,7 +5,7 @@
     ./niri
     ./kanshi.nix
     ./lock.nix
-    # ./idle.nix
+    ./idle.nix
     ./gtk.nix
     ./kbptr.nix
     ./which-key.nix
@@ -29,9 +29,6 @@
     wayland-utils
     wayland-protocols
     playerctl
-    tofi
-    workstyle
-    swayest-workstyle
     swaybg
     swayidle
     pamixer

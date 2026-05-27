@@ -11,7 +11,8 @@
     ./kubie.nix
     ./nh.nix
     # ./noctalia.nix
-    ./dms.nix
+    # ./dms.nix
+    ./wayle.nix
     ./satty.nix
     ./opencode.nix
     ./pi

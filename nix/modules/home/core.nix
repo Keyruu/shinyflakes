@@ -119,6 +119,7 @@ in
     teams-for-linux
     libreoffice-qt6-fresh
     brave
+    blender
 
     # cli apps
     glow # render markdown on the cli
