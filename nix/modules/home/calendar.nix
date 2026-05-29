@@ -62,6 +62,30 @@ let
       '';
   };
 
+  wayle-event = pkgs.writeShellApplication {
+    name = "wayle-event";
+    runtimeInputs = with pkgs; [
+      jq
+      khal
+      gawk
+      gnused
+    ];
+    text = # bash
+      ''
+        strip_markup() {
+          sed -e 's/<[^>]*>//g' -e 's/&amp;/\&/g'
+        }
+
+        text=$(next-event | strip_markup | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }')
+        tooltip=$(next-events | strip_markup)
+
+        jq -nc \
+          --arg text "$text" \
+          --arg tooltip "$tooltip" \
+          '{text: $text, tooltip: $tooltip}'
+      '';
+  };
+
   khal-notify = pkgs.writeShellApplication {
     name = "khal-notify";
     runtimeInputs = with pkgs; [
@@ -114,6 +138,7 @@ in
     next-event
     next-events
     noctalia-event
+    wayle-event
     khal-notify
     khal-open-meet
   ];

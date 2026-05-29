@@ -1,25 +1,49 @@
 { lib, pkgs, ... }:
 {
-  home.packages = [ pkgs.sesh ];
-
-  xdg.configFile."sesh/sesh.toml".text = ''
-    [[session]]
-    name = "shinyflakes"
-    path = "~/shinyflakes"
-
-    [[session]]
-    name = "git"
-    path = "~/git"
-
-    [[wildcard]]
-    pattern = "~/git/*"
-  '';
+  programs.sesh = {
+    enable = true;
+    enableTmuxIntegration = false;
+    settings = {
+      session = [
+        {
+          name = "shinyflakes";
+          path = "~/shinyflakes";
+        }
+        {
+          name = "git";
+          path = "~/git";
+        }
+      ];
+      wildcard = [
+        { pattern = "~/git/*"; }
+      ];
+    };
+  };
 
   programs.tmux = {
     enable = true;
     sensibleOnTop = true;
     terminal = "tmux-256color";
     shell = "${lib.getExe pkgs.fish}";
+    tmuxinator = {
+      enable = true;
+      projects.shinyflakes = {
+        name = "shinyflakes";
+        root = "~/shinyflakes";
+        windows = [
+          {
+            edit = {
+              layout = "main-vertical";
+              panes = [
+                "nvim"
+                null
+              ];
+            };
+          }
+          { shell = null; }
+        ];
+      };
+    };
     extraConfig =
       let
         gray_light = "#D8DEE9";
@@ -38,6 +62,7 @@
             tag,
             split,
             size,
+            windowName,
             cmd ? "",
             full ? false,
           }:
@@ -57,7 +82,9 @@
             win_id=$(echo "$target" | awk '{print $2}')
             cur_win=$(tmux display -p '#{window_id}')
             if [ "$win_id" = "$cur_win" ]; then
-              tmux break-pane -d -s "$pane_id"
+              # -n names the stashed bg window so toggles are distinguishable
+              # in the window list while hidden.
+              tmux break-pane -d -n ${lib.escapeShellArg windowName} -s "$pane_id"
             else
               tmux join-pane ${fullFlag} ${split} -l ${size} -s "$pane_id"
             fi
@@ -66,6 +93,7 @@
         piToggle = mkToggle {
           name = "pi";
           tag = "is_pi";
+          windowName = "[pi]";
           split = "-h";
           size = "40%";
           cmd = "pi";
@@ -75,6 +103,7 @@
         termToggle = mkToggle {
           name = "term";
           tag = "is_nvim_term";
+          windowName = "[term]";
           split = "-v";
           size = "30%";
         };
@@ -105,6 +134,9 @@
 
         set -g detach-on-destroy off
         bind -N "last-session (via sesh)" L run-shell "sesh last"
+
+        # Auto-launch nvim in the initial pane of any new session.
+        set-hook -g session-created 'send-keys -t "#{session_name}:" "nvim" Enter'
 
         bind h select-pane -L
         bind j select-pane -D
@@ -223,7 +255,7 @@
         set -g status-left "#{tmux_mode_indicator}"
         set-option -g status-justify centre
         set -g status-right "#[fg=${green_soft},bold]#S  #[fg=${gray_medium}](#{server_sessions})"
-        set -g window-status-current-format "#[fg=${cyan_soft},bold] #[underscore]#I:#W"
+        set -g window-status-current-format "#[fg=${cyan_soft},bold] #[underscore]#I:#W#{?window_zoomed_flag, 🔍,}"
         set -g window-status-format " #I:#W"
         set -g message-style "fg=${gray_light},bold"
         set -g mode-style "fg=${gray_dark},bg=${blue_muted}"

@@ -38,7 +38,6 @@ in
         spawn-at-startup "${lib.getExe pkgs.swaybg}" "-i" "${wallpaper}" "-m" "fill"
         spawn-at-startup "niriusd"
         spawn-at-startup "systemd-run" "--user" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
-        spawn-at-startup "kanshi"
         spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
         spawn-at-startup "clipse" "-listen"
         spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"

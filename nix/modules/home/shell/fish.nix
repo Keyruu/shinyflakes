@@ -48,7 +48,7 @@
 
         set -U fish_greeting
 
-        set -x KUBECONFIG (string join ":" $HOME/.kube/*.yaml)
+        set -x KUBECONFIG ~/.kube/active
 
         if test -f "${config.sops.templates."shell.env".path}"
           while read -l line

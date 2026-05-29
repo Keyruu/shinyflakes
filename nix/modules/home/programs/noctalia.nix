@@ -76,24 +76,28 @@ in
       version = 2;
     };
 
-    colors = {
-      mError = "#f38ba8"; # red from waybar critical state
-      mOnError = "#111111";
-      mOnPrimary = "#111111";
-      mOnSecondary = "#111111";
-      mOnSurface = "#cdd6f4"; # main text color from waybar
-      mOnSurfaceVariant = "#828282"; # muted text
-      mOnTertiary = "#111111";
-      mOutline = "#3c3c3c"; # subtle border
-      mPrimary = "#4079d6"; # blue from waybar active workspaces
-      mSecondary = "#89b4fa"; # lighter blue accent from waybar
-      mShadow = "#000000";
-      mSurface = "#111111"; # dark background
-      mSurfaceVariant = "#1E1E1E"; # slightly lighter background from waybar
-      mTertiary = "#cdd6f4"; # keeping it simple with main text color
-      mHover = "#89b4fa";
-      mOnHover = "#111111";
-    };
+    colors =
+      let
+        t = config.user.theme;
+      in
+      {
+        mError = t.colors.red;
+        mOnError = t.onAccent;
+        mOnPrimary = t.onAccent;
+        mOnSecondary = t.onAccent;
+        mOnSurface = t.foreground;
+        mOnSurfaceVariant = t.muted;
+        mOnTertiary = t.onAccent;
+        mOutline = t.border;
+        mPrimary = t.accent;
+        mSecondary = t.colors.blue;
+        mShadow = "#000000";
+        mSurface = t.background;
+        mSurfaceVariant = t.surface;
+        mTertiary = t.foreground;
+        mHover = t.colors.blue;
+        mOnHover = t.onAccent;
+      };
     settings = {
       bar = {
         density = "default";

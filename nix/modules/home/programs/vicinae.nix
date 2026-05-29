@@ -33,6 +33,38 @@
 
   services.vicinae = {
     enable = true;
+    themes.shinyflakes =
+      let
+        t = config.user.theme;
+      in
+      {
+        meta = {
+          version = 1;
+          name = "Shinyflakes";
+          description = "Shared shinyflakes palette";
+          variant = "dark";
+          inherits = "vicinae-dark";
+        };
+        colors = {
+          core = {
+            inherit (t) background;
+            inherit (t) foreground;
+            secondary_background = t.surface;
+            inherit (t) border;
+            inherit (t) accent;
+          };
+          accents = {
+            blue = t.colors.blue;
+            green = t.colors.green;
+            magenta = t.colors.magenta;
+            orange = t.colors.orange;
+            purple = t.colors.purple;
+            red = t.colors.red;
+            yellow = t.colors.yellow;
+            cyan = t.colors.cyan;
+          };
+        };
+      };
     systemd = {
       enable = true; # default: false
       autoStart = true; # default: false
@@ -74,7 +106,7 @@
       close_on_focus_loss = true;
       theme = {
         dark = {
-          name = "vicinae-dark";
+          name = "shinyflakes";
           icon_theme = "Papirus";
         };
       };
