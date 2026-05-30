@@ -54,7 +54,7 @@ in
       containers = {
         traccar = {
           containerConfig = {
-            image = "docker.io/traccar/traccar:6.13-alpine";
+            image = "docker.io/traccar/traccar:6.14-alpine";
             volumes = [
               "${my.stack.path}/data:/opt/traccar/data"
               "${my.stack.path}/logs:/opt/traccar/logs"
