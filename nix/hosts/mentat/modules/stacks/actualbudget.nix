@@ -15,7 +15,7 @@ in
       containers = {
         actualbudget = {
           containerConfig = {
-            image = "docker.io/actualbudget/actual-server:26.5.2";
+            image = "docker.io/actualbudget/actual-server:26.6.0";
             volumes = [
               "${my.stack.path}/data:/data"
             ];
