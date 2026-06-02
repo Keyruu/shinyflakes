@@ -2,6 +2,8 @@ _:
 # kdl
 ''
   layout {
+      background-color "transparent"
+
       focus-ring {
           off
           width 1

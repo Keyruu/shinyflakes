@@ -75,6 +75,7 @@
     package = perSystem.vicinae.default;
     extensions =
       (with perSystem.vicinae-extensions; [
+        agenda
         bluetooth
         nix
         # systemd
@@ -88,6 +89,8 @@
       ++ (with perSystem.self; [
         raycast-karakeep
         raycast-password-generator
+        raycast-quick-calendar
+        raycast-gif-search
       ]);
     settings = {
       favicon_service = "twenty";

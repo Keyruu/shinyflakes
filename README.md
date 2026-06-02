@@ -5,6 +5,8 @@
 My personal NixOS setup. Everything from servers to desktops to laptops, all
 defined in one git repo. Because if it's not in git, did it even happen?
 
+test change
+
 ## Why NixOS?
 
 I use NixOS to manage my homelab and it's been pretty awesome having my whole

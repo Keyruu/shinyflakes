@@ -129,4 +129,10 @@ _:
           blur true
       }
   }
+  layer-rule {
+      // This is for swaybg; change for other wallpaper tools.
+      // Find the right namespace by running niri msg layers.
+      match namespace="^wallpaper$"
+      place-within-backdrop true
+  }
 ''
