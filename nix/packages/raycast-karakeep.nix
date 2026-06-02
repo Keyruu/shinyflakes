@@ -1,7 +1,7 @@
 { inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "3f7bf4d8f11dda61d1da77ddd4c0e67eb997d099";
+  rev = "f8ef33d45e11e4ed5fa65f8f8cc06a788a97b2dc";
 in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "karakeep";
