@@ -86,8 +86,10 @@ function listNvimSockets(): { path: string; pid: number }[] {
   return found;
 }
 
-/** Match `nvim`, `.nvim-wrapped` (nvf/mnw), and friends. */
-const NVIM_CMD_RE = /^\.?n?vim(-wrapped)?$/i;
+/** Match `vi`, `vim`, `nvim`, `.nvim-wrapped` (nvf/mnw), and friends.
+ *  Make trailing `m` optional — tmux's pane_current_command reports `vi`
+ *  when nvim is invoked through a `vi` symlink/wrapper (mnw ships one). */
+const NVIM_CMD_RE = /^\.?n?vim?(-wrapped)?$/i;
 
 function debug(msg: string): void {
   if (!process.env.PI_GUARDIAN_DEBUG) return;
@@ -110,7 +112,7 @@ function detectTmuxTarget(): NvimTarget | null {
         "list-panes",
         "-s",
         "-F",
-        "#{pane_id} #{pane_pid} #{pane_current_command} #{pane_active}",
+        "#{pane_id} #{pane_pid} #{pane_current_command}",
       ],
       { encoding: "utf-8", timeout: 1500, stdio: ["ignore", "pipe", "ignore"] },
     );
@@ -120,15 +122,21 @@ function detectTmuxTarget(): NvimTarget | null {
   }
 
   const sockets = listNvimSockets();
+  // $TMUX_PANE is set by tmux on every pane process — identifies pi's own
+  // pane precisely. Using `pane_active` instead would falsely skip nvim
+  // when it's the only pane in its window (e.g. after `prefix+P` toggles
+  // pi into a hidden bg window), since each window has its own active pane.
+  const selfPane = process.env.TMUX_PANE;
   debug(`panes:\n${out.trim()}`);
+  debug(`self pane: ${selfPane ?? "(unknown)"}`);
   debug(`sockets: ${sockets.map((s) => `${s.path}(pid=${s.pid})`).join(", ") || "(none)"}`);
   if (sockets.length === 0) return null;
 
   for (const line of out.trim().split("\n")) {
     const parts = line.split(" ");
-    if (parts.length < 4) continue;
-    const [paneId, pidStr, cmd, active] = parts;
-    if (active === "1") continue; // skip pi's own pane
+    if (parts.length < 3) continue;
+    const [paneId, pidStr, cmd] = parts;
+    if (paneId === selfPane) continue; // skip pi's own pane
     if (!cmd || !NVIM_CMD_RE.test(cmd)) continue;
     const panePid = parseInt(pidStr ?? "0", 10);
     if (!panePid) continue;
@@ -193,6 +201,21 @@ export function tmuxFocusPane(paneId: string | null): void {
 export function tmuxFocusLastPane(): void {
   if (!process.env.TMUX) return;
   spawnSync("tmux", ["select-pane", "-l"], { stdio: "ignore" });
+}
+
+/**
+ * Force-clear the `@pane-is-vim` flag on the current tmux pane.
+ *
+ * The nvim-side autocmd (VimLeave → `tmux set -p @pane-is-vim 0`) isn't
+ * always reliable when nvim is spawned as a child of pi: vim.fn.system()
+ * during shutdown can be cut short, leaving the flag stuck at 1. With a
+ * stale flag, tmux's C-hjkl bindings forward keys into the pane (now
+ * running pi/shell) instead of switching panes. Clearing it here after
+ * spawnSync returns guarantees a clean state.
+ */
+export function tmuxClearPaneIsVim(): void {
+  if (!process.env.TMUX) return;
+  spawnSync("tmux", ["set", "-p", "@pane-is-vim", "0"], { stdio: "ignore" });
 }
 
 export interface TmuxApprovalPayload {

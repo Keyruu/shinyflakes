@@ -101,6 +101,7 @@ in
     # gui apps
     obsidian
     pavucontrol
+    pulseaudio # pactl
     notion-app-enhanced
     # FIXME: broken on unstable https://github.com/NixOS/nixpkgs/issues/493843
     stable.calibre

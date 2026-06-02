@@ -30,7 +30,7 @@ import {
   uniqueId,
   watchForResponse,
 } from "./nvim-ipc.ts";
-import { resolveNvimTarget, tmuxFocusLastPane, tmuxFocusPane } from "./tmux.ts";
+import { resolveNvimTarget, tmuxClearPaneIsVim, tmuxFocusLastPane, tmuxFocusPane } from "./tmux.ts";
 import { type AcceptedResult, type MutationResult, ReviewAction } from "./utils.ts";
 
 export type { ResponseData };
@@ -313,6 +313,10 @@ async function reviewInStandaloneNvim(rc: ReviewContext): Promise<MutationResult
     ],
     { stdio: "inherit", env: { ...process.env } },
   );
+  // Standalone nvim ran in pi's pane and tagged it via VimEnter. VimLeave's
+  // tmux call isn't reliable on shutdown, so clear the flag explicitly here
+  // — otherwise tmux C-hjkl stays stuck forwarding keys into pi.
+  tmuxClearPaneIsVim();
 
   let afterContent = proposedContent;
   try {

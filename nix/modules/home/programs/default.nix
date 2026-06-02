@@ -20,7 +20,6 @@
     ./vicinae.nix
     ./waybar.nix
     ./zathura.nix
-    # ./lazygit.nix
     ./squeekboard
   ];
 }

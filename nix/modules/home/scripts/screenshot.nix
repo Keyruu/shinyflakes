@@ -1,7 +1,28 @@
 { pkgs, lib, ... }:
 let
   tesseract = pkgs.tesseract.override {
-    enableLanguages = [ "eng" "deu" ];
+    enableLanguages = [
+      "eng"
+      "deu"
+    ];
+  };
+
+  watcher = pkgs.writeShellApplication {
+    name = "niri-screenshot-watcher";
+    runtimeInputs = with pkgs; [
+      niri
+      jq
+      satty
+    ];
+    text = # bash
+      ''
+        exec niri msg --json event-stream \
+          | jq --unbuffered -rn 'inputs | .ScreenshotCaptured?.path // empty' \
+          | while IFS= read -r path; do
+              [ -n "$path" ] || continue
+              setsid -f satty --filename "$path" >/dev/null 2>&1 || true
+            done
+      '';
   };
 
   screenshot = pkgs.writeShellApplication {
@@ -9,10 +30,8 @@ let
     runtimeInputs = with pkgs; [
       grim
       slurp
-      satty
       wl-clipboard
       libnotify
-      jq
       niri
       coreutils
       tesseract
@@ -20,25 +39,16 @@ let
     text = # bash
       ''
         mode=''${1:-region}
-        out_dir="''${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
-        mkdir -p "$out_dir"
-        out="$out_dir/$(date +%Y-%m-%d_%H-%M-%S).png"
-
-        run_satty() {
-          satty --filename - --output-filename "$out"
-        }
 
         case "$mode" in
           region)
-            geom=$(slurp -d) || exit 0
-            grim -g "$geom" - | run_satty
+            niri msg action screenshot
             ;;
           screen)
-            output=$(niri msg -j focused-output | jq -r '.name')
-            grim -o "$output" - | run_satty
+            niri msg action screenshot-screen
             ;;
-          all)
-            grim - | run_satty
+          window)
+            niri msg action screenshot-window
             ;;
           ocr)
             geom=$(slurp -d) || exit 0
@@ -51,7 +61,7 @@ let
             notify-send "OCR" "Copied to clipboard:\n$text"
             ;;
           *)
-            echo "usage: screenshot [region|screen|all|ocr]" >&2
+            echo "usage: screenshot [region|screen|window|ocr]" >&2
             exit 2
             ;;
         esac
@@ -71,12 +81,29 @@ let
   };
 in
 {
-  home.packages = [ screenshot ];
+  home.packages = [
+    screenshot
+    watcher
+  ];
 
   xdg.desktopEntries = {
     screenshot-region = mkEntry "region" "Region";
     screenshot-screen = mkEntry "screen" "Focused Screen";
-    screenshot-all = mkEntry "all" "All Screens";
+    screenshot-window = mkEntry "window" "Focused Window";
     screenshot-ocr = mkEntry "ocr" "OCR Region";
+  };
+
+  systemd.user.services.niri-screenshot-watcher = {
+    Unit = {
+      Description = "Pipe niri built-in screenshots to satty";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${lib.getExe watcher}";
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 }

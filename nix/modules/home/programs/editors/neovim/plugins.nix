@@ -139,6 +139,34 @@
     };
 
     extraPlugins = with pkgs.vimPlugins; {
+      # Seamless C-h/j/k/l navigation between nvim splits and tmux panes.
+      # Tmux side bindings live in nix/modules/home/shell/tmux.nix and check
+      # the @pane-is-vim user option toggled by the autocmds below — avoids
+      # the per-keypress `ps | grep` of vim-tmux-navigator.
+      smart-splits-nvim = {
+        package = smart-splits-nvim;
+        setup = # lua
+          ''
+            require('smart-splits').setup({
+              -- 'stop' only kicks in when no multiplexer pane exists in that
+              -- direction; tmux handoff still works otherwise.
+              at_edge = 'stop',
+              cursor_follows_swapped_bufs = true,
+              multiplexer_integration = 'tmux',
+            })
+
+            local grp = vim.api.nvim_create_augroup('SmartSplitsTmuxFlag', { clear = true })
+            vim.api.nvim_create_autocmd({ 'VimEnter', 'VimResume' }, {
+              group = grp,
+              callback = function() vim.fn.system("tmux set -p @pane-is-vim 1") end,
+            })
+            vim.api.nvim_create_autocmd({ 'VimLeave', 'VimSuspend' }, {
+              group = grp,
+              callback = function() vim.fn.system("tmux set -p @pane-is-vim 0") end,
+            })
+          '';
+      };
+
       kanagawa-nvim = {
         package = kanagawa-nvim;
         setup = # lua
@@ -245,16 +273,6 @@
     startPlugins = with pkgs.vimPlugins; [
       plenary-nvim
       nvim-numbertoggle
-      # Seamless C-h/j/k/l navigation between nvim splits and tmux panes.
-      # Tmux side configured in nix/modules/home/shell/tmux.nix.
-      # Default mappings disabled (see globals below) — we route C-h/j/k/l
-      # through keymaps.nix using <Cmd>TmuxNavigate*<CR> for both normal and
-      # terminal mode, which avoids leaking the command text into :terminal.
-      vim-tmux-navigator
     ];
-
-    globals = {
-      tmux_navigator_no_mappings = 1;
-    };
   };
 }

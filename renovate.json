@@ -23,6 +23,16 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*\\w+\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/\\.nix$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>git-refs)\\s+depName=(?<depName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\n\\s*\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{7,40})\""
+      ],
+      "currentValueTemplate": "{{{currentValue}}}"
     }
   ],
   "packageRules": [

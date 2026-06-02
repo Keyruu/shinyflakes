@@ -14,7 +14,7 @@ in
     ./k9s.nix
     ./lazygit.nix
     ./television.nix
-    ./tmux.nix
+    ./tmux
     ./yazi.nix
     ./zellij.nix
     ./zsh.nix

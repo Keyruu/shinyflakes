@@ -63,7 +63,7 @@ in
 
       Print hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
       Shift+Print hotkey-overlay-title="Screenshot Screen" { spawn "screenshot" "screen"; }
-      Ctrl+Print hotkey-overlay-title="Screenshot All" { spawn "screenshot" "all"; }
+      Ctrl+Print hotkey-overlay-title="Screenshot Window" { spawn "screenshot" "window"; }
       Super+Shift+4 hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
 
       Alt+R hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }

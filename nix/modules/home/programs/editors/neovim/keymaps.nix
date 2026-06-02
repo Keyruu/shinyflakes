@@ -8,21 +8,20 @@ _: {
         desc = "Exit terminal mode";
       }
 
-      # C-h/j/k/l: navigate nvim splits and cross into tmux panes when at
-      # the edge. <Cmd> executes the ex-command without changing modes, so
-      # the same mapping works in normal and terminal mode without leaking
-      # keystrokes into the embedded shell.
+      # C-h/j/k/l: navigate nvim splits and hand off to tmux at the edge via
+      # smart-splits.nvim. <Cmd> keeps modes clean so the same mapping works
+      # in normal and terminal mode without leaking keystrokes.
       {
         key = "<C-h>";
         mode = "n";
-        action = "<Cmd>TmuxNavigateLeft<CR>";
+        action = "<Cmd>SmartCursorMoveLeft<CR>";
         desc = "Window/pane left";
         silent = true;
       }
       {
         key = "<C-h>";
         mode = "t";
-        action = "<Cmd>TmuxNavigateLeft<CR>";
+        action = "<Cmd>SmartCursorMoveLeft<CR>";
         desc = "Window/pane left (from terminal)";
         silent = true;
       }
@@ -30,14 +29,14 @@ _: {
       {
         key = "<C-j>";
         mode = "n";
-        action = "<Cmd>TmuxNavigateDown<CR>";
+        action = "<Cmd>SmartCursorMoveDown<CR>";
         desc = "Window/pane down";
         silent = true;
       }
       {
         key = "<C-j>";
         mode = "t";
-        action = "<Cmd>TmuxNavigateDown<CR>";
+        action = "<Cmd>SmartCursorMoveDown<CR>";
         desc = "Window/pane down (from terminal)";
         silent = true;
       }
@@ -45,14 +44,14 @@ _: {
       {
         key = "<C-k>";
         mode = "n";
-        action = "<Cmd>TmuxNavigateUp<CR>";
+        action = "<Cmd>SmartCursorMoveUp<CR>";
         desc = "Window/pane up";
         silent = true;
       }
       {
         key = "<C-k>";
         mode = "t";
-        action = "<Cmd>TmuxNavigateUp<CR>";
+        action = "<Cmd>SmartCursorMoveUp<CR>";
         desc = "Window/pane up (from terminal)";
         silent = true;
       }
@@ -60,14 +59,14 @@ _: {
       {
         key = "<C-l>";
         mode = "n";
-        action = "<Cmd>TmuxNavigateRight<CR>";
+        action = "<Cmd>SmartCursorMoveRight<CR>";
         desc = "Window/pane right";
         silent = true;
       }
       {
         key = "<C-l>";
         mode = "t";
-        action = "<Cmd>TmuxNavigateRight<CR>";
+        action = "<Cmd>SmartCursorMoveRight<CR>";
         desc = "Window/pane right (from terminal)";
         silent = true;
       }
