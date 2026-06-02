@@ -1,9 +1,9 @@
-{ perSystem, ... }:
+{ inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
   rev = "3f7bf4d8f11dda61d1da77ddd4c0e67eb997d099";
 in
-perSystem.vicinae.mkRayCastExtension {
+inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "karakeep";
   inherit rev;
   hash = "sha256-DAfDI2wxZ7mkpbQ+C0Y2xEaWZ98SiEPj6S/q8xlyRC8=";
