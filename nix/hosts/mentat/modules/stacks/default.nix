@@ -26,5 +26,6 @@
     ./paperless.nix
     ./changedetection.nix
     ./hister.nix
+    ./litellm.nix
   ];
 }
