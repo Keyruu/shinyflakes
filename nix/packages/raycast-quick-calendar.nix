@@ -1,10 +1,10 @@
 { inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "3f7bf4d8f11dda61d1da77ddd4c0e67eb997d099";
+  rev = "ee4def5d2a6afb583bc96b52287c125fecf472ad";
 in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "calendar";
   inherit rev;
-  hash = "sha256-AQkt6qM0U9nmqUtyirhHGGxwUs+25mjK5qlMuOjxV0A=";
+  hash = "sha256-l18qeuZVeJmbJPWYSz+6N/hvsC7ibBKH/0GKakALVgw=";
 }
