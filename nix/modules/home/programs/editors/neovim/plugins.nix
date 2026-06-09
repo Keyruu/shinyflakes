@@ -230,40 +230,13 @@
             -- loaded on demand via require('pi-guardian')
           '';
       };
-      pi-nvim = {
-        package = perSystem.self.pi-nvim;
+      outline-nvim = {
+        package = outline-nvim;
         setup = # lua
           ''
-            require('pi').setup({
-              layout = {
-                default = "side",
-                side = {
-                  position = "right",
-                  width = 80,
-                  panels = {
-                    history = { winbar = true },
-                    prompt = { winbar = true },
-                    attachments = { winbar = true },
-                  },
-                },
-                float = {
-                  width = 0.8,
-                  height = 0.8,
-                  border = "rounded",
-                },
-              },
-              diff = {
-                keys = {
-                  accept = "<leader>da",
-                  reject = "<leader>dr",
-                  expand_context = "<leader>de",
-                  shrink_context = "<leader>ds",
-                },
-              },
-              models = {
-                { match = "sonnet", latest = true },
-                { match = "opus", latest = true },
-                { match = "gpt", latest = true },
+            require('outline').setup({
+              outline_items = {
+                show_symbol_details = true,
               },
             })
           '';

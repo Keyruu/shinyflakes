@@ -279,7 +279,7 @@ _: {
         mode = "n";
         # Delegates to the tmux-side `prefix B` toggle so spawn/hide/restore
         # behavior matches and the pane is tagged with @is_nvim_term.
-        action = ''<Cmd>silent !tmux term-toggle<CR>'';
+        action = "<Cmd>silent !tmux term-toggle<CR>";
         desc = "Toggle bottom tmux term";
         silent = true;
       }
@@ -305,7 +305,7 @@ _: {
         key = "<leader>tP";
         mode = "n";
         # Delegates to the tmux-side `prefix P` toggle (@is_pi tagged pane).
-        action = ''<Cmd>silent !tmux pi-toggle<CR>'';
+        action = "<Cmd>silent !tmux pi-toggle<CR>";
         desc = "Toggle pi in tmux pane";
         silent = true;
       }
@@ -366,6 +366,39 @@ _: {
         desc = "Add to Code Companion Chat";
         silent = true;
         noremap = true;
+      }
+      {
+        key = "gO";
+        mode = "n";
+        action = "<cmd>Outline<cr>";
+        desc = "Show outline";
+        silent = true;
+        noremap = true;
+      }
+      {
+        key = "gd";
+        mode = "n";
+        action = "vim.lsp.buf.definition";
+        desc = "Go to definition";
+        silent = true;
+        noremap = true;
+        lua = true;
+      }
+
+      {
+        key = "<leader>rc";
+        mode = "n";
+        action = # lua
+          ''
+            function()
+              local command = vim.fn.input("Command: ", "", "shellcmd")
+              vim.cmd('cgete system("' .. command ..'")')
+              require('trouble').open('quickfix')
+            end
+          '';
+        desc = "Toggle Pi Agent Terminal";
+        silent = true;
+        lua = true;
       }
     ];
     luaConfigRC = {

@@ -1,11 +1,21 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   programs.nvf.settings.vim = {
     lsp = {
       enable = true;
       formatOnSave = true;
       lightbulb.enable = false;
-      trouble.enable = true;
+      trouble = {
+        enable = true;
+        setupOpts = {
+          auto_close = true;
+        };
+      };
       lspSignature.enable = true;
       inlayHints.enable = true;
       presets.tailwindcss-language-server.enable = true;
@@ -140,13 +150,21 @@
       terraform.enable = true;
       helm.enable = true;
       scala.enable = true;
+      svelte.enable = true;
       # broken
       sql.enable = false;
-      svelte.enable = true;
     };
 
     formatter.conform-nvim = {
       enable = true;
+      setupOpts = {
+        prefer_local = lib.mkForce "node_modules/.bin";
+        formatters.prettier = {
+          command = lib.mkForce "prettier";
+          prepend_args = lib.mkForce [ ];
+        };
+        formatters_by_ft.svelte = [ "prettier" ];
+      };
     };
 
     treesitter = {

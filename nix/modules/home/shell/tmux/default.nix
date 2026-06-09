@@ -55,6 +55,47 @@ let
       fi
     '';
 
+  # Find the pane tagged @is_pi in the current session, or empty if none.
+  findPiPane = ''$(tmux list-panes -s -F '#{pane_id} #{@is_pi}' | awk '$2==1 {print $1; exit}')'';
+
+  # Staging-file workflow: A/Y accumulate into one file per tmux session,
+  # S flushes it into the pi pane as one bracketed paste, X discards.
+  # Nothing reaches pi until S, so the user can read pi's scrollback and
+  # incrementally collect remarks without anything submitting prematurely.
+  piStagePath = ''/tmp/tmux-pi-prompt-$(tmux display -p '#{session_id}' | tr -d '$').txt'';
+
+  piPromptEdit = pkgs.writeShellScript "tmux-pi-prompt-edit" ''
+    set -e
+    stage=${piStagePath}
+    touch "$stage"
+    pane=${findPiPane}
+    editor="''${EDITOR:-${lib.getExe pkgs.neovim}}"
+    if [ -n "$pane" ]; then
+      # Split below the pi pane so its output stays visible while editing.
+      # Tag the new pane with @is_pi_stage so tool-guardian's nvim-pane
+      # detection skips it — we don't want diffs popping up here.
+      stage_pane=$(tmux split-window -v -l 20% -t "$pane" -P -F '#{pane_id}' \
+        -e "PI_STAGE_FILE=$stage" \
+        "$editor '$stage'")
+      tmux set -p -t "$stage_pane" @is_pi_stage 1
+    else
+      tmux display-popup -E -w 80% -h 70% -T " pi prompt (staging) " \
+        "$editor '$stage'"
+    fi
+    bytes=$(wc -c < "$stage" 2>/dev/null || echo 0)
+    tmux display-message "pi prompt: $bytes bytes staged"
+  '';
+
+  # Sending the staged content is handled by the pi /stage extension,
+  # which calls pasteToEditor directly and avoids tmux's csi-u re-encoding
+  # of LF inside bracketed paste.
+  piPromptDiscard = pkgs.writeShellScript "tmux-pi-prompt-discard" ''
+    set -e
+    stage=${piStagePath}
+    : > "$stage" 2>/dev/null || true
+    tmux display-message "pi prompt: cleared"
+  '';
+
   piToggle = mkToggle {
     name = "pi";
     tag = "is_pi";
@@ -73,14 +114,23 @@ let
     size = "30%";
   };
 
+  lazygitToggle = mkToggle {
+    name = "lazygit";
+    tag = "is_lazygit";
+    windowName = "[lazygit]";
+    split = "-h";
+    size = "100%";
+    cmd = "lazygit";
+    full = true;
+  };
+
   seshPicker = pkgs.writeShellScript "tmux-sesh-picker" ''
-    set -e
     sel=$(sesh list --icons | fzf-tmux -p 80%,70% \
       --no-sort --ansi \
       --border-label ' sesh ' \
       --prompt '⚡  ' \
       --preview-window right:55% \
-      --preview 'sesh preview {}')
+      --preview 'sesh preview {}' 2>/dev/null) || true
     [ -n "$sel" ] && sesh connect "$sel"
   '';
 
@@ -204,13 +254,20 @@ in
         bind-key -T copy-mode-vi v send-keys -X begin-selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-no-clear \; display-message "yanked"
+        # Inject text into the pi prompt without leaving copy-mode, so the
+        # user can comment on output they're reading without scrolling down.
+        # A: open $EDITOR in popup, paste result into pi pane on close.
+        # Y: copy current selection and paste it into pi pane.
+        # Staging-file workflow — A/Y accumulate, S flushes, X discards.
+        bind-key -T copy-mode-vi A run-shell "${piPromptEdit}"
+        bind-key -T copy-mode-vi X run-shell -b "${piPromptDiscard}"
         bind-key -T copy-mode-vi Escape send-keys -X cancel
         bind-key -T copy-mode-vi i send-keys -X cancel
         bind-key -T copy-mode-vi q send-keys -X cancel
 
         set -s command-alias[100] pi-toggle='run-shell ${piToggle}'
         set -s command-alias[101] term-toggle='run-shell ${termToggle}'
-        set -s command-alias[102] lazygit-toggle='display-popup -E -d "#{pane_current_path}" -w 90% -h 90% -T " lazygit " ${lib.getExe pkgs.lazygit}'
+        set -s command-alias[102] lazygit-toggle='run-shell ${lazygitToggle}'
 
         ${bindLines}
 

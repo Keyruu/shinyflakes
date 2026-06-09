@@ -112,7 +112,10 @@ function detectTmuxTarget(): NvimTarget | null {
         "list-panes",
         "-s",
         "-F",
-        "#{pane_id} #{pane_pid} #{pane_current_command}",
+        // @is_pi_stage marks the staging-prompt nvim split spawned from
+        // copy-mode `A` (see nix/modules/home/shell/tmux/default.nix).
+        // It runs nvim but must not be picked as the diff-review target.
+        "#{pane_id} #{pane_pid} #{pane_current_command} #{@is_pi_stage}",
       ],
       { encoding: "utf-8", timeout: 1500, stdio: ["ignore", "pipe", "ignore"] },
     );
@@ -135,8 +138,9 @@ function detectTmuxTarget(): NvimTarget | null {
   for (const line of out.trim().split("\n")) {
     const parts = line.split(" ");
     if (parts.length < 3) continue;
-    const [paneId, pidStr, cmd] = parts;
+    const [paneId, pidStr, cmd, isStage] = parts;
     if (paneId === selfPane) continue; // skip pi's own pane
+    if (isStage === "1") continue; // skip pi-prompt staging split
     if (!cmd || !NVIM_CMD_RE.test(cmd)) continue;
     const panePid = parseInt(pidStr ?? "0", 10);
     if (!panePid) continue;

@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
   "lastChangelogVersion": "0.78.0",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-7",
+  "defaultProvider": "litellm",
+  "defaultModel": "qwen/qwen3.6-27b",
   "enabledModels": [
     "openrouter/qwen/qwen3.5-35b-a3b",
     "openrouter/qwen/qwen3.6-plus",
@@ -15,6 +15,15 @@
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
     "openrouter/qwen/qwen3.6-27b",
-    "anthropic/claude-opus-4-7"
-  ]
+    "anthropic/claude-opus-4-7",
+    "litellm/claude-opus-4-7",
+    "litellm/claude-opus-4-6",
+    "litellm/claude-sonnet-4-6",
+    "litellm/qwen/qwen3.6-plus",
+    "litellm/qwen/qwen3.6-27b",
+    "litellm/qwen/qwen3.5-35b-a3b",
+    "litellm/qwen/qwen3.5-27b",
+    "litellm/google/gemma-4-31b-it"
+  ],
+  "hideThinkingBlock": false
 }

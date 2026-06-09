@@ -1,4 +1,9 @@
-{ config, flake, pkgs, ... }:
+{
+  config,
+  flake,
+  pkgs,
+  ...
+}:
 let
   my = config.services.my.litellm;
   inherit (config.virtualisation.quadlet) containers;
@@ -10,52 +15,54 @@ let
   # off so the DB does not silently shadow this list.
   litellmConfig =
     let
-      openaiKey = "os.environ/OPENAI_API_KEY";
       anthropicKey = "os.environ/ANTHROPIC_API_KEY";
-      geminiKey = "os.environ/GEMINI_API_KEY";
+      openrouterKey = "os.environ/OPENROUTER_API_KEY";
+
+      anthropicModel = id: {
+        model_name = id;
+        litellm_params = {
+          model = "anthropic/${id}";
+          api_key = anthropicKey;
+        };
+      };
+      openrouterModel = id: {
+        model_name = id;
+        litellm_params = {
+          model = "openrouter/${id}";
+          api_key = openrouterKey;
+        };
+      };
     in
     {
       model_list = [
+        (anthropicModel "claude-opus-4-6")
+        (anthropicModel "claude-sonnet-4-6")
+        (anthropicModel "claude-opus-4-7")
+        (anthropicModel "claude-opus-4-8")
+
+        (openrouterModel "qwen/qwen3.5-35b-a3b")
+        (openrouterModel "qwen/qwen3.6-plus")
+        (openrouterModel "qwen/qwen3.5-27b")
         {
-          model_name = "gpt-5";
+          model_name = "qwen/qwen3.6-27b";
           litellm_params = {
-            model = "openai/gpt-5";
-            api_key = openaiKey;
+            model = "openrouter/qwen/qwen3.6-27b";
+            api_key = openrouterKey;
+          };
+          model_info = {
+            input_cost_per_token = 0.00000029;
+            output_cost_per_token = 0.00000320;
           };
         }
         {
-          model_name = "gpt-5-mini";
+          model_name = "google/gemma-4-31b-it";
           litellm_params = {
-            model = "openai/gpt-5-mini";
-            api_key = openaiKey;
+            model = "openrouter/google/gemma-4-31b-it";
+            api_key = openrouterKey;
           };
-        }
-        {
-          model_name = "claude-sonnet-4-5";
-          litellm_params = {
-            model = "anthropic/claude-sonnet-4-5";
-            api_key = anthropicKey;
-          };
-        }
-        {
-          model_name = "claude-opus-4-5";
-          litellm_params = {
-            model = "anthropic/claude-opus-4-5";
-            api_key = anthropicKey;
-          };
-        }
-        {
-          model_name = "gemini-2.5-pro";
-          litellm_params = {
-            model = "gemini/gemini-2.5-pro";
-            api_key = geminiKey;
-          };
-        }
-        {
-          model_name = "gemini-2.5-flash";
-          litellm_params = {
-            model = "gemini/gemini-2.5-flash";
-            api_key = geminiKey;
+          model_info = {
+            input_cost_per_token = 0.00000012;
+            output_cost_per_token = 0.00000037;
           };
         }
       ];
@@ -63,6 +70,12 @@ let
       general_settings = {
         master_key = "os.environ/LITELLM_MASTER_KEY";
         database_url = "os.environ/DATABASE_URL";
+      };
+
+      # openrouter (and others) reject unknown OpenAI params like
+      # reasoning_effort. Drop them instead of failing the request.
+      litellm_settings = {
+        drop_params = true;
       };
     };
 in
@@ -83,9 +96,7 @@ in
       LITELLM_SALT_KEY=${config.sops.placeholder.litellmSaltKey}
       DATABASE_URL=postgresql://litellm:${config.sops.placeholder.litellmDbPassword}@${quadlet.alias containers.litellm-db}:5432/litellm
       STORE_MODEL_IN_DB=False
-      OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
       ANTHROPIC_API_KEY=${config.sops.placeholder.anthropicKey}
-      GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
       OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
     '';
   };
@@ -123,8 +134,11 @@ in
 
       containers = {
         web = {
+          security = {
+            readOnlyRootFilesystem = false;
+          };
           containerConfig = {
-            image = "ghcr.io/berriai/litellm-database:main-v1.87.0";
+            image = "ghcr.io/berriai/litellm-database:v1.87.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:4000" ];
             exec = "--config=/app/config.yaml --port 4000";
             volumes = [
@@ -139,8 +153,19 @@ in
         };
 
         db = {
+          security = {
+            dropAllCapabilities = true;
+            readOnlyRootFilesystem = false;
+          };
           containerConfig = {
             image = "postgres:16.14-alpine";
+            addCapabilities = [
+              "CHOWN"
+              "FOWNER"
+              "DAC_OVERRIDE"
+              "SETUID"
+              "SETGID"
+            ];
             environments = {
               POSTGRES_USER = "litellm";
               POSTGRES_DB = "litellm";

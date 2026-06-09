@@ -32,6 +32,7 @@
     astro-language-server
     vue-language-server
     svelte-language-server
+    svelte-check
     lua-language-server
     marksman
   ];

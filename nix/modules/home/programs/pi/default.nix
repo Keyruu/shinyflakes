@@ -25,6 +25,7 @@ in
       # Extensions — symlink individually so we can inject node_modules for LSP
       ".pi/agent/extensions/neovim-cursor-fix.ts".source =
         mkLink "${repoDir}/extensions/neovim-cursor-fix.ts";
+      ".pi/agent/extensions/stage.ts".source = mkLink "${repoDir}/extensions/stage.ts";
       ".pi/agent/extensions/tool-guardian".source = mkLink "${repoDir}/extensions/tool-guardian";
       ".pi/agent/extensions/node_modules".source = "${pi}/lib/node_modules";
     };
