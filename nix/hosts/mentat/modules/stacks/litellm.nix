@@ -40,8 +40,10 @@ let
         (anthropicModel "claude-opus-4-7")
         (anthropicModel "claude-opus-4-8")
 
-        (openrouterModel "qwen/qwen3.5-35b-a3b")
+        (openrouterModel "minimax/minimax-m3")
+        (openrouterModel "qwen/qwen3.7-plus")
         (openrouterModel "qwen/qwen3.6-plus")
+        (openrouterModel "qwen/qwen3.5-35b-a3b")
         (openrouterModel "qwen/qwen3.5-27b")
         {
           model_name = "qwen/qwen3.6-27b";

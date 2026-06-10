@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
   "lastChangelogVersion": "0.78.0",
-  "defaultProvider": "litellm",
-  "defaultModel": "qwen/qwen3.6-27b",
+  "defaultProvider": "openrouter",
+  "defaultModel": "deepseek/deepseek-v4-flash",
   "enabledModels": [
     "openrouter/qwen/qwen3.5-35b-a3b",
     "openrouter/qwen/qwen3.6-plus",
@@ -23,7 +23,10 @@
     "litellm/qwen/qwen3.6-27b",
     "litellm/qwen/qwen3.5-35b-a3b",
     "litellm/qwen/qwen3.5-27b",
-    "litellm/google/gemma-4-31b-it"
+    "litellm/google/gemma-4-31b-it",
+    "openrouter/z-ai/glm-5.1",
+    "openrouter/deepseek/deepseek-v4-flash"
   ],
-  "hideThinkingBlock": false
+  "hideThinkingBlock": false,
+  "defaultThinkingLevel": "high"
 }
