@@ -1128,17 +1128,17 @@
     },
     "nixpkgs-cockpit-zfs": {
       "locked": {
-        "lastModified": 1779228623,
-        "narHash": "sha256-GpDTemNQGBj23YLdx9O/OKmWjvRFMrXBMUdo8SELTwc=",
+        "lastModified": 1781139391,
+        "narHash": "sha256-+Yyf0Kd/D9B+59P2XpC++VO9iSzTpFb4CenJgDKu3pA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "15de5069c4519a4fda6642462cae6a3f36795476",
+        "rev": "e00f896b13d9ef40f1e8fca008046dcc5601fb91",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "15de5069c4519a4fda6642462cae6a3f36795476",
+        "rev": "e00f896b13d9ef40f1e8fca008046dcc5601fb91",
         "type": "github"
       }
     },

@@ -31,7 +31,7 @@
     nixpkgs-scanservjs.url = "git+https://github.com/rhoriguchi/nixpkgs?shallow=1&ref=scanservjs";
     # FIXME: remove once cockpit-zfs builds again on nixos-unstable
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
-    nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";
+    nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/e00f896b13d9ef40f1e8fca008046dcc5601fb91";
 
     # base
     blueprint = {
