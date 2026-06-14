@@ -18,7 +18,7 @@ in
       containers = {
         sabnzbd = {
           containerConfig = {
-            image = "lscr.io/linuxserver/sabnzbd:5.0.3";
+            image = "lscr.io/linuxserver/sabnzbd:5.0.4";
             environments = {
               PUID = "0";
               PGID = "0";
