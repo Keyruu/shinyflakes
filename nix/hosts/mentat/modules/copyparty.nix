@@ -59,7 +59,7 @@ in
         shr-adm = "root";
         ipr = "192.168.100.0/24,100.67.0.0/16=root";
         rproxy = -1;
-        xff-src = "lan,100.64.0.0/16";
+        xff-src = "lan,100.67.0.0/16";
         # xff-hdr = "cf-connecting-ip";
         hist = "/etc/stacks/copyparty";
       };
