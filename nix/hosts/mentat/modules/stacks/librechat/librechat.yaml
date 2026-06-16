@@ -127,11 +127,12 @@ registration:
 #   - "librechat.ai"
 #   - "google.com"
 #   - "keyruu.de"
-
-# Example MCP Servers Object Structure
-mcpServers:
+mcpSettings:
   allowedDomains:
     - 'host.containers.internal'
+    
+# Example MCP Servers Object Structure
+mcpServers:
   github:
     url: http://host.containers.internal:30000/sse
   context7:
