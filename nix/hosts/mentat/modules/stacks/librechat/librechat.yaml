@@ -130,6 +130,8 @@ registration:
 
 # Example MCP Servers Object Structure
 mcpServers:
+  allowedDomains:
+    - 'host.containers.internal'
   github:
     url: http://host.containers.internal:30000/sse
   context7:
