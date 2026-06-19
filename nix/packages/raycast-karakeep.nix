@@ -6,7 +6,7 @@ in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "karakeep";
   inherit rev;
-  hash = "sha256-DAfDI2wxZ7mkpbQ+C0Y2xEaWZ98SiEPj6S/q8xlyRC8=";
+  hash = "sha256-0zg7cbnlccWjOyL2Ulh5/gmRkQaHtYKcnwD7aBvMGS8=";
   # karakeep's package.json overrides `ray build` with `-o dist`, so its
   # output ends up in ./dist instead of the default raycast extensions dir
   # that the upstream installPhase expects.
