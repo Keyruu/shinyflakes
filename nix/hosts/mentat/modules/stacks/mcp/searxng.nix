@@ -9,7 +9,7 @@ let
   oapiPort = 30103;
 
   # renovate: datasource=docker depName=isokoliuk/mcp-searxng
-  mcpVersion = "1.5.0";
+  mcpVersion = "1.7.1";
 in
 {
   networking.firewall.interfaces = {
