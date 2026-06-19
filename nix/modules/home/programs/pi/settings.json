@@ -1,32 +1,32 @@
 {
   "showHardwareCursor": true,
   "lastChangelogVersion": "0.78.0",
-  "defaultProvider": "openrouter",
-  "defaultModel": "deepseek/deepseek-v4-flash",
+  "defaultProvider": "litellm",
+  "defaultModel": "work/qwen/qwen3.6-27b",
   "enabledModels": [
-    "openrouter/qwen/qwen3.5-35b-a3b",
-    "openrouter/qwen/qwen3.6-plus",
-    "openrouter/qwen/qwen3.5-27b",
-    "openrouter/google/gemma-4-31b-it",
     "opencode-go/glm-5",
     "opencode-go/glm-5.1",
     "opencode-go/kimi-k2.5",
     "opencode-go/kimi-k2.6",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
-    "openrouter/qwen/qwen3.6-27b",
     "anthropic/claude-opus-4-7",
-    "litellm/claude-opus-4-7",
-    "litellm/claude-opus-4-6",
-    "litellm/claude-sonnet-4-6",
-    "litellm/qwen/qwen3.6-plus",
-    "litellm/qwen/qwen3.6-27b",
-    "litellm/qwen/qwen3.5-35b-a3b",
-    "litellm/qwen/qwen3.5-27b",
-    "litellm/google/gemma-4-31b-it",
-    "openrouter/z-ai/glm-5.1",
-    "openrouter/deepseek/deepseek-v4-flash"
+    "litellm/private/qwen/qwen3.6-27b",
+    "litellm/work/claude-opus-4-6",
+    "litellm/work/claude-sonnet-4-6",
+    "litellm/work/claude-opus-4-7",
+    "litellm/work/claude-opus-4-8",
+    "litellm/work/minimax/minimax-m3",
+    "litellm/work/qwen/qwen3.7-plus",
+    "litellm/work/qwen/qwen3.6-plus",
+    "litellm/work/qwen/qwen3.6-27b",
+    "litellm/work/qwen/qwen3.5-35b-a3b",
+    "litellm/work/qwen/qwen3.5-27b",
+    "litellm/work/google/gemma-4-31b-it"
   ],
   "hideThinkingBlock": false,
-  "defaultThinkingLevel": "high"
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:pi-provider-litellm"
+  ]
 }
