@@ -6,5 +6,5 @@ in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "calendar";
   inherit rev;
-  hash = "sha256-0zg7cbnlccWjOyL2Ulh5/gmRkQaHtYKcnwD7aBvMGS8=";
+  hash = "sha256-l18qeuZVeJmbJPWYSz+6N/hvsC7ibBKH/0GKakALVgw=";
 }

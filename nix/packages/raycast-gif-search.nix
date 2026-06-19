@@ -6,5 +6,5 @@ in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "gif-search";
   inherit rev;
-  hash = "sha256-0zg7cbnlccWjOyL2Ulh5/gmRkQaHtYKcnwD7aBvMGS8=";
+  hash = "sha256-SPgqtOGnvc/W2nMHBJbjIoObGwMfAdUNrnhAHyXkWNI=";
 }
