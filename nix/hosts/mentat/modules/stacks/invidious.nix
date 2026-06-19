@@ -107,7 +107,7 @@ in
 
         companion = {
           containerConfig = {
-            image = "quay.io/invidious/invidious-companion:latest@sha256:11561591f1d7374605c076801035175e7bb32c7ec18dcb69545b8f618e10a249";
+            image = "quay.io/invidious/invidious-companion:latest@sha256:4dbe5c51811cf049ceeb690fe39040896734acce9c0dd7344519d6e2b4345c0b";
             environmentFiles = [ config.sops.templates."invidious-companion.env".path ];
             volumes = [
               "${my.stack.path}/companion-cache:/var/tmp/youtubei.js:rw"
