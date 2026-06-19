@@ -11,103 +11,113 @@ let
 
   yamlFormat = pkgs.formats.yaml { };
 
-  # Declarative model catalog. Add/remove entries here — STORE_MODEL_IN_DB is
-  # off so the DB does not silently shadow this list.
-  litellmConfig =
-    let
-      anthropicKey = "os.environ/ANTHROPIC_API_KEY";
-      openrouterKey = "os.environ/OPENROUTER_API_KEY";
-
-      anthropicModel = id: {
-        model_name = id;
-        litellm_params = {
-          model = "anthropic/${id}";
-          api_key = anthropicKey;
-        };
+  # Declarative model catalog. Each tag (work/private) groups providers with
+  # their own API keys. Models get auto-prefixed: tag/model-name.
+  # Virtual keys then scope to "work/*" or "private/*".
+  model-scopes = {
+    work = {
+      anthropic = {
+        key = "os.environ/ANTHROPIC_API_KEY_WORK";
+        models = [
+          "claude-opus-4-6"
+          "claude-sonnet-4-6"
+          "claude-opus-4-7"
+          "claude-opus-4-8"
+        ];
       };
-      openrouterModel = id: {
-        model_name = id;
-        litellm_params = {
-          model = "openrouter/${id}";
-          api_key = openrouterKey;
-        };
-      };
-    in
-    {
-      model_list = [
-        (anthropicModel "claude-opus-4-6")
-        (anthropicModel "claude-sonnet-4-6")
-        (anthropicModel "claude-opus-4-7")
-        (anthropicModel "claude-opus-4-8")
-
-        (openrouterModel "minimax/minimax-m3")
-        (openrouterModel "qwen/qwen3.7-plus")
-        (openrouterModel "qwen/qwen3.6-plus")
-        (openrouterModel "qwen/qwen3.5-35b-a3b")
-        (openrouterModel "qwen/qwen3.5-27b")
-        {
-          model_name = "qwen/qwen3.6-27b";
-          litellm_params = {
-            model = "openrouter/qwen/qwen3.6-27b";
-            api_key = openrouterKey;
-          };
-          model_info = {
-            input_cost_per_token = 0.00000029;
-            output_cost_per_token = 0.00000320;
-          };
-        }
-        {
-          model_name = "google/gemma-4-31b-it";
-          litellm_params = {
-            model = "openrouter/google/gemma-4-31b-it";
-            api_key = openrouterKey;
-          };
-          model_info = {
-            input_cost_per_token = 0.00000012;
-            output_cost_per_token = 0.00000037;
-          };
-        }
-      ];
-
-      general_settings = {
-        master_key = "os.environ/LITELLM_MASTER_KEY";
-        database_url = "os.environ/DATABASE_URL";
-      };
-
-      # openrouter (and others) reject unknown OpenAI params like
-      # reasoning_effort. Drop them instead of failing the request.
-      litellm_settings = {
-        drop_params = true;
+      openrouter = {
+        key = "os.environ/OPENROUTER_API_KEY_WORK";
+        models = [
+          "minimax/minimax-m3"
+          "qwen/qwen3.7-plus"
+          "qwen/qwen3.6-plus"
+          "qwen/qwen3.6-27b"
+          "qwen/qwen3.5-35b-a3b"
+          "qwen/qwen3.5-27b"
+          "google/gemma-4-31b-it"
+        ];
       };
     };
+
+    private = {
+      openrouter = {
+        key = "os.environ/OPENROUTER_API_KEY_PRIVATE";
+        models = [
+          "qwen/qwen3.6-27b"
+        ];
+      };
+    };
+  };
+
+  # Expand scope definitions into litellm model_list entries.
+  # Iterates scope name (work/private) → provider → model id.
+  litellmConfig = {
+    model_list = builtins.concatMap (
+      scopeName:
+      let
+        scope = model-scopes.${scopeName};
+      in
+      builtins.concatMap (
+        provName:
+        let
+          provider = scope.${provName};
+        in
+        map (modelId: {
+          model_name = "${scopeName}/${modelId}";
+          litellm_params = {
+            model = "${provName}/${modelId}";
+            api_key = provider.key;
+          };
+        }) provider.models
+      ) (builtins.attrNames scope)
+    ) (builtins.attrNames model-scopes);
+
+    general_settings = {
+      master_key = "os.environ/LITELLM_MASTER_KEY";
+      database_url = "os.environ/DATABASE_URL";
+    };
+
+    # openrouter (and others) reject unknown OpenAI params like
+    # reasoning_effort. Drop them instead of failing the request.
+    litellm_settings = {
+      drop_params = true;
+    };
+  };
 in
 {
-  sops.secrets = {
-    litellmMasterKey = { };
-    litellmSaltKey = { };
-    litellmDbPassword = { };
-  };
 
   environment.etc."stacks/litellm/config.yaml".source =
     yamlFormat.generate "litellm-config.yaml" litellmConfig;
 
-  sops.templates."litellm.env" = {
-    restartUnits = [ (quadlet.service containers.litellm-web) ];
-    content = ''
-      LITELLM_MASTER_KEY=${config.sops.placeholder.litellmMasterKey}
-      LITELLM_SALT_KEY=${config.sops.placeholder.litellmSaltKey}
-      DATABASE_URL=postgresql://litellm:${config.sops.placeholder.litellmDbPassword}@${quadlet.alias containers.litellm-db}:5432/litellm
-      STORE_MODEL_IN_DB=False
-      ANTHROPIC_API_KEY=${config.sops.placeholder.anthropicKey}
-      OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
-    '';
-  };
+  sops = {
+    secrets = {
+      litellmMasterKey = { };
+      litellmSaltKey = { };
+      litellmDbPassword = { };
+      anthropicKey = { };
+      openrouterKey = { };
+      openrouterKeyPrivate = { };
+    };
 
-  sops.templates."litellm-db.env" = {
-    restartUnits = [ (quadlet.service containers.litellm-db) ];
-    content = ''
-      POSTGRES_PASSWORD=${config.sops.placeholder.litellmDbPassword}
-    '';
+    templates."litellm.env" = {
+      restartUnits = [ (quadlet.service containers.litellm-web) ];
+      content = ''
+        LITELLM_MASTER_KEY=${config.sops.placeholder.litellmMasterKey}
+        LITELLM_SALT_KEY=${config.sops.placeholder.litellmSaltKey}
+        DATABASE_URL=postgresql://litellm:${config.sops.placeholder.litellmDbPassword}@${quadlet.alias containers.litellm-db}:5432/litellm
+        STORE_MODEL_IN_DB=False
+        ANTHROPIC_API_KEY_WORK=${config.sops.placeholder.anthropicKey}
+        OPENROUTER_API_KEY_WORK=${config.sops.placeholder.openrouterKey}
+        OPENROUTER_API_KEY_PRIVATE=${config.sops.placeholder.openrouterKeyPrivate}
+      '';
+    };
+
+    templates."litellm-db.env" = {
+      restartUnits = [ (quadlet.service containers.litellm-db) ];
+      content = ''
+        POSTGRES_PASSWORD=${config.sops.placeholder.litellmDbPassword}
+      '';
+    };
   };
 
   services.my.litellm = {
