@@ -50,7 +50,8 @@
     };
 
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v0.4.3";
+      # FIXME: pin lanzaboote because of bootspec.enable https://github.com/nix-community/lanzaboote/issues/624
+      url = "github:nix-community/lanzaboote/0403b4b7e8b2612657f0053a4c315e6c43eee9e6";
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
