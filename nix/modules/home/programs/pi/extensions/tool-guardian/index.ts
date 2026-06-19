@@ -98,7 +98,7 @@ export default function (pi: ExtensionAPI) {
       ...baseEdit.parameters.properties,
       reason: {
         type: "string",
-        description: "Why this edit is needed. Be specific and grounded in existing code.",
+        description: "Why this edit is needed (top-level field, NOT inside edits[]). Be specific and grounded in existing code.",
       },
     },
     required: [...(baseEdit.parameters.required ?? []), "reason"],
@@ -110,7 +110,7 @@ export default function (pi: ExtensionAPI) {
       ...baseWrite.parameters.properties,
       reason: {
         type: "string",
-        description: "Why this write is needed. Be specific and grounded in existing code.",
+        description: "Why this write is needed (top-level field). Be specific and grounded in existing code.",
       },
     },
     required: [...(baseWrite.parameters.required ?? []), "reason"],
@@ -210,12 +210,13 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     ...baseEdit,
-    description: `${baseEdit.description} Include a non-empty \`reason\` explaining why.`,
+    description: `${baseEdit.description} Include a non-empty top-level \`reason\` explaining why. This is a sibling of \`path\` and \`edits\`, NOT a field inside each edit object.`,
     promptSnippet:
       "Make precise file edits with exact text replacement. Include a `reason` for review.",
     promptGuidelines: [
       ...(baseEdit.promptGuidelines ?? []),
       "Always include a concrete `reason` for each edit — explain why the change is needed, not just what it does.",
+      "The `reason` field is a top-level parameter alongside `path` and `edits`, **not** nested inside individual edit objects.",
     ],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parameters: editParams as any,
