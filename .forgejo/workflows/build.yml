@@ -5,7 +5,7 @@ jobs:
     outputs:
       hosts: ${{ steps.hosts.outputs.hosts }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.forgejo/actions/fetch-submodules
         with:
           token: ${{ secrets.FORGEJO_PAT }}
@@ -23,7 +23,7 @@ jobs:
         host: ${{ fromJSON(needs.setup.outputs.hosts).host }}
     needs: setup
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.forgejo/actions/fetch-submodules
         with:
           token: ${{ secrets.FORGEJO_PAT }}
