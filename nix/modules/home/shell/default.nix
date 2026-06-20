@@ -51,6 +51,7 @@ in
     DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
     HASS_KEY=${config.sops.placeholder.hassKey}
     OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
+    LITELLM_BASE_URL=https://litellm.lab.keyruu.de
     LITELLM_API_KEY=${config.sops.placeholder.litellmMasterKey}
   '';
 
