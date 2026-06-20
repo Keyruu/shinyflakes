@@ -50,8 +50,10 @@
     };
 
     lanzaboote = {
-      # FIXME: pin lanzaboote because of bootspec.enable https://github.com/nix-community/lanzaboote/issues/624
-      url = "github:nix-community/lanzaboote/001e560fffc8f0235e9db20ebeb4ccde0ade1caf";
+      # FIXME: pin to pre-1.96.0 commit + apply bootspec fix as overlay
+      # The PR #617 (001e560) bumps rust-toolchain to 1.96.0 which isn't in rustup yet
+      # We use 5fef254 (Rust 1.95.0) and overlay the bootspec.enable removal
+      url = "github:x45iq/lanzaboote/v1.0.1";
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
