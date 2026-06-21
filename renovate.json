@@ -99,6 +99,19 @@
         ],
         "executionMode": "branch"
       }
+    },
+    {
+      "description": "Update package hashes after flake.lock update (nixpkgs dep changes)",
+      "matchManagers": ["nix"],
+      "postUpgradeTasks": {
+        "commands": [
+          "bash -c 'nix run .#update-hash -- caddy'"
+        ],
+        "fileFilters": [
+          "nix/packages/caddy.nix"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }

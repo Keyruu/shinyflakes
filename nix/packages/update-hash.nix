@@ -20,25 +20,21 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    # Extract current rev from the file to find sibling updates
-    currentRev=$(grep -oP 'rev\s*=\s*"\K[a-f0-9]{40}' "$file")
-    if [ -z "$currentRev" ]; then
-      echo "No rev found in $file"
-      exit 1
-    fi
-
-    # Find all other packages sharing the same rev (same dependency group).
+    # Find sibling packages sharing the same rev (same dependency group).
     # Handles cases like raycast extensions where multiple packages track
     # the same upstream rev but need individual hashes due to sparseCheckout
     # fetching different subdirectories.
     siblings=("$file")
-    for other in nix/packages/*.nix; do
-      if [ "$other" != "$file" ] && grep -q "rev\s*=\s*\"$currentRev\"" "$other"; then
-        siblings+=("$other")
-      fi
-    done
+    currentRev=$(grep -oP 'rev\s*=\s*"\K[a-f0-9]{40}' "$file" 2>/dev/null || true)
+    if [ -n "$currentRev" ]; then
+      for other in nix/packages/*.nix; do
+        if [ "$other" != "$file" ] && grep -q "rev\s*=\s*\"$currentRev\"" "$other"; then
+          siblings+=("$other")
+        fi
+      done
+    fi
 
-    echo "Updating hashes for ''${#siblings[@]} package(s) sharing rev $currentRev"
+    echo "Updating hashes for ''${#siblings[@]} package(s)"
 
     fakeHash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 
