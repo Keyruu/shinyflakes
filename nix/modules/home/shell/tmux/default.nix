@@ -56,13 +56,13 @@ let
     '';
 
   # Find the pane tagged @is_pi in the current session, or empty if none.
-  findPiPane = ''$(tmux list-panes -s -F '#{pane_id} #{@is_pi}' | awk '$2==1 {print $1; exit}')'';
+  findPiPane = "$(tmux list-panes -s -F '#{pane_id} #{@is_pi}' | awk '$2==1 {print $1; exit}')";
 
   # Staging-file workflow: A/Y accumulate into one file per tmux session,
   # S flushes it into the pi pane as one bracketed paste, X discards.
   # Nothing reaches pi until S, so the user can read pi's scrollback and
   # incrementally collect remarks without anything submitting prematurely.
-  piStagePath = ''/tmp/tmux-pi-prompt-$(tmux display -p '#{session_id}' | tr -d '$').txt'';
+  piStagePath = "/tmp/tmux-pi-prompt-$(tmux display -p '#{session_id}' | tr -d '$').txt";
 
   piPromptEdit = pkgs.writeShellScript "tmux-pi-prompt-edit" ''
     set -e
@@ -106,13 +106,93 @@ let
     full = true;
   };
 
-  termToggle = mkToggle {
-    name = "term";
-    tag = "is_nvim_term";
-    windowName = "[term]";
-    split = "-v";
-    size = "30%";
-  };
+  showTerm = pkgs.writeShellScript "tmux-showterm" ''
+    # Multi-slot bottom-term dock (1-9). Pressing a slot shows it and
+    # auto-hides whichever slot is currently visible. Pressing the
+    # same slot twice toggles it off.
+    #
+    # Tag scheme:
+    #   @__term_slot_N  — slot-N pane, visible in current window
+    set -e
+
+    SLOTS=9
+    case "''${1}" in
+      hide) TARGET=0 ;;
+      *) TARGET="''${1:-1}" ; if [ "$TARGET" -lt 1 ] || [ "$TARGET" -gt $SLOTS ]; then
+          tmux display-message "term dock: slot 1-$SLOTS"; exit 1
+        fi ;;
+    esac
+
+    cur_win=$(tmux display -p '#{window_id}')
+    PANE_SIZE="30%"
+
+    # find currently visible term slot (any) in this window
+    vis_pane="" vis_slot=0
+    for n in $(seq 1 $SLOTS); do
+      hit=$(tmux list-panes -s -F "#{pane_id} #{window_id} #{@__term_slot_$n}" | awk -v w="$cur_win" '$2==w && $3==1 {print $1; exit}')
+      if [ -n "$hit" ]; then vis_pane="$hit"; vis_slot=$n; break; fi
+    done
+
+    if [ "$TARGET" -ne 0 ]; then
+      # find target: visible first, then hidden bg
+      target_pane="" was_hidden=0
+      if [ -n "$vis_pane" ] && [ "$vis_slot" -eq $TARGET ]; then
+        target_pane="$vis_pane"
+      fi
+      if [ -z "$target_pane" ]; then
+        # find hidden bg window by name, then its pane
+        bg_win=$(tmux list-windows -a -F '#{window_id} #{window_name}' | awk -v nm="[term-$TARGET]" '$2==nm {print $1}')
+        if [ -n "$bg_win" ]; then
+          target_pane=$(tmux list-panes -t "$bg_win" -F '#{pane_id}')
+          was_hidden=1
+        fi
+      fi
+
+      # same as already-visible → toggle off
+      if [ -n "$vis_pane" ] && [ "$vis_slot" -eq $TARGET ]; then
+        tmux break-pane -d -n "[term-$TARGET]" -s "$vis_pane"
+        tmux set -p -t "$vis_pane" @__term_slot_$TARGET ""
+        tmux set -p -t "$vis_pane" @__term_label ""
+        exit 0
+      fi
+
+      # hide previous visible slot FIRST to avoid transient 3-pane layout
+      if [ -n "$vis_pane" ]; then
+        tmux break-pane -d -n "[term-$vis_slot]" -s "$vis_pane"
+        tmux set -p -t "$vis_pane" @__term_slot_$vis_slot ""
+        tmux set -p -t "$vis_pane" @__term_label ""
+        vis_pane=""
+      fi
+
+      # show target
+      if [ -n "$target_pane" ] && [ "$was_hidden" -eq 1 ]; then
+        tmux join-pane -v -l $PANE_SIZE -s "$target_pane"
+      fi
+
+      # brand-new pane
+      if [ -z "$target_pane" ]; then
+        target_pane=$(tmux split-window -v -l $PANE_SIZE -P -F '#{pane_id}' -c "#{pane_current_path}")
+      fi
+
+      tmux set -p -t "$target_pane" @__term_slot_$TARGET 1
+      tmux set -p -t "$target_pane" @__term_label "term $TARGET"
+      tmux select-pane -t "$target_pane"
+    else
+      for n in $(seq 1 $SLOTS); do
+        hit=$(tmux list-panes -s -F "#{pane_id} #{@__term_slot_$n}" | awk '$2==1 {print $1; exit}')
+        if [ -n "$hit" ]; then
+          tmux break-pane -d -n "[term-$n]" -s "$hit"
+          tmux set -p -t "$hit" @__term_slot_$n ""
+          tmux set -p -t "$hit" @__term_label ""
+        fi
+      done
+
+    fi
+  '';
+
+  # b / b1 → slot 1 (keeps existing behavior), b1-b9 → slots 1-9
+  mkB = n: "run-shell '${showTerm} ${toString n}'";
+  termBinds = concatStringsSep "\n" (map (n: "bind -r 'b${toString n}' ${mkB n}") (lib.range 1 9));
 
   lazygitToggle = mkToggle {
     name = "lazygit";
@@ -134,7 +214,7 @@ let
     [ -n "$sel" ] && sesh connect "$sel"
   '';
 
-  menu = import ./menu.nix { inherit pkgs seshPicker; };
+  menu = import ./menu.nix { inherit pkgs seshPicker showTerm; };
   allEntries = concatMap (category: category.commands) menu;
 
   # display-menu takes one arg per token; always wrap each arg in "..." so
@@ -184,7 +264,9 @@ let
     (optional (index > 0) "\"\"") ++ [ header ] ++ entries;
 
   menuArgs = concatStringsSep " \\\n          " (
-    concatMap (index: renderSection index (builtins.elemAt menu index)) (genList (index: index) (builtins.length menu))
+    concatMap (index: renderSection index (builtins.elemAt menu index)) (
+      genList (index: index) (builtins.length menu)
+    )
   );
 in
 {
@@ -266,8 +348,7 @@ in
         bind-key -T copy-mode-vi q send-keys -X cancel
 
         set -s command-alias[100] pi-toggle='run-shell ${piToggle}'
-        set -s command-alias[101] term-toggle='run-shell ${termToggle}'
-        set -s command-alias[102] lazygit-toggle='run-shell ${lazygitToggle}'
+        set -s command-alias[101] lazygit-toggle='run-shell ${lazygitToggle}'
 
         ${bindLines}
 
@@ -299,9 +380,11 @@ in
         set -g menu-selected-style "fg=${t.onAccent},bg=${t.accent},bold"
         # Show per-pane title (set via `select-pane -T <name>`) on the top border.
         set -g pane-border-status top
-        set -g pane-border-format " #{?pane_title,#{pane_title},#{pane_current_command}} "
+        set -g pane-border-format " #{?@__term_label,#{@__term_label},#{?pane_title,#{pane_title},#{pane_current_command}}} "
         # Auto-rename pi/term toggle panes for clarity.
         set-hook -g after-split-window 'select-pane -T "#{pane_current_command}"'
+
+        ${termBinds}
 
         run-shell ${pkgs.tmuxPlugins.mode-indicator}/share/tmux-plugins/mode-indicator/mode_indicator.tmux
       '';

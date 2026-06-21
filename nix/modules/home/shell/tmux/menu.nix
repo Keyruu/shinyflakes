@@ -13,7 +13,11 @@
 #              for that key) or { flag?, key, repeat? } for full control.
 #              Emits real `bind` lines so the action is reachable without
 #              opening the menu.
-{ pkgs, seshPicker }:
+{
+  pkgs,
+  seshPicker,
+  showTerm,
+}:
 [
   {
     title = "Windows";
@@ -54,9 +58,27 @@
       {
         key = "T";
         label = "Bottom term toggle";
-        command = "term-toggle";
-        hint = "T";
+        command = "run-shell '${showTerm} 1'";
+        hint = "b";
         bind = [ "T" ];
+      }
+      {
+        key = "1";
+        label = "Bottom term 1 toggle";
+        command = "run-shell '${showTerm} 1'";
+        hint = "b";
+      }
+      {
+        key = "2";
+        label = "Bottom term 2 toggle";
+        command = "run-shell '${showTerm} 2'";
+        hint = "b";
+      }
+      {
+        key = "3";
+        label = "Bottom term 3 toggle";
+        command = "run-shell '${showTerm} 3'";
+        hint = "b";
       }
       {
         key = "g";
