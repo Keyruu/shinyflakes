@@ -21,6 +21,7 @@
               "oblivion"
               "prime"
               "notify"
+              "cache"
               "@"
               "*"
             ];

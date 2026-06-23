@@ -16,5 +16,5 @@ tofunix-lib.mkOpentofuProvider {
   owner = "hetznercloud";
   repo = "hcloud";
   inherit version;
-  hash = "sha256-YfgfU3Sz6KlCBmVIJ2zpT7MOMOROLha9PT6AmHiM8TE=";
+  hash = "sha256-oIYsvfrgbFatesAQNyejcs1j4zcB0N19U9K/pobnbTM=";
 }
