@@ -31,7 +31,7 @@
     inputs.vicinae.homeManagerModules.default
   ];
 
-  services.vicinae = {
+  programs.vicinae = {
     enable = true;
     themes.shinyflakes =
       let
@@ -68,6 +68,7 @@
     systemd = {
       enable = true;
       autoStart = true;
+      environment.USE_LAYER_SHELL = 1;
     };
 
     package = perSystem.vicinae.default;
@@ -163,8 +164,6 @@
       };
     };
   };
-
-  systemd.user.services.vicinae.Service.Environment = [ "USE_LAYER_SHELL=1" ];
 
   home.file =
     let
