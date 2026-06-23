@@ -9,12 +9,37 @@ _:
   window-rule {
       match app-id=r#"^scratchpad$"#
       match app-id=r#"^vicinae-script$"#
+      match app-id=r#"^vicinae-script-lg$"#
       background-effect {
           blur true
           xray false
       }
       default-column-width { proportion 0.88; }
       default-window-height { proportion 0.88; }
+      open-floating true
+      open-maximized false
+  }
+
+  window-rule {
+      match app-id=r#"^vicinae-script-md$"#
+      background-effect {
+          blur true
+          xray false
+      }
+      default-column-width { proportion 0.6; }
+      default-window-height { proportion 0.5; }
+      open-floating true
+      open-maximized false
+  }
+
+  window-rule {
+      match app-id=r#"^vicinae-script-sm$"#
+      background-effect {
+          blur true
+          xray false
+      }
+      default-column-width { proportion 0.4; }
+      default-window-height { proportion 0.3; }
       open-floating true
       open-maximized false
   }

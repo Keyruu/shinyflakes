@@ -66,12 +66,10 @@
         };
       };
     systemd = {
-      enable = true; # default: false
-      autoStart = true; # default: false
-      environment = {
-        USE_LAYER_SHELL = 1;
-      };
+      enable = true;
+      autoStart = true;
     };
+
     package = perSystem.vicinae.default;
     extensions =
       (with perSystem.vicinae-extensions; [
@@ -165,6 +163,8 @@
       };
     };
   };
+
+  systemd.user.services.vicinae.Service.Environment = [ "USE_LAYER_SHELL=1" ];
 
   home.file =
     let
@@ -276,6 +276,7 @@
       name = "mesh-tunnel";
       title = "Mesh Tunnel";
       icon = "🔒";
+      appId = "vicinae-script-sm";
       hold = false;
       runtimeInputs = [ pkgs.fzf ];
       command = # bash

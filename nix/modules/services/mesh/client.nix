@@ -49,11 +49,11 @@ let
       stop_all() {
         for i in "''${interfaces[@]}"; do
           if systemctl is-active --quiet "wg-quick-$i.service" 2>/dev/null; then
-            sudo systemctl stop "wg-quick-$i.service"
+            systemctl stop "wg-quick-$i.service"
           fi
         done
         if systemctl is-active --quiet "${wstunnelSvc}" 2>/dev/null; then
-          sudo systemctl stop "${wstunnelSvc}"
+          systemctl stop "${wstunnelSvc}"
         fi
       }
 
@@ -65,17 +65,17 @@ let
             ;;
           direct)
             stop_all
-            sudo systemctl start "wg-quick-${interface}.service"
+            systemctl start "wg-quick-${interface}.service"
             ;;
           ws)
             stop_all
-            sudo systemctl start "${wstunnelSvc}"
-            sudo systemctl start "wg-quick-${interface}-ws.service"
+            systemctl start "${wstunnelSvc}"
+            systemctl start "wg-quick-${interface}-ws.service"
             ;;
           all-ws)
             stop_all
-            sudo systemctl start "${wstunnelSvc}"
-            sudo systemctl start "wg-quick-${interface}-all-ws.service"
+            systemctl start "${wstunnelSvc}"
+            systemctl start "wg-quick-${interface}-all-ws.service"
             ;;
           *)
             echo "Unknown mode: $mode"
@@ -223,32 +223,6 @@ in
     };
 
     environment.systemPackages = [ meshTunnel ];
-
-    # Allow wheel users to manage tunnel services without password
-    security.sudo.extraRules = [
-      {
-        groups = [ "wheel" ];
-        commands =
-          (map (i: {
-            command = "/run/current-system/sw/bin/systemctl start ${wgQuickSvc i}";
-            options = [ "NOPASSWD" ];
-          }) allInterfaces)
-          ++ (map (i: {
-            command = "/run/current-system/sw/bin/systemctl stop ${wgQuickSvc i}";
-            options = [ "NOPASSWD" ];
-          }) allInterfaces)
-          ++ lib.optionals wsCfg.enable [
-            {
-              command = "/run/current-system/sw/bin/systemctl start ${wstunnelSvc}";
-              options = [ "NOPASSWD" ];
-            }
-            {
-              command = "/run/current-system/sw/bin/systemctl stop ${wstunnelSvc}";
-              options = [ "NOPASSWD" ];
-            }
-          ];
-      }
-    ];
 
     # Restart wstunnel after resume from suspend so the tunnel reconnects
     systemd.services.wstunnel-restart-on-resume = lib.mkIf wsCfg.enable {

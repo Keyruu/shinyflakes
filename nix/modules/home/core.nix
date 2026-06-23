@@ -87,6 +87,7 @@ in
     marp-cli
     jq
     yq
+    nb
     gh # github cli
     awscli2
     kubernetes-helm
