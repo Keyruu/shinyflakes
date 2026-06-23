@@ -23,6 +23,24 @@ in
     };
   };
 
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "glide.desktop";
+      "x-scheme-handler/http" = "glide.desktop";
+      "x-scheme-handler/https" = "glide.desktop";
+      "x-scheme-handler/discord" = "vesktop.desktop";
+      "x-scheme-handler/sgnl" = "signal.desktop";
+      "x-scheme-handler/signalcaptcha" = "signal.desktop";
+      "video/mp4" = "mpv.desktop";
+      "video/vnd.avi" = "mpv.desktop";
+      "image/jpeg" = "imv.desktop";
+      "image/png" = "imv.desktop";
+      "image/svg+xml" = "imv.desktop";
+      "text/plain" = "dev.zed.Zed.desktop";
+    };
+  };
+
   home.stateVersion = "26.05";
 
   programs.home-manager.enable = true;

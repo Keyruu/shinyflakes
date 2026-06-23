@@ -52,6 +52,7 @@
             secondary_background = t.surface;
             inherit (t) border;
             inherit (t) accent;
+            accent_foreground = t.onAccent;
           };
           accents = {
             blue = t.colors.blue;
@@ -63,8 +64,72 @@
             yellow = t.colors.yellow;
             cyan = t.colors.cyan;
           };
+          main_window = {
+            inherit (t) border;
+            footer.background = t.surface;
+          };
+          settings_window.border = t.border;
+          shortcut.border = t.border;
+          text = {
+            default = t.foreground;
+            inherit (t) muted;
+            danger = t.colors.red;
+            success = t.colors.green;
+            placeholder = t.muted;
+            links = {
+              default = t.accent;
+              visited = t.colors.purple;
+            };
+            selection = {
+              background = t.accent;
+              foreground = t.onAccent;
+            };
+          };
+          input = {
+            inherit (t) border;
+            border_focus = t.accent;
+            border_error = t.colors.red;
+          };
+          button.primary = {
+            background = t.accent;
+            foreground = t.onAccent;
+            hover.background = t.accent;
+            hover.foreground = t.onAccent;
+            focus.outline = t.accent;
+          };
+          list.item = {
+            hover = {
+              background = t.surface;
+              inherit (t) foreground;
+              secondary_foreground = t.muted;
+            };
+            selection = {
+              background = t.elevated;
+              inherit (t) foreground;
+              secondary_background = t.surface;
+              secondary_foreground = t.muted;
+            };
+          };
+          grid.item = {
+            selection.outline = t.accent;
+            hover.outline = t.border;
+            background = t.surface;
+          };
+          scrollbars = {
+            background = t.border;
+            secondary_background = t.surface;
+          };
+          tooltip = {
+            background = t.surface;
+            inherit (t) foreground border;
+          };
+          loading = {
+            bar = t.accent;
+            spinner = t.accent;
+          };
         };
       };
+
     systemd = {
       enable = true;
       autoStart = true;
