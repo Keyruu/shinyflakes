@@ -1,13 +1,9 @@
 {
   "showHardwareCursor": true,
-  "lastChangelogVersion": "0.78.0",
-  "defaultProvider": "litellm",
-  "defaultModel": "work/qwen/qwen3.6-27b",
+  "lastChangelogVersion": "0.79.9",
+  "defaultProvider": "headroom",
+  "defaultModel": "claude-opus-4-6",
   "enabledModels": [
-    "opencode-go/glm-5",
-    "opencode-go/glm-5.1",
-    "opencode-go/kimi-k2.5",
-    "opencode-go/kimi-k2.6",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
     "anthropic/claude-opus-4-7",
@@ -22,11 +18,17 @@
     "litellm/work/qwen/qwen3.6-27b",
     "litellm/work/qwen/qwen3.5-35b-a3b",
     "litellm/work/qwen/qwen3.5-27b",
-    "litellm/work/google/gemma-4-31b-it"
+    "litellm/work/google/gemma-4-31b-it",
+    "headroom/claude-opus-4-6",
+    "headroom/claude-opus-4-7",
+    "headroom/claude-opus-4-8",
+    "headroom/claude-sonnet-4-6"
   ],
   "hideThinkingBlock": false,
   "defaultThinkingLevel": "high",
   "packages": [
-    "npm:pi-provider-litellm"
-  ]
+    "npm:pi-provider-litellm",
+    "git:github.com/DietrichGebert/ponytail"
+  ],
+  "theme": "dark"
 }

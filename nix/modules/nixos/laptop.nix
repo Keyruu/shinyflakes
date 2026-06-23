@@ -57,6 +57,8 @@
       enable = true;
       settings = {
         DEVICES_TO_DISABLE_ON_STARTUP = "nfc";
+        TLP_DEFAULT_MODE = "BAT";
+        TLP_PERSISTENT_DEFAULT = 1;
       };
     };
   };

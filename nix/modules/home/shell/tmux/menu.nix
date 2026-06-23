@@ -17,6 +17,7 @@
   pkgs,
   seshPicker,
   showTerm,
+  defaultLayout,
 }:
 [
   {
@@ -185,6 +186,11 @@
   {
     title = "Layout";
     commands = [
+      {
+        key = "D";
+        label = "Dev layout";
+        command = "run-shell '${defaultLayout}'";
+      }
       {
         key = "L";
         label = "Next layout";

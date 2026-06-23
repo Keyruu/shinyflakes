@@ -214,7 +214,23 @@ let
     [ -n "$sel" ] && sesh connect "$sel"
   '';
 
-  menu = import ./menu.nix { inherit pkgs seshPicker showTerm; };
+  defaultLayout = pkgs.writeShellScript "tmux-default-layout" ''
+    set -e
+    tmux rename-window edit
+    tmux pi-toggle
+    tmux select-pane -L
+    tmux term-toggle
+    tmux select-pane -U
+  '';
+
+  menu = import ./menu.nix {
+    inherit
+      pkgs
+      seshPicker
+      showTerm
+      defaultLayout
+      ;
+  };
   allEntries = concatMap (category: category.commands) menu;
 
   # display-menu takes one arg per token; always wrap each arg in "..." so
@@ -348,7 +364,8 @@ in
         bind-key -T copy-mode-vi q send-keys -X cancel
 
         set -s command-alias[100] pi-toggle='run-shell ${piToggle}'
-        set -s command-alias[101] lazygit-toggle='run-shell ${lazygitToggle}'
+        set -s command-alias[101] term-toggle='run-shell "${showTerm} 1"'
+        set -s command-alias[102] lazygit-toggle='run-shell ${lazygitToggle}'
 
         ${bindLines}
 

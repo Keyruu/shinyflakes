@@ -27,5 +27,6 @@
     ./changedetection.nix
     ./hister.nix
     ./litellm.nix
+    ./headroom.nix
   ];
 }
