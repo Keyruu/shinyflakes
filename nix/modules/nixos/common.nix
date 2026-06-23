@@ -114,7 +114,7 @@
       max-jobs = "auto";
 
       substituters = [
-        "http://cache.keyruu.de:7384"
+        "https://cache.keyruu.de"
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
         "https://cache.numtide.com"

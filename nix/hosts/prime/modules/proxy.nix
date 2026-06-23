@@ -28,6 +28,11 @@ let
       proxyPort = 3210;
       cloudflare = true;
     };
+    "cache.keyruu.de" = {
+      proxyHost = mentat;
+      proxyPort = 7384;
+      cloudflare = true;
+    };
     "s3.keyruu.de" = {
       proxyHost = mentat;
       proxyPort = 3900;
