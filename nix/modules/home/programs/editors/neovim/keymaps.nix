@@ -13,61 +13,49 @@ _: {
       # in normal and terminal mode without leaking keystrokes.
       {
         key = "<C-h>";
-        mode = "n";
+        mode = [
+          "n"
+          "t"
+          "i"
+        ];
         action = "<Cmd>SmartCursorMoveLeft<CR>";
         desc = "Window/pane left";
         silent = true;
       }
-      {
-        key = "<C-h>";
-        mode = "t";
-        action = "<Cmd>SmartCursorMoveLeft<CR>";
-        desc = "Window/pane left (from terminal)";
-        silent = true;
-      }
 
       {
         key = "<C-j>";
-        mode = "n";
+        mode = [
+          "n"
+          "t"
+          "i"
+        ];
         action = "<Cmd>SmartCursorMoveDown<CR>";
         desc = "Window/pane down";
         silent = true;
       }
-      {
-        key = "<C-j>";
-        mode = "t";
-        action = "<Cmd>SmartCursorMoveDown<CR>";
-        desc = "Window/pane down (from terminal)";
-        silent = true;
-      }
 
       {
         key = "<C-k>";
-        mode = "n";
+        mode = [
+          "n"
+          "t"
+          "i"
+        ];
         action = "<Cmd>SmartCursorMoveUp<CR>";
         desc = "Window/pane up";
         silent = true;
       }
-      {
-        key = "<C-k>";
-        mode = "t";
-        action = "<Cmd>SmartCursorMoveUp<CR>";
-        desc = "Window/pane up (from terminal)";
-        silent = true;
-      }
 
       {
         key = "<C-l>";
-        mode = "n";
+        mode = [
+          "n"
+          "t"
+          "i"
+        ];
         action = "<Cmd>SmartCursorMoveRight<CR>";
         desc = "Window/pane right";
-        silent = true;
-      }
-      {
-        key = "<C-l>";
-        mode = "t";
-        action = "<Cmd>SmartCursorMoveRight<CR>";
-        desc = "Window/pane right (from terminal)";
         silent = true;
       }
 
@@ -85,6 +73,7 @@ _: {
         desc = "Next buffer";
         silent = true;
       }
+
       {
         key = "<leader>gg";
         mode = "n";

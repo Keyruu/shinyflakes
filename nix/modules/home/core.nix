@@ -53,41 +53,26 @@ in
     lua
     nodejs
     actionlint
-    gitmoji-cli
-    pre-commit
     git
     zig
     go # go lang
     go-task # task runner
-    gradle # java build tool
-    maven # java build tool
-    perl
-    pyenv
-    quarkus
     yarn
     air
     templ
     golangci-lint
     delve
-    kubie
-    nixpacks
     bun
     deploy-rs
     sshs
     termshark
-    symfony-cli
     k6
     sops
     yaml-language-server
-    coursier
-    metals
     hyperfine
     tmux
-    upterm
-    youplot
     ripgrep
     fd
-    devbox
     pnpm
     just
     goreleaser
@@ -96,13 +81,7 @@ in
     cachix
     neovim
     gnupg
-    mill
-    sbt
-    bloop
-    scalafix
-    scalafmt
     nil
-    marp-cli
     jq
     yq
     nb
@@ -111,7 +90,6 @@ in
     kubernetes-helm
     kubectx
     kubectl
-    devspace
     uv
     impala
     perSystem.llm-agents.codex
@@ -121,22 +99,18 @@ in
     obsidian
     pavucontrol
     pulseaudio # pactl
-    notion-app-enhanced
     # FIXME: broken on unstable https://github.com/NixOS/nixpkgs/issues/493843
     stable.calibre
     localsend
     element-desktop
     diebahn
-    wireguard-ui
     discord
     vesktop
     slack
     signal-desktop
     thunderbird
     vlc
-    fluffychat
     flatpak
-    teams-for-linux
     libreoffice-qt6-fresh
     brave
     blender
@@ -147,24 +121,18 @@ in
     ansible # automation
     aws-iam-authenticator # aws
     dua # disk usage analyzer
-    gitui # git ui
     htop
-    killport # kill port
     lsd # better ls
     gnumake
     postgresql
     sqlite
     starship
-    oh-my-posh
     btop
     devenv
-    minikube
-    tilt
     yt-dlp
     colmena
     # FIXME: harlequin broken on unstable
     # harlequin
-    cloudlens
     lsof
     wtype
     wireguard-tools
@@ -178,7 +146,6 @@ in
     clang
 
     # devops
-    krew
     dive # docker image explorer
     stern
     cilium-cli
@@ -210,13 +177,11 @@ in
     tree
     inetutils
     aria2
-    yadm
     rsync
     ffmpeg-full
     nix-diff
     p7zip
     nixd
-    compose2nix
     clang-tools
     kotlin-language-server
     terraform-ls
