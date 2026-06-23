@@ -23,7 +23,6 @@ let
   interface = mesh.interface;
   wgQuickSvc = name: "wg-quick-${name}.service";
   wstunnelSvc = "wstunnel-client-wg-tunnel.service";
-  allInterfaces = [ interface "${interface}-ws" "${interface}-all-ws" ];
 
   meshTunnel = pkgs.writeShellApplication {
     name = "mesh-tunnel";

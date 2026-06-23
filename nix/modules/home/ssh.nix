@@ -2,20 +2,20 @@ _: {
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "*" = {
-        controlPath = "~/.ssh/_%C";
-        controlMaster = "no";
+        ControlPath = "~/.ssh/_%C";
+        ControlMaster = "no";
       };
       "github.com" = {
-        hostname = "ssh.github.com";
-        port = 443;
-        user = "git";
+        HostName = "ssh.github.com";
+        Port = 443;
+        User = "git";
       };
       "prime" = {
-        hostname = "168.119.225.165";
-        user = "root";
-        compression = true;
+        HostName = "168.119.225.165";
+        User = "root";
+        Compression = true;
       };
     };
   };

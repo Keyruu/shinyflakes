@@ -62,7 +62,6 @@
     displayManager = {
       sessionPackages = with pkgs; [
         niri-unstable
-        sway
       ];
     };
   };

@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   imports = [
-    ./sway.nix
     ./niri
     ./kanshi.nix
     ./lock.nix
@@ -13,10 +12,6 @@
 
   services.gnome-keyring.enable = true;
   services.polkit-gnome.enable = true;
-
-  programs.iio-sway = {
-    enable = true;
-  };
 
   home.packages = with pkgs; [
     wl-clipboard

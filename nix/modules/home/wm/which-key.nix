@@ -264,44 +264,6 @@
             - key: "o"
               desc: Off
               cmd: poweroff
-        - key: "r"
-          desc: Resize
-          submenu:
-            - key: "h"
-              desc: Shrink Width
-              cmd: swaymsg resize shrink width 10px
-              keep_open: true
-            - key: "j"
-              desc: Grow Height
-              cmd: swaymsg resize grow height 10px
-              keep_open: true
-            - key: "k"
-              desc: Shrink Height
-              cmd: swaymsg resize shrink height 10px
-              keep_open: true
-            - key: "l"
-              desc: Grow Width
-              cmd: swaymsg resize grow width 10px
-              keep_open: true
-            - key: "Left"
-              desc: Shrink Width
-              cmd: swaymsg resize shrink width 10px
-              keep_open: true
-            - key: "Down"
-              desc: Grow Height
-              cmd: swaymsg resize grow height 10px
-              keep_open: true
-            - key: "Up"
-              desc: Shrink Height
-              cmd: swaymsg resize shrink height 10px
-              keep_open: true
-            - key: "Right"
-              desc: Grow Width
-              cmd: swaymsg resize grow width 10px
-              keep_open: true
-            - key: "w"
-              desc: Ultrawide Layout
-              cmd: ultrawide
     '';
 
   xdg.desktopEntries.which-key = {

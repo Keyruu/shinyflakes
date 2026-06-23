@@ -6,20 +6,15 @@
 
     ./1password.nix
     ./claude-code.nix
-    ./intellij.nix
     ./kanidm.nix
-    ./kubie.nix
     ./nh.nix
     # ./noctalia.nix
-    # ./dms.nix
     ./wayle.nix
     ./satty.nix
     ./opencode.nix
     ./pi
     ./spotify.nix
     ./vicinae.nix
-    ./waybar.nix
     ./zathura.nix
-    ./squeekboard
   ];
 }

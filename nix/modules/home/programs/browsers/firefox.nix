@@ -6,16 +6,6 @@
 }:
 let
   # Override the unfree packages to mark them as free
-  onepassword-fixed = perSystem.firefox-addons.onepassword-password-manager.overrideAttrs (old: {
-    meta = old.meta // {
-      license = lib.licenses.free;
-    };
-  });
-  languagetool-fixed = perSystem.firefox-addons.languagetool.overrideAttrs (old: {
-    meta = old.meta // {
-      license = lib.licenses.free;
-    };
-  });
 
   engines = {
     "Kagi" = {
