@@ -190,9 +190,11 @@ let
     fi
   '';
 
-  # b / b1 → slot 1 (keeps existing behavior), b1-b9 → slots 1-9
-  mkB = n: "run-shell '${showTerm} ${toString n}'";
-  termBinds = concatStringsSep "\n" (map (n: "bind -r 'b${toString n}' ${mkB n}") (lib.range 1 9));
+  # prefix b enters the term-dock table; then 1-9 selects a slot.
+  termBinds = concatStringsSep "\n" (
+    [ "bind b switch-client -T termdock" ]
+    ++ map (n: "bind -T termdock ${toString n} run-shell '${showTerm} ${toString n}'") (lib.range 1 9)
+  );
 
   lazygitToggle = mkToggle {
     name = "lazygit";

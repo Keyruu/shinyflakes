@@ -92,8 +92,11 @@ in
     kubectl
     uv
     impala
-    perSystem.llm-agents.codex
     biome
+
+    # ai bullshit
+    perSystem.llm-agents.rtk
+    perSystem.llm-agents.codex
 
     # gui apps
     obsidian

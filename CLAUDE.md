@@ -56,17 +56,25 @@ Blueprint automatically:
 
 ### Building and Deploying
 
+**Important:** This flake uses git submodules (e.g. private modules). Every nix
+command must include `?submodules=1` in the flake ref, otherwise evaluation
+fails with errors like `attribute 'link-bypass' missing`. This applies to
+`nixos-rebuild`, `nix build`, `nix eval`, `nix flake check`, etc.
+
 **Build a NixOS configuration:**
 
 ```bash
 # Build without switching
-nixos-rebuild build --flake .#hostname
+nixos-rebuild build --flake '.?submodules=1#hostname'
 
 # Build and switch
-sudo nixos-rebuild switch --flake .#hostname
+sudo nixos-rebuild switch --flake '.?submodules=1#hostname'
 
 # Build and test (reverts on reboot)
-sudo nixos-rebuild test --flake .#hostname
+sudo nixos-rebuild test --flake '.?submodules=1#hostname'
+
+# Eval / other commands
+nix eval '.?submodules=1#nixosConfigurations.hostname.config...'
 ```
 
 ### Adding a New Host

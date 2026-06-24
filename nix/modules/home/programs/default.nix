@@ -8,8 +8,7 @@
     ./claude-code.nix
     ./kanidm.nix
     ./nh.nix
-    # ./noctalia.nix
-    ./wayle.nix
+    ./noctalia.nix
     ./satty.nix
     ./opencode.nix
     ./pi

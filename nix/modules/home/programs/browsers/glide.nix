@@ -1,5 +1,6 @@
 {
   inputs,
+  perSystem,
   ...
 }:
 {
@@ -19,6 +20,18 @@
           "{25fc87fa-4d31-4fee-b5c1-c32a7844c063}"
           "{d634138d-c276-4fc8-924b-40a0ea21d284}"
         ];
+      };
+
+  # glide is a firefox fork with its own profile dir, so the vicinae HM module's
+  # programs.firefox.nativeMessagingHosts install doesn't reach it
+  home.file.".glide-browser/native-messaging-hosts/com.vicinae.vicinae.json".text =
+    builtins.toJSON
+      {
+        name = "com.vicinae.vicinae";
+        description = "Vicinae Native Messaging Host";
+        path = "${perSystem.vicinae.default}/libexec/vicinae/vicinae-browser-link";
+        type = "stdio";
+        allowed_extensions = [ "firefox@vicinae.com" ];
       };
 
   programs.glide-browser = {
@@ -63,6 +76,7 @@
           "{3c078156-979c-498b-8990-85f7987dd929}" = "sidebery";
           "{81b74d53-9416-4fb3-afa2-ab46684b253b}" = "tabwrangler";
           "sponsorBlocker@ajay.app" = "sponsorblock";
+          "firefox@vicinae.com" = "vicinae";
         };
     };
   };

@@ -1,0 +1,31 @@
+id = "local/calendar-event"
+name = "Calendar Event"
+version = "1.0.0"
+min_noctalia = "5.0.0"
+author = "lucas"
+icon = "calendar"
+description = "Shows next calendar event in the bar with agenda tooltip."
+
+[[setting]]
+key = "interval"
+type = "int"
+label = "Refresh interval (seconds)"
+default = 60
+min = 5
+max = 3600
+
+[[widget]]
+id = "widget"
+entry = "widget.luau"
+
+  [[widget.setting]]
+  key = "max_length"
+  type = "int"
+  label = "Max text length"
+  default = 43
+  min = 10
+  max = 100
+
+[[service]]
+id = "fetcher"
+entry = "service.luau"

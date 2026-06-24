@@ -89,6 +89,13 @@ in
   environment.etc."stacks/litellm/config.yaml".source =
     yamlFormat.generate "litellm-config.yaml" litellmConfig;
 
+  # Long LLM completions exceed nginx's 60s default; bump proxy timeouts.
+  # extraConfig is a `lines` type, so this appends to the module's whitelist block.
+  services.nginx.virtualHosts.${my.domain}.locations."/".extraConfig = ''
+    proxy_read_timeout 600s;
+    proxy_send_timeout 600s;
+  '';
+
   sops = {
     secrets = {
       litellmMasterKey = { };

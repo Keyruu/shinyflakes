@@ -1,8 +1,8 @@
 {
   "showHardwareCursor": true,
-  "lastChangelogVersion": "0.79.9",
-  "defaultProvider": "headroom",
-  "defaultModel": "claude-opus-4-6",
+  "lastChangelogVersion": "0.79.10",
+  "defaultProvider": "litellm",
+  "defaultModel": "work/claude-opus-4-8",
   "enabledModels": [
     "anthropic/claude-opus-4-6",
     "anthropic/claude-sonnet-4-6",
@@ -28,7 +28,8 @@
   "defaultThinkingLevel": "high",
   "packages": [
     "npm:pi-provider-litellm",
-    "git:github.com/DietrichGebert/ponytail"
+    "git:github.com/DietrichGebert/ponytail",
+    "git:github.com/jonjonrankin/pi-caveman"
   ],
   "theme": "dark"
 }

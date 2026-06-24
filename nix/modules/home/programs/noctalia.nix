@@ -1,275 +1,217 @@
 {
   config,
   inputs,
-  pkgs,
   ...
 }:
 let
-  # yoinked from https://github.com/iynaix/dotfiles/blob/6fbee83cd1f404245b24164e8e95a36c31b4b973/modules/gui/noctalia/default.nix#L19
-  noctalia-ipc =
-    with pkgs;
-    writeShellApplication {
-      name = "noctalia-ipc";
-      runtimeInputs = [
-        killall
-        jq
-      ];
-      text = # sh
-        let
-          shell = "${config.programs.noctalia-shell.package}/bin/noctalia-shell";
-        in
-        ''
-          RAW_OUTPUT=$(${shell} list --all --json 2>/dev/null)
-
-          # invalid json, no instances running, so start noctalia-shell
-          if [[ ! "$RAW_OUTPUT" == "["* ]]; then
-            ${shell}
-            exit
-          fi
-
-          NOCTALIA_PATH=$(${shell} list --all --json | jq -r '.[] | .config_path | sub("/share/noctalia-shell/shell.qml$"; "")')
-
-          # using dev version, don't kill the shell
-          if [[ "$NOCTALIA_PATH" == *"_dirty"* ]]; then
-            "$NOCTALIA_PATH/bin/noctalia-shell" ipc call "$@"
-            exit
-          fi
-
-          CURRENT_STORE_PATH="${config.programs.noctalia-shell.package}"
-          if [[ "$NOCTALIA_PATH" != "$CURRENT_STORE_PATH" ]]; then
-            echo "Noctalia updated, restarting..." >&2
-            killall .quickshell-wra || true
-            ${shell}
-            sleep 5
-            ${shell} ipc call "$@"
-            exit
-          fi
-
-          ${shell} ipc call "$@"
-        '';
-    };
+  t = config.user.theme;
 in
 {
   imports = [
     inputs.noctalia.homeModules.default
   ];
 
-  home.packages = [ noctalia-ipc ];
+  xdg.dataFile."noctalia/plugins/calendar-event".source = ./noctalia-plugins/calendar-event;
 
-  programs.noctalia-shell = {
+  programs.noctalia = {
     enable = true;
+    systemd.enable = true;
 
-    plugins = {
-      sources = [
-        {
-          enabled = true;
-          name = "Official Noctalia Plugins";
-          url = "https://github.com/noctalia-dev/noctalia-plugins";
-        }
-      ];
-      states = {
-        notes-scratchpad = {
-          enabled = true;
-          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-        };
-      };
-      version = 2;
-    };
-
-    colors =
-      let
-        t = config.user.theme;
-      in
-      {
+    customPalettes.custom = {
+      dark = {
+        mPrimary = t.accent;
+        mOnPrimary = t.onAccent;
+        mSecondary = t.colors.blue;
+        mOnSecondary = t.onAccent;
+        mTertiary = t.foreground;
+        mOnTertiary = t.onAccent;
         mError = t.colors.red;
         mOnError = t.onAccent;
-        mOnPrimary = t.onAccent;
-        mOnSecondary = t.onAccent;
-        mOnSurface = t.foreground;
-        mOnSurfaceVariant = t.muted;
-        mOnTertiary = t.onAccent;
-        mOutline = t.border;
-        mPrimary = t.accent;
-        mSecondary = t.colors.blue;
-        mShadow = "#000000";
         mSurface = t.background;
+        mOnSurface = t.foreground;
         mSurfaceVariant = t.surface;
-        mTertiary = t.foreground;
-        mHover = t.colors.blue;
-        mOnHover = t.onAccent;
+        mOnSurfaceVariant = t.muted;
+        mOutline = t.border;
+        mShadow = "#000000";
+        mHover = t.elevated;
+        mOnHover = t.foreground;
+        terminal = {
+          background = t.background;
+          foreground = t.foreground;
+          cursor = t.foreground;
+          cursorText = t.background;
+          selectionBg = t.foreground;
+          selectionFg = t.background;
+          normal = {
+            black = t.background;
+            red = t.colors.red;
+            green = t.colors.green;
+            yellow = t.colors.yellow;
+            blue = t.colors.blue;
+            magenta = t.colors.magenta;
+            cyan = t.colors.cyan;
+            white = t.foreground;
+          };
+          bright = {
+            black = t.muted;
+            red = t.colors.red;
+            green = t.colors.green;
+            yellow = t.colors.yellow;
+            blue = t.colors.blue;
+            magenta = t.colors.magenta;
+            cyan = t.colors.cyan;
+            white = t.foreground;
+          };
+        };
       };
+    };
+
     settings = {
-      bar = {
-        density = "default";
+      shell = {
+        font_family = config.user.font;
+        setup_wizard_enabled = false;
+        telemetry_enabled = false;
+        panel = {
+          launcher_placement = "attached";
+          clipboard_placement = "attached";
+          control_center_placement = "attached";
+          wallpaper_placement = "attached";
+          session_placement = "attached";
+          open_near_click_launcher = true;
+          open_near_click_clipboard = true;
+          open_near_click_control_center = true;
+          open_near_click_wallpaper = true;
+          open_near_click_session = true;
+        };
+      };
+
+      theme = {
+        mode = "dark";
+        source = "custom";
+        custom_palette = "custom";
+      };
+
+      bar.main = {
         position = "top";
-        backgroundOpacity = 0;
-        showCapsule = true;
-        barType = "floating";
-        marginHorizontal = "12px";
-        useSeparateOpacity = true;
-        widgets = {
-          left = [
-            {
-              id = "ControlCenter";
-              useDistroLogo = true;
-            }
-            {
-              hideUnoccupied = false;
-              id = "Workspace";
-              labelMode = "none";
-            }
-            {
-              id = "Taskbar";
-              onlySameOutput = true;
-              onlyActiveWorkspaces = true;
-            }
-            {
-              id = "ActiveWindow";
-              showIcon = false;
-              scrollingMode = "hover";
-              maxWidth = 500;
-            }
-          ];
-          center = [
-            {
-              id = "MediaMini";
-              maxWidth = 500;
-              showVisualizer = true;
-              showAlbumArt = true;
-            }
-          ];
-          right = [
-            {
-              id = "Tray";
-            }
-            {
-              id = "CustomButton";
-              icon = "calendar";
-              textCommand = "noctalia-event";
-              textIntervalMs = 60000;
-              parseJson = true;
-              maxTextLength.horizontal = 43;
-            }
-            {
-              id = "Network";
-            }
-            {
-              id = "Bluetooth";
-            }
-            {
-              id = "SystemMonitor";
-              showCpuUsage = true;
-              showCpuTemp = false;
-              showMemoryUsage = true;
-              showMemoryAsPercent = true;
-              usePrimaryColor = false;
-            }
-            {
-              alwaysShowPercentage = false;
-              id = "Battery";
-              warningThreshold = 30;
-            }
-            {
-              id = "Volume";
-            }
-            {
-              id = "Microphone";
-            }
-            {
-              formatHorizontal = "dd.MM. HH:mm";
-              formatVertical = "HH mm";
-              id = "Clock";
-              useMonospacedFont = true;
-              usePrimaryColor = false;
-            }
-            {
-              id = "KeepAwake";
-            }
-            {
-              id = "NotificationHistory";
-              showUnreadBadge = true;
-              hideWhenZero = true;
-            }
-            # {
-            #   id = "CustomButton";
-            #   icon = "bell";
-            #   textCommand = "noctalia-swaync";
-            #   textIntervalMs = 2500;
-            #   parseJson = true;
-            #   leftClickExec = "swaync-client -t -sw";
-            #   rightClickExec = "swaync-client -C";
-            # }
-          ];
+        background_opacity = 0.0;
+        capsule = true;
+        monitor.laptop = {
+          match = "eDP-1";
+          scale = 0.8;
+        };
+        margin_edge = 4;
+        margin_ends = 18;
+        start = [
+          "control-center"
+          "workspaces"
+          "taskbar"
+          "active_window"
+        ];
+        center = [ "media" ];
+        end = [
+          "tray"
+          "calendar-widget"
+          "network"
+          "bluetooth"
+          "sysmon"
+          "ram"
+          "battery"
+          "volume"
+          "input_volume"
+          "clock"
+          "caffeine"
+          "notifications"
+        ];
+      };
+
+      widget = {
+        control-center = {
+          custom_image = ./noctalia-plugins/nix-snowflake.svg;
+          custom_image_colorize = true;
+        };
+        workspaces = {
+          display = "none";
+        };
+        taskbar = {
+          only_active_workspace = true;
+        };
+        calendar-widget = {
+          type = "local/calendar-event:widget";
+        };
+        sysmon = {
+          type = "sysmon";
+        };
+        battery = {
+          warning_threshold = 30;
+        };
+        clock = {
+          format = "{:%d.%m. %H:%M}";
+          vertical_format = "{:%H\\n%M}";
+        };
+        network = {
+          show_label = false;
+        };
+        notifications = {
+          show_unread_badge = true;
         };
       };
-      ui = {
-        fontDefault = config.user.font;
-        fontFixed = config.user.font;
-      };
-      # colorSchemes.predefinedScheme = "Noctalia (default)";
-      general = {
-        radiusRatio = 1;
-        keybinds = {
-          keyDown = [
-            "Down"
-            "Ctrl+J"
-          ];
-          keyEnter = [
-            "Return"
-            "Enter"
-          ];
-          keyEscape = [
-            "Esc"
-          ];
-          keyLeft = [
-            "Left"
-            "Ctrl+H"
-          ];
-          keyRemove = [
-            "Backspace"
-            "Ctrl+X"
-          ];
-          keyRight = [
-            "Right"
-            "Ctrl+L"
-          ];
-          keyUp = [
-            "Up"
-            "Ctrl+K"
-          ];
-        };
-      };
+
       wallpaper = {
         enabled = true;
-        directory = ../themes;
-        overviewEnabled = true;
       };
-      notifications = {
-        enabled = true;
-        sounds = {
-          enabled = true;
-          excludedApps = "discord,firefox,chrome,chromium,edge,Slack,opencode";
+
+      notification = {
+        enable_daemon = true;
+        filter = {
+          discord = {
+            enabled = true;
+            match = "discord";
+            play_sound = false;
+          };
+          firefox = {
+            enabled = true;
+            match = "firefox";
+            play_sound = false;
+          };
+          slack = {
+            enabled = true;
+            match = "Slack";
+            play_sound = false;
+          };
+          opencode = {
+            enabled = true;
+            match = "opencode";
+            play_sound = false;
+          };
         };
       };
+
       location = {
-        name = "Munich, Germany";
-        firstDayOfWeek = 0;
+        address = "Munich, Germany";
       };
+
       idle = {
-        enabled = false;
-        fadeDuration = 5;
-        lockTimeout = 330;
-        screenOffTimeout = 300;
-        suspendTimeout = 900;
+        behavior = {
+          lock.enabled = false;
+          screen-off.enabled = false;
+        };
       };
+
       dock.enabled = false;
+
+      plugins = {
+        enabled = [
+          "noctalia/notes-scratchpad"
+          "local/calendar-event"
+        ];
+      };
     };
   };
 
   xdg.desktopEntries = {
     caffeine = {
       name = "Caffeine";
-      exec = "noctalia-ipc idleInhibitor toggle";
+      exec = "noctalia msg caffeine-toggle";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -278,7 +220,7 @@ in
 
     notification-center = {
       name = "Notification Center";
-      exec = "noctalia-ipc notifications toggleHistory";
+      exec = "noctalia msg panel-toggle control-center notifications";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -287,7 +229,7 @@ in
 
     clear-notification = {
       name = "Clear Notifications";
-      exec = "noctalia-ipc notifications clear";
+      exec = "noctalia msg notification-clear-history";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];
@@ -296,7 +238,7 @@ in
 
     do-not-disturb = {
       name = "Toggle DND";
-      exec = "noctalia-ipc notifications toggleDND";
+      exec = "noctalia msg notification-dnd-toggle";
       terminal = false;
       type = "Application";
       categories = [ "Utility" ];

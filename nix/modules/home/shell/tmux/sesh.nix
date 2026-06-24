@@ -12,12 +12,10 @@
         {
           name = "git";
           path = "~/git";
-          disable_startup_command = true;
         }
         {
           name = "home";
           path = "~";
-          disable_startup_command = true;
         }
       ];
       wildcard = [
