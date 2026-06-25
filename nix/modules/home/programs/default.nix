@@ -1,3 +1,4 @@
+{ flake, ... }:
 {
   imports = [
     ./terminals
@@ -5,15 +6,16 @@
     ./browsers
 
     ./1password.nix
-    ./claude-code.nix
     ./kanidm.nix
     ./nh.nix
     ./noctalia.nix
     ./satty.nix
-    ./opencode.nix
-    ./pi
     ./spotify.nix
     ./vicinae.nix
     ./zathura.nix
+
+    flake.modules.agents.pi
+    flake.modules.agents.opencode
+    flake.modules.agents.claude-code
   ];
 }

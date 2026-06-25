@@ -60,6 +60,7 @@ in
       Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "noctalia-ipc" "lockScreen" "lock"; }
       Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://launch/clipboard/history"; }
       Super+X hotkey-overlay-title="Keyboard Pointer" { spawn-sh "${pkgs.wl-kbptr}/bin/wl-kbptr -c $HOME/.config/wl-kbptr/floating"; }
+      Super+D hotkey-overlay-title="Dictate" { spawn "dictate"; }
 
       Print hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
       Shift+Print hotkey-overlay-title="Screenshot Screen" { spawn "screenshot" "screen"; }

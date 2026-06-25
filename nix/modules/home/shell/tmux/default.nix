@@ -164,14 +164,17 @@ let
         vis_pane=""
       fi
 
+      anchor=$(tmux list-panes -F '#{pane_id} #{@pane-is-vim}' | awk '$2==1 {print $1; exit}')
+      [ -n "$anchor" ] && anchor_arg="-t $anchor" || anchor_arg=""
+
       # show target
       if [ -n "$target_pane" ] && [ "$was_hidden" -eq 1 ]; then
-        tmux join-pane -v -l $PANE_SIZE -s "$target_pane"
+        tmux join-pane -v -l $PANE_SIZE $anchor_arg -s "$target_pane"
       fi
 
       # brand-new pane
       if [ -z "$target_pane" ]; then
-        target_pane=$(tmux split-window -v -l $PANE_SIZE -P -F '#{pane_id}' -c "#{pane_current_path}")
+        target_pane=$(tmux split-window -v -l $PANE_SIZE $anchor_arg -P -F '#{pane_id}' -c "#{pane_current_path}")
       fi
 
       tmux set -p -t "$target_pane" @__term_slot_$TARGET 1

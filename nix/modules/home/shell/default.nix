@@ -27,6 +27,7 @@ in
     geminiKey = { };
     mammouthKey = { };
     opencodeKey = { };
+    scalewayKey = { };
     hcloudToken = { };
     cloudflareToken = { };
     jiraToken = { };
@@ -42,6 +43,7 @@ in
     GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
     MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
     OPENCODE_API_KEY=${config.sops.placeholder.opencodeKey}
+    SCALEWAY_API_KEY=${config.sops.placeholder.scalewayKey}
     CLOUDFLARE_API_TOKEN=${config.sops.placeholder.cloudflareToken}
     HCLOUD_TOKEN=${config.sops.placeholder.hcloudToken}
     TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}

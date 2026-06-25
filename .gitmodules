@@ -1,3 +1,6 @@
 [submodule "nix/modules/private"]
 	path = nix/modules/private
 	url = https://git.keyruu.de/lucas/privateflakes.git
+[submodule "nix/modules/agents"]
+	path = nix/modules/agents
+	url = ssh://git@git.lab.keyruu.de:222/lucas/agents.git
