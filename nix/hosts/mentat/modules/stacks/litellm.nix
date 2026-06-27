@@ -157,7 +157,7 @@ in
             readOnlyRootFilesystem = false;
           };
           containerConfig = {
-            image = "ghcr.io/berriai/litellm-database:v1.89.3";
+            image = "ghcr.io/berriai/litellm-database:v1.90.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:4000" ];
             exec = "--config=/app/config.yaml --port 4000";
             volumes = [
