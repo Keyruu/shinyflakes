@@ -1,10 +1,10 @@
 { inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "824eb135b0bbf26af269bbcf6500e70008b22eec";
+  rev = "456d1919ef021d2a7dfd579378a09565e77e53af";
 in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "gif-search";
   inherit rev;
-  hash = "sha256-PJnGG/UyNTuzY96uuPljPIX8eHxEhETAvkXzT1cY3vE=";
+  hash = "sha256-EZa/oQ14xvgYkTBTR4nmCkAXYu4OVz7F4Sdfnl6EU/k=";
 }
