@@ -1,12 +1,5 @@
 { pkgs, lib, ... }:
 let
-  tesseract = pkgs.tesseract.override {
-    enableLanguages = [
-      "eng"
-      "deu"
-    ];
-  };
-
   watcher = pkgs.writeShellApplication {
     name = "niri-screenshot-watcher";
     runtimeInputs = with pkgs; [
@@ -34,7 +27,7 @@ let
       libnotify
       niri
       coreutils
-      tesseract
+      llama-cpp
     ];
     text = # bash
       ''
@@ -52,7 +45,13 @@ let
             ;;
           ocr)
             geom=$(slurp -d) || exit 0
-            text=$(grim -g "$geom" - | tesseract -l eng+deu stdin stdout 2>/dev/null)
+            img=$(mktemp --suffix=.png)
+            trap 'rm -f "$img"' EXIT
+            grim -g "$geom" "$img"
+            text=$(llama-mtmd-cli -hf ggml-org/GLM-OCR-GGUF:Q8_0 \
+              --image "$img" -p 'OCR this image. Output only the text.' \
+              -c 4096 --image-max-tokens 1024 \
+              2>/dev/null)
             if [ -z "$text" ]; then
               notify-send "OCR" "No text detected"
               exit 0
