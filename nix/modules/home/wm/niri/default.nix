@@ -13,8 +13,6 @@ let
   windowRulesKdl = import ./window-rules.nix { inherit pkgs lib; };
   bindsKdl = import ./binds.nix { inherit config pkgs lib; };
   altTabKdl = import ./alt-tab.nix { inherit pkgs lib; };
-
-  wallpaper = ../../themes/dark-bg.jpg;
 in
 {
   imports = [
@@ -35,7 +33,6 @@ in
       ''
         xwayland-satellite {}
 
-        spawn-at-startup "${lib.getExe pkgs.swaybg}" "-i" "${wallpaper}" "-m" "fill"
         spawn-at-startup "niriusd"
         spawn-at-startup "systemd-run" "--user" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
         spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"

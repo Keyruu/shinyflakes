@@ -34,7 +34,7 @@
           hyperlinks = true;
           post_processing = true;
           persist = false;
-          regex = "(mailto:|https://|http://|file://)[^\\u0000-\\u001F\\u007F-\\u009F<>\"\\s{-}\\^⟨⟩\`$]+";
+          regex = "(mailto:|https://|http://|file://)[^\\u0000-\\u001F\\u007F-\\u009F<>\"\\s{-}\\^⟨⟩`$]+";
           binding = {
             key = "E";
             mods = "Control|Shift";

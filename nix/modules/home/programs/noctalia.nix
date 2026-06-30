@@ -158,6 +158,7 @@ in
 
       wallpaper = {
         enabled = true;
+        default.path = ../themes/dark-bg.jpg;
       };
 
       notification = {
@@ -191,9 +192,19 @@ in
       };
 
       idle = {
+        behavior_order = [
+          "lock"
+          "screen-off"
+        ];
         behavior = {
-          lock.enabled = false;
-          screen-off.enabled = false;
+          lock = {
+            enabled = true;
+            timeout = 0;
+          };
+          screen-off = {
+            enabled = true;
+            timeout = 0;
+          };
         };
       };
 
