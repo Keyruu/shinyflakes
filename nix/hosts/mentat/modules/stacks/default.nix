@@ -27,6 +27,5 @@
     ./changedetection.nix
     ./litellm.nix
     ./headroom.nix
-    ./zennotes.nix
   ];
 }

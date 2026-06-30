@@ -204,6 +204,7 @@ in
     gotify-desktop
     jira-cli-go
     kdePackages.kdenlive
+    kdePackages.kwave
     tea
 
     # perSystem.self.numr
