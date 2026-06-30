@@ -73,7 +73,7 @@ in
     tmux
     ripgrep
     fd
-    pnpm
+    pnpm_11
     just
     goreleaser
     nixfmt
