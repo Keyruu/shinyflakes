@@ -204,6 +204,7 @@ in
     gotify-desktop
     jira-cli-go
     kdePackages.kdenlive
+    tea
 
     # perSystem.self.numr
     # perSystem.self.glide-browser
@@ -212,6 +213,7 @@ in
     perSystem.self.dictate
     perSystem.self.mdbook-to-epub
     perSystem.self.llms-to-epub
+    perSystem.self.forge-pr
     # perSystem.librepods.default
     perSystem.hister.default
   ];

@@ -36,6 +36,14 @@ nix/
 └── secrets.yaml     # SOPS encrypted secrets
 ```
 
+### New Files Must Be Git-Tracked
+
+Blueprint (and nix flakes generally) only sees files committed or staged in git.
+A new file under `nix/` (e.g. a new package) is **invisible** to
+`nix build`/`nixos-rebuild` until it is added to git — you'll get
+`does not provide attribute 'packages.<system>.<name>'`. Run `git add <file>`
+before building any newly created file.
+
 ### How Blueprint Works
 
 In `flake.nix`:
