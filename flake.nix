@@ -27,8 +27,6 @@
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-small.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable-small";
     nixpkgs-stable.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-25.05";
-    # FIXME: remove once https://github.com/NixOS/nixpkgs/pull/492318 is merged
-    nixpkgs-scanservjs.url = "git+https://github.com/rhoriguchi/nixpkgs?shallow=1&ref=scanservjs";
     # FIXME: remove once cockpit-zfs builds again on nixos-unstable
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
     nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";
