@@ -215,6 +215,5 @@ in
     perSystem.self.llms-to-epub
     perSystem.self.forge-pr
     # perSystem.librepods.default
-    perSystem.hister.default
   ];
 }
