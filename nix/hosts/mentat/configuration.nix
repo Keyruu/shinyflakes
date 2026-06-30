@@ -17,7 +17,7 @@
     flake.modules.nixos.podman
     flake.modules.services.monitoring
     flake.modules.nixos.beszel-agent
-    flake.modules.nixos.syncthing
+    flake.modules.private.syncthing
 
     # Import local modules and services
     ./hardware-configuration.nix

@@ -25,7 +25,7 @@ in
     flake.modules.nixos.wayland
     flake.modules.nixos.laptop
     flake.modules.nixos.hibernation
-    flake.modules.nixos.syncthing
+    flake.modules.private.syncthing
 
     ./hardware-configuration.nix
     ./disk.nix
