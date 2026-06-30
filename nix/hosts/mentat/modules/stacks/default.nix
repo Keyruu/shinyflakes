@@ -25,7 +25,6 @@
     ./calibre-web.nix
     ./paperless.nix
     ./changedetection.nix
-    ./hister.nix
     ./litellm.nix
     ./headroom.nix
   ];

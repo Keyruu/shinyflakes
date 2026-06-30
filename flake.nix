@@ -144,11 +144,6 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    hister = {
-      url = "github:asciimoo/hister";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     glide = {
       url = "github:glide-browser/glide.nix";
       # optionally: follow your flake's inputs
