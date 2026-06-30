@@ -330,15 +330,15 @@ in
         bind -N "last-session (via sesh)" L run-shell "sesh last"
 
         # smart-splits.nvim: C-h/j/k/l navigates nvim splits and tmux panes
-        bind-key -n C-h if-shell -F '#{@pane-is-vim}' 'send-keys C-h' 'select-pane -L'
-        bind-key -n C-j if-shell -F '#{@pane-is-vim}' 'send-keys C-j' 'select-pane -D'
-        bind-key -n C-k if-shell -F '#{@pane-is-vim}' 'send-keys C-k' 'select-pane -U'
-        bind-key -n C-l if-shell -F '#{@pane-is-vim}' 'send-keys C-l' 'select-pane -R'
+        bind-key -n C-h if-shell -F '#{@pane-is-vim}' 'send-keys C-h' 'if -F "#{pane_at_left}"   "" "select-pane -L"'
+        bind-key -n C-j if-shell -F '#{@pane-is-vim}' 'send-keys C-j' 'if -F "#{pane_at_bottom}" "" "select-pane -D"'
+        bind-key -n C-k if-shell -F '#{@pane-is-vim}' 'send-keys C-k' 'if -F "#{pane_at_top}"    "" "select-pane -U"'
+        bind-key -n C-l if-shell -F '#{@pane-is-vim}' 'send-keys C-l' 'if -F "#{pane_at_right}"  "" "select-pane -R"'
         # In copy-mode, plain tmux navigation (no nvim forwarding needed)
-        bind-key -T copy-mode-vi C-h select-pane -L
-        bind-key -T copy-mode-vi C-j select-pane -D
-        bind-key -T copy-mode-vi C-k select-pane -U
-        bind-key -T copy-mode-vi C-l select-pane -R
+        bind-key -T copy-mode-vi C-h if -F "#{pane_at_left}"   "" "select-pane -L"
+        bind-key -T copy-mode-vi C-j if -F "#{pane_at_bottom}" "" "select-pane -D"
+        bind-key -T copy-mode-vi C-k if -F "#{pane_at_top}"    "" "select-pane -U"
+        bind-key -T copy-mode-vi C-l if -F "#{pane_at_right}"  "" "select-pane -R"
 
         bind -r '<' swap-window -t -1\; previous-window
         bind -r '>' swap-window -t +1\; next-window

@@ -6,6 +6,19 @@
 }:
 {
   programs.nvf.settings.vim = {
+    diagnostics = {
+      enable = true;
+      config = {
+        severity_sort = true;
+        underline = true;
+        signs = true;
+        virtual_text = {
+          source = "if_many";
+          spacing = 2;
+        };
+      };
+    };
+
     lsp = {
       enable = true;
       formatOnSave = true;

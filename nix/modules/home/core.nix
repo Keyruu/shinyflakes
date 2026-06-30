@@ -117,6 +117,7 @@ in
     libreoffice-qt6-fresh
     brave
     blender
+    inkscape
 
     # cli apps
     glow # render markdown on the cli
@@ -209,6 +210,8 @@ in
     perSystem.self.wg-peer
     perSystem.self.mesh-expose
     perSystem.self.dictate
+    perSystem.self.mdbook-to-epub
+    perSystem.self.llms-to-epub
     # perSystem.librepods.default
     perSystem.hister.default
   ];
