@@ -96,7 +96,7 @@ in
           text = "$FPRINTPROMPT";
           color = "rgba(216, 222, 233, 0.80)";
           font_size = 14;
-          font_family = "Cantarell";
+          font_family = "DejaVu Sans";
           position = "0, -350";
           halign = "center";
           valign = "center";
@@ -115,7 +115,7 @@ in
           inner_color = "rgba(255, 255, 255, 0.1)";
           font_color = "rgb(200, 200, 200)";
           fade_on_empty = false;
-          font_family = "Cantarell";
+          font_family = "DejaVu Sans";
           placeholder_text = ''<span foreground="##ffffff99">Enter Pass</span>'';
           hide_input = false;
           position = "0, -290";

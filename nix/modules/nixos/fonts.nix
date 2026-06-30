@@ -11,7 +11,7 @@
           "Sarasa Gothic"
         ];
         sansSerif = [
-          "Cantarell"
+          "DejaVu Sans"
           "Sarasa Gothic"
         ];
       };
@@ -27,7 +27,6 @@
     packages = with pkgs; [
       maple-mono.NormalNL-NF
       nerd-fonts.jetbrains-mono
-      cantarell-fonts
       twitter-color-emoji
       sarasa-gothic
       corefonts
