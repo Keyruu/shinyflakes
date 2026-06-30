@@ -21,6 +21,5 @@
     ./renovate.nix
     ./nix-serve.nix
     ./print.nix
-    ./scan.nix
   ];
 }
