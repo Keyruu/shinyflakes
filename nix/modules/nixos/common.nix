@@ -80,6 +80,12 @@
   sops.defaultSopsFile = ../../secrets.yaml;
 
   nixpkgs.config.allowUnfree = true;
+  # build-time pnpm deps flagged insecure in nixpkgs (vue-language-server, vesktop, ...)
+  # FIXME: drop once https://github.com/NixOS/nixpkgs/issues/536623 lands in our pin
+  nixpkgs.config.permittedInsecurePackages = [
+    "pnpm-10.34.0"
+    "pnpm-10.29.2"
+  ];
 
   # revision of the flake the configuration was built from.
   # $ nixos-version --configuration-revision
