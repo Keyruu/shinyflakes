@@ -145,8 +145,9 @@ in
         {
           path = "db-data";
           mode = "0700";
-          owner = "999";
-          group = "999";
+          # alpine postgres runs as uid/gid 70, not debian's 999
+          owner = "70";
+          group = "70";
         }
       ];
       network.enable = true;
@@ -182,7 +183,6 @@ in
             addCapabilities = [
               "CHOWN"
               "FOWNER"
-              "DAC_OVERRIDE"
               "SETUID"
               "SETGID"
             ];
