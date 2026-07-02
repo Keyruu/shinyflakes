@@ -183,6 +183,7 @@ in
             addCapabilities = [
               "CHOWN"
               "FOWNER"
+              "DAC_OVERRIDE"
               "SETUID"
               "SETGID"
             ];
