@@ -141,18 +141,12 @@ in
         sysmon = {
           type = "sysmon";
         };
-        battery = {
-          warning_threshold = 30;
-        };
         clock = {
           format = "{:%d.%m. %H:%M}";
           vertical_format = "{:%H\\n%M}";
         };
         network = {
           show_label = false;
-        };
-        notifications = {
-          show_unread_badge = true;
         };
       };
 
@@ -199,11 +193,11 @@ in
         behavior = {
           lock = {
             enabled = true;
-            timeout = 0;
+            timeout = 600;
           };
           screen-off = {
             enabled = true;
-            timeout = 0;
+            timeout = 660;
           };
         };
       };
