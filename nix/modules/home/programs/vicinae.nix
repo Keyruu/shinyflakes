@@ -140,7 +140,7 @@
     extensions =
       (with perSystem.vicinae-extensions; [
         agenda
-        bluetooth
+        # bluetooth
         nix
         # systemd
         wifi-commander
