@@ -1698,16 +1698,16 @@
         "vicinae": "vicinae_2"
       },
       "locked": {
-        "lastModified": 1782955864,
-        "narHash": "sha256-hs4BEacL0oA3EJMjnE4bcdKd+W1fEpYEL8QAsREqr8k=",
-        "owner": "vicinaehq",
-        "repo": "extensions",
-        "rev": "219654252bb40bb5cd3ac50f8d826809edf5b29f",
+        "lastModified": 1782988066,
+        "narHash": "sha256-oLwwtzVkJCjmICl81qedvpVx48pnIKQRT8Vg4ESE8Uc=",
+        "owner": "Keyruu",
+        "repo": "vicinae-extensions",
+        "rev": "e17239c9cbef19eb034a8ac45e975e1ceb20dcdc",
         "type": "github"
       },
       "original": {
-        "owner": "vicinaehq",
-        "repo": "extensions",
+        "owner": "Keyruu",
+        "repo": "vicinae-extensions",
         "type": "github"
       }
     },
