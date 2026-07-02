@@ -31,7 +31,7 @@ in
       containers = {
         server = {
           containerConfig = {
-            image = "ghcr.io/immich-app/immich-server:v2.7.5";
+            image = "ghcr.io/immich-app/immich-server:v3.0.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:2283" ];
             volumes = [
               "/etc/localtime:/etc/localtime:ro"
