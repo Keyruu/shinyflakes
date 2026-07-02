@@ -27,5 +27,6 @@
     ./changedetection.nix
     ./litellm.nix
     ./headroom.nix
+    ./actualbudget.nix
   ];
 }
