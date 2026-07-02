@@ -35,6 +35,7 @@ let
           "qwen/qwen3.5-35b-a3b"
           "qwen/qwen3.5-27b"
           "google/gemma-4-31b-it"
+          "z-ai/glm-5.2"
         ];
       };
     };
