@@ -37,6 +37,8 @@ in
   };
 
   networking = {
+    nftables.enable = true;
+
     hosts."100.67.0.2" = [
       "cache.keyruu.de"
       "git.lab.keyruu.de"
