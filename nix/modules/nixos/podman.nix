@@ -4,6 +4,8 @@
     pkgs.docker-compose
   ];
 
+  virtualisation.containers.containersConf.settings.network.firewall_driver = "iptables";
+
   virtualisation.podman = {
     enable = true;
     autoPrune = {
