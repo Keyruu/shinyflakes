@@ -36,10 +36,24 @@ in
       "rest:http://lucas:${config.sops.placeholder.resticServerPassword}@${mesh.people.lucas.devices.mentat.ip}:8004/restic";
   };
 
-  networking.hosts."100.67.0.2" = [
-    "cache.keyruu.de"
-    "git.lab.keyruu.de"
-  ];
+  networking = {
+    hosts."100.67.0.2" = [
+      "cache.keyruu.de"
+      "git.lab.keyruu.de"
+    ];
+
+    interfaces.eth0.ipv6.addresses = [
+      {
+        address = "2a01:4f8:1c1c:f355::1";
+        prefixLength = 64;
+      }
+    ];
+    defaultGateway6 = {
+      address = "fe80::1";
+      interface = "eth0";
+    };
+  };
+
   services = {
     mesh.server.enable = true;
     monitoring = {
