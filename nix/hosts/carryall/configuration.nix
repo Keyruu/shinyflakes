@@ -51,6 +51,7 @@ in
   };
   networking = {
     hostName = lib.mkForce "PCL2025101301";
+    nftables.enable = true;
     firewall.allowedTCPPorts = [ 57621 ];
     firewall.allowedUDPPorts = [ 5353 ];
   };

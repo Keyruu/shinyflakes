@@ -303,10 +303,6 @@ in
           }
         ) enabledStacks
       );
-
-      networking.firewall.trustedInterfaces = lib.concatMap (
-        svc: lib.optional (svc.stack.enable && svc.stack.network.enable) svc.stack.network.name
-      ) (lib.attrValues enabledStacks);
     }
 
     {
@@ -414,11 +410,9 @@ in
               containerCount = builtins.length (lib.attrNames stackCfg.containers);
             in
             lib.optionals (stackCfg.enable && svc.zfs) (
-              lib.mapAttrsToList (
-                shortName: _: {
-                  ${prefixName stackName containerCount shortName}.wantedBy = [ "zfs-encrypted.target" ];
-                }
-              ) stackCfg.containers
+              lib.mapAttrsToList (shortName: _: {
+                ${prefixName stackName containerCount shortName}.wantedBy = [ "zfs-encrypted.target" ];
+              }) stackCfg.containers
             )
           ) enabledStacks
         )

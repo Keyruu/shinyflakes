@@ -21,22 +21,17 @@ let
     device:
     let
       cidrs = resolveNetworks device.canAccess;
+      acceptLines = lib.concatMapStrings (cidr: ''
+        ip saddr ${device.ip} ip daddr ${cidr} accept comment "${device.name} -> ${cidr}"
+      '') cidrs;
+      dropLine = ''
+        ip saddr ${device.ip} ip daddr ${lanSubnet} drop comment "${device.name}: block LAN"
+      '';
     in
     if cidrs == [ ] then
-      ''
-        # ${device.name}: vpn only
-        iptables -A wireguard-forward -s ${device.ip} -d ${lanSubnet} -j DROP
-      ''
+      dropLine
     else
-      ''
-        # ${device.name}: ${toString device.canAccess}
-      ''
-      + lib.concatMapStrings (cidr: ''
-        iptables -A wireguard-forward -s ${device.ip} -d ${cidr} -j ACCEPT
-      '') cidrs
-      + ''
-        iptables -A wireguard-forward -s ${device.ip} -d ${lanSubnet} -j DROP
-      '';
+      acceptLines + dropLine;
 
   allRules = lib.concatMapStrings deviceRules allDevices;
 in
@@ -73,25 +68,16 @@ in
           persistentKeepalive = 25;
         }
       ];
-
-      postUp = ''
-        iptables -D FORWARD -j wireguard-forward 2>/dev/null || true
-        iptables -F wireguard-forward 2>/dev/null || true
-        iptables -X wireguard-forward 2>/dev/null || true
-
-        iptables -N wireguard-forward
-        iptables -I FORWARD -j wireguard-forward
-
-        ${allRules}
-
-        iptables -A wireguard-forward -m state --state ESTABLISHED,RELATED -j ACCEPT
-      '';
-
-      postDown = ''
-        iptables -D FORWARD -j wireguard-forward 2>/dev/null || true
-        iptables -F wireguard-forward 2>/dev/null || true
-        iptables -X wireguard-forward 2>/dev/null || true
-      '';
     };
+  };
+
+  networking.nftables.tables.wireguard-forward = {
+    family = "ip";
+    content = ''
+      chain forward {
+        type filter hook forward priority filter; policy accept;
+        ${allRules}
+      }
+    '';
   };
 }

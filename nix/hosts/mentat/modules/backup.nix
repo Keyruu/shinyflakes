@@ -83,5 +83,7 @@
     };
   };
 
-  networking.firewall.extraCommands = "iptables -A INPUT -p tcp -s 100.67.0.1 --dport ${config.services.restic.server.listenAddress} -j ACCEPT";
+  networking.firewall.extraInputRules = ''
+    ip saddr 100.67.0.1 tcp dport ${config.services.restic.server.listenAddress} accept
+  '';
 }

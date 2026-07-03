@@ -41,6 +41,8 @@
 
   boot.kernelPackages = pkgs.linuxPackages_6_18;
 
+  networking.nftables.enable = true;
+
   services.resolved.enable = false;
   # services.deploy-webhook = {
   #   enable = true;

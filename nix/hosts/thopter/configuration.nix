@@ -31,6 +31,8 @@ in
 
   user.name = "lucas";
 
+  networking.nftables.enable = true;
+
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";

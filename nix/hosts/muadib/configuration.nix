@@ -49,6 +49,7 @@ in
       keyName = "muadibMeshKey";
     };
   };
+  networking.nftables.enable = true;
   networking.firewall.interfaces = {
     "${mesh.interface}" = {
       allowedUDPPortRanges = [
