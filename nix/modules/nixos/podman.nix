@@ -4,7 +4,7 @@
     pkgs.docker-compose
   ];
 
-  virtualisation.containers.containersConf.settings.network.firewall_driver = "iptables";
+  networking.firewall.trustedInterfaces = [ "podman+" ];
 
   virtualisation.podman = {
     enable = true;
