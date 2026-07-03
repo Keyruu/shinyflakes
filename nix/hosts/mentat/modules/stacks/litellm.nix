@@ -1,6 +1,7 @@
 {
   config,
   flake,
+  lib,
   pkgs,
   ...
 }:
@@ -47,6 +48,20 @@ let
           "qwen/qwen3.6-27b"
         ];
       };
+      # Alibaba Cloud DashScope OpenAI-compatible mode. litellm uses the
+      # `openai` provider prefix with a custom api_base for this endpoint.
+      alibaba = {
+        key = "os.environ/ALIBABA_API_KEY_PRIVATE";
+        prefix = "openai";
+        apiBase = "https://ws-ib38hadnx22mxl9c.eu-central-1.maas.aliyuncs.com/compatible-mode/v1";
+        models = [
+          "qwen3.7-plus"
+          "qwen3.7-max"
+          "qwen3.6-plus"
+          "qwen3.6-flash"
+          "qwen3.6-open-source"
+        ];
+      };
     };
   };
 
@@ -66,8 +81,10 @@ let
         map (modelId: {
           model_name = "${scopeName}/${modelId}";
           litellm_params = {
-            model = "${provName}/${modelId}";
+            model = "${provider.prefix or provName}/${modelId}";
             api_key = provider.key;
+          } // lib.optionalAttrs (provider ? apiBase) {
+            api_base = provider.apiBase;
           };
         }) provider.models
       ) (builtins.attrNames scope)
@@ -105,6 +122,7 @@ in
       anthropicKey = { };
       openrouterKey = { };
       openrouterKeyPrivate = { };
+      alibabaKey = { };
     };
 
     templates."litellm.env" = {
@@ -117,6 +135,7 @@ in
         ANTHROPIC_API_KEY_WORK=${config.sops.placeholder.anthropicKey}
         OPENROUTER_API_KEY_WORK=${config.sops.placeholder.openrouterKey}
         OPENROUTER_API_KEY_PRIVATE=${config.sops.placeholder.openrouterKeyPrivate}
+        ALIBABA_API_KEY_PRIVATE=${config.sops.placeholder.alibabaKey}
       '';
     };
 
