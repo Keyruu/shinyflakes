@@ -303,6 +303,10 @@ in
           }
         ) enabledStacks
       );
+
+      networking.firewall.trustedInterfaces = lib.concatMap (
+        svc: lib.optional (svc.stack.enable && svc.stack.network.enable) svc.stack.network.name
+      ) (lib.attrValues enabledStacks);
     }
 
     {
