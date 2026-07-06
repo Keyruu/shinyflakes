@@ -11,7 +11,6 @@
     ./lsp.nix
     ./plugins.nix
     ./keymaps.nix
-    ./scrollback.nix
   ];
 
   home.packages = with pkgs; [

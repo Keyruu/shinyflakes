@@ -130,6 +130,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-wrapper-modules = {
+      url = "github:BirdeeHub/nix-wrapper-modules";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
 
     noctalia = {

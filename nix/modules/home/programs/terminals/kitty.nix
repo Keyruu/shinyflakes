@@ -1,4 +1,9 @@
-{ config, ... }:
+{
+  config,
+  lib,
+  perSystem,
+  ...
+}:
 {
   programs.kitty = {
     enable = true;
@@ -19,6 +24,7 @@
       font_family = config.user.font;
       font_size = "13";
       scrollback_lines = "10000";
+      scrollback_pager = lib.getExe perSystem.self.nvim-scrollback;
     };
 
     keybindings = {

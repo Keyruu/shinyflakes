@@ -1,34 +1,15 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, perSystem, ... }:
 let
   fish = lib.getExe pkgs.fish;
   t = config.user.theme;
   navPlugin = "file:" + toString pkgs.zellijPlugins.vim-zellij-navigator;
-
-  # Minimal standalone nvim for EditScrollback: loads baleia.nvim to turn the
-  # raw ANSI escape codes (dumped with ansi=true) into real highlights, then
-  # hides the codes. Read-only, no plugins beyond baleia, separate config so
-  # the user's main nvim setup is untouched.
-  scrollbackInit = pkgs.writeText "zellij-scrollback-init.lua" ''
-    vim.opt.runtimepath:append("${pkgs.vimPlugins.baleia-nvim}")
-    vim.opt.number = false
-    vim.opt.swapfile = false
-    local baleia = require("baleia").setup({})
-    vim.api.nvim_create_autocmd("BufReadPost", {
-      callback = function(args)
-        baleia.once(args.buf)
-        vim.bo[args.buf].modifiable = false
-      end,
-    })
-  '';
-  # --clean skips all user/site config dirs; unsetting VIMINIT and
-  # NVIM_APPNAME strips the nvf wrapper's injected config, so only our
-  # baleia init loads.
-  scrollbackEditor = pkgs.writeShellScript "zellij-scrollback-editor" ''
-    unset VIMINIT NVIM_APPNAME
-    exec ${lib.getExe pkgs.neovim} --clean -u ${scrollbackInit} "$@"
-  '';
 in
 {
+  # Standalone scrollback viewer built via nix-wrapper-modules
+  # (nix/packages/nvim-scrollback). Installed on PATH so zellij's
+  # scrollback_editor can call it by absolute path.
+  home.packages = [ perSystem.self.nvim-scrollback ];
+
   programs.zellij = {
     enable = true;
     extraConfig = # kdl
@@ -161,7 +142,7 @@ in
 
         config {
           default_shell "${fish}"
-          scrollback_editor "${scrollbackEditor}"
+          scrollback_editor "${lib.getExe perSystem.self.nvim-scrollback}"
         }
 
         // Built-in tmux mode mirrors the tmux prefix workflow: c/z/x/d/n/p/,

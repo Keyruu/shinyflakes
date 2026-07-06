@@ -1,5 +1,7 @@
 {
   config,
+  lib,
+  perSystem,
   ...
 }:
 let
@@ -87,7 +89,7 @@ in
     ga = "git add";
     gc = "git clone";
     ztab = "zellij action new-tab";
-    vi = "nvim";
+    vi = lib.getExe perSystem.self.nvim;
     ".." = "cd ..";
     "..." = "cd ../..";
     deploy-mentat = "nixos-rebuild --flake ~/shinyflakes?submodules=1#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";

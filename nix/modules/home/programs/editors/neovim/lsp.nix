@@ -136,6 +136,10 @@
       enableExtraDiagnostics = true;
       enableDAP = true;
 
+      lua = {
+        lsp.lazydev.enable = true;
+        enable = true;
+      };
       astro.enable = true;
       java.enable = true;
       kotlin.enable = true;

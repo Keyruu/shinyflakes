@@ -90,7 +90,6 @@ let
   };
 in
 {
-
   environment.etc."stacks/litellm/config.yaml".source =
     yamlFormat.generate "litellm-config.yaml" litellmConfig;
 

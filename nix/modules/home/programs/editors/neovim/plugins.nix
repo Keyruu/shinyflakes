@@ -202,13 +202,6 @@
             vim.cmd.colorscheme('kanagawa')
           '';
       };
-      codediff-nvim = {
-        package = codediff-nvim;
-        setup = # lua
-          ''
-            require('codediff').setup({})
-          '';
-      };
       grug-far-nvim = {
         package = grug-far-nvim;
         setup = # lua

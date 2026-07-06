@@ -1,6 +1,6 @@
 {
   imports = [
-    ./neovim
+    # ./neovim
     ./vscode
     ./zed
   ];

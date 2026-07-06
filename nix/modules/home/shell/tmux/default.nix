@@ -141,7 +141,7 @@ let
       fi
       if [ -z "$target_pane" ]; then
         # find hidden bg window by name, then its pane
-        bg_win=$(tmux list-windows -a -F '#{window_id} #{window_name}' | awk -v nm="[term-$TARGET]" '$2==nm {print $1}')
+        bg_win=$(tmux list-windows -F '#{window_id} #{window_name}' | awk -v nm="[term-$TARGET]" '$2==nm {print $1}')
         if [ -n "$bg_win" ]; then
           target_pane=$(tmux list-panes -t "$bg_win" -F '#{pane_id}')
           was_hidden=1
