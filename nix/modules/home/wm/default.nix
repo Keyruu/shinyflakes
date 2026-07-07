@@ -14,6 +14,7 @@
   services.polkit-gnome.enable = true;
 
   home.packages = with pkgs; [
+    wl-kbptr
     wl-clipboard
     brightnessctl
     grim

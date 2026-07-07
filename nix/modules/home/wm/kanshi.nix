@@ -58,7 +58,6 @@
             (moveWorkspace "browse" mainMonitor 1)
             (moveWorkspace "work" mainMonitor 2)
             (moveWorkspace "social" secondaryMonitor 1)
-            (moveWorkspace "media" secondaryMonitor 2)
           ];
 
         moveAllWorkspacesToOne =
@@ -67,7 +66,6 @@
             (moveWorkspace "browse" monitor 1)
             (moveWorkspace "work" monitor 2)
             (moveWorkspace "social" monitor 3)
-            (moveWorkspace "media" monitor 4)
           ];
 
         homeMonitor = "Huawei Technologies Co., Inc. XWU-CBA 0x00000001";

@@ -1,13 +1,14 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
+  perSystem,
   ...
 }:
+let
+  niri = perSystem.niri.niri-unstable;
+in
 {
-  nixpkgs.overlays = [ inputs.niri.overlays.niri ];
-
   security.pam.services = {
     hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
   };
@@ -49,7 +50,7 @@
         settings = {
           terminal.vt = 1;
           initial_session = {
-            command = "${pkgs.niri-unstable}/bin/niri-session";
+            command = "${niri}/bin/niri-session";
             user = "${config.user.name}";
           };
           default_session = {
@@ -60,10 +61,16 @@
       };
 
     displayManager = {
-      sessionPackages = with pkgs; [
-        niri-unstable
+      sessionPackages = [
+        niri
       ];
     };
+  };
+
+  programs.niri = {
+    enable = true;
+    package = niri;
+    useNautilus = true;
   };
 
   environment = {
@@ -85,20 +92,16 @@
       GTK_USE_PORTAL = "1";
       DIRENV_LOG_FORMAT = "";
     };
-    systemPackages = [ pkgs.nautilus ];
+    systemPackages = [
+      pkgs.nautilus
+    ];
   };
 
   xdg.portal = {
     enable = true;
     wlr.enable = false;
     config = {
-      common.default = [
-        "gnome"
-      ];
       niri = {
-        default = [
-          "gnome"
-        ];
         "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
         "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
         "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];

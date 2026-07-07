@@ -83,8 +83,8 @@
       }
       {
         key = "g";
-        label = "Lazygit popup";
-        command = "lazygit-toggle";
+        label = "Lazygit";
+        command = "select-window -t git";
         hint = "g";
         bind = [
           "g"

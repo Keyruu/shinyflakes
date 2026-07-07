@@ -1,19 +1,9 @@
 {
-  config,
   inputs,
   pkgs,
-  lib,
+  perSystem,
   ...
 }:
-let
-  inputKdl = import ./input.nix { inherit pkgs lib; };
-  outputsKdl = import ./outputs.nix { inherit pkgs lib; };
-  layoutKdl = import ./layout.nix { inherit pkgs lib; };
-  workspacesKdl = import ./workspaces.nix { inherit pkgs lib; };
-  windowRulesKdl = import ./window-rules.nix { inherit pkgs lib; };
-  bindsKdl = import ./binds.nix { inherit config pkgs lib; };
-  altTabKdl = import ./alt-tab.nix { inherit pkgs lib; };
-in
 {
   imports = [
     inputs.niri.homeModules.niri
@@ -27,15 +17,14 @@ in
 
   programs.niri = {
     enable = true;
-    package = pkgs.niri-unstable;
+    package = perSystem.niri.niri-unstable;
 
     config = # kdl
       ''
         xwayland-satellite {}
 
         spawn-at-startup "niriusd"
-        spawn-at-startup "systemd-run" "--user" "--unit=noctalia-shell" "--collect" "--" "noctalia-shell"
-        spawn-at-startup "${lib.getExe pkgs.iio-niri}" "--monitor" "eDP-1"
+        spawn-at-startup "iio-niri" "--monitor" "eDP-1"
         spawn-at-startup "clipse" "-listen"
         spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
         spawn-at-startup "distrobox" "enter" "mdm" "--" "exit"
@@ -56,13 +45,16 @@ in
             honor-xdg-activation-with-invalid-serial
         }
 
-        ${inputKdl}
-        ${outputsKdl}
-        ${layoutKdl}
-        ${workspacesKdl}
-        ${windowRulesKdl}
-        ${bindsKdl}
-        ${altTabKdl}
+        workspace "browse"
+        workspace "work"
+        workspace "social"
+
+        include "${./input.kdl}"
+        include "${./outputs.kdl}"
+        include "${./layout.kdl}"
+        include "${./window-rules.kdl}"
+        include "${./binds.kdl}"
+        include "${./alt-tab.kdl}"
       '';
   };
 }

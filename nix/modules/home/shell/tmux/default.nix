@@ -199,16 +199,6 @@ let
     ++ map (n: "bind -T termdock ${toString n} run-shell '${showTerm} ${toString n}'") (lib.range 1 9)
   );
 
-  lazygitToggle = mkToggle {
-    name = "lazygit";
-    tag = "is_lazygit";
-    windowName = "[lazygit]";
-    split = "-h";
-    size = "100%";
-    cmd = "lazygit";
-    full = true;
-  };
-
   seshPicker = pkgs.writeShellScript "tmux-sesh-picker" ''
     sel=$(sesh list --icons | fzf-tmux -p 80%,70% \
       --no-sort --ansi \
@@ -226,6 +216,8 @@ let
     tmux select-pane -L
     tmux term-toggle
     tmux select-pane -U
+    tmux new-window -n git -c "#{pane_current_path}" lazygit
+    tmux select-window -t edit
   '';
 
   menu = import ./menu.nix {
@@ -370,7 +362,6 @@ in
 
         set -s command-alias[100] pi-toggle='run-shell ${piToggle}'
         set -s command-alias[101] term-toggle='run-shell "${showTerm} 1"'
-        set -s command-alias[102] lazygit-toggle='run-shell ${lazygitToggle}'
 
         ${bindLines}
 
@@ -413,6 +404,7 @@ in
     plugins = with pkgs.tmuxPlugins; [
       sensible
       extrakto
+      tmux-floax
     ];
   };
 }
