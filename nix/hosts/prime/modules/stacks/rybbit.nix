@@ -123,7 +123,7 @@ in
 
         client = {
           containerConfig = {
-            image = "ghcr.io/rybbit-io/rybbit-client:v2.6.1";
+            image = "ghcr.io/rybbit-io/rybbit-client:v2.7.0";
             publishPorts = [ "127.0.0.1:3002:3002" ];
             environments = {
               NODE_ENV = "production";
