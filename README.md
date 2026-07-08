@@ -5,8 +5,6 @@
 My personal NixOS setup. Everything from servers to desktops to laptops, all
 defined in one git repo. Because if it's not in git, did it even happen?
 
-test change
-
 ## Why NixOS?
 
 I use NixOS to manage my homelab and it's been pretty awesome having my whole
@@ -312,9 +310,16 @@ ping nixos.org
 ##### 3. Copy the flake
 
 ```bash
-git clone https://github.com/Keyruu/shinyflakes.git
+# --recurse-submodules pulls in private modules the flake depends on;
+# without them every nix command fails with missing attribute errors
+git clone --recurse-submodules https://github.com/Keyruu/shinyflakes.git
 cd shinyflakes
 ```
+
+**Note:** This flake uses git submodules. Every `nix` command needs
+`?submodules=1` in the flake ref, or evaluation fails (e.g.
+`attribute 'link-bypass' missing`). This applies to `nixos-install`,
+`nixos-rebuild`, `nix eval`, `nix build`, etc.
 
 ##### 4. Identify Your Disk
 
@@ -370,7 +375,7 @@ ls -la /mnt/etc/nixos/
 ##### 8. Install NixOS
 
 ```bash
-sudo nixos-install --flake /mnt/etc/nixos#hostname
+sudo nixos-install --flake '/mnt/etc/nixos?submodules=1#hostname'
 ```
 
 ##### 9. Set User Password
@@ -486,13 +491,13 @@ Once you have a host installed, deploying changes is straightforward:
 
 ```bash
 # Deploy to a host
-sudo nixos-rebuild switch --flake .#hostname
+sudo nixos-rebuild switch --flake '.?submodules=1#hostname'
 
 # Test build without switching
-nixos-rebuild build --flake .#hostname
+nixos-rebuild build --flake '.?submodules=1#hostname'
 
 # Test without making it permanent (reverts on reboot)
-sudo nixos-rebuild test --flake .#hostname
+sudo nixos-rebuild test --flake '.?submodules=1#hostname'
 ```
 
 **Prerequisites for managing the config:**
