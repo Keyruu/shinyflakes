@@ -3,7 +3,7 @@ binds {
     XF86AudioLowerVolume hotkey-overlay-title=null { spawn "pamixer" "-d" "5"; }
     XF86AudioMute hotkey-overlay-title=null { spawn "pamixer" "-t"; }
     XF86AudioPlay hotkey-overlay-title=null { spawn "playerctl" "play-pause"; }
-    XF86AudioPause hotkey-overlay-title=null { spawn "playerctl" "pause"; }
+    XF86AudioPause hotkey-overlay-title=null { spawn "playerctl" "play-pause"; }
     XF86AudioStop hotkey-overlay-title=null { spawn "playerctl" "stop"; }
     XF86AudioNext hotkey-overlay-title=null { spawn "playerctl" "next"; }
     XF86AudioPrev hotkey-overlay-title=null { spawn "playerctl" "previous"; }

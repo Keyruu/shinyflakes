@@ -66,19 +66,18 @@
       allDevices = lib.concatLists (
         lib.mapAttrsToList (
           personName: person:
-          lib.mapAttrsToList (
-            deviceName: device: {
-              inherit (device) ip;
-              label = "${personName}.${deviceName}";
-            }
-          ) person.devices
+          lib.mapAttrsToList (deviceName: device: {
+            inherit (device) ip;
+            label = "${personName}.${deviceName}";
+          }) person.devices
         ) config.services.mesh.people
       );
 
       allIPs = map (d: d.ip) allDevices;
 
       # Validate IP format: must be a valid IPv4 address without subnet mask
-      isValidIPv4 = ip:
+      isValidIPv4 =
+        ip:
         let
           hasSlash = builtins.match ".*/.+" ip != null;
           parts = builtins.match "([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)" ip;
@@ -88,9 +87,7 @@
         !hasSlash && parts != null && octetsValid;
 
       invalidDevices = builtins.filter (d: !(isValidIPv4 d.ip)) allDevices;
-      formatInvalid = lib.concatStringsSep "\n" (
-        map (d: "  ${d.label}: ${d.ip}") invalidDevices
-      );
+      formatInvalid = lib.concatStringsSep "\n" (map (d: "  ${d.label}: ${d.ip}") invalidDevices);
     in
     {
       assertions = [
@@ -162,6 +159,10 @@
               carryall = {
                 ip = "100.67.0.8";
                 publicKey = "7Qn12iKEGxRNIEAOkoKQ2FUXKzvWWEP6ORJ3IHJ/sBI=";
+              };
+              lighter = {
+                ip = "100.67.0.11";
+                publicKey = "XljZyy4r96qP/8WHwzjruGqX/RShWDXkT431ppT9cQw=";
               };
             };
           };
