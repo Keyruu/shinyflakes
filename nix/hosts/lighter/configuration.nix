@@ -15,8 +15,8 @@ in
     inputs.sops-nix.nixosModules.sops
     inputs.disko.nixosModules.disko
 
-    inputs.lanzaboote.nixosModules.lanzaboote
-    flake.modules.nixos.secure-boot
+    # inputs.lanzaboote.nixosModules.lanzaboote
+    # flake.modules.nixos.secure-boot
 
     flake.modules.nixos.core
     flake.modules.nixos.workstation
@@ -54,10 +54,10 @@ in
 
     printing.enable = true;
 
-    fprintd = {
-      enable = true;
-      tod.enable = true;
-    };
+    # fprintd = {
+    #   enable = true;
+    #   tod.enable = true;
+    # };
 
     blueman.enable = true;
     libinput.enable = true;
