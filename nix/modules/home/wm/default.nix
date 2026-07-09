@@ -4,7 +4,7 @@
     ./niri
     ./kanshi.nix
     ./lock.nix
-    # ./idle.nix
+    ./idle.nix
     ./gtk.nix
     ./kbptr.nix
     ./which-key.nix

@@ -1,6 +1,3 @@
-# Main editor, migrating off nvf to nix-wrapper-modules.
-# Built alongside nvf during migration — run via the store path to test; do
-# NOT add to home.packages until parity, then flip programs.nvf.enable off.
 {
   inputs,
   pkgs,

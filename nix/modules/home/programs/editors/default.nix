@@ -1,6 +1,6 @@
 {
+  # check nix/packages hx and nvim
   imports = [
-    # ./neovim
     ./vscode
     ./zed
   ];

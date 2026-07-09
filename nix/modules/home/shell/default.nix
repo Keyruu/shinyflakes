@@ -38,6 +38,7 @@ in
     hassKey = { };
     openrouterKey = { };
     litellmMasterKey = { };
+    zaiKey = { };
   };
   sops.templates."shell.env".content = ''
     OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
@@ -57,6 +58,7 @@ in
     OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
     LITELLM_BASE_URL=https://litellm.lab.keyruu.de
     LITELLM_API_KEY=${config.sops.placeholder.litellmMasterKey}
+    ZAI_API_KEY=${config.sops.placeholder.zaiKey}
   '';
 
   home.sessionVariables = {

@@ -4,7 +4,7 @@
     pointerCursor = {
       package = pkgs.phinger-cursors;
       name = "phinger-cursors-light";
-      size = 24;
+      # size = 24;
       gtk.enable = true;
     };
     packages = with pkgs; [

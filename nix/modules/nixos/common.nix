@@ -1,6 +1,7 @@
 {
   flake,
   pkgs,
+  perSystem,
   lib,
   inputs,
   config,
@@ -169,7 +170,7 @@
 
     variables = {
       DO_NOT_TRACK = 1;
-      EDITOR = "nvim";
+      EDITOR = lib.getExe perSystem.self.nvim;
     };
   };
 }

@@ -53,12 +53,6 @@ in
     };
 
     printing.enable = true;
-
-    # fprintd = {
-    #   enable = true;
-    #   tod.enable = true;
-    # };
-
     blueman.enable = true;
     libinput.enable = true;
   };

@@ -58,4 +58,57 @@ rec {
   hostMatrix = {
     host = builtins.attrNames flake.nixosConfigurations;
   };
+
+  # Kanshi shared core. Monitors hold only intrinsic bits (criteria/mode/scale);
+  # position is layout-relative, so each profile supplies it. Helpers are pure
+  # niri IPC and take criteria strings.
+  kanshi = rec {
+    monitors = {
+      home = {
+        criteria = "Huawei Technologies Co., Inc. XWU-CBA 0x00000001";
+        mode = "2560x1440@143.972Hz";
+        scale = 1.0;
+      };
+      tuxedo = {
+        criteria = "China Star Optoelectronics Technology Co., Ltd MNE007ZA3-2 Unknown";
+        mode = "2880x1800@120Hz";
+        scale = 1.4;
+      };
+      laptop = {
+        criteria = "eDP-1";
+        mode = "1920x1200@60Hz";
+        scale = 1.0;
+      };
+      work = {
+        criteria = "LG Electronics LG HDR 4K 0x00073A91";
+        mode = "3840x2160@59.997";
+        scale = 1.4;
+      };
+      side = {
+        criteria = "DP-2";
+        mode = "1920x1080@60.042Hz";
+        scale = 1.0;
+      };
+    };
+
+    moveToMonitor = ws: mon: "niri msg action move-workspace-to-monitor --reference ${ws} '${mon}'";
+    moveToIndex = ws: i: "niri msg action move-workspace-to-index --reference ${ws} ${toString i}";
+    moveWorkspace =
+      ws: mon: i:
+      "${moveToMonitor ws mon} && ${moveToIndex ws i}";
+    moveAllWorkspaces =
+      main: sec:
+      lib.concatStringsSep " && " [
+        (moveWorkspace "browse" main 1)
+        (moveWorkspace "work" main 2)
+        (moveWorkspace "social" sec 1)
+      ];
+    moveAllToOne =
+      mon:
+      lib.concatStringsSep " && " [
+        (moveWorkspace "browse" mon 1)
+        (moveWorkspace "work" mon 2)
+        (moveWorkspace "social" mon 3)
+      ];
+  };
 }

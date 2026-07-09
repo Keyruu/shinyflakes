@@ -130,7 +130,10 @@ in
           custom_image_colorize = true;
         };
         workspaces = {
-          display = "none";
+          display = "name";
+          hide_when_empty = true;
+          max_label_chars = 6;
+          minimal = true;
         };
         taskbar = {
           only_active_workspace = true;
@@ -185,19 +188,14 @@ in
         address = "Munich, Germany";
       };
 
+      lockscreen.enabled = false;
       idle = {
-        behavior_order = [
-          "lock"
-          "screen-off"
-        ];
         behavior = {
           lock = {
-            enabled = true;
-            timeout = 600;
+            enabled = false;
           };
           screen-off = {
-            enabled = true;
-            timeout = 660;
+            enabled = false;
           };
         };
       };

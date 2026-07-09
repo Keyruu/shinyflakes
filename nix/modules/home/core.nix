@@ -215,6 +215,7 @@ in
     perSystem.self.mdbook-to-epub
     perSystem.self.llms-to-epub
     perSystem.self.forge-pr
+    perSystem.self.hx
     # perSystem.librepods.default
   ];
 }

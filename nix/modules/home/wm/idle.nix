@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  perSystem,
   ...
 }:
 {
@@ -9,8 +10,9 @@
       lockTimeout = 5 * 60; # 300 seconds
       suspendTimeout = 15 * 60; # 900 seconds
 
-      screenOn = "${lib.getExe' pkgs.niri-unstable "niri"} msg action power-on-monitors";
-      screenOff = "${lib.getExe' pkgs.niri-unstable "niri"} msg action power-off-monitors";
+      niri = perSystem.niri.niri-unstable;
+      screenOn = "${lib.getExe' niri "niri"} msg action power-on-monitors";
+      screenOff = "${lib.getExe' niri "niri"} msg action power-off-monitors";
     in
     {
       enable = true;
