@@ -171,6 +171,7 @@ in
             "nats"
             "livekit"
           ];
+          security.readOnlyRootFilesystem = false;
         };
       };
     };
