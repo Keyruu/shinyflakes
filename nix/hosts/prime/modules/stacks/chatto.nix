@@ -114,7 +114,7 @@ in
       containers = {
         nats = {
           containerConfig = {
-            image = "nats:2.11";
+            image = "nats:2.14";
             exec = "nats-server --jetstream --store_dir=/data --auth=$NATS_TOKEN";
             volumes = [ "${my.stack.path}/nats-data:/data" ];
             environmentFiles = [ config.sops.templates."nats.env".path ];
