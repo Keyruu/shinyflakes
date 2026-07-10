@@ -30,13 +30,13 @@ in
         CHATTO_NATS_EMBEDDED_ENABLED=false
         CHATTO_NATS_CLIENT_URL=nats://nats:4222
         CHATTO_NATS_CLIENT_AUTH_METHOD=token
-        CHATTO_NATS_CLIENT_TOKEN=${config.sops.placeholder.natsToken}
+        CHATTO_NATS_CLIENT_TOKEN=${config.sops.placeholder.chattoNatsToken}
         CHATTO_WEBSERVER_URL=https://${domain}
         CHATTO_WEBSERVER_PORT=4000
-        CHATTO_WEBSERVER_COOKIE_SIGNING_SECRET=${config.sops.placeholder.cookieSigningSecret}
-        CHATTO_WEBSERVER_COOKIE_ENCRYPTION_SECRET=${config.sops.placeholder.cookieEncryptionSecret}
-        CHATTO_CORE_SECRET_KEY=${config.sops.placeholder.coreSecretKey}
-        CHATTO_CORE_ASSETS_SIGNING_SECRET=${config.sops.placeholder.assetsSigningSecret}
+        CHATTO_WEBSERVER_COOKIE_SIGNING_SECRET=${config.sops.placeholder.chattoCookieSigningSecret}
+        CHATTO_WEBSERVER_COOKIE_ENCRYPTION_SECRET=${config.sops.placeholder.chattoCookieEncryptionSecret}
+        CHATTO_CORE_SECRET_KEY=${config.sops.placeholder.chattoCoreSecretKey}
+        CHATTO_CORE_ASSETS_SIGNING_SECRET=${config.sops.placeholder.chattoAssetsSigningSecret}
         CHATTO_LOG_LEVEL=info
         CHATTO_LOG_FORMAT=json
         CHATTO_OPERATOR_API_ENABLED=true
@@ -45,14 +45,14 @@ in
         CHATTO_LIVEKIT_ENABLED=true
         CHATTO_LIVEKIT_URL=wss://${livekitDomain}
         CHATTO_LIVEKIT_API_KEY=chatto
-        CHATTO_LIVEKIT_API_SECRET=${config.sops.placeholder.livekitApiSecret}
+        CHATTO_LIVEKIT_API_SECRET=${config.sops.placeholder.chattoLivekitApiSecret}
       '';
     };
 
     "nats.env" = {
       restartUnits = [ (quadlet.service containers.chatto-nats) ];
       content = ''
-        NATS_TOKEN=${config.sops.placeholder.natsToken}
+        NATS_TOKEN=${config.sops.placeholder.chattoNatsToken}
       '';
     };
 
@@ -68,7 +68,7 @@ in
           enabled: true
           udp_port: 3478
         keys:
-          chatto: ${config.sops.placeholder.livekitApiSecret}
+          chatto: ${config.sops.placeholder.chattoLivekitApiSecret}
         webhook:
           urls:
             - https://${domain}/webhooks/livekit

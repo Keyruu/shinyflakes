@@ -109,6 +109,7 @@
             "traccar"
             "owntracks"
             "service"
+            "chat"
           ];
         };
         mesh = {
