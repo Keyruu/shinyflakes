@@ -119,6 +119,13 @@ in
             volumes = [ "${my.stack.path}/nats-data:/data" ];
             environmentFiles = [ config.sops.templates."nats.env".path ];
             networkAliases = [ "nats" ];
+            addCapabilities = [
+              "CHOWN"
+              "DAC_OVERRIDE"
+              "FOWNER"
+              "SETGID"
+              "SETUID"
+            ];
           };
           security.readOnlyRootFilesystem = false;
         };
