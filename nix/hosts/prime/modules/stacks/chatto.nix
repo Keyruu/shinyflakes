@@ -49,10 +49,12 @@ in
       '';
     };
 
-    "nats.env" = {
+    "nats.conf" = {
       restartUnits = [ (quadlet.service containers.chatto-nats) ];
       content = ''
-        NATS_TOKEN=${config.sops.placeholder.chattoNatsToken}
+        authorization: {
+            token: "${config.sops.placeholder.chattoNatsToken}"
+        }
       '';
     };
 
@@ -115,9 +117,10 @@ in
         nats = {
           containerConfig = {
             image = "nats:2.14";
-            exec = "sh -c 'exec nats-server --jetstream --store_dir=/data --auth=\"$NATS_TOKEN\"'";
-            volumes = [ "${my.stack.path}/nats-data:/data" ];
-            environmentFiles = [ config.sops.templates."nats.env".path ];
+            exec = "--jetstream --store_dir=/data --config /nats.conf";
+            volumes = [
+              "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
+            ];
             networkAliases = [ "nats" ];
             addCapabilities = [
               "CHOWN"
