@@ -145,7 +145,7 @@ in
 
         chatto = {
           containerConfig = {
-            image = "ghcr.io/chattocorp/chatto:0.0.193";
+            image = "ghcr.io/chattocorp/chatto:0.4.4";
             publishPorts = [ "127.0.0.1:${toString my.port}:4000" ];
             volumes = [
               "${my.stack.path}/chatto-config:/config"
