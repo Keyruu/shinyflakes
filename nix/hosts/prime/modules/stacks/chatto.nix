@@ -118,11 +118,6 @@ in
             exec = "nats-server --jetstream --store_dir=/data --auth=$NATS_TOKEN";
             volumes = [ "${my.stack.path}/nats-data:/data" ];
             environmentFiles = [ config.sops.templates."nats.env".path ];
-            healthCmd = "nats-server --help";
-            healthInterval = "5s";
-            healthTimeout = "3s";
-            healthRetries = 5;
-            healthStartPeriod = "10s";
             networkAliases = [ "nats" ];
           };
         };
@@ -180,4 +175,3 @@ in
     '';
   };
 }
-
