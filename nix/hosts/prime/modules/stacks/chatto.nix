@@ -166,6 +166,13 @@ in
             };
             environmentFiles = [ config.sops.templates."chatto.env".path ];
             networkAliases = [ "chatto" ];
+            addCapabilities = [
+              "CHOWN"
+              "DAC_OVERRIDE"
+              "FOWNER"
+              "SETGID"
+              "SETUID"
+            ];
           };
           dependsOn = [
             "nats"
