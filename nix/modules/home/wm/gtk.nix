@@ -1,16 +1,8 @@
 { pkgs, ... }:
 {
-  home = {
-    pointerCursor = {
-      package = pkgs.phinger-cursors;
-      name = "phinger-cursors-light";
-      # size = 24;
-      gtk.enable = true;
-    };
-    packages = with pkgs; [
-      papirus-icon-theme
-    ];
-  };
+  home.packages = with pkgs; [
+    papirus-icon-theme
+  ];
 
   gtk =
     let

@@ -14,9 +14,8 @@ end, "Delete buffer")
 map("n", "<leader>bD", ':%bdelete|edit #|normal`"<CR>', "Delete other buffers")
 
 -- clipboard
-for _, m in ipairs({ "n", "x", "v" }) do
+for _, m in ipairs({ "n", "v" }) do
   map(m, "<leader>y", '"+y', "Copy to system clipboard")
-  map(m, "<leader>d", '"+d', "Delete to system clipboard")
   map(m, "<leader>p", '"+p', "Paste from system clipboard")
 end
 map("x", "p", '"_dP', "Paste without buffer override")
@@ -38,10 +37,15 @@ end, "Previous diagnostic")
 map("n", "]d", function()
   vim.diagnostic.jump({ count = 1 })
 end, "Next diagnostic")
-map("n", "<leader>la", vim.lsp.buf.code_action, "LSP code action")
+for _, m in ipairs({ "n", "v" }) do
+  map(m, "<leader>la", vim.lsp.buf.code_action, "LSP code action")
+end
 map("n", "<leader>ln", vim.lsp.buf.rename, "LSP rename")
 map("n", "<leader>ld", vim.diagnostic.open_float, "Line diagnostics")
-map("n", "<leader>lq", vim.diagnostic.setloclist, "Diagnostics loclist")
+map("n", "<leader>lq", function()
+  vim.diagnostic.setloclist({ open = false })
+  require("quicker").toggle({ loclist = true })
+end, "Diagnostics loclist")
 map("n", "<leader>lf", function()
   vim.lsp.buf.format({ async = true })
 end, "LSP format buffer")
@@ -55,13 +59,6 @@ map("n", "<leader>tc", ":tabclose<CR>", "Close tab")
 map("n", "<leader>bc", "]c", "Next fenced code block")
 map("n", "<leader>bp", "[c", "Previous fenced code block")
 map("n", "<leader>byc", "]cyic", "Yank next fenced code block")
-
--- run shell command → quickfix via trouble
-map("n", "<leader>rc", function()
-  local cmd = vim.fn.input("Command: ", "", "shellcmd")
-  vim.cmd('cgete system("' .. cmd .. '")')
-  require("trouble").open("quickfix")
-end, "Run command to quickfix")
 
 -- command abbreviations (from keymaps.nix luaConfigRC.cmdAbbreviations)
 vim.cmd([[cab cc CodeCompanion]])

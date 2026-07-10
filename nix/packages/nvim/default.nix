@@ -48,38 +48,39 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         markdownlint-cli2
       ];
 
-      specs = {
-        kanagawa.data = pkgs.vimPlugins.kanagawa-nvim;
-        blink.data = pkgs.vimPlugins.blink-cmp;
-        lazydev.data = pkgs.vimPlugins.lazydev-nvim;
-        lspconfig.data = pkgs.vimPlugins.nvim-lspconfig;
-        trouble.data = pkgs.vimPlugins.trouble-nvim;
+      specs = with pkgs.vimPlugins; {
+        kanagawa.data = kanagawa-nvim;
+        blink.data = blink-cmp;
+        lazydev.data = lazydev-nvim;
+        lspconfig.data = nvim-lspconfig;
+        trouble.data = trouble-nvim;
         # grammars.data = map pkgs.vimPlugins.nvim-treesitter.grammarToPlugin (
         #   builtins.attrValues pkgs.vimPlugins.nvim-treesitter.builtGrammars
         # );
-        nvim-treesitter.data = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
-        treesitter-context.data = pkgs.vimPlugins.nvim-treesitter-context;
-        gitsigns.data = pkgs.vimPlugins.gitsigns-nvim;
-        comment.data = pkgs.vimPlugins.comment-nvim;
-        autopairs.data = pkgs.vimPlugins.nvim-autopairs;
-        lualine.data = pkgs.vimPlugins.lualine-nvim;
-        devicons.data = pkgs.vimPlugins.nvim-web-devicons;
-        colorizer.data = pkgs.vimPlugins.nvim-colorizer-lua;
-        noice.data = pkgs.vimPlugins.noice-nvim;
-        which-key.data = pkgs.vimPlugins.which-key-nvim;
-        highlight-undo.data = pkgs.vimPlugins.highlight-undo-nvim;
-        mini.data = pkgs.vimPlugins.mini-nvim;
-        conform.data = pkgs.vimPlugins.conform-nvim;
-        snacks.data = pkgs.vimPlugins.snacks-nvim;
-        flash.data = pkgs.vimPlugins.flash-nvim;
-        todo.data = pkgs.vimPlugins.todo-comments-nvim;
-        yazi.data = pkgs.vimPlugins.yazi-nvim;
-        grugfar.data = pkgs.vimPlugins.grug-far-nvim;
-        outline.data = pkgs.vimPlugins.outline-nvim;
-        numbertoggle.data = pkgs.vimPlugins.nvim-numbertoggle;
-        smart-splits.data = pkgs.vimPlugins.smart-splits-nvim;
-        direnv.data = pkgs.vimPlugins.direnv-vim;
-        render-markdown.data = pkgs.vimPlugins.render-markdown-nvim;
+        nvim-treesitter.data = nvim-treesitter.withAllGrammars;
+        treesitter-context.data = nvim-treesitter-context;
+        gitsigns.data = gitsigns-nvim;
+        comment.data = comment-nvim;
+        autopairs.data = nvim-autopairs;
+        lualine.data = lualine-nvim;
+        devicons.data = nvim-web-devicons;
+        colorizer.data = nvim-colorizer-lua;
+        noice.data = noice-nvim;
+        which-key.data = which-key-nvim;
+        highlight-undo.data = highlight-undo-nvim;
+        mini.data = mini-nvim;
+        conform.data = conform-nvim;
+        snacks.data = snacks-nvim;
+        flash.data = flash-nvim;
+        todo.data = todo-comments-nvim;
+        yazi.data = yazi-nvim;
+        grugfar.data = grug-far-nvim;
+        outline.data = outline-nvim;
+        numbertoggle.data = nvim-numbertoggle;
+        smart-splits.data = smart-splits-nvim;
+        direnv.data = direnv-vim;
+        render-markdown.data = render-markdown-nvim;
+        quicker.data = quicker-nvim;
         # perSystem custom plugins
         jira.data = perSystem.self.jira-nvim;
         piguard.data = perSystem.self.pi-guardian-nvim;

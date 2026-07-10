@@ -39,6 +39,7 @@ in
     openrouterKey = { };
     litellmMasterKey = { };
     zaiKey = { };
+    minimaxKey = { };
   };
   sops.templates."shell.env".content = ''
     OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
@@ -59,6 +60,7 @@ in
     LITELLM_BASE_URL=https://litellm.lab.keyruu.de
     LITELLM_API_KEY=${config.sops.placeholder.litellmMasterKey}
     ZAI_API_KEY=${config.sops.placeholder.zaiKey}
+    MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
   '';
 
   home.sessionVariables = {
@@ -68,7 +70,7 @@ in
     WINEPREFIX = d + "/wine";
 
     # set default applications
-    EDITOR = "nvim";
+    EDITOR = lib.getExe perSystem.self.nvim;
     BROWSER = "glide-browser";
     TERMINAL = "footclient";
 

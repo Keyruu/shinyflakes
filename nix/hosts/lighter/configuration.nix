@@ -38,6 +38,8 @@ in
     age.keyFile = "/home/${config.user.name}/.config/sops/age/keys.txt";
   };
 
+  services.tlp.enable = lib.mkForce false;
+
   hardware.tuxedo-rs = {
     enable = true;
     tailor-gui.enable = true;
