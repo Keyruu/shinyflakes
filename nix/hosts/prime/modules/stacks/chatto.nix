@@ -120,6 +120,7 @@ in
             environmentFiles = [ config.sops.templates."nats.env".path ];
             networkAliases = [ "nats" ];
           };
+          security.readOnlyRootFilesystem = false;
         };
 
         livekit = {
