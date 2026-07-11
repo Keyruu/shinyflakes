@@ -46,6 +46,11 @@ in
         CHATTO_LIVEKIT_URL=wss://${livekitDomain}
         CHATTO_LIVEKIT_API_KEY=chatto
         CHATTO_LIVEKIT_API_SECRET=${config.sops.placeholder.chattoLivekitApiSecret}
+        CHATTO_PUSH_ENABLED=true
+        CHATTO_PUSH_VAPID_PUBLIC_KEY=${config.sops.placeholder.chattoVapidPublicKey}
+        CHATTO_PUSH_VAPID_PRIVATE_KEY=${config.sops.placeholder.chattoVapidPrivateKey}
+        CHATTO_PUSH_VAPID_SUBJECT=me@keyruu.de
+        CHATTO_VIDEO_ENABLED=true
       '';
     };
 
@@ -120,17 +125,10 @@ in
             exec = "--jetstream --store_dir=/data --config /nats.conf";
             volumes = [
               "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
+              "${my.stack.path}/nats-data:/data"
             ];
             networkAliases = [ "nats" ];
-            addCapabilities = [
-              "CHOWN"
-              "DAC_OVERRIDE"
-              "FOWNER"
-              "SETGID"
-              "SETUID"
-            ];
           };
-          security.readOnlyRootFilesystem = false;
         };
 
         livekit = {
@@ -159,8 +157,7 @@ in
             image = "ghcr.io/chattocorp/chatto:0.4.4";
             publishPorts = [ "127.0.0.1:${toString my.port}:4000" ];
             volumes = [
-              "${my.stack.path}/chatto-config:/config"
-              "${my.stack.path}/chatto-data:/data"
+              "${my.stack.path}/chatto-config:/home/chatto/.config"
             ];
             environments = {
               PUID = "1000";
@@ -169,19 +166,11 @@ in
             };
             environmentFiles = [ config.sops.templates."chatto.env".path ];
             networkAliases = [ "chatto" ];
-            addCapabilities = [
-              "CHOWN"
-              "DAC_OVERRIDE"
-              "FOWNER"
-              "SETGID"
-              "SETUID"
-            ];
           };
           dependsOn = [
             "nats"
             "livekit"
           ];
-          security.readOnlyRootFilesystem = false;
         };
       };
     };
