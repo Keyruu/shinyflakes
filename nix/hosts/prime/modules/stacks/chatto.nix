@@ -103,9 +103,7 @@ in
     port = 4000;
     inherit domain;
     proxy = {
-      enable = true;
-      server = "caddy";
-      whitelist.enable = true;
+      enable = false;
     };
     backup.enable = true;
     stack = {
@@ -182,9 +180,28 @@ in
     };
   };
 
-  services.caddy.virtualHosts.${livekitDomain} = {
-    extraConfig = ''
-      reverse_proxy 127.0.0.1:7880
-    '';
+  services.caddy.virtualHosts = {
+    ${domain} = {
+      extraConfig = ''
+        import websocket /rtc/v1 http://127.0.0.1:${my.port}
+
+        handle {
+          import coraza-waf
+          reverse_proxy http://127.0.0.1:${my.port} {
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+          }
+        }
+      '';
+    };
+    ${livekitDomain} = {
+      extraConfig = ''
+        import websocket /api/realtime http://127.0.0.1:7880
+
+        handle {
+          import coraza-waf
+          reverse_proxy http://127.0.0.1:7880
+        }
+      '';
+    };
   };
 }
