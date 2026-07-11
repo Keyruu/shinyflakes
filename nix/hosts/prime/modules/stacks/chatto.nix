@@ -53,6 +53,7 @@ in
         CHATTO_PUSH_VAPID_PRIVATE_KEY=${config.sops.placeholder.chattoVapidPrivateKey}
         CHATTO_PUSH_VAPID_SUBJECT=me@keyruu.de
         CHATTO_VIDEO_ENABLED=true
+        CHATTO_OWNERS_EMAILS=me@keyruu.de
       '';
     };
 
