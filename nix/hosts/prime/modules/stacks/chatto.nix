@@ -58,6 +58,8 @@ in
 
     "nats.conf" = {
       restartUnits = [ (quadlet.service containers.chatto-nats) ];
+      uid = 1000;
+      gid = 1000;
       content = ''
         authorization: {
             token: "${config.sops.placeholder.chattoNatsToken}"
