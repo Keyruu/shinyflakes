@@ -117,7 +117,6 @@ in
       directories = [
         "nats-data"
         "chatto-config"
-        "chatto-data"
       ];
       network.enable = true;
       security.enable = true;
