@@ -18,6 +18,8 @@ in
     chattoCoreSecretKey = { };
     chattoAssetsSigningSecret = { };
     chattoLivekitApiSecret = { };
+    chattoVapidPublicKey = { };
+    chattoVapidPrivateKey = { };
   };
 
   sops.templates = {
