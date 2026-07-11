@@ -184,7 +184,6 @@ in
 
   services.caddy.virtualHosts.${livekitDomain} = {
     extraConfig = ''
-      import cloudflare-only
       reverse_proxy 127.0.0.1:7880
     '';
   };
