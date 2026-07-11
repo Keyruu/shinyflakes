@@ -183,11 +183,11 @@ in
   services.caddy.virtualHosts = {
     ${domain} = {
       extraConfig = ''
-        import websocket /rtc/v1 http://127.0.0.1:${my.port}
+        import websocket /rtc/v1 http://127.0.0.1:${toString my.port}
 
         handle {
           import coraza-waf
-          reverse_proxy http://127.0.0.1:${my.port} {
+          reverse_proxy http://127.0.0.1:${toString my.port} {
             header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
           }
         }
