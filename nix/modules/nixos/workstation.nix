@@ -15,7 +15,6 @@
     flake.modules.nixos.kanata
     flake.modules.nixos.flatpak
     flake.modules.nixos.appimage
-    flake.modules.nixos.thunar
     flake.modules.nixos.udev
     flake.modules.nixos.nice
     flake.modules.nixos.plymouth
