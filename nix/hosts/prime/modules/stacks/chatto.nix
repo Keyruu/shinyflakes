@@ -109,8 +109,8 @@ in
       enable = true;
       user = {
         enable = true;
-        uid = 1012;
-        gid = 1012;
+        uid = 1000;
+        gid = 1000;
       };
       directories = [
         "nats-data"
@@ -129,7 +129,7 @@ in
               "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
               "${my.stack.path}/nats-data:/data"
             ];
-            user = "1012:1012";
+            user = "1000:1000";
             networkAliases = [ "nats" ];
           };
         };
@@ -159,13 +159,13 @@ in
           containerConfig = {
             image = "ghcr.io/chattocorp/chatto:0.4.4";
             publishPorts = [ "127.0.0.1:${toString my.port}:4000" ];
-            user = "1012:1012";
+            user = "1000:1000";
             volumes = [
               "${my.stack.path}/chatto-config:/home/chatto/.config"
             ];
             environments = {
-              PUID = "1012";
-              PGID = "1012";
+              PUID = "1000";
+              PGID = "1000";
               TZ = "Europe/Berlin";
             };
             environmentFiles = [ config.sops.templates."chatto.env".path ];
