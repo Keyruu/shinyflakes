@@ -127,7 +127,7 @@ in
             exec = "--jetstream --store_dir=/data --config /nats.conf";
             volumes = [
               "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
-              "${my.stack.path}/nats-data:/data"
+              "${my.stack.path}/nats-data:/data/jetstream"
             ];
             networkAliases = [ "nats" ];
           };
