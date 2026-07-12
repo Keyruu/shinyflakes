@@ -18,7 +18,7 @@ in
       containers = {
         radarr = {
           containerConfig = {
-            image = "ghcr.io/hotio/radarr:release-6.2.1.10461";
+            image = "ghcr.io/hotio/radarr:release-6.3.0.10514";
             environments = {
               PUID = "0";
               PGID = "0";
