@@ -24,15 +24,13 @@
 
   # glide is a firefox fork with its own profile dir, so the vicinae HM module's
   # programs.firefox.nativeMessagingHosts install doesn't reach it
-  home.file.".glide-browser/native-messaging-hosts/com.vicinae.vicinae.json".text =
-    builtins.toJSON
-      {
-        name = "com.vicinae.vicinae";
-        description = "Vicinae Native Messaging Host";
-        path = "${perSystem.vicinae.default}/libexec/vicinae/vicinae-browser-link";
-        type = "stdio";
-        allowed_extensions = [ "firefox@vicinae.com" ];
-      };
+  home.file.".glide-browser/native-messaging-hosts/com.vicinae.vicinae.json".text = builtins.toJSON {
+    name = "com.vicinae.vicinae";
+    description = "Vicinae Native Messaging Host";
+    path = "${perSystem.vicinae.default}/libexec/vicinae/vicinae-browser-link";
+    type = "stdio";
+    allowed_extensions = [ "firefox@vicinae.com" ];
+  };
 
   programs.glide-browser = {
     enable = true;
@@ -50,6 +48,8 @@
             "https://discord.com"
             "https://open.spotify.com"
             "https://app.element.io"
+            "https://chat.peeraten.net"
+            "https://chat.chatto.run"
           ];
         };
       };

@@ -40,6 +40,15 @@ in
             "192.168.100.1"
           ];
         };
+        user_rules = [
+          "@@||pixeldrain.com^$important"
+          "@@||cdn.discordapp.com^$important"
+          "@@||developers.didomi.io^$important"
+          # Firefox Web Push routes through Mozilla AutoPush; hagezi/blocklistproject
+          # block these as telemetry, breaking push for clients on this resolver.
+          "@@||push.services.mozilla.com^"
+          "@@||updates.push.services.mozilla.com^"
+        ];
         filtering = {
           rewrites = [
             {
