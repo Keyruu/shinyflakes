@@ -65,7 +65,7 @@ in
         containers = {
           radicale = {
             containerConfig = {
-              image = "tomsquest/docker-radicale:3.7.5.0";
+              image = "tomsquest/docker-radicale:3.7.6.0";
               publishPorts = [
                 "127.0.0.1:${toString my.port}:5232"
                 "${config.services.mesh.ip}:${toString my.port}:5232"
