@@ -28,5 +28,6 @@
     ./litellm.nix
     ./headroom.nix
     ./actualbudget.nix
+    ./hermes.nix
   ];
 }
