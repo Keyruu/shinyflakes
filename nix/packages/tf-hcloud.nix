@@ -10,11 +10,11 @@ let
   };
 
   # renovate: datasource=terraform-provider depName=hetznercloud/hcloud
-  version = "1.66.0";
+  version = "1.66.1";
 in
 tofunix-lib.mkOpentofuProvider {
   owner = "hetznercloud";
   repo = "hcloud";
   inherit version;
-  hash = "sha256-oIYsvfrgbFatesAQNyejcs1j4zcB0N19U9K/pobnbTM=";
+  hash = "sha256-LMoatah1X2VA4gbIjHS8pKqUeBRpyznPdQHHayV9vO4=";
 }
