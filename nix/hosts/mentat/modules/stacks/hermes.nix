@@ -7,6 +7,7 @@ in
 {
   sops.secrets = {
     matrixHermesToken = { };
+    matrixHermesRecoveryKey = { };
     minimaxKey = { };
   };
 
@@ -14,6 +15,7 @@ in
     restartUnits = [ (quadlet.service containers.hermes) ];
     content = ''
       MATRIX_ACCESS_TOKEN=${config.sops.placeholder.matrixHermesToken}
+      MATRIX_RECOVERY_KEY=${config.sops.placeholder.matrixHermesRecoveryKey}
       MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
     '';
   };
