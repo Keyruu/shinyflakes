@@ -60,7 +60,7 @@ in
         containers =
           let
             # renovate: datasource=docker depName=freikin/dawarich
-            version = "1.9.2";
+            version = "1.10.0";
           in
           {
             redis = {
