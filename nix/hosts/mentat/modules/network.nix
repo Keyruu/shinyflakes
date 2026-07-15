@@ -32,19 +32,6 @@
     };
   };
 
-  services.tailscale = {
-    enable = false;
-    useRoutingFeatures = "both";
-    authKeyFile = config.sops.secrets.headscaleAuthKey.path;
-    extraUpFlags = [
-      "--login-server=https://headscale.peeraten.net"
-      "--advertise-exit-node"
-      "--advertise-routes=192.168.100.0/24"
-      "--accept-dns=true"
-      "--accept-routes=false"
-    ];
-  };
-
   services.networkd-dispatcher = {
     enable = true;
     rules."50-tailscale" = {

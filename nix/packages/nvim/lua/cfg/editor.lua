@@ -21,7 +21,22 @@ require("quicker").setup({
     },
   },
 })
-require("conform").setup({})
+require("conform").setup({
+  formatters_by_ft = {
+    lua = { "stylua" },
+    nix = { "nixfmt" },
+    markdown = { "prettier" },
+    yaml = { "prettier" },
+    json = { "prettier" },
+    javascript = { "prettier" },
+    typescript = { "prettier" },
+    javascriptreact = { "prettier" },
+    typescriptreact = { "prettier" },
+    css = { "prettier" },
+    html = { "prettier" },
+  },
+  format_on_save = { lsp_format = "fallback" },
+})
 require("yazi").setup({})
 require("flash").setup({})
 require("todo-comments").setup({})

@@ -14,7 +14,6 @@
     extra-trusted-public-keys = [
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
@@ -69,11 +68,6 @@
     # infra
     tofunix.url = "github:Keyruu/tofunix?dir=lib";
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
-
-    niks3 = {
-      url = "github:Mic92/niks3";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     comin = {
       url = "github:Keyruu/comin";
@@ -139,11 +133,6 @@
 
     noctalia = {
       url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    librepods = {
-      url = "github:SophiaH67/librepods/linux/rust";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

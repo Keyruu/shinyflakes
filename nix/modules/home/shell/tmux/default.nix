@@ -379,7 +379,7 @@ in
         set -g status-style "fg=${t.foreground},bg=default"
         set -g status-left "#{tmux_mode_indicator}"
         set-option -g status-justify centre
-        set -g status-right "#[fg=${t.colors.green},bold]#S  #[fg=${t.muted}](#{server_sessions})"
+        set -g status-right "#[fg=${t.colors.green},bold]#S #[fg=${t.muted}](#{server_sessions})"
         set -g window-status-current-format "#[fg=${t.accent},bold] #[underscore]#I:#W#{?window_zoomed_flag, 🔍,}"
         set -g window-status-format " #I:#W"
         set -g message-style "fg=${t.foreground},bold"

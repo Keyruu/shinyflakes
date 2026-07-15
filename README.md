@@ -36,7 +36,7 @@ secrets, and using actual Nix references between resources.
 
 The big boi running everything in my apartment:
 
-- **Media**: Jellyfin, Navidrome, and the full *arr stack for _Linux ISOs_ and
+- **Media**: Jellyfin, Navidrome, and the full \*arr stack for _Linux ISOs_ and
   music
 - **Home Automation**: Home Assistant with ESPHome, Zigbee2MQTT and Music
   Assistant

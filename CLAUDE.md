@@ -143,11 +143,11 @@ nixos-generate-config --root /mnt --show-hardware-config > nix/hosts/<hostname>/
 The `flake.lib.quadlet` attrset provides helpers for working with quadlet
 containers. Always use `inherit (flake.lib) quadlet;` in the let block.
 
-| Function | Input | Output | Example |
-|---|---|---|---|
+| Function          | Input     | Output               | Example                  |
+| ----------------- | --------- | -------------------- | ------------------------ |
 | `quadlet.service` | container | systemd service name | `"karakeep-web.service"` |
-| `quadlet.name` | container | plain container name | `"karakeep-web"` |
-| `quadlet.alias` | container | first network alias | `"meilisearch"` |
+| `quadlet.name`    | container | plain container name | `"karakeep-web"`         |
+| `quadlet.alias`   | container | first network alias  | `"meilisearch"`          |
 
 These helpers work with containers from `config.virtualisation.quadlet.containers`,
 which is where stack-defined containers end up after auto-prefixing.
@@ -169,6 +169,13 @@ stack.containers.web      → virtualisation.quadlet.containers.karakeep-web
 stack.containers.chrome   → virtualisation.quadlet.containers.karakeep-chrome
 stack.containers.db       → virtualisation.quadlet.containers.karakeep-db
 ```
+
+**Exception:** stacks with exactly **one** container keep the short name
+unprefixed (`stack.containers.n8n` → `virtualisation.quadlet.containers.n8n`).
+Convention: name the single container after the stack itself to avoid
+collisions between stacks. Note that adding a second container later changes
+the existing container's name (it becomes prefixed) — update `restartUnits`,
+`quadlet.alias` references, and backup units accordingly.
 
 The container options are the same as `virtualisation.quadlet.containers.*`
 (reused via `getSubModules`), plus these stack-specific extras:
@@ -209,11 +216,12 @@ quadlet-nix, so stacks never need to set it.
 - `stack.directories` — list of subdirs (string or `{ path; mode; owner; group; }`)
 - `stack.user.{ enable, name, uid, group, gid, extraGroups }` — system user
 - `stack.network.{ enable, name }` — bridge network
-- `stack.containers` — attrsOf container submodules (short names, auto-prefixed)
+- `stack.containers` — attrsOf container submodules (short names, auto-prefixed;
+  single-container stacks stay unprefixed — name the container after the stack)
 - `stack.containers.<name>.dependsOn` — list of sibling short names for deps
 - `stack.containers.<name>.security.*` — per-container security overrides
 - `stack.security.{ enable, dropAllCapabilities, noNewPrivileges,
-  readOnlyRootFilesystem, memoryLimit, pidsLimit }` — stack-level security
+readOnlyRootFilesystem, memoryLimit, pidsLimit }` — stack-level security
 
 ## ZFS Encryption & Service Gating
 
@@ -233,7 +241,7 @@ are **not** auto-unlocked at boot — a manual unlock step is required.
 
 - `zfs-encrypted.target` — systemd target representing "datasets are unlocked"
 - `zfs-encrypted-check.service` — oneshot gate that verifies `keystatus =
-  available` before the target can activate
+available` before the target can activate
 - `zfs-unlock` — shell script package (`nix/packages/zfs-unlock.nix`) that runs
   `zfs load-key -a`, `zfs mount -a`, and `systemctl start zfs-encrypted.target`
 
@@ -250,6 +258,7 @@ services.my.immich = {
 ```
 
 For **stack-based services**, this automatically:
+
 - Adds `After` and `Requires` on `zfs-encrypted.target` to all stack containers
 - Adds `wantedBy = [ "zfs-encrypted.target" ]` to all stack container services
 
@@ -661,7 +670,8 @@ sops.secrets = {
   domains
 - Use `exec` instead of `command` for container arguments
 - Container short names in `stack.containers` are auto-prefixed with the stack
-  name (e.g. `web` → `karakeep-web`)
+  name (e.g. `web` → `karakeep-web`) — except single-container stacks, which
+  keep the short name as-is; name that container after the stack
 - For SOPS `restartUnits` and `quadlet.alias`, always use the full prefixed name
   from `config.virtualisation.quadlet.containers` (e.g.
   `containers.karakeep-web`, not `containers.web`)

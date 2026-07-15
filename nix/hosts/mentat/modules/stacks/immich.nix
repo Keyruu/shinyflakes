@@ -3,6 +3,8 @@ let
   my = config.services.my.immich;
 in
 {
+  sops.secrets.immichEnv = { };
+
   services.my.immich = {
     zfs = true;
     port = 2283;

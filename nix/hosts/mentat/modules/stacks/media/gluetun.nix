@@ -1,5 +1,7 @@
 { config, ... }:
 {
+  sops.secrets.gluetunEnv = { };
+
   virtualisation.quadlet.containers.media-gluetun = {
     containerConfig = {
       image = "ghcr.io/qdm12/gluetun:v3.41.1";

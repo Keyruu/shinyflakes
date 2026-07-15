@@ -28,7 +28,7 @@ in
     proxy = {
       enable = true;
       server = "caddy";
-      whitelist.enable = true;
+      cloudflareOnly = true;
     };
     backup.enable = true;
     stack = {

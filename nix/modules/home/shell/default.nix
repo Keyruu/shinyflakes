@@ -25,7 +25,6 @@ in
 
   sops.secrets = {
     openaiKey = { };
-    anthropicKey = { };
     geminiKey = { };
     mammouthKey = { };
     opencodeKey = { };
@@ -43,7 +42,6 @@ in
   };
   sops.templates."shell.env".content = ''
     OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
-    ANTHROPIC_API_KEY=${config.sops.placeholder.anthropicKey}
     GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
     MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
     OPENCODE_API_KEY=${config.sops.placeholder.opencodeKey}
@@ -70,7 +68,7 @@ in
     WINEPREFIX = d + "/wine";
 
     # set default applications
-    EDITOR = lib.getExe perSystem.self.nvim;
+    EDITOR = "nvim";
     BROWSER = "glide-browser";
     TERMINAL = "footclient";
 
@@ -93,7 +91,7 @@ in
     ga = "git add";
     gc = "git clone";
     ztab = "zellij action new-tab";
-    vi = lib.getExe perSystem.self.nvim;
+    vi = "nvim";
     ".." = "cd ..";
     "..." = "cd ../..";
     deploy-mentat = "nixos-rebuild --flake ~/shinyflakes?submodules=1#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";

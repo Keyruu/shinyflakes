@@ -11,17 +11,6 @@ let
       (lib.filter (ip: ip != ""))
     ];
 
-  getImages =
-    hostName:
-    let
-      host = inputs.self.nixosConfigurations.${hostName} or null;
-      containers = if host != null then host.config.virtualisation.quadlet.containers else { };
-    in
-    lib.mapAttrsToList (name: cfg: {
-      host = hostName;
-      container = name;
-      inherit (cfg.containerConfig) image;
-    }) containers;
 in
 rec {
   quadlet = {
@@ -45,13 +34,6 @@ rec {
     ipv6 = parseIpList ipv6Txt;
     all = ipv4 ++ ipv6;
   };
-
-  allImages = lib.flatten (
-    map getImages [
-      "mentat"
-      "prime"
-    ]
-  );
 
   karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
 

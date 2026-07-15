@@ -64,6 +64,11 @@ in
                       };
                       default = { };
                     };
+                    cloudflareOnly = lib.mkOption {
+                      type = bool;
+                      default = false;
+                      description = "Reject traffic not originating from Cloudflare (caddy only).";
+                    };
                     cert = lib.mkOption {
                       type = submodule {
                         options = {
@@ -124,7 +129,23 @@ in
           ${formatDuplicates}
         '';
       }
-    ];
+    ]
+    ++ lib.concatLists (
+      lib.mapAttrsToList (name: cfg: [
+        {
+          assertion = cfg.proxy.enable -> cfg.port != null;
+          message = "services.my.${name}: proxy.enable requires port to be set.";
+        }
+        {
+          assertion = cfg.proxy.whitelist.enable -> cfg.proxy.server == "nginx";
+          message = "services.my.${name}: proxy.whitelist (people/LAN allowlist) is only implemented for nginx. Use proxy.cloudflareOnly for caddy.";
+        }
+        {
+          assertion = cfg.proxy.cloudflareOnly -> cfg.proxy.server == "caddy";
+          message = "services.my.${name}: proxy.cloudflareOnly only applies to caddy.";
+        }
+      ]) config.services.my
+    );
 
     security.acme.certs = lib.mkMerge (
       lib.mapAttrsToList (
@@ -177,7 +198,7 @@ in
             ${serviceCfg.domain} = {
               extraConfig = ''
                 import coraza-waf
-                ${lib.optionalString serviceCfg.proxy.whitelist.enable "import cloudflare-only"}
+                ${lib.optionalString serviceCfg.proxy.cloudflareOnly "import cloudflare-only"}
                 reverse_proxy http://127.0.0.1:${toString serviceCfg.port}
               '';
             };

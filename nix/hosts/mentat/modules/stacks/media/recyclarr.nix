@@ -5,6 +5,11 @@ let
   inherit (flake.lib) quadlet;
 in
 {
+  sops.secrets = {
+    sonarrKey = { };
+    radarrKey = { };
+  };
+
   sops.templates."recyclarrConfig.yaml" = {
     restartUnits = [ (quadlet.service containers.recyclarr) ];
     owner = "recyclarr";

@@ -21,7 +21,6 @@
     nix-index-database
     repos
     ssh
-    gaming
     element
   ];
 }

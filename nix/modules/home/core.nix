@@ -79,7 +79,6 @@ in
     nixfmt
     treefmt
     cachix
-    neovim
     gnupg
     nil
     jq
@@ -216,6 +215,5 @@ in
     perSystem.self.llms-to-epub
     perSystem.self.forge-pr
     perSystem.self.hx
-    # perSystem.librepods.default
   ];
 }
