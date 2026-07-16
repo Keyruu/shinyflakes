@@ -69,8 +69,9 @@ in
           password.algorithm = "argon2";
         };
 
-        # nothing is forward-auth proxied yet, only OIDC clients
-        access_control.default_policy = "deny";
+        # nothing is forward-auth proxied yet, only OIDC clients;
+        # authelia rejects "deny" as default when no rules exist
+        access_control.default_policy = "one_factor";
 
         session.cookies = [
           {
