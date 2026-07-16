@@ -89,6 +89,10 @@ in
         };
 
         identity_providers.oidc = {
+          # karakeep reads email from the ID token instead of userinfo (not OIDC-conformant),
+          # see https://www.authelia.com/integration/openid-connect/clients/karakeep/
+          claims_policies.karakeep.id_token = [ "email" ];
+
           authorization_policies = lib.mapAttrs (_: group: {
             default_policy = "deny";
             rules = [
@@ -158,6 +162,7 @@ in
               client_name = "Karakeep";
               client_secret = "$pbkdf2-sha512$310000$OysQ.ABOca710He0J/6sLQ$y5QXX0NxBPtmr11BdlfQiWSd5d96PET7yIXoPCn8oFX8RC85RkQ8/w1AdjUphpRnomWCT2Ea1eSl.n.xOSvFug";
               authorization_policy = "karakeep_access";
+              claims_policy = "karakeep";
               redirect_uris = [ "https://karakeep.lab.keyruu.de/api/auth/callback/custom" ];
               scopes = [
                 "openid"

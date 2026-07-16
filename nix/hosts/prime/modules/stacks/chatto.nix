@@ -54,7 +54,7 @@ in
         CHATTO_PUSH_VAPID_PRIVATE_KEY=${config.sops.placeholder.chattoVapidPrivateKey}
         CHATTO_PUSH_VAPID_SUBJECT=https://keyruu.de
         CHATTO_VIDEO_ENABLED=true
-        CHATTO_OWNERS_EMAILS=me@keyruu.de
+        CHATTO_OWNERS_EMAILS=lucas@keyruu.de
         CHATTO_AUTH_PROVIDERS_0_ID=authelia
         CHATTO_AUTH_PROVIDERS_0_TYPE=oidc
         CHATTO_AUTH_PROVIDERS_0_LABEL=Authelia
