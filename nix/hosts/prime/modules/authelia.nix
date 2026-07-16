@@ -107,6 +107,7 @@ in
             paperless_access = "paperless_users";
             karakeep_access = "karakeep_users";
             chatto_access = "chatto_users";
+            jellyfin_access = "jellyfin_users";
           };
 
           # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe):
@@ -169,6 +170,21 @@ in
                 "email"
                 "profile"
               ];
+            }
+            {
+              client_id = "jellyfin";
+              client_name = "Jellyfin";
+              client_secret = "$pbkdf2-sha512$310000$dmBzWqEysSSvtFh5FMm7Jg$CSLvNfuYfDedxPvzmineAamCw3hSLLOdKxQ1kV04e6wGXsscmVi65ENj/6gj9bkkrpUWz2feNjsqfMfJhtab7g";
+              authorization_policy = "jellyfin_access";
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              redirect_uris = [ "https://jellyfin.lab.keyruu.de/sso/OID/redirect/authelia" ];
+              scopes = [
+                "openid"
+                "profile"
+                "groups"
+              ];
+              token_endpoint_auth_method = "client_secret_post";
             }
             {
               client_id = "chatto";

@@ -273,6 +273,63 @@ systemd.services.syncthing = {
 };
 ```
 
+## Authelia OIDC (SSO)
+
+Authelia runs on prime (`auth.peeraten.net`). Config lives in:
+
+- `nix/hosts/prime/modules/authelia.nix` — instance, OIDC clients, access
+  policies
+- `nix/modules/private/authelia.nix` — users seed (identity, groups, initial
+  password hashes)
+
+### Provisioning Scripts (run from repo root)
+
+```bash
+# Generate <service>ClientSecret in nix/secrets.yaml (secret is never printed)
+# and print the pbkdf2 digest for the authelia client config:
+nix run '.?submodules=1#authelia-oidc-client' -- <service>
+
+# Prompt for a password and store its argon2 digest as <user>PasswordHash:
+nix run '.?submodules=1#authelia-user-hash' -- <user>
+```
+
+### Adding a New OIDC Client
+
+1. **Secret**: `nix run '.?submodules=1#authelia-oidc-client' -- <service>` —
+   stores `<service>ClientSecret` in sops, prints the pbkdf2 digest.
+2. **Authelia client** (`nix/hosts/prime/modules/authelia.nix`): add an entry to
+   `identity_providers.oidc.clients` with the digest as `client_secret` (hash is
+   store-safe) and `authorization_policy = "<service>_access"`. Check the
+   service's page on https://www.authelia.com/integration/openid-connect/clients/
+   for required `token_endpoint_auth_method`, PKCE, scopes, and redirect URIs.
+3. **Access policy**: add `<service>_access = "<service>_users";` to the
+   `authorization_policies` mapAttrs — one group per service.
+4. **Groups**: add `<service>_users` to the relevant users in the seed in
+   `nix/modules/private/authelia.nix`.
+5. **Service side**: reference `config.sops.placeholder.<service>ClientSecret`
+   in a sops template (env file or config file) in the service's stack. Issuer
+   is `https://auth.peeraten.net`.
+6. Build **prime first**, then the service host — the client must exist before
+   the service redirects to it.
+
+### Gotchas
+
+- Some apps read claims from the ID token instead of userinfo (not
+  OIDC-conformant). Symptom: "provider didn't provide an email/groups". Fix
+  with a claims policy, e.g.
+  `claims_policies.<name>.id_token = [ "email" ];` + `claims_policy = "<name>"`
+  on the client (karakeep needs this).
+- Existing local accounts usually link by **matching email** (immich, karakeep
+  via `OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING`). Paperless/allauth does
+  NOT auto-link — first OIDC login creates a fresh user; transfer ownership or
+  pre-link via profile.
+- Redirect URIs, auth method, and PKCE differ per app — always copy from the
+  authelia integration guide instead of guessing.
+- Existing clients: traccar, immich, paperless, karakeep, chatto, jellyfin
+  (jellyfin uses the SSO-Auth plugin, ro-mounted from
+  `nix/packages/jellyfin-sso-plugin.nix` with a sops-templated XML config over
+  `/config/plugins/configurations/SSO-Auth.xml`).
+
 ## Quadlet Configuration Best Practices
 
 ### Key Notes
