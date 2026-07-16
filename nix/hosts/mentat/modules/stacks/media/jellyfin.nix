@@ -2,6 +2,7 @@
   config,
   flake,
   perSystem,
+  pkgs,
   ...
 }:
 let
@@ -92,7 +93,6 @@ in
             image = "ghcr.io/jellyfin/jellyfin:10.11.11";
             volumes = [
               "${my.stack.path}/config:/config"
-              "${config.sops.templates."jellyfin-sso.xml".path}:/config/plugins/configurations/SSO-Auth.xml:ro"
               "${my.stack.path}/cache:/cache"
               "/main/media:/media"
             ];
@@ -104,6 +104,11 @@ in
           unitConfig = {
             "X-RestartTrigger" = [ "${perSystem.self.jellyfin-sso-plugin}" ];
           };
+          # copy instead of ro mount — the plugin writes user-link state back into its
+          # config XML during login; declarative config still wins on every restart
+          serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/install -Dm600 ${
+            config.sops.templates."jellyfin-sso.xml".path
+          } ${my.stack.path}/config/plugins/configurations/SSO-Auth.xml";
         };
       };
     };
