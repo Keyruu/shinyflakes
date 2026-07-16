@@ -64,6 +64,11 @@ in
     '';
   };
 
+  # C+ copy instead of ro mount — jellyfin rewrites the plugin's meta.json on load
+  systemd.tmpfiles.rules = [
+    "C+ ${my.stack.path}/config/plugins/sso-authentication - - - - ${perSystem.self.jellyfin-sso-plugin}"
+  ];
+
   services.my.jellyfin = {
     zfs = true;
     port = 8096;
@@ -84,7 +89,6 @@ in
             image = "ghcr.io/jellyfin/jellyfin:10.11.11";
             volumes = [
               "${my.stack.path}/config:/config"
-              "${perSystem.self.jellyfin-sso-plugin}:/config/plugins/sso-authentication:ro"
               "${config.sops.templates."jellyfin-sso.xml".path}:/config/plugins/configurations/SSO-Auth.xml:ro"
               "${my.stack.path}/cache:/cache"
               "/main/media:/media"
@@ -93,6 +97,9 @@ in
               "127.0.0.1:${toString my.port}:8096"
               "${config.services.mesh.ip}:${toString my.port}:8096"
             ];
+          };
+          unitConfig = {
+            "X-RestartTrigger" = [ "${perSystem.self.jellyfin-sso-plugin}" ];
           };
         };
       };
