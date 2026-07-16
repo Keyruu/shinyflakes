@@ -79,6 +79,8 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         numbertoggle.data = nvim-numbertoggle;
         smart-splits.data = smart-splits-nvim;
         direnv.data = direnv-vim;
+        spider.data = nvim-spider;
+        various-textobjs.data = nvim-various-textobjs;
         render-markdown.data = render-markdown-nvim;
         quicker.data = quicker-nvim;
         # perSystem custom plugins

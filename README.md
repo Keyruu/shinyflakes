@@ -58,7 +58,7 @@ The public-facing server that makes everything accessible:
 
 - **Reverse Proxy**: Caddy with Coraza for a self-hosted WAF solution, because I
   am paranoid (rightfully so)
-- **Identity**: Kanidm for centralized auth (so I only forget one password)
+- **Identity**: Authelia for centralized auth (so I only forget one password)
 - **VPN**: My self made mesh network with WireGuard (everything is declarative)
 - **GitOps**: Comin for automatic deployments because manual deploys are so 2023
 

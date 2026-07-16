@@ -14,7 +14,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
       imports = [ wlib.wrapperModules.helix ];
 
       config = {
-        package = pkgs.evil-helix;
+        # package = pkgs.evil-helix;
 
         runtimePkgs = with pkgs; [
           # LSPs

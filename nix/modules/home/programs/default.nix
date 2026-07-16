@@ -6,7 +6,6 @@
     ./browsers
 
     ./1password.nix
-    ./kanidm.nix
     ./nh.nix
     ./noctalia.nix
     ./satty.nix

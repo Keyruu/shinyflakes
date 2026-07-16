@@ -82,7 +82,6 @@ in
     busybox
     ethtool
     dsnet
-    kanidm_1_9
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";

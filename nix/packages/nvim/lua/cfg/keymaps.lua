@@ -13,6 +13,12 @@ map("n", "<S-q>", function()
 end, "Delete buffer")
 map("n", "<leader>bD", ':%bdelete|edit #|normal`"<CR>', "Delete other buffers")
 
+-- typable helix-style commands (discoverable via <leader>fc palette)
+vim.api.nvim_create_user_command("Format", function()
+  require("conform").format({ async = true, lsp_format = "fallback" })
+end, { desc = "Format buffer (conform, lsp fallback)" })
+vim.api.nvim_create_user_command("BufOnly", '%bdelete|edit #|normal`"', { desc = "Close other buffers" })
+
 -- clipboard
 for _, m in ipairs({ "n", "v" }) do
   map(m, "<leader>y", '"+y', "Copy to system clipboard")
@@ -54,6 +60,19 @@ end, "LSP format buffer")
 map("n", "<leader>tT", "<Cmd>silent !tmux term-toggle<CR>", "Toggle bottom tmux term")
 map("n", "<leader>tP", "<Cmd>silent !tmux pi-toggle<CR>", "Toggle pi in tmux pane")
 map("n", "<leader>tc", ":tabclose<CR>", "Close tab")
+
+-- subword navigation (nvim-spider): camelCase, snake_case, kebab-case
+-- iw/aw stay stock full-word textobjects
+for _, lhs in ipairs({ "w", "b", "e", "ge" }) do
+  for _, m in ipairs({ "n", "x", "o" }) do
+    map(m, lhs, "<cmd>lua require('spider').motion('" .. lhs .. "')<CR>", "Subword " .. lhs)
+  end
+end
+-- subword textobjects (nvim-various-textobjs); default keymaps stay off
+for _, m in ipairs({ "x", "o" }) do
+  map(m, "ie", "<cmd>lua require('various-textobjs').subword('inner')<CR>", "inside subword")
+  map(m, "ae", "<cmd>lua require('various-textobjs').subword('outer')<CR>", "around subword")
+end
 
 -- markdown fenced-block jumps
 map("n", "<leader>bc", "]c", "Next fenced code block")

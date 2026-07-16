@@ -3,7 +3,7 @@
     ./stacks
 
     ./blog-redirects.nix
-    ./kanidm.nix
+    ./authelia.nix
     ./proxy.nix
     ./webpages.nix
     ./cockpit.nix

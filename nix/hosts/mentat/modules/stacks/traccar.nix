@@ -24,7 +24,7 @@ in
           <entry key='media.path'>/opt/traccar/data/media</entry>
           <entry key='openid.clientId'>traccar</entry>
           <entry key='openid.clientSecret'>${config.sops.placeholder.traccarClientSecret}</entry>
-          <entry key='openid.issuerUrl'>https://auth.peeraten.net/oauth2/openid/traccar</entry>
+          <entry key='openid.issuerUrl'>https://auth.peeraten.net</entry>
           <entry key='templates.root'>/opt/traccar/data/templates</entry>
           <entry key='web.address'>0.0.0.0</entry>
           <entry key='web.port'>5785</entry>
