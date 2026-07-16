@@ -56,6 +56,9 @@ in
                 <DoNotValidateEndpoints>false</DoNotValidateEndpoints>
                 <DoNotValidateIssuerName>false</DoNotValidateIssuerName>
                 <SchemeOverride>https</SchemeOverride>
+                <!-- plugin sends PAR with basic auth but redeems tokens with post body;
+                     authelia allows one method per client, so skip PAR -->
+                <DisablePushedAuthorization>true</DisablePushedAuthorization>
               </PluginConfiguration>
             </value>
           </item>
