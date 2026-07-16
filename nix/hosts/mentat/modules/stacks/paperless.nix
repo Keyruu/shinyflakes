@@ -9,6 +9,7 @@ in
     paperlessSecretKey = { };
     paperlessUsername = { };
     paperlessPassword = { };
+    paperlessClientSecret = { };
   };
 
   sops.templates."paperless.env" = {
@@ -18,6 +19,27 @@ in
         PAPERLESS_SECRET_KEY=${config.sops.placeholder.paperlessSecretKey}
         PAPERLESS_ADMIN_USER=${config.sops.placeholder.paperlessUsername}
         PAPERLESS_ADMIN_PASSWORD=${config.sops.placeholder.paperlessPassword}
+        PAPERLESS_SOCIALACCOUNT_PROVIDERS=${
+          builtins.toJSON {
+            openid_connect = {
+              SCOPE = [
+                "openid"
+                "profile"
+                "email"
+              ];
+              OAUTH_PKCE_ENABLED = true;
+              APPS = [
+                {
+                  provider_id = "authelia";
+                  name = "Authelia";
+                  client_id = "paperless";
+                  secret = config.sops.placeholder.paperlessClientSecret;
+                  settings.server_url = "https://auth.peeraten.net";
+                }
+              ];
+            };
+          }
+        }
       '';
   };
 
@@ -93,6 +115,9 @@ in
               PAPERLESS_TIME_ZONE = "Europe/Berlin";
               PAPERLESS_CONSUMER_POLLING = "10";
               PAPERLESS_FILENAME_FORMAT = "{{ created_year }}/{{ correspondent }}/{{ title }}";
+              PAPERLESS_APPS = "allauth.socialaccount.providers.openid_connect";
+              PAPERLESS_DISABLE_REGULAR_LOGIN = "true";
+              PAPERLESS_REDIRECT_LOGIN_TO_SSO = "true";
               USERMAP_UID = toString my.stack.user.uid;
               USERMAP_GID = toString my.stack.user.gid;
             };

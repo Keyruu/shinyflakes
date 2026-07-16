@@ -20,6 +20,7 @@ in
     chattoLivekitApiSecret = { };
     chattoVapidPublicKey = { };
     chattoVapidPrivateKey = { };
+    chattoClientSecret = { };
   };
 
   sops.templates = {
@@ -54,6 +55,14 @@ in
         CHATTO_PUSH_VAPID_SUBJECT=https://keyruu.de
         CHATTO_VIDEO_ENABLED=true
         CHATTO_OWNERS_EMAILS=me@keyruu.de
+        CHATTO_AUTH_PROVIDERS_0_ID=authelia
+        CHATTO_AUTH_PROVIDERS_0_TYPE=oidc
+        CHATTO_AUTH_PROVIDERS_0_LABEL=Authelia
+        CHATTO_AUTH_PROVIDERS_0_ISSUER_URL=https://auth.peeraten.net
+        CHATTO_AUTH_PROVIDERS_0_CLIENT_ID=chatto
+        CHATTO_AUTH_PROVIDERS_0_CLIENT_SECRET=${config.sops.placeholder.chattoClientSecret}
+        CHATTO_AUTH_PROVIDERS_0_REQUEST_EMAIL=true
+        CHATTO_AUTH_PROVIDERS_0_AUTO_PROVISION=true
       '';
     };
 

@@ -1,9 +1,30 @@
-{ config, ... }:
+{ config, flake, ... }:
 let
   my = config.services.my.immich;
+  inherit (config.virtualisation.quadlet) containers;
+  inherit (flake.lib) quadlet;
 in
 {
-  sops.secrets.immichEnv = { };
+  sops.secrets = {
+    immichEnv = { };
+    immichClientSecret = { };
+  };
+
+  # partial config, deep-merged over immich defaults; UI settings for these keys become read-only
+  sops.templates."immich-config.json" = {
+    restartUnits = [ (quadlet.service containers.immich-server) ];
+    content = builtins.toJSON {
+      oauth = {
+        enabled = true;
+        issuerUrl = "https://auth.peeraten.net";
+        clientId = "immich";
+        clientSecret = config.sops.placeholder.immichClientSecret;
+        buttonText = "Login with Authelia";
+        autoLaunch = true;
+      };
+      passwordLogin.enabled = false;
+    };
+  };
 
   services.my.immich = {
     zfs = true;
@@ -39,7 +60,9 @@ in
               "/etc/localtime:/etc/localtime:ro"
               "/main/immich:/data"
               "/main:/usr/src/app/extra-main"
+              "${config.sops.templates."immich-config.json".path}:/immich-config.json:ro"
             ];
+            environments.IMMICH_CONFIG_FILE = "/immich-config.json";
             environmentFiles = [ config.sops.secrets.immichEnv.path ];
           };
           dependsOn = [

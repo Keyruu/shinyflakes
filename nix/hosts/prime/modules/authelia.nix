@@ -89,26 +89,88 @@ in
         };
 
         identity_providers.oidc = {
-          authorization_policies.traccar_access = {
+          authorization_policies = lib.mapAttrs (_: group: {
             default_policy = "deny";
             rules = [
               {
                 policy = "one_factor";
-                subject = "group:traccar_users";
+                subject = "group:${group}";
               }
             ];
+          }) {
+            traccar_access = "traccar_users";
+            immich_access = "immich_users";
+            paperless_access = "paperless_users";
+            karakeep_access = "karakeep_users";
+            chatto_access = "chatto_users";
           };
 
+          # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe):
+          # nix run nixpkgs#authelia -- crypto hash generate pbkdf2 --variant sha512 \
+          #   --password "$(sops decrypt --extract '["<name>ClientSecret"]' nix/secrets.yaml)"
           clients = [
             {
               client_id = "traccar";
               client_name = "Traccar";
-              # pbkdf2 digest of the sops traccarClientSecret (hash is store-safe):
-              # nix run nixpkgs#authelia -- crypto hash generate pbkdf2 --variant sha512 \
-              #   --password "$(sops decrypt --extract '["traccarClientSecret"]' nix/secrets.yaml)"
               client_secret = "$pbkdf2-sha512$310000$oTo3lzrqLPo8RnnCcAfkLQ$4774FjY4HMgVY1qDx6OuJyAJq1ZzrPVSUCN8sySQxXV.Sie5tmmj3bTolb6wl5QB74Lk2AZDvxiYmcR2qE3GGg";
               authorization_policy = "traccar_access";
               redirect_uris = [ "https://traccar.peeraten.net/api/session/openid/callback" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+              ];
+            }
+            {
+              client_id = "immich";
+              client_name = "Immich";
+              client_secret = "$pbkdf2-sha512$310000$QhbRJZS0kKRqmu6vG4ca4w$kX.mERhv3AmgzQcuiwVPmBwKbiWjCqBb/2QrsMRX2jIYBL0dCvalKgG1ybxo1mWB9VFJKyRg31Zs4JSuwDIszw";
+              authorization_policy = "immich_access";
+              redirect_uris = [
+                "https://immich.lab.keyruu.de/auth/login"
+                "https://immich.lab.keyruu.de/user-settings"
+                "app.immich:///oauth-callback"
+              ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+              ];
+              # immich sends the secret in the token request body
+              token_endpoint_auth_method = "client_secret_post";
+            }
+            {
+              client_id = "paperless";
+              client_name = "Paperless";
+              client_secret = "$pbkdf2-sha512$310000$8Ae87YeR85fdzSb383vraQ$tn7EEPTtuqLfFkYCz9Ob66PPyaDhq.ePyQlE/tU390Y4YTVtweYrWZ5AZRtMWLoiTaDPoMJF1Yny0fcWPpPxdw";
+              authorization_policy = "paperless_access";
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              redirect_uris = [ "https://paperless.lab.keyruu.de/accounts/oidc/authelia/login/callback/" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+              ];
+            }
+            {
+              client_id = "karakeep";
+              client_name = "Karakeep";
+              client_secret = "$pbkdf2-sha512$310000$OysQ.ABOca710He0J/6sLQ$y5QXX0NxBPtmr11BdlfQiWSd5d96PET7yIXoPCn8oFX8RC85RkQ8/w1AdjUphpRnomWCT2Ea1eSl.n.xOSvFug";
+              authorization_policy = "karakeep_access";
+              redirect_uris = [ "https://karakeep.lab.keyruu.de/api/auth/callback/custom" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+              ];
+            }
+            {
+              client_id = "chatto";
+              client_name = "Chatto";
+              client_secret = "$pbkdf2-sha512$310000$FWnJlvN79QNRXsOzOe.DHw$JrgYpTy8Sb80G50aTy8BMppD1FcDSkxk/o2QsLr5RFmLk6QLEq6Tv1pm8WW/D1bLXEOp/AO5QSvtEK3s3b24Ng";
+              authorization_policy = "chatto_access";
+              redirect_uris = [ "https://chat.peeraten.net/auth/providers/authelia/callback" ];
               scopes = [
                 "openid"
                 "email"

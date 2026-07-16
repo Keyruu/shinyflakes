@@ -8,6 +8,7 @@ in
   sops.secrets = {
     karakeepNextauthSecret = { };
     karakeepMeiliMasterKey = { };
+    karakeepClientSecret = { };
   };
 
   sops.templates."karakeep.env" = {
@@ -22,6 +23,13 @@ in
         NEXTAUTH_URL=https://karakeep.lab.keyruu.de
         DISABLE_SIGNUPS=true
         OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
+        OAUTH_WELLKNOWN_URL=https://auth.peeraten.net/.well-known/openid-configuration
+        OAUTH_CLIENT_ID=karakeep
+        OAUTH_CLIENT_SECRET=${config.sops.placeholder.karakeepClientSecret}
+        OAUTH_PROVIDER_NAME=Authelia
+        # link the existing password account by matching email (authelia emails are trusted)
+        OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING=true
+        DISABLE_PASSWORD_AUTH=true
       '';
   };
 
