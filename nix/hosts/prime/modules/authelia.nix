@@ -184,6 +184,8 @@ in
                 "profile"
                 "groups"
               ];
+              # PAR is disabled in the plugin config (mixed auth styles), token redemption uses post
+              token_endpoint_auth_method = "client_secret_post";
             }
             {
               client_id = "chatto";
