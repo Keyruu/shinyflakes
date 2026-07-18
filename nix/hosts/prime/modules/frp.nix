@@ -1,13 +1,13 @@
 { config, ... }:
 {
   sops.secrets.frpToken = {
-    restartUnits = [ "frp.service" ];
+    restartUnits = [ "frp-server.service" ];
     mode = "0444";
   };
 
   networking.firewall.interfaces.mesh0.allowedTCPPorts = [ 7000 ];
 
-  services.frp = {
+  services.frp.instances.server = {
     enable = true;
     role = "server";
     settings = {

@@ -29,6 +29,16 @@
     defaults.email = "me@keyruu.de";
   };
 
+  services.logrotate.settings.caddy = {
+    files = "/var/log/caddy/*.log";
+    frequency = "daily";
+    rotate = 3;
+    maxsize = "50M";
+    compress = true;
+    copytruncate = true;
+    su = "caddy caddy";
+  };
+
   services.caddy =
     let
       inherit (flake.lib.cloudflare) all;

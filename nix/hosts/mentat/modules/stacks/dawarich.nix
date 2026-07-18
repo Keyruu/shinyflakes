@@ -68,6 +68,7 @@ in
                 image = "redis:7.4-alpine";
                 exec = "redis-server --save 900 1 --save 300 10 --appendonly no";
                 addCapabilities = [
+                  "CHOWN"
                   "DAC_OVERRIDE"
                   "SETUID"
                   "SETGID"
