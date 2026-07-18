@@ -19,6 +19,7 @@
     flake.modules.nixos.nice
     flake.modules.nixos.plymouth
     flake.modules.nixos.podman
+    flake.modules.nixos.printing
     flake.modules.nixos.sudo-notify
   ];
 
