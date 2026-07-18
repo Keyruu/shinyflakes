@@ -105,7 +105,6 @@
             "calendar"
             "hass"
             "headscale"
-            "map"
             "traccar"
             "owntracks"
             "service"

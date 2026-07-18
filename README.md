@@ -43,8 +43,7 @@ The big boi running everything in my apartment:
 - **AI Things**: ~~Ollama + Open WebUI,~~ LibreChat ~~, Perplexica,~~ various
   MCP servers because AI is everywhere now apparently (I took my GPU out of the
   server because of the power draw...)
-- **Self-hosted Goodness**: Immich (photos), Forgejo (git), Dawarich (location
-  tracking), Copyparty (file sharing)
+- **Self-hosted Goodness**: Immich (photos), Forgejo (git), Copyparty (file sharing)
 - **Monitoring**: Grafana, Prometheus, Loki, Beszel, Renovate for keeping tabs
   on container and flake.lock updates
 - **Storage**: Garage (S3-compatible storage), NAS with Samba, ZFS for data

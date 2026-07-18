@@ -1,4 +1,9 @@
-{ lib, config, flake, ... }:
+{
+  lib,
+  config,
+  flake,
+  ...
+}:
 let
   mentat = config.services.mesh.people.lucas.devices.mentat.ip;
   inherit (flake.lib) karaokeDomain;
@@ -11,11 +16,6 @@ let
     "owntracks.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5144;
-      cloudflare = true;
-    };
-    "map.peeraten.net" = {
-      proxyHost = mentat;
-      proxyPort = 3001;
       cloudflare = true;
     };
     "calendar.peeraten.net" = {

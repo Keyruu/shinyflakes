@@ -725,9 +725,9 @@ needs — most defaults survive more than expected:
   their service user: postgres needs
   `[ "CHOWN" "FOWNER" "DAC_OVERRIDE" "SETUID" "SETGID" ]`, redis (su-exec)
   needs `[ "DAC_OVERRIDE" "SETUID" "SETGID" "SETPCAP" ]`.
-- **`noNewPrivileges = true` does NOT break privilege *drops*.** su-exec/gosu
+- **`noNewPrivileges = true` does NOT break privilege _drops_.** su-exec/gosu
   dropping from root works under NNP given SETUID/SETGID caps — NNP only
-  blocks privilege *escalation* (setuid binaries, file caps). Don't disable it
+  blocks privilege _escalation_ (setuid binaries, file caps). Don't disable it
   for postgres/redis-style entrypoints.
 - **Resource limits**: `security.memoryLimit` per container maps to quadlet
   `memory`. There is no native quadlet CPU option — use
