@@ -48,6 +48,13 @@ in
           # block these as telemetry, breaking push for clients on this resolver.
           "@@||push.services.mozilla.com^"
           "@@||updates.push.services.mozilla.com^"
+          # Rewrites below only answer A; AdGuard forwards AAAA upstream, where
+          # public Cloudflare wildcard AAAA records hijack IPv6-preferring clients.
+          "||lab.keyruu.de^$dnstype=AAAA,dnsrewrite=NOERROR"
+          "||files.keyruu.de^$dnstype=AAAA,dnsrewrite=NOERROR"
+          "||cache.keyruu.de^$dnstype=AAAA,dnsrewrite=NOERROR"
+          "||hass.peeraten.net^$dnstype=AAAA,dnsrewrite=NOERROR"
+          "||traccar.peeraten.net^$dnstype=AAAA,dnsrewrite=NOERROR"
         ];
         filtering = {
           rewrites = [
