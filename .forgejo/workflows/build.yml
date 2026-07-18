@@ -5,7 +5,7 @@ jobs:
     outputs:
       hosts: ${{ steps.hosts.outputs.hosts }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: ./.forgejo/actions/fetch-submodules
         with:
           token: ${{ secrets.FORGEJO_PAT }}
@@ -16,18 +16,18 @@ jobs:
           echo "hosts=$hosts" >> $GITHUB_OUTPUT
   build:
     runs-on: nixos-x86_64-linux
-    concurrency:
-      cancel-in-progress: false
     strategy:
       matrix:
         host: ${{ fromJSON(needs.setup.outputs.hosts).host }}
     needs: setup
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: ./.forgejo/actions/fetch-submodules
         with:
           token: ${{ secrets.FORGEJO_PAT }}
       - name: Build host
+        env:
+          HOST: ${{ matrix.host }}
         run: |
-          nixos-rebuild build --flake .?submodules=1#${{ matrix.host }} --max-jobs 1
+          nixos-rebuild build --flake ".?submodules=1#$HOST" --max-jobs 1
 

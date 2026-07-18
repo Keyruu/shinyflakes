@@ -6,7 +6,8 @@ runs:
   steps:
     - name: Fetch submodules
       shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
       run: |
         git submodule init
-        git config submodule."nix/modules/private".url "https://x-access-token:${{ inputs.token }}@git.keyruu.de/lucas/privateflakes.git"
-        git submodule update --recursive
+        git -c "submodule.nix/modules/private.url=https://x-access-token:${TOKEN}@git.keyruu.de/lucas/privateflakes.git" submodule update --recursive
