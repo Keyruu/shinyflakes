@@ -46,8 +46,9 @@ in
           {
             path = "db-data";
             mode = "0700";
-            owner = "999";
-            group = "999";
+            # postgis alpine runs postgres as uid 70
+            owner = "70";
+            group = "70";
           }
           "shared"
           "public"
