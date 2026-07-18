@@ -107,6 +107,7 @@ in
             paperless_access = "paperless_users";
             karakeep_access = "karakeep_users";
             chatto_access = "chatto_users";
+            gotify_access = "gotify_users";
             jellyfin_access = "jellyfin_users";
           };
 
@@ -186,6 +187,24 @@ in
               ];
               # PAR is disabled in the plugin config (mixed auth styles), token redemption uses post
               token_endpoint_auth_method = "client_secret_post";
+            }
+            {
+              client_id = "gotify";
+              client_name = "Gotify";
+              client_secret = "$pbkdf2-sha512$310000$SIhdt7CYwNU4Yu.AgoLKJg$zeq9B6VOCUYHZdSJVFn387AkAn56Dg/lzJ6R3RJDXtlfGiQgb6gY6tJIDRFPMKf/eQddyF14wMhqyPADFbT5Zw";
+              authorization_policy = "gotify_access";
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              redirect_uris = [
+                "https://notify.keyruu.de/auth/oidc/callback"
+                # android app OIDC login
+                "gotify://oidc/callback"
+              ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+              ];
             }
             {
               client_id = "chatto";

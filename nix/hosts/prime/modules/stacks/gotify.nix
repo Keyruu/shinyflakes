@@ -5,12 +5,16 @@ let
   inherit (flake.lib) quadlet;
 in
 {
-  sops.secrets.gotifyDefaultPassword = { };
+  sops.secrets = {
+    gotifyDefaultPassword = { };
+    gotifyClientSecret = { };
+  };
 
   sops.templates."gotify.env" = {
     restartUnits = [ (quadlet.service containers.gotify) ];
     content = ''
       GOTIFY_DEFAULTUSER_PASS=${config.sops.placeholder.gotifyDefaultPassword}
+      GOTIFY_OIDC_CLIENTSECRET=${config.sops.placeholder.gotifyClientSecret}
     '';
   };
 
@@ -33,6 +37,10 @@ in
             environmentFiles = [ config.sops.templates."gotify.env".path ];
             environments = {
               GOTIFY_SERVER_PORT = "8080";
+              GOTIFY_OIDC_ENABLED = "true";
+              GOTIFY_OIDC_ISSUER = "https://auth.peeraten.net";
+              GOTIFY_OIDC_CLIENTID = "gotify";
+              GOTIFY_OIDC_REDIRECTURL = "https://${my.domain}/auth/oidc/callback";
             };
           };
         };
