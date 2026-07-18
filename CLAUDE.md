@@ -708,6 +708,31 @@ Available health check options:
 - `healthOnFailure` - Action to take on health check failure (e.g., "kill",
   "restart")
 
+#### Security Hardening Overrides
+
+With `stack.security.enable = true`, only override what the container actually
+needs — most defaults survive more than expected:
+
+- **`readOnlyRootFilesystem` only blocks unmounted paths.** Volumes stay
+  writable, and podman `--read-only` still tmpfs-mounts `/run`, `/tmp`,
+  `/var/tmp`. Containers that write only to volumes/tmpfs (redis with `/data`
+  volume, postgres with data volume + `/var/run/postgresql`) work fine with
+  readOnly on. Only set `readOnlyRootFilesystem = false` when the container
+  writes elsewhere — check the image entrypoint (e.g. dawarich writes
+  `/var/app/{tmp,log}`, Rails apps generally write app-dir `tmp/` and `log/`).
+- **`dropAllCapabilities` needs `addCapabilities` for root-dropping
+  entrypoints.** Official postgres/redis images start as root and drop to
+  their service user: postgres needs
+  `[ "CHOWN" "FOWNER" "DAC_OVERRIDE" "SETUID" "SETGID" ]`, redis (su-exec)
+  needs `[ "DAC_OVERRIDE" "SETUID" "SETGID" "SETPCAP" ]`.
+- **`noNewPrivileges = true` does NOT break privilege *drops*.** su-exec/gosu
+  dropping from root works under NNP given SETUID/SETGID caps — NNP only
+  blocks privilege *escalation* (setuid binaries, file caps). Don't disable it
+  for postgres/redis-style entrypoints.
+- **Resource limits**: `security.memoryLimit` per container maps to quadlet
+  `memory`. There is no native quadlet CPU option — use
+  `containerConfig.podmanArgs = [ "--cpus=0.5" ]`.
+
 #### Secret Naming
 
 Use camelCase for SOPS secret names for consistency:

@@ -55,7 +55,7 @@ in
           "storage"
         ];
         network.enable = true;
-        security.enable = false;
+        security.enable = true;
 
         containers =
           let
@@ -66,7 +66,13 @@ in
             redis = {
               containerConfig = {
                 image = "redis:7.4-alpine";
-                exec = "redis-server";
+                exec = "redis-server --save 900 1 --save 300 10 --appendonly no";
+                addCapabilities = [
+                  "DAC_OVERRIDE"
+                  "SETUID"
+                  "SETGID"
+                  "SETPCAP"
+                ];
                 volumes = [
                   "${my.stack.path}/shared:/data"
                 ];
@@ -83,6 +89,13 @@ in
               containerConfig = {
                 image = "postgis/postgis:17-3.5-alpine";
                 shmSize = "1g";
+                addCapabilities = [
+                  "CHOWN"
+                  "FOWNER"
+                  "DAC_OVERRIDE"
+                  "SETUID"
+                  "SETGID"
+                ];
                 environments = {
                   POSTGRES_USER = "postgres";
                   POSTGRES_DB = "dawarich_development";
@@ -102,9 +115,15 @@ in
             };
 
             app = {
+              security = {
+                # entrypoint writes /var/app/{tmp,log} outside volumes
+                readOnlyRootFilesystem = false;
+                memoryLimit = "4g";
+              };
               containerConfig = {
                 image = "freikin/dawarich:${version}";
                 exec = "web-entrypoint.sh bin/rails server -p 3000 -b ::";
+                podmanArgs = [ "--cpus=0.5" ];
                 publishPorts = [
                   "127.0.0.1:${toString my.port}:3000"
                   "${config.services.mesh.ip}:${toString my.port}:3000"
@@ -116,7 +135,7 @@ in
                   "${my.stack.path}/db-data:/dawarich_db_data"
                 ];
                 environments = {
-                  RAILS_ENV = "development";
+                  RAILS_ENV = "production";
                   REDIS_URL = "redis://dawarich_redis:6379";
                   DATABASE_HOST = "dawarich_db";
                   DATABASE_PORT = "5432";
@@ -127,13 +146,17 @@ in
                   TIME_ZONE = "Europe/Berlin";
                   APPLICATION_PROTOCOL = "https";
                   PROMETHEUS_EXPORTER_ENABLED = "false";
-                  PROMETHEUS_EXPORTER_HOST = "0.0.0.0";
-                  PROMETHEUS_EXPORTER_PORT = "9394";
                   RAILS_LOG_TO_STDOUT = "true";
                   SELF_HOSTED = "true";
                   STORE_GEODATA = "true";
+                  WEB_CONCURRENCY = "1";
                 };
                 environmentFiles = [ config.sops.templates."dawarich.env".path ];
+                healthCmd = "wget -qO - http://127.0.0.1:3000/api/v1/health | grep -q ok";
+                healthInterval = "10s";
+                healthTimeout = "10s";
+                healthRetries = 30;
+                healthStartPeriod = "30s";
               };
               dependsOn = [
                 "db"
@@ -142,6 +165,7 @@ in
             };
 
             sidekiq = {
+              security.readOnlyRootFilesystem = false;
               containerConfig = {
                 image = "freikin/dawarich:${version}";
                 exec = "sidekiq-entrypoint.sh sidekiq";
@@ -151,18 +175,16 @@ in
                   "${my.stack.path}/storage:/var/app/storage"
                 ];
                 environments = {
-                  RAILS_ENV = "development";
+                  RAILS_ENV = "production";
                   REDIS_URL = "redis://dawarich_redis:6379";
                   DATABASE_HOST = "dawarich_db";
                   DATABASE_PORT = "5432";
                   DATABASE_USERNAME = "postgres";
                   DATABASE_NAME = "dawarich_development";
                   APPLICATION_HOSTS = "localhost,map.peeraten.net";
-                  BACKGROUND_PROCESSING_CONCURRENCY = "10";
+                  BACKGROUND_PROCESSING_CONCURRENCY = "3";
                   APPLICATION_PROTOCOL = "https";
                   PROMETHEUS_EXPORTER_ENABLED = "false";
-                  PROMETHEUS_EXPORTER_HOST = "dawarich-app";
-                  PROMETHEUS_EXPORTER_PORT = "9394";
                   RAILS_LOG_TO_STDOUT = "true";
                   SELF_HOSTED = "true";
                   STORE_GEODATA = "true";
