@@ -24,7 +24,6 @@ in
         curl
         jq
         direnv
-        docker
         gawk
         git-lfs
         gitFull
@@ -58,8 +57,6 @@ in
   users.users.gitea-runner = {
     isSystemUser = true;
     group = "gitea-runner";
-    extraGroups = [ "podman" ];
     home = runnerDir;
   };
-  nix.settings.trusted-users = [ "gitea-runner" ];
 }
