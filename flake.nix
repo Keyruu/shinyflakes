@@ -146,14 +146,8 @@
     };
 
     # web
-    homepage = {
-      url = "github:Keyruu/homepage";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    buymeaspezi = {
-      url = "github:Keyruu/buymeaspezi";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    homepage.url = "github:Keyruu/homepage";
+    buymeaspezi.url = "github:Keyruu/buymeaspezi";
   };
 
   outputs =
