@@ -67,6 +67,15 @@
         "^bash -c 'nix run \\.#update-hash -- .+'$"
       ];
       nix.enabled = true;
+      pinDigests = true;
+      packageRules = [
+        {
+          description = "npm lockfile refresh bypasses release-age rules — require manual review";
+          matchManagers = [ "npm" ];
+          matchUpdateTypes = [ "lockFileMaintenance" ];
+          automerge = false;
+        }
+      ];
       lockFileMaintenance = {
         enabled = true;
         automerge = true;
