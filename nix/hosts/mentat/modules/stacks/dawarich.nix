@@ -154,7 +154,8 @@ in
                   WEB_CONCURRENCY = "1";
                 };
                 environmentFiles = [ config.sops.templates."dawarich.env".path ];
-                healthCmd = "wget -qO - http://127.0.0.1:3000/api/v1/health | grep -q ok";
+                # X-Forwarded-Proto avoids the force_ssl 301 (production + https)
+                healthCmd = "wget -qO - --header 'X-Forwarded-Proto: https' http://127.0.0.1:3000/api/v1/health | grep -q ok";
                 healthInterval = "10s";
                 healthTimeout = "10s";
                 healthRetries = 30;
