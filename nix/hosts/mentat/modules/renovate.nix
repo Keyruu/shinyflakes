@@ -99,6 +99,7 @@
       gnupg
       openssh
       nodejs
+      pnpm
       yarn
       config.nix.package
     ];
