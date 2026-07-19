@@ -70,6 +70,11 @@
       pinDigests = true;
       packageRules = [
         {
+          description = "npm/pnpm releases wait 7 days to match pnpm-workspace minimumReleaseAge gate";
+          matchManagers = [ "npm" ];
+          minimumReleaseAge = "7 days";
+        }
+        {
           description = "npm lockfile refresh bypasses release-age rules — require manual review";
           matchManagers = [ "npm" ];
           matchUpdateTypes = [ "lockFileMaintenance" ];
