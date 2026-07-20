@@ -149,6 +149,8 @@
         process-manager
         port-killer
         niri
+        nb-notes
+        wlr-which-key
       ])
       ++ (with perSystem.self; [
         raycast-karakeep

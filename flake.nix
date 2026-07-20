@@ -111,7 +111,7 @@
 
     vicinae.url = "github:vicinaehq/vicinae";
     vicinae-extensions = {
-      url = "github:Keyruu/vicinae-extensions";
+      url = "github:Keyruu/vicinae-extensions/all";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
