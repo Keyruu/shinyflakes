@@ -24,7 +24,7 @@ in
 
   virtualisation.quadlet.containers.pikaraoke = {
     containerConfig = {
-      image = "docker.io/vicwomg/pikaraoke:1.20.0";
+      image = "docker.io/vicwomg/pikaraoke:1.21.0";
       publishPorts = [ "${config.services.mesh.ip}:5555:5555" ];
       entrypoint = [
         "/bin/sh"
