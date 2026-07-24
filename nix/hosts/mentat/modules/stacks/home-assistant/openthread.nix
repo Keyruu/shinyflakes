@@ -13,7 +13,7 @@ in
       security.enable = false;
       containers.openthread = {
         containerConfig = {
-          image = "docker.io/openthread/border-router:latest@sha256:a313e39ee2a79069b3b99691143431579e577d031c443d3cdf041f6cb3d5b605";
+          image = "docker.io/openthread/border-router:latest@sha256:2d089310d6815008bbb9fe7c643a4fd7354b0da689d629c24fbf3f2581f9afc5";
           environments = {
             TZ = "Europe/Berlin";
             OT_RCP_DEVICE = "spinel+hdlc+uart:///dev/ttyACM69?uart-baudrate=460800";
