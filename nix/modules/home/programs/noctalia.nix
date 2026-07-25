@@ -12,6 +12,7 @@ in
   ];
 
   xdg.dataFile."noctalia/plugins/calendar-event".source = ./noctalia-plugins/calendar-event;
+  xdg.dataFile."noctalia/plugins/pi-herd".source = ./noctalia-plugins/pi-herd;
 
   programs.noctalia = {
     enable = true;
@@ -110,6 +111,7 @@ in
         center = [ "media" ];
         end = [
           "tray"
+          "pi-herd"
           "calendar-widget"
           "network"
           "bluetooth"
@@ -141,8 +143,15 @@ in
         calendar-widget = {
           type = "local/calendar-event:widget";
         };
+        pi-herd = {
+          type = "local/pi-herd:widget";
+        };
         sysmon = {
           type = "sysmon";
+        };
+        ram = {
+          type = "sysmon";
+          stat = "ram_pct";
         };
         clock = {
           format = "{:%d.%m. %H:%M}";
@@ -204,8 +213,9 @@ in
 
       plugins = {
         enabled = [
-          "noctalia/notes-scratchpad"
+          "noctalia/notes"
           "local/calendar-event"
+          "local/pi-herd"
         ];
       };
     };

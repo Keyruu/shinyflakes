@@ -1,4 +1,4 @@
-local maxLen = barWidget.getConfig("max_length") or 43
+local maxLen = noctalia.getConfig("max_length") or 43
 
 barWidget.setGlyph("calendar")
 

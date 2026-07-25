@@ -349,5 +349,27 @@
         ''
           mesh-tunnel
         '';
+    }
+    // {
+      # silent mode: the script re-opens vicinae itself via `vicinae dmenu`,
+      # so no terminal window is wanted
+      "${scripts}/pi-herd.sh".source = pkgs.writeScript "pi-herd-dmenu" # bash
+        ''
+          #!${pkgs.runtimeShell}
+          # @vicinae.schemaVersion 1
+          # @vicinae.title Pi Herd
+          # @vicinae.mode silent
+          # @vicinae.icon 🐑
+          exec ${lib.getExe perSystem.self.pi-herd} --dmenu
+        '';
+      "${scripts}/zs.sh".source = pkgs.writeScript "zs-dmenu" # bash
+        ''
+          #!${pkgs.runtimeShell}
+          # @vicinae.schemaVersion 1
+          # @vicinae.title Zellij Sessions
+          # @vicinae.mode silent
+          # @vicinae.icon 🖥️
+          exec ${lib.getExe perSystem.self.zs} --dmenu
+        '';
     };
 }

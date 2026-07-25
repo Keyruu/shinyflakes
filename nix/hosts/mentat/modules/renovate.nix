@@ -47,6 +47,7 @@
       platformAutomerge = false;
       automergeStrategy = "rebase";
       autodiscover = true;
+      autodiscoverFilter = [ "lucas/*" ];
 
       hostRules = [
         # {

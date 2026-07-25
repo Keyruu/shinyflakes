@@ -1,7 +1,7 @@
 id = "local/calendar-event"
 name = "Calendar Event"
 version = "1.0.0"
-min_noctalia = "5.0.0"
+plugin_api = 3
 author = "lucas"
 icon = "calendar"
 description = "Shows next calendar event in the bar with agenda tooltip."
@@ -9,7 +9,7 @@ description = "Shows next calendar event in the bar with agenda tooltip."
 [[setting]]
 key = "interval"
 type = "int"
-label = "Refresh interval (seconds)"
+label_key = "settings.interval.label"
 default = 60
 min = 5
 max = 3600
@@ -21,8 +21,8 @@ entry = "widget.luau"
   [[widget.setting]]
   key = "max_length"
   type = "int"
-  label = "Max text length"
-  default = 43
+  label_key = "settings.max_length.label"
+  default = 25
   min = 10
   max = 100
 

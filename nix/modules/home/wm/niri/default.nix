@@ -9,6 +9,14 @@
     inputs.niri.homeModules.niri
   ];
 
+  home.pointerCursor = {
+    enable = true;
+    package = pkgs.phinger-cursors;
+    name = "phinger-cursors-light";
+    size = 20;
+    gtk.enable = true;
+  };
+
   home.packages = with pkgs; [
     nirius
     iio-niri

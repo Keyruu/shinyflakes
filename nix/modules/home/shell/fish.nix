@@ -1,5 +1,12 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  perSystem,
+  ...
+}:
+{
+  home.packages = [ perSystem.self.zs ];
+
   programs.man.generateCaches = false;
 
   programs.fish = {
