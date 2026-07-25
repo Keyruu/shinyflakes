@@ -205,12 +205,12 @@ in
     kdePackages.kdenlive
     kdePackages.kwave
     tea
+    handy
 
     # perSystem.self.numr
     # perSystem.self.glide-browser
     perSystem.self.wg-peer
     perSystem.self.mesh-expose
-    perSystem.self.dictate
     perSystem.self.mdbook-to-epub
     perSystem.self.llms-to-epub
     perSystem.self.forge-pr

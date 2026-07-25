@@ -49,7 +49,7 @@ binds {
     Super+Shift+L hotkey-overlay-title="Lock Screen" { spawn "loginctl" "lock-session"; }
     Super+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://launch/clipboard/history"; }
     Super+X hotkey-overlay-title="Keyboard Pointer" { spawn-sh "wl-kbptr -c $HOME/.config/wl-kbptr/floating"; }
-    Super+D hotkey-overlay-title="Dictate" { spawn "dictate"; }
+    Super+D hotkey-overlay-title="Dictate" { spawn-sh "handy --toggle-transcription"; }
 
     Print hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
     Shift+Print hotkey-overlay-title="Screenshot Screen" { spawn "screenshot" "screen"; }
