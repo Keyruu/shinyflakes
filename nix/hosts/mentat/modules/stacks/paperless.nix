@@ -34,7 +34,10 @@ in
                   name = "Authelia";
                   client_id = "paperless";
                   secret = config.sops.placeholder.paperlessClientSecret;
-                  settings.server_url = "https://auth.peeraten.net";
+                  settings = {
+                    server_url = "https://auth.peeraten.net";
+                    token_auth_method = "client_secret_basic";
+                  };
                 }
               ];
             };
@@ -80,7 +83,7 @@ in
       containers = {
         broker = {
           containerConfig = {
-            image = "docker.io/library/redis:8";
+            image = "docker.io/valkey/valkey:9-alpine";
             volumes = [
               "${my.stack.path}/redisdata:/data"
             ];
@@ -113,7 +116,7 @@ in
               PAPERLESS_URL = "https://${my.domain}";
               PAPERLESS_OCR_LANGUAGE = "deu";
               PAPERLESS_TIME_ZONE = "Europe/Berlin";
-              PAPERLESS_CONSUMER_POLLING = "10";
+              PAPERLESS_CONSUMER_POLLING_INTERVAL = "10";
               PAPERLESS_FILENAME_FORMAT = "{{ created_year }}/{{ correspondent }}/{{ title }}";
               PAPERLESS_APPS = "allauth.socialaccount.providers.openid_connect";
               PAPERLESS_DISABLE_REGULAR_LOGIN = "true";
