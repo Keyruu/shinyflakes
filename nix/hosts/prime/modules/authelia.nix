@@ -93,23 +93,26 @@ in
           # see https://www.authelia.com/integration/openid-connect/clients/karakeep/
           claims_policies.karakeep.id_token = [ "email" ];
 
-          authorization_policies = lib.mapAttrs (_: group: {
-            default_policy = "deny";
-            rules = [
+          authorization_policies =
+            lib.mapAttrs
+              (_: group: {
+                default_policy = "deny";
+                rules = [
+                  {
+                    policy = "one_factor";
+                    subject = "group:${group}";
+                  }
+                ];
+              })
               {
-                policy = "one_factor";
-                subject = "group:${group}";
-              }
-            ];
-          }) {
-            traccar_access = "traccar_users";
-            immich_access = "immich_users";
-            paperless_access = "paperless_users";
-            karakeep_access = "karakeep_users";
-            chatto_access = "chatto_users";
-            gotify_access = "gotify_users";
-            jellyfin_access = "jellyfin_users";
-          };
+                traccar_access = "traccar_users";
+                immich_access = "immich_users";
+                paperless_access = "paperless_users";
+                karakeep_access = "karakeep_users";
+                chatto_access = "chatto_users";
+                gotify_access = "gotify_users";
+                jellyfin_access = "jellyfin_users";
+              };
 
           # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe):
           # nix run nixpkgs#authelia -- crypto hash generate pbkdf2 --variant sha512 \
@@ -179,7 +182,7 @@ in
               authorization_policy = "jellyfin_access";
               require_pkce = true;
               pkce_challenge_method = "S256";
-              redirect_uris = [ "https://jellyfin.lab.keyruu.de/sso/OID/redirect/authelia" ];
+              redirect_uris = [ "https://tv.peeraten.net/sso/OID/redirect/authelia" ];
               scopes = [
                 "openid"
                 "profile"
