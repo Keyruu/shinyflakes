@@ -52,7 +52,9 @@ in
                 <OidScopes>
                   <string>groups</string>
                 </OidScopes>
-                <CanonicalLinks></CanonicalLinks>
+                <!-- force public base URL so redirect_uri matches the registered
+                     https://tv.peeraten.net/... instead of the internal host -->
+                <CanonicalLinks>https://tv.peeraten.net</CanonicalLinks>
                 <DisableHttps>false</DisableHttps>
                 <DoNotValidateEndpoints>false</DoNotValidateEndpoints>
                 <DoNotValidateIssuerName>false</DoNotValidateIssuerName>

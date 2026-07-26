@@ -1,7 +1,5 @@
 {
   config,
-  lib,
-  perSystem,
   ...
 }:
 let
