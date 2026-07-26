@@ -66,10 +66,23 @@
 
       allowedPostUpgradeCommands = [
         "^bash -c 'nix run \\.#update-hash -- .+'$"
+        "^bash -c 'if \\[ -f flake\\.nix \\]; then nix-update --flake --version=skip default; fi'$"
       ];
       nix.enabled = true;
       pinDigests = true;
       packageRules = [
+        {
+          description = "refresh nix FOD hashes (npmDepsHash/cargoHash) after JS/Rust dep updates; repos must expose packages.default";
+          matchManagers = [
+            "npm"
+            "cargo"
+          ];
+          postUpgradeTasks = {
+            commands = [ "bash -c 'if [ -f flake.nix ]; then nix-update --flake --version=skip default; fi'" ];
+            fileFilters = [ "**/*.nix" ];
+            executionMode = "branch";
+          };
+        }
         {
           description = "npm/pnpm releases wait 7 days to match pnpm-workspace minimumReleaseAge gate";
           matchManagers = [ "npm" ];
@@ -107,6 +120,7 @@
       nodejs
       pnpm
       yarn
+      nix-update
       config.nix.package
     ];
   };
