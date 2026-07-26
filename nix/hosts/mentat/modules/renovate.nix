@@ -89,6 +89,16 @@
           };
         }
         {
+          description = "group npm updates — shared lockfile + nix hash makes parallel PRs conflict";
+          matchManagers = [ "npm" ];
+          groupName = "npm dependencies";
+        }
+        {
+          description = "group cargo updates — shared lockfile + nix hash makes parallel PRs conflict";
+          matchManagers = [ "cargo" ];
+          groupName = "cargo dependencies";
+        }
+        {
           description = "npm/pnpm releases wait 7 days to match pnpm-workspace minimumReleaseAge gate";
           matchManagers = [ "npm" ];
           minimumReleaseAge = "7 days";
