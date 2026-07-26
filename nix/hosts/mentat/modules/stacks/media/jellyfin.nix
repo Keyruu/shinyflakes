@@ -91,6 +91,8 @@ in
         jellyfin = {
           containerConfig = {
             image = "ghcr.io/jellyfin/jellyfin:10.11.11";
+            # AMD Renoir iGPU for VAAPI transcoding
+            devices = [ "/dev/dri:/dev/dri" ];
             volumes = [
               "${my.stack.path}/config:/config"
               "${my.stack.path}/cache:/cache"
