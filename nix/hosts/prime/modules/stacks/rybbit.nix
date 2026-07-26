@@ -100,7 +100,7 @@ in
 
         redis = {
           containerConfig = {
-            image = "redis:7-alpine";
+            image = "docker.io/redis:7-alpine";
             volumes = [ "${my.stack.path}/redis-data:/data" ];
             # keep BullMQ queues durable across restarts (upstream compose)
             exec = [
