@@ -83,6 +83,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         various-textobjs.data = nvim-various-textobjs;
         render-markdown.data = render-markdown-nvim;
         quicker.data = quicker-nvim;
+        lint.data = nvim-lint;
         # perSystem custom plugins
         jira.data = perSystem.self.jira-nvim;
         piguard.data = perSystem.self.pi-guardian-nvim;

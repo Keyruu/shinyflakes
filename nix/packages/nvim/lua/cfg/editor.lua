@@ -37,6 +37,15 @@ require("conform").setup({
   },
   format_on_save = { lsp_format = "fallback" },
 })
+require("lint").linters_by_ft = {
+  markdown = { "markdownlint-cli2" },
+}
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "InsertLeave" }, {
+  callback = function()
+    require("lint").try_lint(nil, { ignore_errors = true })
+  end,
+})
+
 require("yazi").setup({})
 require("flash").setup({})
 require("todo-comments").setup({})
