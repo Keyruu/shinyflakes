@@ -1,14 +1,14 @@
-{ ref, ... }:
+{ lib, ... }:
 {
   imports = [ ./modules/dns.nix ];
 
   cloudflare.zones = {
     "keyruu.de" = {
-      zoneId = ref.cloudflare_zone.keyruu-de.id;
+      zoneId = lib.tfRef "cloudflare_zone.keyruu-de.id";
       records = {
         a = {
           sleipnir = {
-            content = ref.hcloud_server.sleipnir.ipv4_address;
+            content = lib.tfRef "hcloud_server.sleipnir.ipv4_address";
             proxied = false;
             cnames = [
               "sorryihavetodothis"
@@ -95,7 +95,7 @@
     };
 
     "peeraten.net" = {
-      zoneId = ref.cloudflare_zone.peeraten-net.id;
+      zoneId = lib.tfRef "cloudflare_zone.peeraten-net.id";
       records.cname = {
         sleipnir = {
           content = "sleipnir.keyruu.de";
@@ -115,6 +115,16 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
+        livekit = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
+        # DNS-only: CF-proxied video streaming is ToS-gray and would hide
+        # client IPs from the fail2ban jail on prime
+        tv = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
         "*.tunnel" = {
           content = "sleipnir.peeraten.net";
           proxied = false;
@@ -124,7 +134,7 @@
     };
 
     "buymeaspezi.com" = {
-      zoneId = ref.cloudflare_zone.buymeaspezi-com.id;
+      zoneId = lib.tfRef "cloudflare_zone.buymeaspezi-com.id";
       records = {
         cname."@".content = "sleipnir.keyruu.de";
 

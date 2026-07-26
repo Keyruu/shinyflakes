@@ -1,4 +1,4 @@
-{ ref, ... }:
+{ lib, ... }:
 {
   imports = [
     ./hetzner
@@ -6,6 +6,11 @@
   ];
 
   terraform = {
+    required_providers = {
+      cloudflare.source = "registry.opentofu.org/cloudflare/cloudflare";
+      hcloud.source = "registry.opentofu.org/hetznercloud/hcloud";
+    };
+
     backend.s3 = {
       bucket = "terraform-state";
       key = "shinyflakes/terraform.tfstate";
@@ -35,11 +40,7 @@
   };
 
   provider = {
-    cloudflare.default = {
-      api_token = ref.var.cloudflare_api_token;
-    };
-    hcloud.default = {
-      token = ref.var.hcloud_token;
-    };
+    cloudflare.api_token = lib.tfRef "var.cloudflare_api_token";
+    hcloud.token = lib.tfRef "var.hcloud_token";
   };
 }

@@ -141,17 +141,46 @@ in
       '';
     };
 
+    # geoblock instead of cloudflare-only: streams must not go through CF.
+    # WAF only on API routes — streaming/image/download paths bypass it
+    # (CRS false-positives on segment/range requests + CPU per stream),
+    # /socket bypasses bc coraza can't handle the websocket upgrade
+    "tv.peeraten.net" = {
+      extraConfig = ''
+        import geoblock-de
+        handle @geo-allowed {
+          @bulk path_regexp (?i)^/(emby/)?(videos|audio|items/[^/]+/(download|images)|socket)
+          handle @bulk {
+            reverse_proxy http://${mentat}:8096
+          }
+          handle {
+            import coraza-waf
+            reverse_proxy http://${mentat}:8096
+          }
+        }
+        handle {
+          respond 403
+        }
+      '';
+    };
+
     # websocket path is split out bc coraza can't handle the upgrade
     "hass.peeraten.net" = {
       extraConfig = ''
-        import websocket /api/websocket http://${mentat}:8123
+        import geoblock-de
+        handle @geo-allowed {
+          import websocket /api/websocket http://${mentat}:8123
 
-        handle {
-          import coraza-waf
-          import cloudflare-only
-          reverse_proxy http://${mentat}:8123 {
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+          handle {
+            import coraza-waf
+            import cloudflare-only
+            reverse_proxy http://${mentat}:8123 {
+              header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            }
           }
+        }
+        handle {
+          respond 403
         }
       '';
     };

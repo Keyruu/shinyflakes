@@ -1,16 +1,9 @@
 { lib, config, ... }:
 let
-  # Type that accepts strings or anything with __toString (like ref.x.y.z)
-  refOrStrType = lib.types.mkOptionType {
-    name = "refOrStr";
-    description = "string or reference";
-    check = val: builtins.isString val || val ? __toString;
-  };
-
   singleValueRecordOptions = {
     content = lib.mkOption {
-      type = refOrStrType;
-      description = "DNS record content/value (string or reference)";
+      type = lib.types.str;
+      description = "DNS record content/value";
     };
 
     proxied = lib.mkOption {
@@ -28,8 +21,8 @@ let
 
   multiValueRecordOptions = {
     content = lib.mkOption {
-      type = refOrStrType;
-      description = "DNS record content/value (string or reference)";
+      type = lib.types.str;
+      description = "DNS record content/value";
     };
 
     proxied = lib.mkOption {
@@ -51,8 +44,8 @@ in
       lib.types.submodule {
         options = {
           zoneId = lib.mkOption {
-            type = refOrStrType;
-            description = "Cloudflare zone ID (string or reference)";
+            type = lib.types.str;
+            description = "Cloudflare zone ID";
           };
 
           records = lib.mkOption {

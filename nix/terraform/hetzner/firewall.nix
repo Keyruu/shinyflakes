@@ -1,4 +1,4 @@
-{ ref, ... }:
+{ lib, ... }:
 let
 
   createPortRule = port: {
@@ -77,7 +77,31 @@ in
     rule = allRules;
   };
 
+  resource.hcloud_firewall.turn = {
+    name = "turn";
+    rule = [
+      {
+        direction = "in";
+        protocol = "udp";
+        port = "3478";
+        source_ips = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+      }
+      {
+        direction = "in";
+        protocol = "udp";
+        port = "50000-50200";
+        source_ips = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+      }
+    ];
+  };
+
   output.firewall_cloudflare_https_id = {
-    value = ref.hcloud_firewall.cloudflare-https.id;
+    value = lib.tfRef "hcloud_firewall.cloudflare-https.id";
   };
 }

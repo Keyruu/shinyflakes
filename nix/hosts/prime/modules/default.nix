@@ -8,5 +8,6 @@
     ./webpages.nix
     ./cockpit.nix
     ./frp.nix
+    ./edge-protection.nix
   ];
 }

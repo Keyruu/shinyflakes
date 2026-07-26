@@ -100,9 +100,6 @@
                 home_manager = {
                   expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes\").nixosConfigurations.muadib.options.home-manager.users.type.getSubOptions []";
                 };
-                tofunix = {
-                  expr = "(builtins.getFlake \"${config.home.homeDirectory}/shinyflakes/tofunix\").packages.x86_64-linux.tofunix.module.options";
-                };
               };
               diagnostic = {
                 suppress = [ "sema-extra-with" ];

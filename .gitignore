@@ -7,3 +7,4 @@ result
 .terraform
 .terraform.lock.hcl
 .pi-guardian-*
+config.tf.json

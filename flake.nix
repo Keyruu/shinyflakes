@@ -68,7 +68,11 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # infra
-    tofunix.url = "github:Keyruu/tofunix?dir=lib";
+    terranix = {
+      url = "github:terranix/terranix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     comin = {
