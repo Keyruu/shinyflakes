@@ -19,7 +19,7 @@
     ./glance.nix
     ./forgejo-runner.nix
     ./renovate.nix
-    ./nix-serve.nix
+    ./harmonia.nix
     ./print.nix
   ];
 }

@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}:
+{ config, ... }:
 let
   port = 7384;
   domain = "cache.keyruu.de";
@@ -26,12 +22,11 @@ in
     };
   };
 
-  services.nix-serve = {
+  # replaces nix-serve-ng, which core-dumped (SIGABRT in dumpPath) under
+  # parallel NAR downloads, killing all in-flight streams
+  services.harmonia.cache = {
     enable = true;
-    package = pkgs.nix-serve-ng;
-    inherit port;
-    openFirewall = false;
-    bindAddress = "0.0.0.0";
-    secretKeyFile = config.sops.secrets.nixServeKey.path;
+    signKeyPaths = [ config.sops.secrets.nixServeKey.path ];
+    settings.bind = "0.0.0.0:${toString port}";
   };
 }
