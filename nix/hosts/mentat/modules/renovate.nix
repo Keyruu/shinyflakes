@@ -68,6 +68,11 @@
         "^bash -c 'nix run \\.#update-hash -- .+'$"
         "^bash -c 'if \\[ -f flake\\.nix \\]; then nix-update --flake --version=skip default; fi'$"
       ];
+      # nixpkgs bash (SSH_SOURCE_BASHRC) treats node's socketpair stdio as an
+      # ssh session and sources /etc/bashrc -> /etc/profile, clobbering the
+      # unit PATH in every exec child (nix-update: command not found).
+      # NOSYSBASHRC makes /etc/bashrc return early.
+      customEnvVariables.NOSYSBASHRC = "1";
       nix.enabled = true;
       pinDigests = true;
       packageRules = [
