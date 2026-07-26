@@ -89,7 +89,7 @@ in
         DISABLE_REGISTRATION = true
         REQUIRE_SIGNIN_VIEW = false
         REGISTER_EMAIL_CONFIRM = false
-        ENABLE_NOTIFY_MAIL = true
+        ENABLE_NOTIFY_MAIL = false
         ALLOW_ONLY_EXTERNAL_REGISTRATION = false
         ENABLE_CAPTCHA = false
         DEFAULT_KEEP_EMAIL_PRIVATE = false

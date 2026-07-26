@@ -17,6 +17,7 @@
     ./backup.nix
     ./mesh.nix
     ./glance.nix
+    ./forgejo-notify.nix
     ./forgejo-runner.nix
     ./renovate.nix
     ./harmonia.nix
