@@ -169,7 +169,7 @@
 
     variables = {
       DO_NOT_TRACK = 1;
-      EDITOR = lib.getExe perSystem.self.nvim;
+      EDITOR = "nvim";
     };
   };
 }
