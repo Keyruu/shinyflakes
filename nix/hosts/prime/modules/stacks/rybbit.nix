@@ -57,6 +57,7 @@ in
       directories = [
         "clickhouse-data"
         "postgres-data"
+        "redis-data"
       ];
       network.enable = true;
 
@@ -97,6 +98,27 @@ in
           };
         };
 
+        redis = {
+          containerConfig = {
+            image = "redis:7-alpine";
+            volumes = [ "${my.stack.path}/redis-data:/data" ];
+            # keep BullMQ queues durable across restarts (upstream compose)
+            exec = [
+              "redis-server"
+              "--appendonly"
+              "yes"
+              "--appendfsync"
+              "everysec"
+            ];
+            healthCmd = "redis-cli ping";
+            healthInterval = "3s";
+            healthTimeout = "5s";
+            healthRetries = 5;
+            healthStartPeriod = "5s";
+            networkAliases = [ "redis" ];
+          };
+        };
+
         backend = {
           containerConfig = {
             image = "ghcr.io/rybbit-io/rybbit-backend:v2.7.0";
@@ -106,6 +128,8 @@ in
               CLICKHOUSE_HOST = "http://clickhouse:8123";
               POSTGRES_HOST = "postgres";
               POSTGRES_PORT = "5432";
+              REDIS_HOST = "redis";
+              REDIS_PORT = "6379";
             };
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
             healthCmd = "wget --no-verbose --tries=1 --spider http://127.0.0.1:3001/api/health";
@@ -118,6 +142,7 @@ in
           dependsOn = [
             "clickhouse"
             "postgres"
+            "redis"
           ];
         };
 
