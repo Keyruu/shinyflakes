@@ -90,6 +90,55 @@ in
                   - name: Remux-1080p - Anime
                   - name: WEB (1080p-2160p)
 
+              # WEB-2160p guide CF set (recyclarr template sonarr-v4-custom-formats-web-2160p);
+              # was auto-synced by the old trash_id profile, custom profiles need it explicit.
+              # SDR block intentionally omitted — hybrid must accept 1080p SDR.
+              - trash_ids:
+                  # Unified HDR
+                  - 505d871304820ba7106b693be6fe4a9e # HDR
+
+                  # Unwanted
+                  - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
+                  - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+                  - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
+                  - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+                  - fbcb31d8dabd2a319072b84fc0b7249c # Extras
+                  - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+
+                  # Misc
+                  - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
+                  - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+                  - 44e7c4de10ae50265753082e5dc76047 # Repack v3
+
+                  # Streaming Services
+                  - d660701077794679fd59e8bdf4ce3a29 # AMZN
+                  - f67c9ca88f463a48346062e8ad07713f # ATVP
+                  - 77a7b25585c18af08f60b1547bb9b4fb # CC
+                  - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+                  - dc5f2bb0e0262155b5fedd0f6c5d2b55 # DSCP
+                  - 89358767a60cc28783cdc3d0be9388a4 # DSNP
+                  - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
+                  - a880d6abc21e7c16884f3ae393f84179 # HMAX
+                  - f6cce30f1733d5c8194222a7507909bb # Hulu
+                  - 0ac24a2a68a9700bcb7eeca8e5cd644c # iT
+                  - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
+                  - d34870697c9db575f17700212167be23 # NF
+                  - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+                  - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
+                  - ae58039e1319178e6be73caab5c42166 # SHO
+                  - 1efe8da11bfd74fbbcd4d8117ddb9213 # STAN
+                  - 9623c5c9cac8e939c1b9aedd32f640bf # SYFY
+                  - 43b3cf48cb385cd3eac608ee6bca7f09 # UHD Streaming Boost
+                  - 218e93e5702f44a68ad9e3c6ba87d2f0 # HD Streaming Boost
+
+                  # HQ Source Groups
+                  - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
+                  - 58790d4e2fdcd9733aa7ae68ba2bb503 # WEB Tier 02
+                  - d84935abd3f8556dcd51d4f27e22d0a6 # WEB Tier 03
+                  - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene
+                assign_scores_to:
+                  - name: WEB (1080p-2160p)
+
         radarr:
           movies:
             base_url: http://localhost:7878
@@ -154,6 +203,72 @@ in
               - trash_ids:
                   - 3bc8df3a71baaac60a31ef696ea72d36 # German 1080p Booster
                   - cc7b1e64e2513a6a271090cdfafaeb55 # German 2160p Booster
+                assign_scores_to:
+                  - name: SQP-1 (1080p-2160p)
+
+              # SQP-1 (2160p) guide CF set (recyclarr template radarr-custom-formats-sqp-1-2160p);
+              # was auto-synced by the old trash_id profile, custom profiles need it explicit.
+              # SDR block omitted (hybrid accepts 1080p SDR); score-0 streaming block omitted.
+              - trash_ids:
+                  # Audio
+                  - 496f355514737f7d83bf7aa4d24f8169 # TrueHD Atmos
+                  - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+                  - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
+                  - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+                  - 3cafb66171b47f226146a0770576870f # TrueHD
+                  - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+                  - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
+                  - e7c2fcae07cbada050a0af3357491d7b # PCM
+                  - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
+                  - 185f1dd7264c4562b9022d963ac37424 # DD+
+                  - f9f847ac70a0af62ea4a08280b859636 # DTS-ES
+                  - 1c1a4c5e823891c75bc50380a6866f73 # DTS
+                  - 240770601cc226190c367ef59aba7463 # AAC
+                  - c2998bd0d90ed5621d8df281e839436e # DD
+
+                  # Unified HDR + DV (w/o HDR fallback)
+                  - 493b6d1dbec3c3364c59d7607f7e3405 # HDR
+                  - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
+
+                  # HQ Release Groups
+                  - 5153ec7413d9dae44e24275589b5e944 # BHDStudio
+                  - 7a0d1ad358fee9f5b074af3ef3f9d9ef # hallowed
+                  - c20f169ef63c5f40c2def54abaf4438e # WEB Tier 01
+                  - 403816d65392c79236dcb6dd591aeda4 # WEB Tier 02
+                  - af94e0fe497124d1f9ce732069ec8c3b # WEB Tier 03
+                  - ed27ebfef2f323e964fb1f61391bcb35 # HD Bluray Tier 01
+                  - c20c8647f2746a1f4c4262b0fbbeeeae # HD Bluray Tier 02
+                  - 5608c71bcebba0a5e666223bae8c9227 # HD Bluray Tier 03
+                  - 4d74ac4c4db0b64bff6ce0cffef99bf0 # UHD Bluray Tier 01
+                  - a58f517a70193f8e578056642178419d # UHD Bluray Tier 02
+                  - e71939fae578037e7aed3ee219bbe7c1 # UHD Bluray Tier 03
+
+                  # Misc
+                  - e7718d7a3ce595f289bfee26adc178f5 # Repack/Proper
+                  - ae43b294509409a6a13919dedd4764c4 # Repack2
+                  - 5caaaa1c08c1742aa4342d8c4cc463f2 # Repack3
+
+                  # Unwanted
+                  - ed38b889b31be83fda192888e2286d83 # BR-DISK
+                  - e6886871085226c3da1830830146846c # Generated Dynamic HDR
+                  - 90a6f9a284dff5103f6346090e6280c8 # LQ
+                  - e204b80c87be9497a8a6eaff48f72905 # LQ (Release Title)
+                  - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
+                  - bfd8eb01832d646a0a89c4deb46f8564 # Upscaled
+                  - 0a3f082873eb454bde444150b70253cc # Extras
+                  - 712d74cd88bceb883ee32f773656b1f5 # Sing-Along Versions
+                  - a5d148168c4506b55cf53984107c396e # Hi10P
+                  - cae4ca30163749b891686f95532519bd # AV1
+                  - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+
+                  # Resolution
+                  - 820b09bb9acbfde9c35c71e0e565dad8 # 1080p
+                  - b2be17d608fc88818940cd1833b0b24c # 720p
+
+                  # Streaming Services
+                  - cc5e51a9e85a6296ceefe097a77f12f4 # BCORE
+                  - 16622a6911d1ab5d5b8b713d5b0036d4 # CRiT
+                  - 2a6039655313bf5dab1e43523b62c374 # MA
                 assign_scores_to:
                   - name: SQP-1 (1080p-2160p)
       '';
