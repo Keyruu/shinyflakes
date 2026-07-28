@@ -93,7 +93,8 @@ lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts; do
   elif [ "$age" -lt 3600 ]; then age="$((age / 60))m"
   else age="$((age / 3600))h"; fi
   case "$status" in
-    waiting) sort=0; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
+    waiting)  sort=0; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
+    question) sort=0; icon=$'\e[36m●\e[0m'; emoji=❓ ;;
     working) sort=1; icon=$'\e[33m●\e[0m'; emoji=🟡 ;;
     *)       sort=2; icon=$'\e[2m○\e[0m'; emoji=⚪ ;;
   esac

@@ -35,6 +35,8 @@ in
   sops.templates."seerr-oidc.json" = {
     restartUnits = [ (quadlet.service containers.seerr) ];
     content = builtins.toJSON {
+      # providers are only surfaced on the login page when main.oidcLogin is set
+      main.oidcLogin = true;
       oidc.providers = [
         {
           slug = "authelia";
