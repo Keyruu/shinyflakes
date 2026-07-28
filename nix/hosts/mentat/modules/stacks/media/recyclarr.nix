@@ -153,6 +153,7 @@ in
               - name: SQP-1 (1080p-2160p)
                 reset_unmatched_scores:
                   enabled: true
+                min_format_score: 0
                 score_set: sqp-1-2160p
                 upgrade:
                   allowed: true
