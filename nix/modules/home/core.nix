@@ -200,7 +200,6 @@ in
     # FIXME: winboat fails to compile
     # winboat
     kdePackages.kdeconnect-kde
-    gotify-desktop
     jira-cli-go
     kdePackages.kdenlive
     kdePackages.kwave
