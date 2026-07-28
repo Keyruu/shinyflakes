@@ -11,6 +11,7 @@
     ./lidarr.nix
     ./sabnzbd.nix
     ./nzbhydra2.nix
+    ./prowlarr.nix
     ./seerr.nix
     # FIXME: beets broken on unstable
     # ./beets.nix
