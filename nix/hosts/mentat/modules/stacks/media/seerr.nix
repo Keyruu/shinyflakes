@@ -86,7 +86,10 @@ in
               TZ = "Europe/Berlin";
             };
             volumes = [ "${my.stack.path}/config:/app/config" ];
-            publishPorts = [ "127.0.0.1:${toString my.port}:5055" ];
+            publishPorts = [
+              "127.0.0.1:${toString my.port}:5055"
+              "${config.services.mesh.ip}:${toString my.port}:5055"
+            ];
             healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1";
             healthStartPeriod = "20s";
             healthTimeout = "3s";
