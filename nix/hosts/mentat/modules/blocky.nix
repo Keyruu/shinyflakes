@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   my = config.services.my."blocky-ui";
 
@@ -34,7 +34,7 @@ in
   users.groups.blocky = { };
 
   systemd.services.blocky.serviceConfig = {
-    DynamicUser = false;
+    DynamicUser = lib.mkForce false;
     User = "blocky";
     Group = "blocky";
   };
