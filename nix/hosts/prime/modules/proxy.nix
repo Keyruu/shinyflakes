@@ -18,6 +18,11 @@ let
       proxyPort = 5144;
       cloudflare = true;
     };
+    "requests.peeraten.net" = {
+      proxyHost = mentat;
+      proxyPort = 5055;
+      cloudflare = true;
+    };
     "calendar.peeraten.net" = {
       proxyHost = mentat;
       proxyPort = 5232;

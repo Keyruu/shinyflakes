@@ -109,6 +109,7 @@
             "owntracks"
             "service"
             "chat"
+            "requests"
           ];
         };
         mesh = {

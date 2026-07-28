@@ -112,6 +112,7 @@ in
                 chatto_access = "chatto_users";
                 gotify_access = "gotify_users";
                 jellyfin_access = "jellyfin_users";
+                seerr_access = "seerr_users";
               };
 
           # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe):
@@ -208,6 +209,22 @@ in
                 "email"
                 "profile"
               ];
+            }
+            {
+              client_id = "seerr";
+              client_name = "Seerr";
+              client_secret = "$pbkdf2-sha512$310000$WUZzEHrJICZuPexBj.d8yQ$kDatMzQnK.Ha0WlaqxCfGrVx6szvYnEejUxbxtEpImfaymhLIKjQuK454h8A9I0NMqx43TA7.v0JbGpYdx.azw";
+              authorization_policy = "seerr_access";
+              # preview-new-oidc redirect is plain /login,
+              # see https://github.com/seerr-team/seerr/discussions/2721
+              redirect_uris = [ "https://requests.peeraten.net/login" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+                "groups"
+              ];
+              token_endpoint_auth_method = "client_secret_post";
             }
             {
               client_id = "chatto";
