@@ -68,6 +68,7 @@ in
         ip = config.services.mesh.ip;
         port = 8096;
         useSsl = false;
+        externalHostname = "https://tv.peeraten.net";
         apiKey = config.sops.placeholder.jellyfinKey;
       };
       sonarr = [
@@ -79,6 +80,7 @@ in
           apiKey = config.sops.placeholder.sonarrKey;
           useSsl = false;
           baseUrl = "";
+          externalUrl = "https://sonarr.lab.keyruu.de";
           activeProfileId = 9;
           activeProfileName = "WEB (1080p-2160p)";
           activeDirectory = "/data/Series";
@@ -107,6 +109,7 @@ in
           useSsl = false;
           activeProfileId = 9;
           activeProfileName = "SQP-1 (1080p-2160p)";
+          externalUrl = "https://radarr.lab.keyruu.de";
           activeDirectory = "/data/Movies";
           is4k = false;
           minimumAvailability = "released";
