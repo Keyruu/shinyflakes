@@ -52,12 +52,21 @@ in
                       - WEBRip-1080p
 
             custom_formats:
+              # No guide default (trash_scores null) — pure preference, must be scored
+              # explicitly. Kept below the BD/Web tiers (600-1400) so they nudge picks
+              # within a tier instead of promoting a worse release group.
               - trash_ids:
-                  - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
-                  - b2550eb333d27b75833e25b8c2557b38 # 10bit
                   - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
                 assign_scores_to:
                   - name: Remux-1080p - Anime
+                    score: 500
+
+              - trash_ids:
+                  - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
+                  - b2550eb333d27b75833e25b8c2557b38 # 10bit
+                assign_scores_to:
+                  - name: Remux-1080p - Anime
+                    score: 100
 
               - trash_ids:
                   - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
