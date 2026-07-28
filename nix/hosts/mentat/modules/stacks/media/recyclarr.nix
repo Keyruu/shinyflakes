@@ -33,10 +33,23 @@ in
                 reset_unmatched_scores:
                   enabled: true
                   
-              - trash_id: d1498e7d189fbe6c7110ceaabb7473e6
-                name: WEB-2160p
+              - name: WEB (1080p-2160p)
                 reset_unmatched_scores:
                   enabled: true
+                upgrade:
+                  allowed: true
+                  until_quality: WEB 2160p
+                  until_score: 10000
+                quality_sort: top
+                qualities:
+                  - name: WEB 2160p
+                    qualities:
+                      - WEBDL-2160p
+                      - WEBRip-2160p
+                  - name: WEB 1080p
+                    qualities:
+                      - WEBDL-1080p
+                      - WEBRip-1080p
 
             custom_formats:
               - trash_ids:
@@ -51,14 +64,14 @@ in
                   - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
                   - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
                 assign_scores_to:
-                  - name: WEB-2160p
+                  - name: WEB (1080p-2160p)
 
               - trash_ids:
                   - ed51973a811f51985f14e2f6f290e47a # German DL (default -10000)
                 assign_scores_to:
                   - name: Remux-1080p - Anime
                     score: 11000
-                  - name: WEB-2160p
+                  - name: WEB (1080p-2160p)
                     score: 11000
 
               - trash_ids:
@@ -75,7 +88,7 @@ in
                   - 237eda4ef550a97da2c9d87b437e500b # German Microsized
                 assign_scores_to:
                   - name: Remux-1080p - Anime
-                  - name: WEB-2160p
+                  - name: WEB (1080p-2160p)
 
         radarr:
           movies:
@@ -86,32 +99,40 @@ in
               type: movie
 
             quality_profiles:
-              # SQP-1 (1080p) -> mapped to HD Bluray + WEB
-              - trash_id: d1d67249d3890e49bc12e275d989a7e9
-                name: SQP-1 (1080p)
+              # Hybrid: 1080p minimum, auto-upgrade to 2160p; encode-tier (no remux)
+              # cutoff at WEB 2160p = stop upgrading once German DL WEB 2160p on disk
+              - name: SQP-1 (1080p-2160p)
                 reset_unmatched_scores:
                   enabled: true
                 min_format_score: 10
-                
-              # SQP-1 (2160p) -> mapped to UHD Bluray + WEB
-              - trash_id: 64fb5f9858489bdac2af690e27c8f42f
-                name: SQP-1 (2160p)
-                reset_unmatched_scores:
-                  enabled: true
-                min_format_score: 10
+                score_set: sqp-1-2160p
+                upgrade:
+                  allowed: true
+                  until_quality: WEB 2160p
+                  until_score: 10000
+                quality_sort: top
+                qualities:
+                  - name: Bluray-2160p
+                  - name: WEB 2160p
+                    qualities:
+                      - WEBDL-2160p
+                      - WEBRip-2160p
+                  - name: Bluray-1080p
+                  - name: WEB 1080p
+                    qualities:
+                      - WEBDL-1080p
+                      - WEBRip-1080p
 
             custom_formats:
               - trash_ids:
                   - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
                 assign_scores_to:
-                  - name: SQP-1 (1080p)
+                  - name: SQP-1 (1080p-2160p)
 
               - trash_ids:
                   - f845be10da4f442654c13e1f2c3d6cd5 # German DL (default -10000)
                 assign_scores_to:
-                  - name: SQP-1 (1080p)
-                    score: 11000
-                  - name: SQP-1 (2160p)
+                  - name: SQP-1 (1080p-2160p)
                     score: 11000
 
               - trash_ids:
@@ -128,18 +149,13 @@ in
                   - a826ee9e46607bc61795c85a6f2b1279 # German LQ (release title)
                   - 03c430f326f10a27a9739b8bc83c30e4 # German Microsized
                 assign_scores_to:
-                  - name: SQP-1 (1080p)
-                  - name: SQP-1 (2160p)
+                  - name: SQP-1 (1080p-2160p)
 
               - trash_ids:
                   - 3bc8df3a71baaac60a31ef696ea72d36 # German 1080p Booster
-                assign_scores_to:
-                  - name: SQP-1 (1080p)
-
-              - trash_ids:
                   - cc7b1e64e2513a6a271090cdfafaeb55 # German 2160p Booster
                 assign_scores_to:
-                  - name: SQP-1 (2160p)
+                  - name: SQP-1 (1080p-2160p)
       '';
   };
 
