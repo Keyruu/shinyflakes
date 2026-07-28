@@ -23,6 +23,8 @@ let
       # first boot: seerr creates settings.json during setup, merge applies on next restart
       [ -f ${settings} ] || exit 0
       jq -s '.[0] * .[1]' ${settings} ${config.sops.templates."seerr-oidc.json".path} > ${settings}.new
+      # ExecStartPre runs as root; seerr (node, uid 1000) must keep write access
+      chown --reference=${settings} ${settings}.new
       mv ${settings}.new ${settings}
     '';
   };
@@ -64,7 +66,14 @@ in
       backup.enable = true;
       stack = {
         enable = true;
-        directories = [ "config" ];
+        # image runs as node (uid 1000)
+        directories = [
+          {
+            path = "config";
+            owner = "1000";
+            group = "1000";
+          }
+        ];
         security.enable = false;
 
         containers.seerr = {
