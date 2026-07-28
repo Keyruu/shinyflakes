@@ -132,7 +132,7 @@ in
   };
 
   services.my.litellm = {
-    port = 4000;
+    port = 4001;
     domain = "litellm.lab.keyruu.de";
     proxy = {
       enable = true;

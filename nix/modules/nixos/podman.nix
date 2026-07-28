@@ -4,7 +4,9 @@
     pkgs.docker-compose
   ];
 
-  networking.firewall.trustedInterfaces = [ "podman+" ];
+  # Must be the literal interface name: the nftables backend puts this straight
+  # into an `iifname { ... }` set, where the iptables `+` wildcard never matches.
+  networking.firewall.trustedInterfaces = [ "podman0" ];
 
   virtualisation.podman = {
     enable = true;
