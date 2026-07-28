@@ -11,10 +11,9 @@ let
   inherit (flake.lib) quadlet;
   settings = "${my.stack.path}/config/settings.json";
 
-  # OIDC has no env var or UI support on the preview tag — the provider block
-  # lives in seerr-owned mutable settings.json, so merge it in on every start
-  mergeOidc = pkgs.writeShellApplication {
-    name = "seerr-merge-oidc";
+  # jq * is a deep merge: objects merge recursively, arrays/scalars are replaced.
+  mergeSettings = pkgs.writeShellApplication {
+    name = "seerr-merge-settings";
     runtimeInputs = [
       pkgs.jq
       pkgs.coreutils
@@ -22,7 +21,9 @@ let
     text = ''
       # first boot: seerr creates settings.json during setup, merge applies on next restart
       [ -f ${settings} ] || exit 0
-      jq -s '.[0] * .[1]' ${settings} ${config.sops.templates."seerr-oidc.json".path} > ${settings}.new
+      jq -s '.[0] * .[1]' ${settings} ${
+        config.sops.templates."seerr-settings.json".path
+      } > ${settings}.new
       # ExecStartPre runs as root; seerr (node, uid 1000) must keep write access
       chown --reference=${settings} ${settings}.new
       mv ${settings}.new ${settings}
@@ -30,13 +31,27 @@ let
   };
 in
 {
-  sops.secrets.seerrClientSecret = { };
+  sops.secrets = {
+    seerrClientSecret = { };
+    seerrGotifyToken = { };
+    jellyfinKey = { };
+    sonarrKey = { };
+    radarrKey = { };
+  };
 
-  sops.templates."seerr-oidc.json" = {
+  sops.templates."seerr-settings.json" = {
     restartUnits = [ (quadlet.service containers.seerr) ];
     content = builtins.toJSON {
-      # providers are only surfaced on the login page when main.oidcLogin is set
-      main.oidcLogin = true;
+      main = {
+        # providers are only surfaced on the login page when oidcLogin is set
+        oidcLogin = true;
+        localLogin = false;
+        mediaServerLogin = false;
+        applicationTitle = "Requests";
+        applicationUrl = "https://requests.peeraten.net";
+      };
+      # real client IPs behind the nginx/prime proxies
+      network.trustProxy = true;
       oidc.providers = [
         {
           slug = "authelia";
@@ -47,6 +62,71 @@ in
           newUserLogin = true;
         }
       ];
+      # partial merge: name/serverId/libraries stay live. mesh IP instead of
+      # tv.peeraten.net - the public domain is DE-geoblocked, VPN exits CH (403s)
+      jellyfin = {
+        ip = config.services.mesh.ip;
+        port = 8096;
+        useSsl = false;
+        apiKey = config.sops.placeholder.jellyfinKey;
+      };
+      sonarr = [
+        {
+          id = 0;
+          name = "Sonarr";
+          hostname = "localhost";
+          port = 8989;
+          apiKey = config.sops.placeholder.sonarrKey;
+          useSsl = false;
+          baseUrl = "";
+          activeProfileId = 9;
+          activeProfileName = "WEB (1080p-2160p)";
+          activeDirectory = "/data/Series";
+          animeSeriesType = "anime";
+          activeAnimeProfileId = 9;
+          activeAnimeProfileName = "WEB (1080p-2160p)";
+          activeAnimeDirectory = "/data/Anime";
+          tags = [ ];
+          animeTags = [ ];
+          is4k = false;
+          isDefault = true;
+          enableSeasonFolders = false;
+          syncEnabled = true;
+          preventSearch = false;
+          tagRequests = true;
+          monitorNewItems = "all";
+        }
+      ];
+      radarr = [
+        {
+          id = 0;
+          name = "Radarr";
+          hostname = "localhost";
+          port = 7878;
+          apiKey = config.sops.placeholder.radarrKey;
+          useSsl = false;
+          activeProfileId = 9;
+          activeProfileName = "SQP-1 (1080p-2160p)";
+          activeDirectory = "/data/Movies";
+          is4k = false;
+          minimumAvailability = "released";
+          tags = [ ];
+          isDefault = true;
+          syncEnabled = true;
+          preventSearch = false;
+          tagRequests = true;
+        }
+      ];
+      notifications.agents.gotify = {
+        enabled = true;
+        types = 4062;
+        options = {
+          url = "https://notify.keyruu.de";
+          token = config.sops.placeholder.seerrGotifyToken;
+          priority = 0;
+          locale = "en";
+        };
+      };
     };
   };
 
@@ -101,7 +181,7 @@ in
             After = [ containers.media-gluetun.ref ];
             Requires = [ containers.media-gluetun.ref ];
           };
-          serviceConfig.ExecStartPre = [ (lib.getExe mergeOidc) ];
+          serviceConfig.ExecStartPre = [ (lib.getExe mergeSettings) ];
         };
       };
     };
