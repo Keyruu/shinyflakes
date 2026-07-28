@@ -21,6 +21,7 @@ in
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
     flake.modules.nixos.gaming
+    flake.modules.nixos.gotify-desktop
     flake.modules.private.syncthing
 
     ./hardware-configuration.nix

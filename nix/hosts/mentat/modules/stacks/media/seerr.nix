@@ -83,8 +83,8 @@ in
           activeProfileName = "WEB (1080p-2160p)";
           activeDirectory = "/data/Series";
           animeSeriesType = "anime";
-          activeAnimeProfileId = 9;
-          activeAnimeProfileName = "WEB (1080p-2160p)";
+          activeAnimeProfileId = 7;
+          activeAnimeProfileName = "Remux-1080p - Anime";
           activeAnimeDirectory = "/data/Anime";
           tags = [ ];
           animeTags = [ ];
