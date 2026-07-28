@@ -86,18 +86,32 @@ in
               TZ = "Europe/Berlin";
             };
             volumes = [ "${my.stack.path}/config:/app/config" ];
-            publishPorts = [
-              "127.0.0.1:${toString my.port}:5055"
-              "${config.services.mesh.ip}:${toString my.port}:5055"
-            ];
+            # gluetun netns like the other media containers: sonarr/radarr via localhost,
+            # jellyfin via its mesh publish (tv.peeraten.net is DE-geoblocked, VPN exits CH)
+            networks = [ "media-gluetun.container" ];
             healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1";
             healthStartPeriod = "20s";
             healthTimeout = "3s";
             healthInterval = "15s";
             healthRetries = 3;
           };
+          unitConfig = {
+            After = [ containers.media-gluetun.ref ];
+            Requires = [ containers.media-gluetun.ref ];
+          };
           serviceConfig.ExecStartPre = [ (lib.getExe mergeOidc) ];
         };
       };
     };
+
+  virtualisation.quadlet.containers.media-gluetun.containerConfig = {
+    # ports live on the netns owner; mesh publish is what prime's proxy targets
+    publishPorts = [
+      "127.0.0.1:${toString my.port}:5055"
+      "${config.services.mesh.ip}:${toString my.port}:5055"
+    ];
+    # let netns containers reach mesh-published services (seerr → jellyfin)
+    # without leaving through the VPN
+    environments.FIREWALL_OUTBOUND_SUBNETS = config.services.mesh.subnet;
+  };
 }
