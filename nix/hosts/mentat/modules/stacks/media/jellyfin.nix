@@ -9,6 +9,8 @@ let
   my = config.services.my.jellyfin;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet;
+
+  domain = "tv.peeraten.net";
 in
 {
   sops.secrets.jellyfinClientSecret = { };
@@ -75,8 +77,14 @@ in
   services.my.jellyfin = {
     zfs = true;
     port = 8096;
-    domain = "jellyfin.lab.keyruu.de";
-    proxy.enable = true;
+    domain = domain;
+    proxy = {
+      enable = true;
+      cert = {
+        provided = false;
+        host = domain;
+      };
+    };
     backup.enable = true;
     stack = {
       enable = true;
