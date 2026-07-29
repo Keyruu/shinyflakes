@@ -34,12 +34,14 @@ let
         title=$(jq -r '.subject.title' <<< "$n")
         # subject.url is an API url; strip prefix to get the html url
         url=$(jq -r '.subject.url' <<< "$n" | sed 's|/api/v1/repos/|/|')
+        # gotify reads stdin unconditionally; without </dev/null it would take the
+        # remaining jq lines as message body and abort ("stdin and arguments")
         gotify push \
           --url "https://notify.keyruu.de" \
           --title "$repo: $type" \
           --priority 4 \
           "$title
-      $url"
+      $url" </dev/null
       done
 
       # written last so a failed run retries the same window (dupes over losses)

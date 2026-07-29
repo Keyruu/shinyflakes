@@ -155,6 +155,16 @@ in
 
             quality_definition:
               type: movie
+              # Guide leaves 2160p max unlimited, so Radarr always takes the fattest
+              # 4K release (Scarface 1983 grabbed 54G / 325 MB/min = remux-tier).
+              # Caps keep this profile at encode-tier bitrates as intended below.
+              qualities:
+                - name: Bluray-2160p
+                  max: 250
+                - name: WEBDL-2160p
+                  max: 200
+                - name: WEBRip-2160p
+                  max: 200
 
             quality_profiles:
               # Hybrid: 1080p minimum, auto-upgrade to 2160p; encode-tier (no remux)
