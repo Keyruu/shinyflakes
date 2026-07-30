@@ -4,7 +4,7 @@
 
   virtualisation.quadlet.containers.media-gluetun = {
     containerConfig = {
-      image = "ghcr.io/qdm12/gluetun:v3.41.1";
+      image = "ghcr.io/qdm12/gluetun:v3.41.3";
       addCapabilities = [ "NET_ADMIN" ];
       devices = [ "/dev/net/tun:/dev/net/tun" ];
       environments = {
