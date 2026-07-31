@@ -3,12 +3,6 @@ let
   my = config.services.my.changedetection;
 in
 {
-  sops.secrets.bypassVpnConfig = { };
-
-  networking.firewall.interfaces.changedetection.allowedTCPPorts = [
-    config.services.link-bypass.port
-  ];
-
   services.my.changedetection = {
     port = 5000;
     domain = "changedetection.lab.keyruu.de";
