@@ -20,7 +20,6 @@
     ./backrest.nix
     ./forgejo.nix
     ./invidious.nix
-    ./freshrss.nix
     ./calibre-web.nix
     ./paperless.nix
     ./changedetection.nix

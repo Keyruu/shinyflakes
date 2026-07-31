@@ -1,22 +1,9 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   my = config.services.my.changedetection;
 in
 {
-  imports = [ flake.modules.private.link-bypass ];
   sops.secrets.bypassVpnConfig = { };
-
-  services.link-bypass = {
-    enable = true;
-    vpn = {
-      enable = true;
-      configFile = config.sops.secrets.bypassVpnConfig.path;
-    };
-    sync = {
-      enable = true;
-      cleanup = true;
-    };
-  };
 
   networking.firewall.interfaces.changedetection.allowedTCPPorts = [
     config.services.link-bypass.port

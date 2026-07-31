@@ -17,6 +17,7 @@
         glide-browser
         glide
         .glide-browser-wrapped
+        .glide-wrapped
       '';
       mode = "0755";
     };

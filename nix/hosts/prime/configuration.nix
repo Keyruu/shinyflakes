@@ -72,7 +72,7 @@ in
     restic.defaults = {
       repoFile = config.sops.templates."resticRepo".path;
       # prevent lock collisions with mentat
-      onCalendar = "03:00";
+      hour = 3;
     };
   };
 
