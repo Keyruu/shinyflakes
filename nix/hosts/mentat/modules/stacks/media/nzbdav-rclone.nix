@@ -29,7 +29,7 @@ in
   # module doesn't expose. Lives in gluetun's netns so localhost:3000 reaches nzbdav.
   virtualisation.quadlet.containers.nzbdav-rclone = {
     containerConfig = {
-      image = "rclone/rclone:1.75.0";
+      image = "docker.io/rclone/rclone:1.75.0";
       addCapabilities = [ "SYS_ADMIN" ];
       devices = [ "/dev/fuse" ];
       appArmor = "unconfined";
@@ -43,7 +43,8 @@ in
         "/etc/localtime:/etc/localtime:ro"
       ];
       environmentFiles = [ config.sops.templates."nzbdav-rclone.env".path ];
-      exec = "/usr/bin/rclone mount nzbdav: ${mountPoint}"
+      exec =
+        "/usr/bin/rclone mount nzbdav: ${mountPoint}"
         + " --uid=0 --gid=0 --allow-other --links --use-cookies"
         + " --vfs-cache-mode=full --vfs-cache-max-size=20G --vfs-cache-max-age=24h"
         + " --buffer-size=0M --vfs-read-ahead=512M --dir-cache-time=20s";

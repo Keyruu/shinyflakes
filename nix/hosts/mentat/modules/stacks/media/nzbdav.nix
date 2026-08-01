@@ -17,7 +17,7 @@ in
 
       containers.nzbdav = {
         containerConfig = {
-          image = "nzbdav/nzbdav:0.6.4";
+          image = "docker.io/nzbdav/nzbdav:0.6.4";
           environments = {
             PUID = "0";
             PGID = "0";
