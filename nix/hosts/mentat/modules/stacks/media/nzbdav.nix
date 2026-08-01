@@ -26,6 +26,7 @@ in
           volumes = [
             "/etc/localtime:/etc/localtime:ro"
             "${my.stack.path}/config:/config"
+            "/main/media/downloads:/data/downloads"
           ];
           networks = [
             "media-gluetun.container"
