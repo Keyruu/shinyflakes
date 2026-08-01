@@ -46,6 +46,7 @@ in
   };
 
   virtualisation.quadlet.containers.media-gluetun.containerConfig.publishPorts = [
-    "[::]:${toString my.port}:3000"
+    "127.0.0.1:${toString my.port}:3000"
+    "192.168.100.7:${toString my.port}:3000"
   ];
 }
