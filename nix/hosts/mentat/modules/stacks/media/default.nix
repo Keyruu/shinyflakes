@@ -15,7 +15,5 @@
     # FIXME: beets broken on unstable
     # ./beets.nix
     ./tidaloader.nix
-    ./nzbdav.nix
-    ./nzbdav-rclone.nix
   ];
 }
