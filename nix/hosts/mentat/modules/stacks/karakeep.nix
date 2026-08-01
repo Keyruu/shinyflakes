@@ -56,7 +56,7 @@ in
       containers = {
         web = {
           containerConfig = {
-            image = "ghcr.io/karakeep-app/karakeep:0.32.0";
+            image = "ghcr.io/karakeep-app/karakeep:0.33.1";
             publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
             volumes = [
               "${my.stack.path}/data:/data"
