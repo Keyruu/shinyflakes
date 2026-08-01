@@ -15,5 +15,6 @@ require("cfg.smart-splits")
 require("cfg.editor")
 require("cfg.snacks")
 require("cfg.jira")
+require("cfg.orgmode")
 
 require("cfg.theme")
