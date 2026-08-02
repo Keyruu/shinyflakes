@@ -50,7 +50,7 @@ in
       security.enable = false;
       containers.mqtt = {
         containerConfig = {
-          image = "eclipse-mosquitto:2.0.22";
+          image = "docker.io/eclipse-mosquitto:2.0.22";
           publishPorts = [
             "127.0.0.1:1883:1883"
             "192.168.100.7:1883:1883"

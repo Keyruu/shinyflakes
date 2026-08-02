@@ -182,7 +182,7 @@ in
             readOnlyRootFilesystem = false;
           };
           containerConfig = {
-            image = "postgres:16.14-alpine";
+            image = "docker.io/postgres:16.14-alpine";
             addCapabilities = [
               "CHOWN"
               "FOWNER"

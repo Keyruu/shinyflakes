@@ -132,7 +132,7 @@ in
       containers = {
         nats = {
           containerConfig = {
-            image = "nats:2.14";
+            image = "docker.io/nats:2.14";
             exec = "--jetstream --store_dir=/data --config /nats.conf";
             volumes = [
               "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
@@ -145,7 +145,7 @@ in
 
         livekit = {
           containerConfig = {
-            image = "livekit/livekit-server:v1.13.5";
+            image = "docker.io/livekit/livekit-server:v1.13.5";
             exec = "--config /etc/livekit.yaml";
             publishPorts = [
               "3478:3478/udp"

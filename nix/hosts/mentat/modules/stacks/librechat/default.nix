@@ -83,7 +83,7 @@ in
 
         mongodb = {
           containerConfig = {
-            image = "mongo:8.0.17";
+            image = "docker.io/mongo:8.0.17";
             exec = "mongod --noauth";
             volumes = [
               "${my.stack.path}/mongodb/data:/data/db"
@@ -94,7 +94,7 @@ in
 
         meilisearch = {
           containerConfig = {
-            image = "getmeili/meilisearch:v1.35.1";
+            image = "docker.io/getmeili/meilisearch:v1.35.1";
             volumes = [
               "${my.stack.path}/meilisearch/meili_data_v1.35:/meili_data"
             ];
@@ -109,7 +109,7 @@ in
 
         vectordb = {
           containerConfig = {
-            image = "pgvector/pgvector:0.8.0-pg15-trixie";
+            image = "docker.io/pgvector/pgvector:0.8.0-pg15-trixie";
             volumes = [
               "${my.stack.path}/vectordb/pgdata2:/var/lib/postgresql/data"
             ];

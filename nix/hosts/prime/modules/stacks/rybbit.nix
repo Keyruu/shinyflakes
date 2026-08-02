@@ -64,7 +64,7 @@ in
       containers = {
         clickhouse = {
           containerConfig = {
-            image = "clickhouse/clickhouse-server:25.4.2";
+            image = "docker.io/clickhouse/clickhouse-server:25.4.2";
             volumes = [
               "${my.stack.path}/clickhouse-data:/var/lib/clickhouse"
               "${config.environment.etc."stacks/rybbit/clickhouse_config".source}:/etc/clickhouse-server/config.d"
@@ -86,7 +86,7 @@ in
 
         postgres = {
           containerConfig = {
-            image = "postgres:17.4";
+            image = "docker.io/postgres:17.4";
             volumes = [ "${my.stack.path}/postgres-data:/var/lib/postgresql/data" ];
             environmentFiles = [ config.sops.templates."rybbit.env".path ];
             healthCmd = "pg_isready -U frog -d analytics";
