@@ -8,10 +8,6 @@ let
   my = config.services.my.scrutiny;
 in
 {
-  imports = [
-    ./samba.nix
-  ];
-
   boot = {
     supportedFilesystems = [ "zfs" ];
     zfs = {

@@ -9,7 +9,6 @@ let
 in
 {
   imports = [
-    ./atuin.nix
     ./fish.nix
     ./k9s.nix
     ./lazygit.nix

@@ -40,6 +40,12 @@
       disableWhileTyping = false;
     };
 
+    logind.settings.Login = {
+      HandleLidSwitch = "suspend";
+      HandlePowerKey = "suspend";
+      HandlePowerKeyLongPress = "poweroff";
+    };
+
     upower = {
       enable = true;
       percentageLow = 10;

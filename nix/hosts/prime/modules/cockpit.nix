@@ -6,14 +6,14 @@
   ...
 }:
 let
-  my = config.services.my.mentat-cockpit;
+  my = config.services.my.prime-cockpit;
   cockpitPkgs = import inputs.nixpkgs-cockpit-zfs { inherit (pkgs.stdenv.hostPlatform) system; };
 in
 {
   networking.firewall.interfaces.mesh0.allowedTCPPorts = [ my.port ];
 
   services = {
-    my.mentat-cockpit = {
+    my.prime-cockpit = {
       enable = true;
       port = 9090;
       domain = "prime.keyruu.de";

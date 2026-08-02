@@ -2,8 +2,6 @@
   imports = [
     ./media
     ./home-assistant
-    ./mcp
-    ./search
 
     ./immich.nix
     ./traccar.nix
@@ -13,18 +11,14 @@
     ./timetagger.nix
     ./radicale.nix
     ./isponsorblocktv.nix
-    # ./n8n.nix
     ./karaoke.nix
     ./hytale.nix
     ./terraria.nix
     ./backrest.nix
     ./forgejo.nix
-    ./invidious.nix
     ./calibre-web.nix
     ./paperless.nix
     ./changedetection.nix
-    ./litellm.nix
-    ./headroom.nix
     ./actualbudget.nix
     ./hermes.nix
   ];

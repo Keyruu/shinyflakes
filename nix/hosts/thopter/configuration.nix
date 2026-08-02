@@ -22,7 +22,6 @@ in
     flake.modules.nixos.workstation
     flake.modules.nixos.wayland
     flake.modules.nixos.laptop
-    flake.modules.nixos.hibernation
     flake.modules.nixos.gotify-desktop
     flake.modules.private.syncthing
 

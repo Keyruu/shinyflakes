@@ -1,70 +1,64 @@
 { config, flake, ... }:
 let
-  stackPath = "/etc/stacks/pikaraoke";
+  my = config.services.my.karaoke;
   inherit (config.virtualisation.quadlet) containers;
   inherit (flake.lib) quadlet karaokeDomain;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/songs 0755 1000 1000"
-  ];
-
   sops.secrets = {
     karaokeAdminPassword = { };
-    karaokeCookies = { mode = "0444"; };
+    karaokeCookies = {
+      mode = "0444";
+    };
   };
   sops.templates."pikaraoke.env" = {
     restartUnits = [
-      (quadlet.service containers.pikaraoke)
+      (quadlet.service containers.karaoke)
     ];
     content = ''
       KARAOKE_ADMIN_PASSWORD=${config.sops.placeholder.karaokeAdminPassword}
     '';
   };
 
-  virtualisation.quadlet.containers.pikaraoke = {
-    containerConfig = {
-      image = "docker.io/vicwomg/pikaraoke:1.21.0";
-      publishPorts = [ "${config.services.mesh.ip}:5555:5555" ];
-      entrypoint = [
-        "/bin/sh"
-        "-c"
-        ''
-          cp /app/cookies-ro.txt /tmp/cookies.txt
-          chmod 644 /tmp/cookies.txt
-          exec pikaraoke \
-            -u "https://${karaokeDomain}" \
-            --admin-password "$KARAOKE_ADMIN_PASSWORD" \
-            --limit-user-songs-by 3 \
-            --ytdl-args "--cookies /tmp/cookies.txt"
-        ''
+  services.my.karaoke = {
+    stack = {
+      enable = true;
+      directories = [
+        {
+          path = "songs";
+          mode = "0755";
+          owner = "1000";
+          group = "1000";
+        }
       ];
-      volumes = [
-        "${stackPath}/songs:/home/pikaraoke/pikaraoke-songs"
-        "${config.sops.secrets.karaokeCookies.path}:/app/cookies-ro.txt:ro"
-      ];
-      environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
+      security.enable = false;
+
+      containers = {
+        karaoke = {
+          containerConfig = {
+            image = "docker.io/vicwomg/pikaraoke:1.21.0";
+            publishPorts = [ "${config.services.mesh.ip}:5555:5555" ];
+            entrypoint = [
+              "/bin/sh"
+              "-c"
+              ''
+                cp /app/cookies-ro.txt /tmp/cookies.txt
+                chmod 644 /tmp/cookies.txt
+                exec pikaraoke \
+                  -u "https://${karaokeDomain}" \
+                  --admin-password "$KARAOKE_ADMIN_PASSWORD" \
+                  --limit-user-songs-by 3 \
+                  --ytdl-args "--cookies /tmp/cookies.txt"
+              ''
+            ];
+            volumes = [
+              "${my.stack.path}/songs:/home/pikaraoke/pikaraoke-songs"
+              "${config.sops.secrets.karaokeCookies.path}:/app/cookies-ro.txt:ro"
+            ];
+            environmentFiles = [ config.sops.templates."pikaraoke.env".path ];
+          };
+        };
+      };
     };
   };
-
-  # security.acme = {
-  #   certs = {
-  #     "keyruu.de" = {
-  #       extraDomainNames = [ "*.keyruu.de" ];
-  #       dnsProvider = "cloudflare";
-  #       dnsPropagationCheck = true;
-  #       environmentFile = config.sops.secrets.cloudflare.path;
-  #     };
-  #   };
-  # };
-
-  # services.nginx.virtualHosts."${karaokeDomain}" = {
-  #   useACMEHost = "keyruu.de";
-  #   forceSSL = true;
-
-  #   locations."/" = {
-  #     proxyPass = "http://127.0.0.1:5555";
-  #     proxyWebsockets = true;
-  #   };
-  # };
 }

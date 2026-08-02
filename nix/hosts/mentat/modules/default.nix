@@ -10,7 +10,6 @@
     ./nas.nix
     ./network.nix
     ./nginx.nix
-    ./samba.nix
     ./blocky.nix
     ./copyparty.nix
     ./syncthing.nix

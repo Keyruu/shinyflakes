@@ -1,24 +1,26 @@
-_:
+{ config, ... }:
 let
-  stackPath = "/etc/stacks/isponsorblocktv";
+  my = config.services.my.isponsorblocktv;
 in
 {
-  systemd.tmpfiles.rules = [
-    "d ${stackPath}/data 0755 root root"
-  ];
+  services.my.isponsorblocktv = {
+    stack = {
+      enable = true;
+      directories = [ "data" ];
+      # ponytail: host networking can't enforce all-caps isolation; tighten when the image drops privs
+      security.enable = false;
 
-  virtualisation.quadlet.containers.isponsorblocktv = {
-    containerConfig = {
-      image = "ghcr.io/dmunozv04/isponsorblocktv:v2.10.0";
-      networks = [
-        "host"
-      ];
-      volumes = [
-        "${stackPath}/data:/app/data"
-      ];
-    };
-    serviceConfig = {
-      Restart = "always";
+      containers = {
+        isponsorblocktv = {
+          containerConfig = {
+            image = "ghcr.io/dmunozv04/isponsorblocktv:v2.10.0";
+            networks = [ "host" ];
+            volumes = [
+              "${my.stack.path}/data:/app/data"
+            ];
+          };
+        };
+      };
     };
   };
 }

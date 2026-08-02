@@ -11,7 +11,6 @@
     ./satty.nix
     ./spotify.nix
     ./vicinae.nix
-    ./zathura.nix
 
     flake.modules.agents.pi
     flake.modules.agents.opencode
