@@ -5,17 +5,21 @@
   ...
 }:
 let
-  configFile =
-    pkgs.writeText "beszel-hub-config.yml" # yaml
-      ''
-        systems:
-          - name: prime
-            host: 100.67.0.1
-            port: 45876
-          - name: mentat
-            host: 127.0.0.1
-            port: 45876
-      '';
+  beszelConfig = {
+    systems = [
+      {
+        name = "prime";
+        host = "100.67.0.1";
+        port = 45876;
+      }
+      {
+        name = "mentat";
+        host = "127.0.0.1";
+        port = 45876;
+      }
+    ];
+  };
+  configFile = pkgs.writeText "beszel-hub-config.yml" (pkgs.lib.generators.toYAML { } beszelConfig);
 in
 {
   # Static user so sops-placed SSH keys keep ownership; nixpkgs module's
@@ -39,13 +43,13 @@ in
     beszelPrivateKey = {
       owner = "beszel-hub";
       group = "beszel-hub";
-      path = "/var/lib/beszel-hub/.ssh/id_ed25519";
+      path = "/var/lib/beszel-hub/beszel_data/id_ed25519";
       mode = "0600";
     };
     beszelPublicKey = {
       owner = "beszel-hub";
       group = "beszel-hub";
-      path = "/var/lib/beszel-hub/.ssh/id_ed25519.pub";
+      path = "/var/lib/beszel-hub/beszel_data/id_ed25519.pub";
       mode = "0644";
     };
   };
@@ -57,10 +61,11 @@ in
     services.beszel-hub.serviceConfig = {
       DynamicUser = lib.mkForce false;
       PrivateUsers = lib.mkForce false;
-      ExecStartPre = lib.mkBefore [
-        "${pkgs.coreutils}/bin/install -m 0640 -o beszel-hub -g beszel-hub ${configFile} /var/lib/beszel-hub/config.yml"
-      ];
     };
+    tmpfiles.rules = [
+      "r /var/lib/beszel-hub/beszel_data/config.yml"
+      "L+ /var/lib/beszel-hub/beszel_data/config.yml - - - - /etc/beszel-hub/config.yml"
+    ];
     services.beszel-hub.restartTriggers = [
       configFile
       config.sops.secrets.beszelPrivateKey.path
