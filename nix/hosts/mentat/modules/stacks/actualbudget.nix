@@ -15,7 +15,7 @@ in
       containers = {
         actualbudget = {
           containerConfig = {
-            image = "docker.io/actualbudget/actual-server:26.7.0";
+            image = "docker.io/actualbudget/actual-server:26.8.0";
             publishPorts = [ "127.0.0.1:${toString my.port}:5006" ];
             volumes = [
               "${my.stack.path}/data:/data"
