@@ -6,9 +6,7 @@
     ./immich.nix
     ./traccar.nix
     ./speedtest-tracker.nix
-    ./librechat
     ./karakeep.nix
-    ./timetagger.nix
     ./radicale.nix
     ./isponsorblocktv.nix
     ./karaoke.nix

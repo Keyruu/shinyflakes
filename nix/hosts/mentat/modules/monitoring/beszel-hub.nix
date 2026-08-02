@@ -1,10 +1,15 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   beszelConfig = {
     systems = [
       {
         name = "prime";
-        host = "prime";
+        host = "100.67.0.1";
         port = 45876;
       }
       {
@@ -14,40 +19,55 @@ let
       }
     ];
   };
-
-  beszelConfigYaml = pkgs.lib.generators.toYAML { } beszelConfig;
 in
 {
-  environment.etc."beszel/beszel_data/config.yml".text = beszelConfigYaml;
+  # Static user so sops-placed SSH keys keep ownership; nixpkgs module's
+  # DynamicUser+PrivateUsers would reallocate a UID and lose access to /etc-beszel/.ssh
+  users = {
+    users.beszel-hub = {
+      isSystemUser = true;
+      group = "beszel-hub";
+    };
+    groups.beszel-hub = { };
+  };
+
+  services.beszel.hub = {
+    enable = true;
+    host = "127.0.0.1";
+    port = 7220;
+    dataDir = "/var/lib/beszel-hub";
+  };
 
   sops.secrets = {
     beszelPrivateKey = {
-      owner = "root";
-      path = "/etc/beszel/beszel_data/id_ed25519";
+      owner = "beszel-hub";
+      group = "beszel-hub";
+      path = "/var/lib/beszel-hub/.ssh/id_ed25519";
+      mode = "0600";
     };
     beszelPublicKey = {
-      owner = "root";
-      path = "/etc/beszel/beszel_data/id_ed25519.pub";
+      owner = "beszel-hub";
+      group = "beszel-hub";
+      path = "/var/lib/beszel-hub/.ssh/id_ed25519.pub";
+      mode = "0644";
     };
   };
 
-  systemd.services.beszel-hub = {
-    description = "Beszel Hub";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    restartTriggers = [
-      config.environment.etc."beszel/beszel_data/config.yml".source
+  environment.etc."beszel-hub/config.yml".text = pkgs.lib.generators.toYAML { } beszelConfig;
+
+  systemd = {
+    services.beszel-hub.serviceConfig = {
+      DynamicUser = lib.mkForce false;
+      PrivateUsers = lib.mkForce false;
+    };
+    tmpfiles.rules = [
+      "f+ /var/lib/beszel-hub/config.yml 0640 beszel-hub beszel-hub - /etc/beszel-hub/config.yml"
+    ];
+    services.beszel-hub.restartTriggers = [
+      config.environment.etc."beszel-hub/config.yml".source
       config.sops.secrets.beszelPrivateKey.path
       config.sops.secrets.beszelPublicKey.path
     ];
-    serviceConfig = {
-      Type = "simple";
-      Restart = "always";
-      RestartSec = "3";
-      User = "root";
-      WorkingDirectory = "/etc/beszel";
-      ExecStart = ''${pkgs.beszel}/bin/beszel-hub serve --http "127.0.0.1:7220"'';
-    };
   };
 
   services.nginx.virtualHosts."beszel.lab.keyruu.de" = {
