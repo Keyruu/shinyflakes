@@ -54,16 +54,4 @@ in
       };
     };
   };
-
-  # virtualisation.quadlet.builds.koito.buildConfig =
-  #   let
-  #     src = fetchGit {
-  #       url = "https://github.com/Keyruu/Koito.git";
-  #       rev = "fee7fb811c8b34cb70ef7f376907c41bbb4044b4";
-  #     };
-  #   in
-  #   {
-  #     workdir = "${src}";
-  #     file = "${src}/Dockerfile";
-  #   };
 }

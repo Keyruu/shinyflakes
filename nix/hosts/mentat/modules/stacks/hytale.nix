@@ -11,9 +11,9 @@ in
 {
   sops.secrets.hytaleServerPassword = { };
   sops.templates."hytale-server.env" = {
-    restartUnits = [
-      (quadlet.service containers.hytale)
-    ];
+    # restartUnits = [
+    #   (quadlet.service containers.hytale)
+    # ];
     content = ''
       HYTALE_PASSWORD=${config.sops.placeholder.hytaleServerPassword}
     '';
