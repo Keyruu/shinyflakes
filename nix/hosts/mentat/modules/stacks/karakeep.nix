@@ -6,6 +6,7 @@ let
 in
 {
   sops.secrets = {
+    openaiKey = { };
     karakeepNextauthSecret = { };
     karakeepMeiliMasterKey = { };
     karakeepClientSecret = { };
