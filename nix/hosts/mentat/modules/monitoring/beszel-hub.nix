@@ -5,21 +5,17 @@
   ...
 }:
 let
-  beszelConfig = {
-    systems = [
-      {
-        name = "prime";
-        host = "100.67.0.1";
-        port = 45876;
-      }
-      {
-        name = "mentat";
-        host = "127.0.0.1";
-        port = 45876;
-      }
-    ];
-  };
-  configFile = pkgs.writeText "beszel-hub-config.yml" (pkgs.lib.generators.toYAML { } beszelConfig);
+  configFile =
+    pkgs.writeText "beszel-hub-config.yml" # yaml
+      ''
+        systems:
+          - name: prime
+            host: 100.67.0.1
+            port: 45876
+          - name: mentat
+            host: 127.0.0.1
+            port: 45876
+      '';
 in
 {
   # Static user so sops-placed SSH keys keep ownership; nixpkgs module's
