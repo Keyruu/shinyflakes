@@ -1,11 +1,12 @@
 {
   config,
+  flake,
   ...
 }:
 let
   my = config.services.my.hytale;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (config.flake.lib) quadlet;
+  inherit (flake.lib) quadlet;
 in
 {
   sops.secrets.hytaleServerPassword = { };
@@ -22,7 +23,12 @@ in
     stack = {
       enable = false;
       directories = [
-        { path = "data"; mode = "0755"; owner = "1000"; group = "1000"; }
+        {
+          path = "data";
+          mode = "0755";
+          owner = "1000";
+          group = "1000";
+        }
       ];
       # ponytail: experimental game server image, unknown internal write paths; tighten when stable
       security.enable = false;
