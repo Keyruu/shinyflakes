@@ -19,6 +19,7 @@ let
       }
     ];
   };
+  configFile = pkgs.writeText "beszel-hub-config.yml" (pkgs.lib.generators.toYAML { } beszelConfig);
 in
 {
   # Static user so sops-placed SSH keys keep ownership; nixpkgs module's
@@ -53,18 +54,19 @@ in
     };
   };
 
-  environment.etc."beszel-hub/config.yml".text = pkgs.lib.generators.toYAML { } beszelConfig;
+  # config.yml auto-registers which systems the hub should track
+  environment.etc."beszel-hub/config.yml".source = configFile;
 
   systemd = {
     services.beszel-hub.serviceConfig = {
       DynamicUser = lib.mkForce false;
       PrivateUsers = lib.mkForce false;
+      ExecStartPre = lib.mkBefore [
+        "${pkgs.coreutils}/bin/install -m 0640 -o beszel-hub -g beszel-hub ${configFile} /var/lib/beszel-hub/config.yml"
+      ];
     };
-    tmpfiles.rules = [
-      "f+ /var/lib/beszel-hub/config.yml 0640 beszel-hub beszel-hub - /etc/beszel-hub/config.yml"
-    ];
     services.beszel-hub.restartTriggers = [
-      config.environment.etc."beszel-hub/config.yml".source
+      configFile
       config.sops.secrets.beszelPrivateKey.path
       config.sops.secrets.beszelPublicKey.path
     ];
