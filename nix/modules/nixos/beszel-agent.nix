@@ -16,4 +16,8 @@
       HUB_URL = if config.networking.hostName == "mentat" then "http://127.0.0.1:7220" else "https://beszel.lab.keyruu.de";
     };
   };
+
+  # Open mesh access so the hub (mentat) can SSH to the agent's stats
+  # endpoint on hosts where it isn't reachable via loopback (i.e. prime).
+  networking.firewall.interfaces.mesh0.allowedTCPPorts = [ 45876 ];
 }
