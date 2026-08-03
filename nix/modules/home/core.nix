@@ -205,6 +205,7 @@ in
     kdePackages.kwave
     tea
     handy
+    plezy
 
     # perSystem.self.numr
     # perSystem.self.glide-browser

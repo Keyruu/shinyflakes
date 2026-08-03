@@ -11,6 +11,7 @@ pkgs.writeShellApplication {
     gnugrep
     coreutils
     niri
+    nirius
     util-linux # setsid
   ];
   # vicinae/footclient intentionally not in the closure — desktop apps,

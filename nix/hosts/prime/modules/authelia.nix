@@ -93,6 +93,10 @@ in
           # see https://www.authelia.com/integration/openid-connect/clients/karakeep/
           claims_policies.karakeep.id_token = [ "email" ];
 
+          # allow the static dashboard to call /userinfo cross-origin for group filtering
+          cors.allowed_origins = [ "https://dash.peeraten.net" ];
+          cors.endpoints = [ "userinfo" ];
+
           authorization_policies =
             lib.mapAttrs
               (_: group: {

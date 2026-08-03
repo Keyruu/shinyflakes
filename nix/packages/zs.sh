@@ -55,17 +55,34 @@ if [ "$mode" = dmenu ]; then
       name=$(basename "$dir")
       ;;
   esac
-  if zellij ls -ns 2>/dev/null | grep -qxF "$name"; then
-    # focus the window attached to the session (title: "<name> | ...")
-    win=$(niri msg -j windows \
-      | jq -r --arg p "$name | " \
-        '[.[] | select(.title | startswith($p))][0].id // empty')
-    if [ -n "$win" ]; then
-      niri msg action focus-window --id "$win"
-    else
-      # session not attached in any window — open one (resurrects exited)
-      setsid -f footclient zellij attach "$name" >/dev/null 2>&1 || true
+  # The session holding a client is the terminal window running zellij;
+  # reuse it via switch-session instead of attaching a second client in a
+  # new window. Window titles can't identify it (zellij sets "<session> |
+  # <pane>" only after the active pane emits an OSC title) and neither can
+  # pids (foot's server reports its own pid for every window).
+  # EXITED sessions are skipped: addressing one resurrects it.
+  attached=""
+  while read -r s; do
+    if zellij --session "$s" action list-clients 2>/dev/null | sed 1d | grep -q .; then
+      attached=$s
+      break
     fi
+  done < <(zellij ls -n 2>/dev/null | grep -v EXITED | cut -d' ' -f1)
+
+  if [ -n "$attached" ]; then
+    # ponytail: cycles if several footclient windows exist; only one holds a
+    # zellij client, match on that window's app_id if it ever matters.
+    nirius focus -a footclient || true
+    [ "$name" = "$attached" ] && exit 0
+    if zellij ls -ns 2>/dev/null | grep -qxF "$name"; then
+      zellij --session "$attached" action switch-session "$name"
+    else
+      zellij --session "$attached" action switch-session "$name" \
+        --cwd "$dir" --layout project
+    fi
+  elif zellij ls -ns 2>/dev/null | grep -qxF "$name"; then
+    # no client anywhere — open a window (attach resurrects exited sessions)
+    setsid -f footclient zellij attach "$name" >/dev/null 2>&1 || true
   elif [ -n "$dir" ]; then
     setsid -f footclient -D "$dir" \
       zellij --session "$name" --new-session-with-layout project \

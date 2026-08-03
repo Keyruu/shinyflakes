@@ -103,6 +103,7 @@
           cnames = [
             "auth"
             "calendar"
+            "dash"
             "hass"
             "headscale"
             "traccar"
