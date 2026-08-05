@@ -748,6 +748,11 @@ sops.secrets = {
 
 ### Common Gotchas
 
+- **Never search `/nix/store`** with `find`, `ls`, `grep`, `rg`, or anything
+  recursive. The store has tens of thousands of paths and scans take forever.
+  Use `nix path-info`, `nix eval`, or open the specific source file directly.
+  If you must look in the store, target a known path
+  (`/nix/store/<hash>-<name>`) — never `find /nix/store` or `rg /nix/store`.
 - Remember to add external proxy configuration in sleipnir for peeraten.net
   domains
 - Use `exec` instead of `command` for container arguments

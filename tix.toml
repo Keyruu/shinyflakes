@@ -17,7 +17,6 @@ stubs = ["@callpackage"]
 nixpkgs = { expr = "(builtins.getFlake (toString ./.)).inputs.nixpkgs" }
 home-manager = { expr = "(builtins.getFlake (toString ./.)).inputs.home-manager" }
 
-
 [project]
 includes = ["flake.nix", "nix/**/*.nix"]
 excludes = ["result", ".direnv"]
