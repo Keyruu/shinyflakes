@@ -1,14 +1,14 @@
 -- Reads the status files published by the tool-guardian herd.ts module
 -- (same source as the pi-herd fzf picker). Bar shows "waiting/total",
--- tooltip lists every instance sorted waiting > working > rest.
+-- tooltip lists every instance sorted waiting > question > working > rest.
 
 local interval = noctalia.getConfig("interval") or 10
 
 local cacheHome = noctalia.getenv("XDG_CACHE_HOME") or noctalia.expandPath("~/.cache")
 local DIR = cacheHome .. "/pi-herd"
 
-local SORT = { waiting = 0, working = 1 }
-local ICON = { waiting = "●", working = "◐" }
+local SORT = { waiting = 0, question = 1, working = 2 }
+local ICON = { waiting = "●", question = "?", working = "◐" }
 
 local function formatAge(seconds)
     if seconds < 60 then return seconds .. "s" end
@@ -44,17 +44,17 @@ local function render(rows, now)
     barWidget.setVisible(true)
 
     table.sort(rows, function(a, b)
-        local sa, sb = SORT[a.status] or 2, SORT[b.status] or 2
+        local sa, sb = SORT[a.status] or 3, SORT[b.status] or 3
         if sa ~= sb then return sa < sb end
         return (a.cwd or "") < (b.cwd or "")
     end)
 
-    local waiting = 0
+    local attention = 0
     local working = 0
     local lines = {}
     local h = home()
     for _, e in ipairs(rows) do
-        if e.status == "waiting" then waiting += 1 end
+        if e.status == "waiting" or e.status == "question" then attention += 1 end
         if e.status == "working" then working += 1 end
         local cwd = (e.cwd or "?"):gsub("^" .. h, "~")
         local loc = e.zellijTab or "-"
@@ -64,7 +64,7 @@ local function render(rows, now)
             ICON[e.status] or "○", e.status or "?", cwd, loc, age))
     end
 
-    local color = waiting > 0 and "error" or "on_surface"
+    local color = attention > 0 and "error" or "on_surface"
     barWidget.setColor(color)
     barWidget.setGlyphColor(color)
     barWidget.setText(working .. "/" .. #rows)

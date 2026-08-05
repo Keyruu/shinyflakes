@@ -132,10 +132,10 @@ in
           custom_image_colorize = true;
         };
         workspaces = {
-          display = "name";
+          label_source = "name";
           hide_when_empty = true;
           max_label_chars = 6;
-          minimal = true;
+          style = "minimal";
         };
         taskbar = {
           only_active_workspace = true;

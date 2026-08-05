@@ -22,6 +22,7 @@
               "prime"
               "notify"
               "cache"
+              "a"
               "@"
               "*"
             ];

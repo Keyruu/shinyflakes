@@ -11,7 +11,7 @@ let
 
   terraformConfiguration = inputs.terranix.lib.terranixConfiguration {
     inherit pkgs;
-    modules = [ ../terraform/main.nix ];
+    modules = [ ../terraform ];
   };
 in
 # after a flake update the opentofu derivation changes, which invalidates

@@ -93,12 +93,15 @@ in
           # see https://www.authelia.com/integration/openid-connect/clients/karakeep/
           claims_policies.karakeep.id_token = [ "email" ];
 
-          # allow the static dashboard to call /userinfo cross-origin for group filtering
+          # allow the dashboard PKCE flow to call /token and /userinfo cross-origin
           cors.allowed_origins = [ "https://dash.peeraten.net" ];
-          cors.endpoints = [ "userinfo" ];
+          cors.endpoints = [
+            "token"
+            "userinfo"
+          ];
 
           authorization_policies =
-            lib.mapAttrs
+            (lib.mapAttrs
               (_: group: {
                 default_policy = "deny";
                 rules = [
@@ -117,7 +120,15 @@ in
                 gotify_access = "gotify_users";
                 jellyfin_access = "jellyfin_users";
                 seerr_access = "seerr_users";
+              })
+            // {
+              # dashboard is gated by forward_auth; any 1fa user can complete
+              # the OIDC flow and have groups filtered client-side per card
+              dashboard_access = {
+                default_policy = "one_factor";
+                rules = [ ];
               };
+            };
 
           # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe):
           # nix run nixpkgs#authelia -- crypto hash generate pbkdf2 --variant sha512 \
@@ -241,6 +252,24 @@ in
                 "email"
                 "profile"
               ];
+            }
+            {
+              # browser-only public client; PKCE proves the code is ours,
+              # auth_method "none" means the secret is never sent (ignored by server)
+              client_id = "dashboard";
+              client_name = "Dashboard";
+              client_secret = "public";
+              authorization_policy = "dashboard_access";
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              redirect_uris = [ "https://dash.peeraten.net/" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+                "groups"
+              ];
+              token_endpoint_auth_method = "none";
             }
           ];
         };

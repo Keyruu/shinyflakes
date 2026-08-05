@@ -25,6 +25,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         # LSPs
         nixd
         nil
+        perSystem.tix.default
         gopls
         rust-analyzer
         typescript-language-server

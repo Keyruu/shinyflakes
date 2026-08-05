@@ -1,8 +1,12 @@
+# Entry point loaded by tix.toml `[stubs.generate.systems.terranix]` and the
+# project's terranix runtime (via blueprint). Re-exports everything in the
+# terraform directory so evalModules sees the full config tree.
+
 { lib, ... }:
 {
   imports = [
-    ./hetzner
     ./cloudflare
+    ./hetzner
   ];
 
   terraform = {

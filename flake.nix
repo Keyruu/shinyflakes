@@ -26,7 +26,7 @@
     # nixpkgs
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
     # FIXME: remove once cockpit-zfs builds again on nixos-unstable
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
     nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";
@@ -43,6 +43,8 @@
     };
 
     pedantix.url = "github:swarsel/pedantix";
+
+    tix.url = "github:JRMurr/tix";
 
     disko = {
       url = "github:nix-community/disko";
