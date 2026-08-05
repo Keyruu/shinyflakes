@@ -135,8 +135,8 @@ let
         ${cards}
       </main>
       <p id="empty" hidden>No apps available for your groups.</p>
-      <script>window.__USER_GROUPS__ = "{{.Req.Header.Get \"Remote-Groups\"}}";</script>
-      <script>window.__USER_NAME__ = "{{.Req.Header.Get \"Remote-Name\"}}";</script>
+      <script>window.__USER_GROUPS__ = "{{.Req.Header.Get "Remote-Groups"}}";</script>
+      <script>window.__USER_NAME__ = "{{.Req.Header.Get "Remote-Name"}}";</script>
       <script src="/app.js"></script>
     </body>
     </html>
