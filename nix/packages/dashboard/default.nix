@@ -117,6 +117,16 @@ let
 
   cards = lib.concatMapStringsSep "\n        " renderCard apps;
 
+  # ponytail: per-group CSS rules hide unauthorized cards before first paint,
+  # no JS flicker. substring selector works because group names don't collide
+  # (no group is a substring of another). add a new group anywhere → it shows
+  # up here automatically.
+  allGroups = lib.unique (lib.concatMap (a: a.groups) apps);
+  hideRules = lib.concatMapStringsSep "\n"
+    (g: ''body:not([data-user-groups*="${g}"]) .card[data-groups~="${g}"] { display: none; }'')
+    allGroups;
+  styleCss = builtins.readFile ./style.css + "\n" + hideRules;
+
   indexHtml = ''
     <!DOCTYPE html>
     <html lang="en">
@@ -126,7 +136,7 @@ let
       <title>Dashboard</title>
       <link rel="stylesheet" href="/style.css">
     </head>
-    <body>
+    <body data-user-name="{{.Req.Header.Get "Remote-Name"}}" data-user-groups="{{.Req.Header.Get "Remote-Groups"}}">
       <header>
         <h1>Dashboard</h1>
         <p id="user"></p>
@@ -135,8 +145,6 @@ let
         ${cards}
       </main>
       <p id="empty" hidden>No apps available for your groups.</p>
-      <script>window.__USER_GROUPS__ = "{{.Req.Header.Get "Remote-Groups"}}";</script>
-      <script>window.__USER_NAME__ = "{{.Req.Header.Get "Remote-Name"}}";</script>
       <script src="/app.js"></script>
     </body>
     </html>
@@ -144,7 +152,7 @@ let
 in
 pkgs.runCommand "dashboard" { } ''
   mkdir -p $out
-  cp ${./style.css} $out/style.css
+  cp ${pkgs.writeText "style.css" styleCss} $out/style.css
   cp ${./app.js} $out/app.js
   cat > $out/index.html <<'HTML'
   ${indexHtml}
