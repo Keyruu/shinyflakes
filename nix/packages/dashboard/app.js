@@ -5,7 +5,8 @@ const userEl = document.getElementById("user");
 const emptyEl = document.getElementById("empty");
 
 const userGroups = (window.__USER_GROUPS__ || "")
-  .split(/\s+/)
+  .split(",")
+  .map((s) => s.trim())
   .filter(Boolean);
 const userName = window.__USER_NAME__ || "";
 
