@@ -12,7 +12,6 @@
             proxied = false;
             cnames = [
               "sorryihavetodothis"
-              "rybbit"
               "files"
               "atuin"
               "git"

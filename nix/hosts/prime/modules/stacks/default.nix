@@ -5,6 +5,5 @@
     ./koito.nix
     ./liwan.nix
     ./multi-scrobbler.nix
-    ./rybbit.nix
   ];
 }
