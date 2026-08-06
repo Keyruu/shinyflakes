@@ -18,13 +18,15 @@ let
     (cfg: lib.optional (cfg.monitor.enable && cfg.domain != null) (mkEndpoint cfg))
     (lib.attrValues flake.allMyServices);
 
-  # All *.lab.keyruu.de domains resolve via public DNS to CloudFlare, which is
-  # unreachable for these services. Pin to 127.0.0.1 so gatus hits local nginx
-  # on mentat (which has the vhosts). Only includes services nginx actually
-  # serves here; others (no proxy.enable) would 404 either way.
+  # lab.keyruu.de + peeraten.net domains resolve via public DNS to CloudFlare,
+  # unreachable for these. Pin to 127.0.0.1 so gatus hits local nginx which has
+  # the vhosts. Only includes services nginx actually serves here (proxy.enable);
+  # others would 404 either way.
   localDomains = lib.concatMap
     (cfg: lib.optional
-      (cfg.proxy.enable && cfg.domain != null && lib.hasSuffix ".lab.keyruu.de" cfg.domain)
+      (cfg.proxy.enable && cfg.domain != null
+        && (lib.hasSuffix ".lab.keyruu.de" cfg.domain
+          || lib.hasSuffix ".peeraten.net" cfg.domain))
       cfg.domain)
     (lib.attrValues flake.allMyServices);
 in
