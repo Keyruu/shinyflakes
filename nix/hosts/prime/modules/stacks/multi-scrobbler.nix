@@ -46,6 +46,7 @@ in
     port = 9078;
     domain = "scrobble.keyruu.de";
     proxy.enable = false;
+    monitor.enable = false;
     stack = {
       enable = true;
       user = {

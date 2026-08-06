@@ -60,6 +60,7 @@ in
       description = "Document archive";
       groups = [ "paperless_users" ];
     };
+    monitor.conditions = [ "[STATUS] == 403" ];
     proxy = {
       enable = true;
       whitelist.enable = true;

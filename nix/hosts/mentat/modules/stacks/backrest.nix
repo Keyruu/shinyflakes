@@ -23,6 +23,7 @@ in
       title = "Backrest";
       description = "Restic backup UI";
     };
+    monitor.enable = false;
     proxy.enable = true;
     stack = {
       enable = true;

@@ -43,6 +43,7 @@ in
       description = "Bookmarks";
       groups = [ "karakeep_users" ];
     };
+    monitor.conditions = [ "[STATUS] == 403" ];
     proxy = {
       enable = true;
       whitelist = {

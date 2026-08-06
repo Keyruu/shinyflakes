@@ -11,6 +11,7 @@ in
         enable = true;
         cert.host = "port.peeraten.net";
       };
+      monitor.enable = false;
     };
     printing = {
       enable = true;

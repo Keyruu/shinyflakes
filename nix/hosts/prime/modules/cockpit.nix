@@ -16,6 +16,7 @@ in
     my.prime-cockpit = {
       enable = true;
       port = 9090;
+      monitor.enable = false;
       domain = "prime.keyruu.de";
     };
     cockpit = {
