@@ -18,6 +18,8 @@ let
     (lib.attrValues flake.allMyServices);
 in
 {
+  networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ 8044 ];
+
   services.gatus = {
     enable = true;
     openFirewall = false;
