@@ -35,6 +35,8 @@ in
 
   networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ 8044 ];
 
+  sops.secrets.gatusGotifyToken = { };
+
   services.gatus = {
     enable = true;
     openFirewall = false;
@@ -51,6 +53,15 @@ in
         # always show the dashboard, even unauthenticated users (authelia handles auth)
         authentication = { };
         primaryColor = "#6ea8fe";
+      };
+      alerting.gotify = {
+        url = "https://notify.keyruu.de";
+        token = config.sops.placeholder.gatusGotifyToken;
+        title = "Gatus";
+        default-alert = {
+          enabled = true;
+          send-on-resolved = true;
+        };
       };
       inherit endpoints;
     };
