@@ -86,7 +86,7 @@ in
         reverse_proxy http://${mentat}:8044
       '';
     };
-  };
+
     "git.keyruu.de" = {
       extraConfig = ''
         coraza_waf {
