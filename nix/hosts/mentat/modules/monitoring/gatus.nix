@@ -14,6 +14,7 @@ let
       if cfg.monitor.url != "" then cfg.monitor.url else "https://${cfg.domain}${cfg.monitor.healthPath}";
     interval = cfg.monitor.interval;
     conditions = cfg.monitor.conditions;
+    alerts = [ { type = "gotify"; } ];
   };
 
   endpoints = lib.concatMap (
@@ -64,6 +65,8 @@ in
         default-alert = {
           enabled = true;
           send-on-resolved = true;
+          failure-threshold = 5;
+          success-threshold = 5;
         };
       };
       inherit endpoints;
