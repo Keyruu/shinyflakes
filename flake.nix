@@ -161,8 +161,19 @@
 
   outputs =
     inputs:
-    inputs.blueprint {
-      inherit inputs;
-      prefix = "nix";
+    let
+      bp = inputs.blueprint {
+        inherit inputs;
+        prefix = "nix";
+      };
+      lib = inputs.nixpkgs.lib;
+    in
+    bp
+    // {
+      # aggregated services.my across all host configs. prime's dashboard
+      # and gatus read from here so they see mentat/carryall/thopter too.
+      allMyServices = lib.foldl' lib.mergeAttrs { } (
+        lib.mapAttrsToList (_: c: c.config.services.my or { }) bp.nixosConfigurations
+      );
     };
 }

@@ -29,10 +29,10 @@
     in
     {
       enable = true;
-      # theme = {
-      #   name = "Dracula";
-      #   package = pkgs.dracula-theme;
-      # };
+      theme = {
+        name = "Dark";
+        package = pkgs.gnome-themes-extra;
+      };
       iconTheme = {
         name = "Papirus";
         package = pkgs.papirus-icon-theme;

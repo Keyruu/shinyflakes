@@ -18,6 +18,11 @@ in
     zfs = true;
     port = 9898;
     domain = "backrest.lab.keyruu.de";
+    dashboard = {
+      enable = true;
+      title = "Backrest";
+      description = "Restic backup UI";
+    };
     proxy.enable = true;
     stack = {
       enable = true;

@@ -37,6 +37,12 @@ in
   services.my.karakeep = {
     port = 3000;
     domain = "karakeep.lab.keyruu.de";
+    dashboard = {
+      enable = true;
+      title = "Karakeep";
+      description = "Bookmarks";
+      groups = [ "karakeep_users" ];
+    };
     proxy = {
       enable = true;
       whitelist = {

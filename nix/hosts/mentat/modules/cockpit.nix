@@ -16,6 +16,12 @@ in
       port = 9090;
       domain = "mentat.lab.keyruu.de";
       proxy.enable = true;
+      dashboard = {
+        enable = true;
+        title = "Cockpit";
+        description = "Server admin";
+        icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cockpit.svg";
+      };
     };
     cockpit = {
       inherit (my) enable;

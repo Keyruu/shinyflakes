@@ -78,6 +78,12 @@ in
     zfs = true;
     port = 8096;
     domain = domain;
+    dashboard = {
+      enable = true;
+      title = "Jellyfin";
+      description = "Media server";
+      groups = [ "jellyfin_users" ];
+    };
     proxy = {
       enable = true;
       cert = {

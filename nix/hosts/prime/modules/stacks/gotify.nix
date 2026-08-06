@@ -22,6 +22,12 @@ in
     my.gotify = {
       port = 8080;
       domain = "notify.keyruu.de";
+      dashboard = {
+        enable = true;
+        title = "Gotify";
+        description = "Push notifications";
+        groups = [ "gotify_users" ];
+      };
       proxy.enable = false;
       backup.enable = true;
       stack = {

@@ -111,6 +111,12 @@ in
   services.my.chatto = {
     port = 4000;
     inherit domain;
+    dashboard = {
+      enable = true;
+      title = "Chatto";
+      description = "Chat";
+      groups = [ "chatto_users" ];
+    };
     proxy = {
       enable = false;
     };

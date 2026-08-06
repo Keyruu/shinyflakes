@@ -54,6 +54,12 @@ in
     zfs = true;
     port = 8000;
     domain = "paperless.lab.keyruu.de";
+    dashboard = {
+      enable = true;
+      title = "Paperless";
+      description = "Document archive";
+      groups = [ "paperless_users" ];
+    };
     proxy = {
       enable = true;
       whitelist.enable = true;

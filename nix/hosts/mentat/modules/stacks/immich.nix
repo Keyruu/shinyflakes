@@ -30,6 +30,12 @@ in
     zfs = true;
     port = 2283;
     domain = "immich.lab.keyruu.de";
+    dashboard = {
+      enable = true;
+      title = "Immich";
+      description = "Photo library";
+      groups = [ "immich_users" ];
+    };
     proxy.enable = true;
     backup.enable = true;
     stack = {

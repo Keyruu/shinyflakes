@@ -141,6 +141,12 @@ in
       zfs = true;
       port = 5055;
       inherit domain;
+      dashboard = {
+        enable = true;
+        title = "Seerr";
+        description = "Media requests";
+        groups = [ "seerr_users" ];
+      };
       proxy = {
         enable = true;
         cert = {

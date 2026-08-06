@@ -50,6 +50,11 @@ in
       port = 5678;
       domain = "glance.lab.keyruu.de";
       proxy.enable = true;
+      dashboard = {
+        enable = true;
+        title = "Glance";
+        description = "At-a-glance status board";
+      };
     };
     glance = {
       inherit (my) enable;

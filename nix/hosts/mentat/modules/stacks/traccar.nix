@@ -43,6 +43,13 @@ in
 
   services.my.traccar = {
     port = 5785;
+    domain = "traccar.peeraten.net";
+    dashboard = {
+      enable = true;
+      title = "Traccar";
+      description = "GPS tracking";
+      groups = [ "traccar_users" ];
+    };
     stack = {
       enable = true;
       directories = [

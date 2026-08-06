@@ -131,6 +131,11 @@ in
   services.my.forgejo = {
     port = 3004;
     inherit domain;
+    dashboard = {
+      enable = true;
+      title = "Forgejo";
+      description = "Git hosting";
+    };
     proxy = {
       enable = true;
       cert = {

@@ -39,7 +39,11 @@ in
                 type = lib.types.nullOr lib.types.port;
                 default = null;
               };
-              domain = lib.mkOption { type = str; };
+              domain = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "Public domain name (e.g. \"karakeep.lab.keyruu.de\"). Required for dashboard/gatus; leave null for internal-only services.";
+              };
               proxy = lib.mkOption {
                 type = submodule {
                   options = {
@@ -107,6 +111,69 @@ in
                         };
                       };
                       default = { };
+                    };
+                  };
+                };
+                default = { };
+              };
+              dashboard = lib.mkOption {
+                type = submodule {
+                  options = {
+                    enable = lib.mkOption {
+                      type = lib.types.bool;
+                      default = false;
+                      description = "Include this service in the dashboard. Gatus monitoring follows monitor.enable independently.";
+                    };
+                    title = lib.mkOption {
+                      type = lib.types.str;
+                      default = name;
+                      description = "Display title on the dashboard card.";
+                    };
+                    description = lib.mkOption {
+                      type = lib.types.str;
+                      default = "";
+                    };
+                    icon = lib.mkOption {
+                      type = lib.types.str;
+                      default = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${name}.svg";
+                    };
+                    groups = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
+                      default = [ ];
+                      description = "Authelia groups that can see this card. The admin group sees everything regardless. Use \"user\" for all authed users.";
+                    };
+                    newTab = lib.mkOption {
+                      type = lib.types.bool;
+                      default = false;
+                    };
+                  };
+                };
+                default = { };
+              };
+              monitor = lib.mkOption {
+                type = lib.types.submodule {
+                  options = {
+                    enable = lib.mkOption {
+                      type = lib.types.bool;
+                      default = true;
+                      description = "Monitor this service in gatus.";
+                    };
+                    interval = lib.mkOption {
+                      type = lib.types.str;
+                      default = "30s";
+                    };
+                    healthPath = lib.mkOption {
+                      type = lib.types.str;
+                      default = "/";
+                    };
+                    url = lib.mkOption {
+                      type = lib.types.str;
+                      default = "";
+                      description = "Override the gatus endpoint URL. Defaults to https://\${domain}\${healthPath}.";
+                    };
+                    conditions = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
+                      default = [ "[STATUS] == 200" ];
                     };
                   };
                 };
