@@ -5,7 +5,7 @@
   ...
 }:
 let
-  isInternal = domain: lib.hasSuffix ".lab.keyruu.de" || lib.hasSuffix ".port.peeraten.net";
+  isInternal = domain: (lib.hasSuffix ".lab.keyruu.de" || lib.hasSuffix ".port.peeraten.net");
   mkEndpoint = cfg: {
     name = cfg.dashboard.title;
     group = if isInternal cfg.domain then "Internal" else "External";
