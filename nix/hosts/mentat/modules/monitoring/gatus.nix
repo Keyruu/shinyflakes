@@ -58,7 +58,7 @@ in
         primaryColor = "#6ea8fe";
       };
       alerting.gotify = {
-        url = "https://notify.keyruu.de";
+        server-url = "https://notify.keyruu.de";
         token = "\${GATUS_GOTIFY_TOKEN}";
         title = "Gatus";
         default-alert = {
