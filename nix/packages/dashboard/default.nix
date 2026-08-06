@@ -28,8 +28,8 @@ let
 
   # CSS: hide all cards by default; show if user has any of the card's groups.
   # The "admin" group is added by the caller, so admin sees everything via
-  # the per-group rules below. Ponytail: substring selector works because
-  # group names don't collide (no group is a substring of another).
+  # the per-group rules below. App.js normalizes the comma-separated
+  # Remote-Groups to whitespace on load so CSS word-match works cleanly.
   allGroups = lib.unique (lib.concatMap (a: a.groups) apps);
   showRules = lib.concatMapStringsSep "\n" (
     g: ''body[data-user-groups~="${g}"] .card[data-groups~="${g}"] { display: flex; }''

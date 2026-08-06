@@ -112,6 +112,7 @@
             "service"
             "chat"
             "requests"
+            "status"
           ];
         };
         mesh = {
