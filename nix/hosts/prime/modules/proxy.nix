@@ -48,11 +48,7 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
-    "status.peeraten.net" = {
-      proxyHost = mentat;
-      proxyPort = 8044;
-      cloudflare = true;
-    };
+
     "${karaokeDomain}" = {
       proxyHost = mentat;
       proxyPort = 5555;
@@ -76,6 +72,21 @@ let
 in
 {
   services.caddy.virtualHosts = (lib.mapAttrs (_: mkProxyHost) proxyHosts) // {
+    # gatus runs on mentat; authelia forward_auth + waf enforced here on prime
+    "status.peeraten.net" = {
+      extraConfig = ''
+        import coraza-waf
+        import cloudflare-only
+
+        forward_auth 127.0.0.1:8010 {
+          uri /api/authz/forward-auth
+          copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+        }
+
+        reverse_proxy http://${mentat}:8044
+      '';
+    };
+  };
     "git.keyruu.de" = {
       extraConfig = ''
         coraza_waf {
