@@ -1,8 +1,6 @@
-{ config, flake, ... }:
+{ config, ... }:
 let
   my = config.services.my.liwan;
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
 in
 {
   services.my.liwan = {
@@ -16,7 +14,7 @@ in
     backup.enable = true;
     stack = {
       enable = true;
-      directories = [ "data" ];
+      directories = [ { path = "data"; owner = "1000"; group = "1000"; } ];
       security.enable = true;
 
       containers.liwan = {
