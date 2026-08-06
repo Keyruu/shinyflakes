@@ -38,18 +38,4 @@ in
       inherit endpoints;
     };
   };
-
-  services.caddy.virtualHosts."status.peeraten.net" = {
-    extraConfig = ''
-      import coraza-waf
-      import cloudflare-only
-
-      forward_auth 127.0.0.1:8010 {
-        uri /api/authz/forward-auth
-        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
-      }
-
-      reverse_proxy 127.0.0.1:8044
-    '';
-  };
 }

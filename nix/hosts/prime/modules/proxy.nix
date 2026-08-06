@@ -48,6 +48,11 @@ let
       proxyPort = 3902;
       cloudflare = true;
     };
+    "status.peeraten.net" = {
+      proxyHost = mentat;
+      proxyPort = 8044;
+      cloudflare = true;
+    };
     "${karaokeDomain}" = {
       proxyHost = mentat;
       proxyPort = 5555;
