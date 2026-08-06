@@ -5,30 +5,23 @@
   ...
 }:
 let
+  isInternal = domain: lib.hasSuffix ".lab.keyruu.de" || lib.hasSuffix ".port.peeraten.net";
   mkEndpoint = cfg: {
     name = cfg.dashboard.title;
+    group = if isInternal cfg.domain then "Internal" else "External";
     url =
-      if cfg.monitor.url != "" then cfg.monitor.url
-      else "https://${cfg.domain}${cfg.monitor.healthPath}";
+      if cfg.monitor.url != "" then cfg.monitor.url else "https://${cfg.domain}${cfg.monitor.healthPath}";
     interval = cfg.monitor.interval;
     conditions = cfg.monitor.conditions;
   };
 
-  endpoints = lib.concatMap
-    (cfg: lib.optional (cfg.monitor.enable && cfg.domain != null) (mkEndpoint cfg))
-    (lib.attrValues flake.allMyServices);
+  endpoints = lib.concatMap (
+    cfg: lib.optional (cfg.monitor.enable && cfg.domain != null) (mkEndpoint cfg)
+  ) (lib.attrValues flake.allMyServices);
 
-  # lab.keyruu.de + peeraten.net domains resolve via public DNS to CloudFlare,
-  # unreachable for these. Pin to 127.0.0.1 so gatus hits local nginx which has
-  # the vhosts. Only includes services nginx actually serves here (proxy.enable);
-  # others would 404 either way.
-  localDomains = lib.concatMap
-    (cfg: lib.optional
-      (cfg.proxy.enable && cfg.domain != null
-        && (lib.hasSuffix ".lab.keyruu.de" cfg.domain
-          || lib.hasSuffix ".peeraten.net" cfg.domain))
-      cfg.domain)
-    (lib.attrValues flake.allMyServices);
+  localDomains = lib.concatMap (
+    cfg: lib.optional (cfg.proxy.enable && cfg.domain != null && (isInternal cfg.domain)) cfg.domain
+  ) (lib.attrValues flake.allMyServices);
 in
 {
   networking.hosts."127.0.0.1" = localDomains;
@@ -49,8 +42,8 @@ in
       ui = {
         title = "Service Status";
         header = "Uptime monitoring across all hosts";
-        logo = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homepage.png";
-        # always show the dashboard, even unauthenticated users (authelia handles auth)
+        logo = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/gatus.png";
+        # authelia forward auth gated
         authentication = { };
         primaryColor = "#6ea8fe";
       };
