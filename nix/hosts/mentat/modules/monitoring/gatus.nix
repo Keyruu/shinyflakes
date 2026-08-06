@@ -1,4 +1,5 @@
 {
+  config,
   flake,
   lib,
   ...
