@@ -106,17 +106,17 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1781876440,
-        "narHash": "sha256-Hw/DFHLxg1fa+ShyoulYHcGLT+ebLS/9Nn+724NTdSc=",
-        "owner": "Keyruu",
-        "repo": "buymeaspezi",
-        "rev": "593146df859436bd41229b83ef096bedeaf10c91",
-        "type": "github"
+        "lastModified": 1786047428,
+        "narHash": "sha256-Er0t/QFpRxM3nOg/hksjiFz9v0RTlcbyZaRlutEys3Y=",
+        "ref": "refs/heads/main",
+        "rev": "e41e3dfe701184b076dd6c3d012f1476ec954e2c",
+        "revCount": 44,
+        "type": "git",
+        "url": "https://git.keyruu.de/lucas/buymeaspezi"
       },
       "original": {
-        "owner": "Keyruu",
-        "repo": "buymeaspezi",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.keyruu.de/lucas/buymeaspezi"
       }
     },
     "comin": {
@@ -733,17 +733,17 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1781876559,
-        "narHash": "sha256-Z/TMRwTu3TwrdQws8FCFtJ+DKHRWQ7471jUBmiSDCKM=",
-        "owner": "Keyruu",
-        "repo": "homepage",
-        "rev": "9dc3f68928335bb81b07293b81bf1db61cebc016",
-        "type": "github"
+        "lastModified": 1786047471,
+        "narHash": "sha256-q6Nc4fgRoSYI547Dd5mOg/OQIcXpKt/YklWll55GoVo=",
+        "ref": "refs/heads/main",
+        "rev": "a6e768067e980e0ee7f48a86ca3c7a32a002ab88",
+        "revCount": 51,
+        "type": "git",
+        "url": "https://git.keyruu.de/lucas/homepage"
       },
       "original": {
-        "owner": "Keyruu",
-        "repo": "homepage",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.keyruu.de/lucas/homepage"
       }
     },
     "import-tree": {

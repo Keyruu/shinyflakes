@@ -155,8 +155,8 @@
     };
 
     # web
-    homepage.url = "github:Keyruu/homepage";
-    buymeaspezi.url = "github:Keyruu/buymeaspezi";
+    homepage.url = "git+https://git.keyruu.de/lucas/homepage";
+    buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
   };
 
   outputs =
