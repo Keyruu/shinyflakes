@@ -29,10 +29,19 @@ in
 
   networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ 8044 ];
 
-  sops.secrets.gatusGotifyToken = { };
+  sops = {
+    secrets.gatusGotifyToken = { };
+    templates."gatus.env" = {
+      restartUnits = [ "gatus.service" ];
+      content = ''
+        GATUS_GOTIFY_TOKEN=${config.sops.placeholder.gatusGotifyToken}
+      '';
+    };
+  };
 
   services.gatus = {
     enable = true;
+    environmentFile = config.sops.templates."gatus.env".path;
     openFirewall = false;
     settings = {
       web.port = 8044;
@@ -50,7 +59,7 @@ in
       };
       alerting.gotify = {
         url = "https://notify.keyruu.de";
-        token = config.sops.placeholder.gatusGotifyToken;
+        token = "\${GATUS_GOTIFY_TOKEN}";
         title = "Gatus";
         default-alert = {
           enabled = true;
