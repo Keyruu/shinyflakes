@@ -106,11 +106,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1786047428,
-        "narHash": "sha256-Er0t/QFpRxM3nOg/hksjiFz9v0RTlcbyZaRlutEys3Y=",
+        "lastModified": 1786108336,
+        "narHash": "sha256-NB+ODRaWT3t/WKFWj0r0n/5kkCJ0TAPkUU5IG8eGaLk=",
         "ref": "refs/heads/main",
-        "rev": "e41e3dfe701184b076dd6c3d012f1476ec954e2c",
-        "revCount": 44,
+        "rev": "986e605f88ca159cd177c2dd0ce099144200529c",
+        "revCount": 45,
         "type": "git",
         "url": "https://git.keyruu.de/lucas/buymeaspezi"
       },
@@ -733,11 +733,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1786104800,
-        "narHash": "sha256-spFv2KksDwDuKkeRGc2OTXrspSSO9NnAx4T4Ogv2Jww=",
+        "lastModified": 1786108326,
+        "narHash": "sha256-RQYpe2vbkk26mX6I/5UDyBPWPM4YMYb0m4MCABkBdHQ=",
         "ref": "refs/heads/main",
-        "rev": "07d9d4f32adc3ddf0ada2a11a032112fe1b051f4",
-        "revCount": 54,
+        "rev": "f22c3ac9154b9743ecd0d6155c97c69069872296",
+        "revCount": 55,
         "type": "git",
         "url": "https://git.keyruu.de/lucas/homepage"
       },
