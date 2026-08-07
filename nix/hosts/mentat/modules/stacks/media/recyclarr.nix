@@ -310,7 +310,7 @@ in
       security.enable = false;
       containers.recyclarr = {
         containerConfig = {
-          image = "ghcr.io/recyclarr/recyclarr:8.7.0";
+          image = "ghcr.io/recyclarr/recyclarr:8.7.1";
           environments = {
             TZ = "Europe/Berlin";
           };
