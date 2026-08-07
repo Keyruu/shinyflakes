@@ -733,11 +733,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1786114390,
-        "narHash": "sha256-ueV1egcnd7dUiWy1i3rgsI7+w49Ck+RZHbuup3x6Gmo=",
+        "lastModified": 1786119403,
+        "narHash": "sha256-OBroUcy4pbfFEFi6pK10/sHSr0aN4jOWwxb0yNtpa14=",
         "ref": "refs/heads/main",
-        "rev": "f12077296673898627664ad168585f13364a8f53",
-        "revCount": 57,
+        "rev": "06a6742e61df517fd2f611ded7ac3958fd5f4faf",
+        "revCount": 58,
         "type": "git",
         "url": "https://git.keyruu.de/lucas/homepage"
       },
