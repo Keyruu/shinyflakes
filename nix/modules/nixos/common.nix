@@ -96,7 +96,7 @@
     registry = lib.mapAttrs (_: flake: { inherit flake; }) inputs;
     nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") inputs;
 
-    package = pkgs.nixVersions.latest;
+    package = pkgs.lixPackageSets.stable.lix;
 
     settings = {
       trusted-users = [

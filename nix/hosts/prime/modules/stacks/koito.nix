@@ -1,27 +1,11 @@
 {
   config,
-  flake,
   ...
 }:
 let
   my = config.services.my.koito;
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
 in
 {
-  sops.secrets.koitoDbPassword = { };
-
-  sops.templates = {
-    "koito-main.env" = {
-      restartUnits = [ (quadlet.service containers.koito) ];
-      content = ''
-        KOITO_SQLITE_ENABLED=true
-        KOITO_CORS_ALLOWED_ORIGINS=https://keyruu.de,http://localhost:4321
-        KOITO_ENABLE_FULL_IMAGE_CACHE=true
-      '';
-    };
-  };
-
   services.my.koito = {
     port = 4110;
     domain = "fm.keyruu.de";
@@ -40,16 +24,18 @@ in
 
       containers = {
         koito = {
-          containerConfig =
-            # let
-            #   inherit (config.virtualisation.quadlet) builds;
-            # in
-            {
-              image = "docker.io/gabehf/koito:v0.3.2";
-              publishPorts = [ "127.0.0.1:${toString my.port}:4110" ];
-              volumes = [ "${my.stack.path}/data:/etc/koito" ];
-              environmentFiles = [ config.sops.templates."koito-main.env".path ];
+          containerConfig = {
+            image = "docker.io/gabehf/koito:v0.3.2";
+            publishPorts = [ "127.0.0.1:${toString my.port}:4110" ];
+            volumes = [ "${my.stack.path}/data:/etc/koito" ];
+            environments = {
+              KOITO_SQLITE_ENABLED = true;
+              KOITO_CORS_ALLOWED_ORIGINS = "https://keyruu.de,http://localhost:4321";
+              KOITO_ENABLE_FULL_IMAGE_CACHE = true;
+              KOITO_DEFAULT_THEME = "midnight";
             };
+            environmentFiles = [ config.sops.templates."koito-main.env".path ];
+          };
         };
       };
     };

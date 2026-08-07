@@ -99,8 +99,6 @@ in
     shell = pkgs.fish;
   };
 
-  nix.package = lib.mkForce pkgs.lixPackageSets.stable.lix;
-
   nix.settings.trusted-users = [
     config.user.name
   ];

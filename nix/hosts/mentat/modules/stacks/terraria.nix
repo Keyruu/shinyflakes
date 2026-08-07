@@ -5,7 +5,7 @@ in
 {
   services.my.terraria = {
     stack = {
-      enable = true;
+      enable = false;
       directories = [ "config" ];
       security.enable = false;
 

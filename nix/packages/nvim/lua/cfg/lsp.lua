@@ -53,19 +53,19 @@ lsp.config("nixd", {
 	},
 })
 lsp.config("nil_ls", { settings = { nix = { flake = { autoArchive = true, autoEvalInputs = true } } } })
-lsp.config("tix", { cmd = { "tix", "lsp" }, filetypes = { "nix" } })
+-- lsp.config("tix", { cmd = { "tix", "lsp" }, filetypes = { "nix" } })
 
 lsp.inlay_hint.enable(true)
-vim.api.nvim_create_autocmd("LspAttach", {
-	callback = function(ev)
-		local cid = ev.data and ev.data.client_id
-		if cid then
-			local c = vim.lsp.get_client_by_id(cid)
-			if c and c.name == "tix" then
-				vim.lsp.inlay_hint.enable(false, { bufnr = ev.buf, client_id = cid })
-			end
-		end
-	end,
-})
+-- vim.api.nvim_create_autocmd("LspAttach", {
+-- 	callback = function(ev)
+-- 		local cid = ev.data and ev.data.client_id
+-- 		if cid then
+-- 			local c = vim.lsp.get_client_by_id(cid)
+-- 			if c and c.name == "tix" then
+-- 				vim.lsp.inlay_hint.enable(false, { bufnr = ev.buf, client_id = cid })
+-- 			end
+-- 		end
+-- 	end,
+-- })
 
 require("trouble").setup({ auto_close = true })
