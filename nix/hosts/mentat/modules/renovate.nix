@@ -46,6 +46,7 @@
       platform = "forgejo";
       platformAutomerge = false;
       automergeStrategy = "rebase";
+      extends = [ ":disableMonorepoGrouping" ];
       autodiscover = true;
       autodiscoverFilter = [ "lucas/*" ];
 
@@ -91,13 +92,6 @@
         {
           description = "single PR for all npm deps — one nix hash update per cycle";
           matchManagers = [ "npm" ];
-          matchPackageNames = [
-            "/^@astrojs\\//"
-            "/^astro$/"
-            "/^eslint/"
-            "/^typescript-eslint$/"
-            "/^@typescript-eslint\\//"
-          ];
           groupName = "npm dependencies";
         }
         {
