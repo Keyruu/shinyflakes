@@ -34,7 +34,6 @@ in
               KOITO_ENABLE_FULL_IMAGE_CACHE = true;
               KOITO_DEFAULT_THEME = "midnight";
             };
-            environmentFiles = [ config.sops.templates."koito-main.env".path ];
           };
         };
       };
