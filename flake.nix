@@ -37,6 +37,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # den migration — runs alongside blueprint until Phase 4
+    import-tree.url = "github:denful/import-tree";
+    den = {
+      url = "github:denful/den";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -167,6 +174,14 @@
         prefix = "nix";
       };
       lib = inputs.nixpkgs.lib;
+
+      # den-evaluated config from modules/**. Lives alongside blueprint
+      # outputs until Phase 4 finishes the host migration. Inspect with:
+      #   nix eval '.?submodules=1#den.den.hosts'
+      den = (inputs.nixpkgs.lib.evalModules {
+        modules = [ (inputs.import-tree ./modules) ];
+        specialArgs.inputs = inputs;
+      }).config;
     in
     bp
     // {
@@ -175,5 +190,9 @@
       allMyServices = lib.foldl' lib.mergeAttrs { } (
         lib.mapAttrsToList (_: c: c.config.services.my or { }) bp.nixosConfigurations
       );
+    }
+    // {
+      # den migration milestone 1: skeleton loads. No hosts yet.
+      inherit den;
     };
 }
