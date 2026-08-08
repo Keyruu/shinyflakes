@@ -1,0 +1,441 @@
+#+TITLE: Den Migration Plan
+#+TODO: TODO(t) IN-PROGRESS(i) | DONE(d) BLOCKED(b)
+#+OPTIONS: toc:3 num:t
+
+* Summary
+:PROPERTIES:
+:CUSTOM_ID: summary
+:END:
+
+Migrate shinyflakes from blueprint → den (aspect-oriented).
+
+Three primitives:
+- Entities: ~den.hosts~ / ~den.hosts.<sys>.<host>.users.<user>~
+- Aspects: ~den.aspects.<name> = { nixos = ...; homeManager = ...; includes = [...]; }~
+- Pipes: ~den.quirks.<name>~ + ~pipe.from/collect/expose/transform~
+
+Key insight: ~nixos~ / ~homeManager~ blocks are *literal NixOS modules*. Every existing
+~services.X.enable = true~ carries over byte-for-byte. Only structure changes.
+
+* Killer features unlocked
+:PROPERTIES:
+:CUSTOM_ID: benefits
+:END:
+
+** Dashboard generation                                              :pipes:
+:PROPERTIES:
+:CUSTOM_ID: dashboard
+:END:
+
+Today: ~flake.allMyServices~ walk on prime, every service declares
+~services.my.X.dashboard~, tightly coupled.
+
+Tomorrow: ~den.quirks.dashboard~. Each stack emits freely. Prime consumes
+~pipe.collect~ across all hosts. Zero coupling.
+
+#+BEGIN_SRC nix
+# Register quirk
+den.quirks.dashboard = { description = "Service dashboard entries"; };
+
+# Producer (in any stack module)
+den.aspects.immich = {
+  dashboard = {
+    enable = true; title = "Immich";
+    icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/immich.svg";
+    url = "https://photos.peeraten.net";
+    groups = [ "family" ];
+  };
+  nixos = { ... };  # existing service config unchanged
+};
+
+# Consumer + policy
+den.policies.fleet-dashboard = { host, ... }:
+  let inherit (den.lib.policy) pipe; in
+  [ (pipe.from "dashboard" [
+      (pipe.collect ({ host, ... }: true))
+      (pipe.filter (e: e.enable or false))
+    ])
+  ];
+den.schema.host.includes = [ den.policies.fleet-dashboard ];
+
+den.aspects.prime-dashboard = {
+  nixos = { dashboard, ... }: {
+    services.caddy.virtualHosts."dash.peeraten.net" = {
+      root * ${perSystem.self.dashboard.override { apps = dashboard; }};
+      # ... rest of Caddy config ...
+    };
+  };
+};
+#+END_SRC
+
+Same trick kills ~flake.lib.allMyServices~-based walks everywhere — including Gatus endpoints.
+
+** Proxying prime → mentat                                         :proxy:pipes:
+:PROPERTIES:
+:CUSTOM_ID: proxy
+:END:
+
+Today: ~nix/hosts/prime/modules/proxy.nix~ has hardcoded
+~services.mesh.people.lucas.devices.mentat.ip~ lookups + big ~proxyHosts~ attrset.
+
+Tomorrow: ~den.quirks.proxy~. Each stack emits its proxy target. Prime resolves
+~target~ → mesh IP.
+
+#+BEGIN_SRC nix
+den.quirks.proxy = { description = "Reverse proxy targets"; };
+
+den.aspects.immich = {
+  proxy = {
+    domain = "photos.peeraten.net";
+    port = 2283;
+    cloudflare = true;
+    target = "mentat";  # logical name, not IP
+    authGroup = "family";
+  };
+  nixos = { ... };
+};
+
+den.policies.resolve-proxy-target = { host, ... }:
+  let inherit (den.lib.policy) pipe; in
+  [ (pipe.from "proxy" [
+      (pipe.transform (p: p // {
+        targetIp = den.hosts.x86_64-linux.${p.target}.meshIp;
+      }))
+    ])
+  ];
+
+den.aspects.prime-proxy = {
+  nixos = { proxy, ... }:
+  let byDomain = lib.groupBy (p: p.domain) proxy;
+  in {
+    services.caddy.virtualHosts = lib.mapAttrs (domain: ps:
+      let cfg = lib.head ps; in {
+        extraConfig = ''
+          reverse_proxy ${cfg.targetIp}:${toString cfg.port}
+          ${lib.optionalString cfg.cloudflare "import cloudflare-only"}
+          ${lib.optionalString (cfg.authGroup != null) ''
+            forward_auth 127.0.0.1:8010 {
+              uri /api/authz/forward-auth
+              copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+            }
+          ''}
+        '';
+      }) byDomain;
+  };
+};
+#+END_SRC
+
+Adding a reverse-proxied service = add ~proxy = { ... };~ to its stack. Done.
+
+** Mesh IPs by location                                         :mesh:fleet:
+:PROPERTIES:
+:CUSTOM_ID: mesh-ips
+:END:
+
+Today: ~nix/hosts/mentat/modules/mesh.nix~ hardcodes ~ip = "100.67.0.2"~. Proxy on
+prime reads that string. IP change = silent config drift.
+
+Tomorrow: mesh IP is a freeform attribute on the host entity. Lookup by host name.
+Even better — *logical routing* via freeform tags.
+
+#+BEGIN_SRC nix
+den.hosts.x86_64-linux.mentat = {
+  meshIp = "100.67.0.2";
+  location = "homelab";  # freeform tag
+};
+den.hosts.x86_64-linux.prime = {
+  meshIp = "100.67.0.1";
+  location = "homelab";
+};
+den.hosts.x86_64-linux.thopter = {
+  meshIp = "100.67.0.3";
+  location = "roaming";
+};
+
+# Or: fact-gathering aspect that reads from infisical / a JSON fact file
+# den.aspects.mesh-facts = { host, ... }: { ... };
+#+END_SRC
+
+Move a service from mentat → thopter: change ~target = "thopter"~ on the proxy quirk.
+Zero IP edits.
+
+** Authelia users + groups                                       :users:pipes:
+:PROPERTIES:
+:CUSTOM_ID: authelia
+:END:
+
+Today: ~nix/modules/private/authelia.nix~ lists users + groups by hand. Add user
+= edit seed + run ~authelia-user-hash~ + commit sops.
+
+Tomorrow: users are entities. Groups are freeform attrs. Authelia config generated
+via `pipe.expose` (user → host) + `pipe.collect` (host → fleet).
+
+#+BEGIN_SRC nix
+den.hosts.x86_64-linux.prime.users.lucas = {
+  email = "lucas@peeraten.net";
+  displayName = "Lucas";
+  groups = [ "admin" "family" "music" ];
+};
+den.hosts.x86_64-linux.mentat.users.lucas = {
+  email = "lucas@peeraten.net";
+  groups = [ "admin" "family" ];
+};
+
+# Wizard generates sops-encrypted password hash + edits the entity
+# nix run '.?submodules=1#authelia-add-user' -- lucas
+
+den.aspects.authelia = {
+  nixos = { users, ... }: {
+    services.authelia.instances.main.settings = {
+      authentication_backend.file.content.users =
+        lib.listToAttrs (map (u: {
+          name = u.userName;
+          value = {
+            inherit (u) email displayName;
+            password = u.passwordHash;
+            groups = u.groups;
+          };
+        }) users);
+    };
+  };
+};
+#+END_SRC
+
+** Mesh devices + dynamic ACLs                                  :mesh:devices:
+:PROPERTIES:
+:CUSTOM_ID: mesh-devices
+:END:
+
+Today: ~nix/hosts/mentat/modules/mesh.nix~ hardcodes device list. New device = edit
+file + commit.
+
+Tomorrow: new entity kind ~den.devices.~ with freeform attrs. nftables ACLs
+generated from the entity list.
+
+#+BEGIN_SRC nix
+den.devices.x86_64-linux.mentat.laptop = {
+  owner = "lucas";
+  ip = "100.67.0.42";
+  publicKey = "...";
+  canAccess = [ "homelab" "family" ];
+};
+
+den.aspects.mesh-firewall = {
+  nixos = { devices, ... }:
+    let rules = lib.concatMapStrings (d:
+      lib.concatMapStrings (net: ''
+        ip saddr ${d.ip} ip daddr ${net} accept comment "${d.name}"
+      '') d.canAccess
+    ) devices;
+    in {
+      networking.nftables.tables.wireguard-forward.content = ''
+        chain forward {
+          type filter hook forward priority filter; policy accept;
+          ${rules}
+        }
+      '';
+    };
+};
+#+END_SRC
+
+* Migration phases
+:PROPERTIES:
+:CUSTOM_ID: phases
+:END:
+
+** Phase 1 — Plumbing (~1 day)                                         :plumbing:
+:PROPERTIES:
+:CUSTOM_ID: phase-1
+:END:
+
+- [ ] Add ~inputs.den~ and ~inputs.import-tree~ to ~flake.nix~
+- [ ] Replace blueprint outputs with den:
+  #+BEGIN_SRC nix
+  outputs = inputs:
+    (inputs.nixpkgs.lib.evalModules {
+      modules = [ (inputs.import-tree ./modules) ];
+      specialArgs.inputs = inputs;
+    }).config.flake;
+  #+END_SRC
+- [ ] Create ~modules/den.nix~ with:
+  - [ ] ~_module.args.__findFile = den.lib.__findFile;~
+  - [ ] ~imports = [ inputs.den.flakeModule ];~
+  - [ ] ~imports = [ (inputs.den.namespace "apps" false) (inputs.den.namespace "stacks" false) ];~
+  - [ ] ~den.schema.user.classes = lib.mkDefault [ "homeManager" ];~
+- [ ] Create ~modules/outputs.nix~ (package outputs)
+- [ ] Keep blueprint outputs reachable via old ~nix/hosts/~ path until Phase 4
+
+** Phase 2 — Migrate hosts (~2 days)                                       :hosts:
+:PROPERTIES:
+:CUSTOM_ID: phase-2
+:END:
+
+- [ ] Register hosts in ~modules/den.nix~:
+  - [ ] ~den.hosts.x86_64-linux.mentat~ + users
+  - [ ] ~den.hosts.x86_64-linux.prime~ + users
+  - [ ] ~den.hosts.x86_64-linux.carryall~ + users
+  - [ ] ~den.hosts.x86_64-linux.muadib~ + users
+  - [ ] ~den.hosts.x86_64-linux.lighter~ + users
+  - [ ] ~den.hosts.x86_64-linux.thopter~ + users (when hardware arrives)
+- [ ] ~modules/hosts/<host>/configuration.nix~ → ~den.aspects.<host>.nixos~
+  - [ ] Byte-for-byte copy from ~nix/hosts/<host>/configuration.nix~
+  - [ ] Keep ~system.stateVersion~ verbatim
+- [ ] ~nix/hosts/<host>/hardware-configuration.nix~ → sibling ~modules/hosts/<host>/hardware.nix~
+- [ ] ~nix/hosts/<host>/modules/<svc>.nix~ → service aspects (split large hosts)
+- [ ] Validate each host before next: ~nixos-rebuild dry-build --flake '.?submodules=1#<host>'~
+- [ ] Delete ~nix/hosts/<host>/~ ONLY after successful switch from den
+
+** Phase 3 — Migrate shared modules (~2 days)                       :shared:
+:PROPERTIES:
+:CUSTOM_ID: phase-3
+:END:
+
+- [ ] ~nix/modules/nixos/core.nix~ → ~den.aspects.core.nixos~ (or ~den.schema.host.includes~ if universal)
+- [ ] ~nix/modules/nixos/workstation.nix~ → ~den.aspects.workstation~
+- [ ] ~nix/modules/nixos/server.nix~ → ~den.aspects.server~
+- [ ] ~nix/modules/nixos/ssh-access.nix~ → ~den.aspects.ssh-access~
+- [ ] ~nix/modules/nixos/bluetooth.nix~ → ~den.aspects.bluetooth.nixos~
+- [ ] ~nix/modules/nixos/gaming.nix~ → ~den.aspects.gaming.nixos~
+- [ ] ~nix/modules/nixos/fonts.nix~ → ~den.aspects.fonts.nixos~
+- [ ] ~nix/modules/nixos/<other>.nix~ → ~den.aspects.<other>.nixos~
+- [ ] ~nix/modules/home/core.nix~ → ~den.aspects.lucas.homeManager~
+- [ ] ~nix/modules/home/gaming.nix~ → ~apps.gaming.homeManager~
+- [ ] ~nix/modules/home/<app>.nix~ → ~apps.<app>.homeManager~
+
+** Phase 4 — Migrate stacks (~3 days)                                   :stacks:
+:PROPERTIES:
+:CUSTOM_ID: phase-4
+:END:
+
+- [ ] Each ~nix/hosts/<host>/modules/stacks/<svc>.nix~ → ~modules/stacks/<svc>.nix~
+- [ ] Pattern: ~stacks.<svc>.nixos = { ... };~
+- [ ] ~stacks.<svc>.includes = [ <den/hostname> <stacks/db-if-needed> ];~
+- [ ] Host aspects include: ~den.aspects.mentat.includes = [ <stacks/immich> <stacks/karakeep> ... ];~
+- [ ] Multi-container stacks stay as classic NixOS modules *inside* the aspect's ~nixos~ block (no change to ~services.my.<name>.stack~ infrastructure)
+- [ ] Validate: ~nix flake check '.?submodules=1'~
+
+** Phase 5 — Convert ~services.my~ to quirks (~1 day)                      :quirks:
+:PROPERTIES:
+:CUSTOM_ID: phase-5
+:END:
+
+- [ ] Define quirks:
+  - [ ] ~den.quirks.proxy~
+  - [ ] ~den.quirks.dashboard~
+  - [ ] ~den.quirks.monitor~
+- [ ] Service stacks emit ~proxy = { ... }; dashboard = { ... }; monitor = { ... };~
+- [ ] Consumer aspects on prime subscribe via ~pipe.collect~
+- [ ] Delete ~nix/modules/services/my/options.nix~ registry
+- [ ] Delete ~nix/hosts/prime/modules/dashboard.nix~'s ~flake.allMyServices~ walk
+- [ ] Refactor ~nix/hosts/mentat/modules/monitoring/gatus.nix~ to consume ~monitor~ quirk
+
+** Phase 6 — Validate + delete blueprint (~1 day)                  :cleanup:
+:PROPERTIES:
+:CUSTOM_ID: phase-6
+:END:
+
+- [ ] ~nix flake check '.?submodules=1'~ on den
+- [ ] ~nix build '.?submodules=1#nixosConfigurations.mentat'~ — diff against blueprint config
+- [ ] ~nixos-rebuild switch~ on carryall (least critical first)
+- [ ] ~nixos-rebuild switch~ on mentat
+- [ ] ~nixos-rebuild switch~ on prime
+- [ ] ~nixos-rebuild switch~ on thopter (when hardware arrives)
+- [ ] After all hosts switch:
+  - [ ] Delete ~nix/hosts/~
+  - [ ] Delete blueprint ~flake.nix~ outputs
+  - [ ] Delete ~nix/modules/{nixos,home,lib}~ blueprint structure
+  - [ ] Keep ~nix/secrets.yaml~ + ~nix/terraform/~ as-is
+
+** Phase 7 — New capabilities (week 2)                              :upside:
+:PROPERTIES:
+:CUSTOM_ID: phase-7
+:END:
+
+- [ ] Mesh IP lookup — ~mesh.nix~ becomes a consumer of ~den.hosts.<x>.<host>.meshIp~ freeform attr
+- [ ] Authelia user generator — ~nix run '#authelia-add-user' -- <user>~ reads entities, generates sops hash
+- [ ] Cross-host dashboard (already works via ~pipe.collect~)
+- [ ] Fleet target tracking — ~pipe.withProvenance~ on monitor/proxy quirks for docs
+- [ ] Mesh device entity kind (~den.devices.~) + dynamic nftables generation
+
+* Repo layout after migration
+:PROPERTIES:
+:CUSTOM_ID: layout
+:END:
+
+#+BEGIN_EXAMPLE
+modules/
+├── den.nix                 # schema, hosts, namespaces, defaults
+├── outputs.nix             # flake package outputs
+├── aspects/                # generic cross-cutting concerns
+│   ├── boot.nix
+│   ├── secrets.nix
+│   └── ...
+├── hosts/                  # host-specific aspects
+│   ├── mentat/
+│   │   ├── configuration.nix   # den.aspects.mentat.nixos
+│   │   ├── hardware.nix
+│   │   └── mesh.nix
+│   ├── prime/
+│   └── carryall/
+├── apps/                   # per-app home-manager (namespace: apps)
+│   ├── git.nix
+│   ├── shell.nix
+│   └── gaming.nix
+├── stacks/                 # service stacks (namespace: stacks)
+│   ├── immich.nix
+│   ├── karakeep.nix
+│   └── ...
+├── users/                  # user aspects
+│   └── lucas.nix           # den.aspects.lucas (home + nixos)
+├── private/                # SOPS-templated, ignored by git
+│   └── authelia-users.nix
+└── packages/               # den.aspects.<name>.packages
+#+END_EXAMPLE
+
+* Benefits summary
+:PROPERTIES:
+:CUSTOM_ID: benefits-table
+:END:
+
+| Area              | Blueprint (today)                                     | Den                                                       |
+|-------------------+-------------------------------------------------------+-----------------------------------------------------------|
+| Service dashboard | ~flake.allMyServices~ walk, every svc declares field   | ~pipe.collect~ on ~dashboard~ quirk, zero coupling        |
+| Reverse proxy     | ~proxyHosts~ attrset on prime, hardcoded mesh IP       | ~proxy~ quirk + ~pipe.transform~ resolves target → mesh IP |
+| Authelia users    | Hand-edited seed, manual hash run                      | ~den.hosts.X.users.Y~ entity, generated sops file          |
+| Mesh IPs          | Hardcoded strings in ~mesh.nix~ + ~proxy.nix~          | Freeform ~meshIp~ attribute, lookup by host name          |
+| Gatus endpoints   | Hand-listed URLs in gatus.nix                          | ~monitor~ quirk, stacks self-register                     |
+| Cross-host group  | Manual ~flake.lib.karaokeDomain~ etc.                  | ~den.schema.host.includes~ activates a policy fleet-wide  |
+| Per-host packages | ~nix/packages/*~ flat, blueprint auto-discovers        | ~den.aspects.<name>.packages~ — attach to owning aspect   |
+| Adding a host     | New ~nix/hosts/<host>/~ folder, blueprint discovers    | ~den.hosts.x86_64-linux.<name> = { ... };~ in one place   |
+
+* Notes
+:PROPERTIES:
+:CUSTOM_ID: notes
+:END:
+
+- **Skip-on-sight:** anything beyond pipes/dashboard (custom Nix classes, diagram
+  tooling, fleet entity grouping) — YAGNI until we have a real prod/staging split.
+- **Gotchas from friend repo** (emilia/nix-config):
+  - User package profile location changes after den's HM integration → restart terminals
+  - ~__findFile~ must be in args of every file using ~<...>~ includes
+  - ~system.stateVersion~ / ~home.stateVersion~ carry over unchanged
+  - Confirm intentional drops (e.g. ~isd~, ~libargon2~ were dropped during their migration)
+  - ~(den/unfree) [ "attrName" ]~ uses exact attr/pname — scope per aspect, not global
+- **Submodules:** keep ~?submodules=1~ in every flake ref (same as today)
+- **Git tracking:** new files under ~modules/~ must be ~git add~-ed before eval
+
+* References
+:PROPERTIES:
+:CUSTOM_ID: references
+:END:
+
+- den docs: https://den.denful.dev/
+- From Zero to Den: https://den.denful.dev/guides/from-zero-to-den/
+- From Flake to Den: https://den.denful.dev/guides/from-flake-to-den/
+- Aspects: https://den.denful.dev/explanation/aspects/
+- Entities: https://den.denful.dev/explanation/entities/
+- Pipes: https://den.denful.dev/explanation/quirks-and-pipes/
+- Fleets: https://den.denful.dev/explanation/fleet/
+- Fleet demo: https://github.com/denful/den/blob/main/templates/fleet-demo/modules/den.nix
+- Friend's config: https://git.byte-sized.fyi/emilia/nix-config
+- Migration skill (friend): https://git.byte-sized.fyi/emilia/nix-config/src/branch/main/modules/ai/skills/blueprint-to-den-migration/SKILL.md
