@@ -39,10 +39,7 @@
 
     # den migration — runs alongside blueprint until Phase 4
     import-tree.url = "github:denful/import-tree";
-    den = {
-      url = "github:denful/den";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    den.url = "github:denful/den";
 
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

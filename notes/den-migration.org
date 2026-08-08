@@ -248,22 +248,30 @@ den.aspects.mesh-firewall = {
 :CUSTOM_ID: phase-1
 :END:
 
-- [ ] Add ~inputs.den~ and ~inputs.import-tree~ to ~flake.nix~
-- [ ] Replace blueprint outputs with den:
+- [X] Add ~inputs.den~ and ~inputs.import-tree~ to ~flake.nix~
+- [X] Wire den alongside blueprint (no replacement yet):
   #+BEGIN_SRC nix
-  outputs = inputs:
-    (inputs.nixpkgs.lib.evalModules {
-      modules = [ (inputs.import-tree ./modules) ];
-      specialArgs.inputs = inputs;
-    }).config.flake;
+  den = (inputs.nixpkgs.lib.evalModules {
+    modules = [ (inputs.import-tree ./modules) ];
+    specialArgs.inputs = inputs;
+  }).config;
   #+END_SRC
-- [ ] Create ~modules/den.nix~ with:
-  - [ ] ~_module.args.__findFile = den.lib.__findFile;~
-  - [ ] ~imports = [ inputs.den.flakeModule ];~
-  - [ ] ~imports = [ (inputs.den.namespace "apps" false) (inputs.den.namespace "stacks" false) ];~
-  - [ ] ~den.schema.user.classes = lib.mkDefault [ "homeManager" ];~
-- [ ] Create ~modules/outputs.nix~ (package outputs)
+- [X] Expose as ~den = denCfg;~ in flake outputs so ~nix eval '.#den'~ works
+- [X] Create ~modules/den.nix~ with:
+  - [X] ~_module.args.__findFile = den.lib.__findFile;~
+  - [X] ~imports = [ inputs.den.flakeModule ];~
+  - [X] ~imports = [ (inputs.den.namespace "apps" false) (inputs.den.namespace "stacks" false) ];~
+  - [X] ~den.schema.user.classes = lib.mkDefault [ "homeManager" ];~
+- [X] Create ~modules/outputs.nix~ (package outputs bridge)
+- [X] Verify: ~nix eval '.?submodules=1#den.den.hosts'~ → empty (no hosts yet, expected)
+- [X] Verify: ~nix eval '.?submodules=1#den.den.schema'~ → conf, default, flake, host, user, home, fleet, ...
+- [X] Verify: ~nix eval '.?submodules=1#den.den.batteries'~ → define-user, hostname, primary-user, ...
 - [ ] Keep blueprint outputs reachable via old ~nix/hosts/~ path until Phase 4
+
+*** Phase 1 notes
+- /Den has no ~nixpkgs~ input/ — do NOT add ~inputs.nixpkgs.follows = "nixpkgs"~ to the den input.
+- /New files must be git-tracked/ before eval. ~import-tree~ reads from the committed state, not the working tree.
+- Blueprint still drives ~nixosConfigurations~; den lives in parallel as ~flake.den~.
 
 ** Phase 2 — Migrate hosts (~2 days)                                       :hosts:
 :PROPERTIES:
