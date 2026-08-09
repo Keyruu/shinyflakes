@@ -18,6 +18,13 @@
       # Enables programs.<shell>.enable and sets users.users.<name>.shell.
       (den.batteries.user-shell "fish")
 
+      (den.batteries.unfree [
+        "obsidian"
+        "slack"
+        "spotify"
+        "chapterskip"
+      ])
+
       den.aspects.apps."1password"
       den.aspects.apps.calendar
       den.aspects.apps.chromium
@@ -44,7 +51,6 @@
       den.aspects.apps.satty
       den.aspects.apps.screenshot
       den.aspects.apps.sidebery
-      den.aspects.apps.spotify
       den.aspects.apps.ssh
       den.aspects.apps.system
       den.aspects.apps.television
@@ -161,7 +167,6 @@
           localsend
           element-desktop
           diebahn
-          discord
           vesktop
           slack
           signal-desktop
@@ -251,7 +256,6 @@
           tree-sitter
           zerotierone
           feishin
-          lmstudio
           # FIXME: winboat fails to compile
           # winboat
           kdePackages.kdeconnect-kde
@@ -261,6 +265,7 @@
           tea
           handy
           plezy
+          spotify
 
           # self'.packages.numr
           # self'.packages.glide-browser

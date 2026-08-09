@@ -1,9 +1,8 @@
-{ ... }:
+{ inputs, ... }:
 {
   den.aspects.apps.zed = {
     homeManager =
       {
-        inputs,
         pkgs,
         ...
       }:

@@ -1,9 +1,10 @@
 { ... }:
 {
   den.aspects.apps.vscode = {
-    homeManager = {
+    homeManager = { pkgs, ... }: {
       programs.vscode = {
         enable = true;
+        package = pkgs.vscodium;
         mutableExtensionsDir = true;
 
         profiles.default = {

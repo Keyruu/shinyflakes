@@ -1,7 +1,7 @@
-{ pkgs, ... }:
+{ ... }:
 {
   den.aspects.core.podman = {
-    nixos = { ... }: {
+    nixos = { pkgs, ... }: {
       environment.systemPackages = [
         pkgs.docker-compose
       ];

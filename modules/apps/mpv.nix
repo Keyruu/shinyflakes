@@ -21,7 +21,6 @@
             reload
             encode
             cutter
-            convert
             videoclip
             thumbfast
             chapterskip

@@ -58,9 +58,6 @@
 
       networking.nftables.enable = true;
 
-      # TLP disabled; handled elsewhere (or not used on this hardware).
-      services.tlp.enable = lib.mkForce false;
-
       services.libinput.enable = true;
 
       # Host-level extras on top of den.batteries.define-user (which provisions

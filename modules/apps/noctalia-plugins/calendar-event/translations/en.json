@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "interval": {
+      "label": "Refresh interval (seconds)"
+    },
+    "max_length": {
+      "label": "Max text length"
+    }
+  }
+}

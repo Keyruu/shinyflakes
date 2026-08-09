@@ -30,7 +30,7 @@
         home.file.".glide-browser/native-messaging-hosts/com.vicinae.vicinae.json".text = builtins.toJSON {
           name = "com.vicinae.vicinae";
           description = "Vicinae Native Messaging Host";
-          path = "${inputs'.vicinae.default}/libexec/vicinae/vicinae-browser-link";
+          path = "${inputs'.vicinae.packages.default}/libexec/vicinae/vicinae-browser-link";
           type = "stdio";
           allowed_extensions = [ "firefox@vicinae.com" ];
         };

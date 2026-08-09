@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   den.aspects.core.secrets = {
-    nixos = { config, pkgs, ... }: {
+    nixos = { pkgs, ... }: {
       imports = [
         inputs.sops-nix.nixosModules.sops
       ];
@@ -15,7 +15,7 @@
       };
 
       sops = {
-        defaultSopsFile = ../../../nix/secrets.yaml;
+        defaultSopsFile = ../../../secrets.yaml;
         age.keyFile = "/var/lib/sops-nix/keys.txt";
       };
     };
@@ -25,7 +25,7 @@
       ];
 
       sops = {
-        defaultSopsFile = ../../nix/secrets.yaml;
+        defaultSopsFile = ../../../secrets.yaml;
         age = {
           keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
           # sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];

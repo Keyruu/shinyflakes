@@ -42,7 +42,7 @@
             background = [
               {
                 monitor = "";
-                path = "${../themes/dark-bg.jpg}";
+                path = "${../../../assets/dark-bg.jpg}";
                 blur_passes = 2;
                 blur_size = 6;
                 contrast = 0.8916;

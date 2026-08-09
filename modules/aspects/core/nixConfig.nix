@@ -1,7 +1,7 @@
-{ ... }:
+{ inputs, ... }:
 {
   den.aspects.core.nixConfig = {
-    nixos = { pkgs, lib, inputs, ... }: {
+    nixos = { pkgs, lib, ... }: {
       nixpkgs.config.allowUnfree = true;
       # build-time pnpm deps flagged insecure in nixpkgs (vue-language-server, vesktop, ...)
       # FIXME: drop once https://github.com/NixOS/nixpkgs/issues/536623 lands in our pin
@@ -15,7 +15,7 @@
       # `flake` was passed as a specialArg containing rev/dirtyRev. In den
       # there's no direct analog — set this per-host aspect or accept
       # "unknown" until the host aspect knows its source.
-      system.configurationRevision = "unknown";
+      # system.configurationRevision = "unknown";
 
       nix = {
         registry = lib.mapAttrs (_: fl: { flake = fl; }) inputs;

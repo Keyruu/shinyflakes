@@ -6,7 +6,7 @@
       {
         programs.chromium = {
           enable = true;
-          package = pkgs.google-chrome;
+          package = pkgs.chromium;
           commandLineArgs = [
             # Platform
             "--ozone-platform=wayland"

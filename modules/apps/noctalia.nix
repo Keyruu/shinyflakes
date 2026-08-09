@@ -164,7 +164,7 @@
 
             wallpaper = {
               enabled = true;
-              default.path = ../themes/dark-bg.jpg;
+              default.path = ../../assets/dark-bg.jpg;
             };
 
             notification = {
