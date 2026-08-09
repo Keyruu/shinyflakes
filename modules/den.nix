@@ -41,6 +41,8 @@
 
       # Provides self' (the flake’s self outputs with system pre-selected) as a top-level module argument.
       den.batteries.self'
+
+      den.aspects.options.mesh
     ];
   };
 

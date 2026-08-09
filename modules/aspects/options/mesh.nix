@@ -1,4 +1,3 @@
-{ ... }:
 {
   den.aspects.options.mesh =
     { lib, ... }: {

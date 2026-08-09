@@ -1,14 +1,14 @@
 {
   den,
   inputs,
-  lib,
   ...
 }:
 {
-  # Lucas laptop. First den-native host, no blueprint equivalent.
-  den.hosts.x86_64-linux.carryall.users.lucas = { };
+  # Lucas desktop workstation. AMD, linuxPackages_zen, gaming.
+  # Second den-native workstation after carryall.
+  den.hosts.x86_64-linux.muadib.users.lucas = { };
 
-  den.aspects.carryall = {
+  den.aspects.muadib = {
     includes = [
       # Core (every host)
       den.aspects.core.common
@@ -20,17 +20,16 @@
       den.aspects.core.gc
       den.aspects.core.hardening
 
-      # Workstation — nixos-only aspects (host scope)
-      den.aspects.workstation.laptop
+      # Workstation — nixos-only aspects
       den.aspects.workstation.wayland
       den.aspects.workstation.bluetooth
+      den.aspects.workstation.blueman
       den.aspects.workstation.fonts
       den.aspects.workstation.networking
       den.aspects.workstation.sound
       den.aspects.workstation.gaming
       den.aspects.workstation.onepassword
       den.aspects.workstation.printing
-      den.aspects.workstation.secure-boot
       den.aspects.workstation.plymouth
       den.aspects.workstation.systemd-boot
       den.aspects.workstation.kanata
@@ -41,33 +40,55 @@
       den.aspects.workstation.flatpak
       den.aspects.workstation.graphical
       den.aspects.workstation.udev
+      den.aspects.workstation.fprintd
 
-      # Mesh client (connects to mentat/prime via wireguard).
-      # Mesh publicKey / IP for carryall not yet set — add when first needed.
+      # Mesh options + client
+      # den.aspects.options.mesh
       # den.aspects.server.mesh-client
     ];
 
-    nixos = {
-      imports = [
-        inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
-        inputs.nixos-hardware.nixosModules.common-cpu-intel
-        inputs.nixos-hardware.nixosModules.common-gpu-intel
-      ];
-
+    nixos = { pkgs, ... }: {
       nixpkgs.hostPlatform = "x86_64-linux";
+
+      # Zen kernel — gaming-focused desktop
+      boot.kernelPackages = pkgs.linuxPackages_zen;
 
       networking.nftables.enable = true;
 
       services.libinput.enable = true;
 
-      # Host-level extras on top of den.batteries.define-user (which provisions
-      # the OS user + home dir). wheel/networkmanager added by primary-user.
+      # Host-level extras on top of den.batteries.define-user.
       users.users.lucas.extraGroups = [
         "networkmanager"
         "ydotool"
         "docker"
         "disk"
       ];
+
+      # Mesh client config. IP from blueprint's mesh.people.lucas.devices.muadib.
+      # services.mesh = {
+      #   ip = "100.67.0.6";
+      #   client = {
+      #     enable = true;
+      #     ws = {
+      #       enable = true;
+      #       defaultInterface = "enp42s0";
+      #     };
+      #     keyName = "muadibMeshKey";
+      #   };
+      # };
+
+      # Custom firewall ports for game servers (hytale UDP range, etc).
+      # mesh0 rules removed — mesh disabled.
+      networking.firewall.interfaces = {
+        enp42s0 = {
+          allowedTCPPorts = [
+            6767
+            8080
+          ];
+          allowedUDPPorts = [ 2021 ];
+        };
+      };
 
       documentation = {
         enable = true;
