@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.printing = {
+  den.aspects.workstation.printing = {
     nixos = { pkgs, ... }: {
       services.printing = {
         enable = true;

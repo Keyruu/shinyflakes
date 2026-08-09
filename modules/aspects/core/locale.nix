@@ -1,5 +1,5 @@
 {
-  den.aspects.locale = {
+  den.aspects.core.locale = {
     nixos = { ... }: {
       time.timeZone = "Europe/Berlin";
 

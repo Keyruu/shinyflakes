@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.beszel-agent = {
+  den.aspects.server.beszel-agent = {
     nixos = { config, ... }: {
       services.beszel.agent = {
         enable = true;

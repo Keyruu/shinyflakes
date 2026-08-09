@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.my.nixos = { config, lib, pkgs, ... }: let
+  den.aspects.options.my = { config, lib, pkgs, ... }: let
     servicesWithPorts = lib.filterAttrs (_: svc: svc.port != null) config.services.my;
     portList = lib.mapAttrsToList (name: svc: {
       inherit name;

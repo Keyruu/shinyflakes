@@ -1,104 +1,104 @@
-{ den, inputs, ... }:
+{ ... }:
 {
-  den.aspects.common = {
-    includes = [
-      den.aspects.options.settings
-    ];
+  den.aspects.core.common = {
+    nixos =
+      {
+        user,
+        pkgs,
+        lib,
+        config,
+        ...
+      }:
+      {
+        # disable beeping motherboard speaker
+        boot = {
+          blacklistedKernelModules = [ "pcspkr" ];
 
-    nixos = { pkgs, lib, config, ... }: {
-      imports = [
-        inputs.nix-topology.nixosModules.default
-      ];
+          kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
-      # disable beeping motherboard speaker
-      boot = {
-        blacklistedKernelModules = [ "pcspkr" ];
-
-        kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
-
-        # Tweaking the system's swap to take full advantage of zram.
-        # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram
-        kernel.sysctl = lib.mkIf config.zramSwap.enable {
-          "vm.swappiness" = 180;
-          "vm.watermark_boost_factor" = 0;
-          "vm.watermark_scale_factor" = 125;
-          "vm.page-cluster" = 0;
+          # Tweaking the system's swap to take full advantage of zram.
+          # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram
+          kernel.sysctl = lib.mkIf config.zramSwap.enable {
+            "vm.swappiness" = 180;
+            "vm.watermark_boost_factor" = 0;
+            "vm.watermark_scale_factor" = 125;
+            "vm.page-cluster" = 0;
+          };
         };
-      };
 
-      zramSwap.enable = true;
+        zramSwap.enable = true;
 
-      # make #!/bin/bash possible
-      services.envfs.enable = true;
+        # make #!/bin/bash possible
+        services.envfs.enable = true;
 
-      hardware = {
-        enableAllFirmware = true;
-        enableRedistributableFirmware = true;
-      };
+        hardware = {
+          enableAllFirmware = true;
+          enableRedistributableFirmware = true;
+        };
 
-      console = {
-        earlySetup = true;
-        font = "latarcyrheb-sun16";
-      };
+        console = {
+          earlySetup = true;
+          font = "latarcyrheb-sun16";
+        };
 
-      security = {
-        polkit = {
-          enable = true;
+        security = {
+          polkit = {
+            enable = true;
 
-          # allow me to use systemd without password every time
-          extraConfig = ''
-            polkit.addRule(function(action, subject) {
-              if (action.id == "org.freedesktop.systemd1.manage-units" &&
-                subject.user == "${config.user.name}") {
-                return polkit.Result.YES;
-              }
-            });
-            polkit.addRule(function(action, subject) {
-              if (action.id == "com.1password.1Password.authorizeCLI") {
-                if (subject.isInGroup("users")) {
+            # allow me to use systemd without password every time
+            extraConfig = ''
+              polkit.addRule(function(action, subject) {
+                if (action.id == "org.freedesktop.systemd1.manage-units" &&
+                  subject.user == "${user.userName}") {
                   return polkit.Result.YES;
                 }
-              }
-            });
-          '';
+              });
+              polkit.addRule(function(action, subject) {
+                if (action.id == "com.1password.1Password.authorizeCLI") {
+                  if (subject.isInGroup("users")) {
+                    return polkit.Result.YES;
+                  }
+                }
+              });
+            '';
+          };
+
+          sudo.enable = false;
+          sudo-rs = {
+            enable = true;
+            execWheelOnly = true;
+            # extraConfig = ''
+            #   Defaults lecture = never
+            #   Defaults passwd_timeout=0
+            # '';
+          };
         };
 
-        sudo.enable = false;
-        sudo-rs = {
-          enable = true;
-          execWheelOnly = true;
-          # extraConfig = ''
-          #   Defaults lecture = never
-          #   Defaults passwd_timeout=0
-          # '';
+        environment = {
+          shells = [
+            pkgs.bashInteractive
+            pkgs.fish
+          ];
+
+          # uninstall all default packages that I don't need
+          defaultPackages = lib.mkForce [ ];
+
+          systemPackages = with pkgs; [
+            git
+            vim
+            wget
+            fastfetch
+            pciutils
+            usbutils
+            dig
+            trippy
+          ];
+
+          variables = {
+            DO_NOT_TRACK = 1;
+            EDITOR = "nvim";
+          };
         };
       };
-
-      environment = {
-        shells = [
-          pkgs.bashInteractive
-          pkgs.fish
-        ];
-
-        # uninstall all default packages that I don't need
-        defaultPackages = lib.mkForce [ ];
-
-        systemPackages = with pkgs; [
-          git
-          vim
-          wget
-          fastfetch
-          pciutils
-          usbutils
-          dig
-          trippy
-        ];
-
-        variables = {
-          DO_NOT_TRACK = 1;
-          EDITOR = "nvim";
-        };
-      };
-    };
   };
 }

@@ -1,7 +1,7 @@
-{ __findFile, ... }:
+{ den, ... }:
 {
-  den.aspects.mesh.client = {
-    includes = [ <cloudflare> ];
+  den.aspects.server.mesh-client = {
+    includes = [ den.aspects.options.cloudflare ];
 
     nixos = { lib, config, pkgs, ... }: let
       inherit (config.services) mesh;

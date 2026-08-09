@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.plymouth = {
+  den.aspects.workstation.plymouth = {
     nixos = { pkgs, ... }: let
       # Fetch the rainbow NixOS logo from the brand site
       nixos-logo-rainbow = pkgs.fetchurl {

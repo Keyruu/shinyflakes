@@ -1,9 +1,9 @@
 { ... }:
 {
-  den.aspects.headless = {
-    nixos = { pkgs, config, ... }: {
+  den.aspects.server.headless = {
+    nixos = { user, pkgs, ... }: {
       # use bash for headless systems
-      users.users.${config.user.name}.shell = pkgs.bashInteractive;
+      users.users.${user.userName}.shell = pkgs.bashInteractive;
     };
   };
 }

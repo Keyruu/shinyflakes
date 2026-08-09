@@ -1,7 +1,7 @@
 { ... }:
 {
-  den.aspects.networking = {
-    nixos = { pkgs, config, ... }: {
+  den.aspects.workstation.networking = {
+    nixos = { user, pkgs, ... }: {
       networking = {
         networkmanager = {
           enable = true;
@@ -31,7 +31,7 @@
       systemd.services.NetworkManager-wait-online.enable = false;
       systemd.services.NetworkManager-dispatcher.enable = false;
 
-      users.users."${config.user.name}".extraGroups = [ "networkmanager" ];
+      users.users."${user.userName}".extraGroups = [ "networkmanager" ];
 
       environment.systemPackages = with pkgs; [ wirelesstools ];
     };

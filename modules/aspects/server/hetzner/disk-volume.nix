@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects."hetzner-disk-volume" = {
+  den.aspects.server.hetzner-disk-volume = {
     nixos = { id, mountpoint, ... }: {
       disko.devices.disk = {
         # hetzner block storage, must be attached from cloud gui

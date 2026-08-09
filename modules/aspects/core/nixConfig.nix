@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.nixConfig = {
+  den.aspects.core.nixConfig = {
     nixos = { pkgs, lib, inputs, ... }: {
       nixpkgs.config.allowUnfree = true;
       # build-time pnpm deps flagged insecure in nixpkgs (vue-language-server, vesktop, ...)

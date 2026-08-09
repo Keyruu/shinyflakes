@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.appimage = {
+  den.aspects.workstation.appimage = {
     nixos = { pkgs, ... }: {
       environment.systemPackages = [
         (pkgs.appimage-run.override {

@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.backup.nixos = { lib, config, options, ... }: let
+  den.aspects.server.backup = { lib, config, options, ... }: let
     backupModules = options.services.restic.backups.type.nestedTypes.elemType.getSubModules;
   in {
     options.services.restic = {

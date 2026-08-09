@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.laptop = {
+  den.aspects.workstation.laptop = {
     nixos = { pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         brightnessctl

@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.wireguard = {
+  den.aspects.workstation.wireguard = {
     nixos = { ... }: {
       networking.firewall = {
         allowedUDPPorts = [ 51820 ]; # Clients and peers can use the same port, see listenport

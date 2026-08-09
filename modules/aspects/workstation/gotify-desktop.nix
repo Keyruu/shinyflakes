@@ -1,8 +1,8 @@
 { ... }:
 {
-  den.aspects.gotify-desktop = {
-    nixos = { config, pkgs, ... }: {
-      sops.secrets.gotifyDesktopToken.owner = config.user.name;
+  den.aspects.workstation.gotify-desktop = {
+    nixos = { user, config, pkgs, ... }: {
+      sops.secrets.gotifyDesktopToken.owner = user.userName;
 
       systemd.user.services.gotify-desktop = let
         gotify-notify = pkgs.writeShellApplication {

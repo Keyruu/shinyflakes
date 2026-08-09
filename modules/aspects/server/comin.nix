@@ -1,8 +1,8 @@
 { den, inputs, ... }:
 {
-  den.aspects.comin = {
+  den.aspects.server.comin = {
     includes = [
-      den.aspects.secrets
+      den.aspects.core.secrets
     ];
 
     nixos = { config, pkgs, ... }: {

@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.caddy.extras.nixos = { ... }: {
+  den.aspects.server.caddy-extras = { ... }: {
     config.services.caddy.extraConfig = ''
       (coraza-waf) {
         coraza_waf {

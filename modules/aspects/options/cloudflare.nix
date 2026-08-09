@@ -1,5 +1,5 @@
 {
-  den.aspects.cloudflare.nixos =
+  den.aspects.options.cloudflare =
     {
       lib,
       ...

@@ -1,7 +1,7 @@
-{ __findFile, ... }:
+{ den, ... }:
 {
-  den.aspects.caddy = {
-    includes = [ <cloudflare> ];
+  den.aspects.server.caddy = {
+    includes = [ den.aspects.options.cloudflare ];
 
     nixos =
       {

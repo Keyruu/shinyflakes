@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.fonts = {
+  den.aspects.workstation.fonts = {
     nixos = { pkgs, ... }: {
       fonts = {
         fontconfig = {

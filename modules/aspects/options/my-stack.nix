@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.my.stack.nixos = { config, options, lib, ... }: let
+  den.aspects.options.my-stack = { config, options, lib, ... }: let
 
     # reuse the quadlet-nix container submodule via getSubModules so stack
     # containers share the same options as virtualisation.quadlet.containers.*.

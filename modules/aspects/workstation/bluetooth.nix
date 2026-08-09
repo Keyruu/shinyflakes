@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.bluetooth = {
+  den.aspects.workstation.bluetooth = {
     nixos = { pkgs, ... }: {
       hardware = {
         bluetooth = {

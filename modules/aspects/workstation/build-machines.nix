@@ -1,7 +1,7 @@
 { ... }:
 {
-  den.aspects.build-machines = {
-    nixos = { config, ... }: {
+  den.aspects.workstation.build-machines = {
+    nixos = { user, ... }: {
       nix = {
         distributedBuilds = true;
 
@@ -9,7 +9,7 @@
           {
             hostName = "192.168.100.7";
             sshUser = "root";
-            sshKey = "/home/${config.user.name}/.ssh/id_ed25519";
+            sshKey = "/home/${user.userName}/.ssh/id_ed25519";
             system = "x86_64-linux";
             maxJobs = 40;
             speedFactor = 2;

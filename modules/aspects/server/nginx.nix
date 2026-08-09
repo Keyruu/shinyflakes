@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.nginx = {
+  den.aspects.server.nginx = {
     nixos = { config, ... }: {
       security.acme = {
         acceptTerms = true;

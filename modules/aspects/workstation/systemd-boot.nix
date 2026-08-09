@@ -1,5 +1,5 @@
 {
-  den.aspects.systemd-boot = {
+  den.aspects.workstation.systemd-boot = {
     nixos = { ... }: {
       boot = {
         loader = {

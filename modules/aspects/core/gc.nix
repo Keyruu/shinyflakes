@@ -1,5 +1,5 @@
 {
-  den.aspects.gc = {
+  den.aspects.core.gc = {
     nixos = { ... }: {
       services.journald.extraConfig = "SystemMaxUse=1G";
 

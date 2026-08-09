@@ -1,131 +1,140 @@
-{ inputs, ... }:
+{ ... }:
 {
-  den.aspects.wayland = {
-    nixos = { config, lib, pkgs, ... }: let
-      # In blueprint: `perSystem.niri.niri-unstable`. In den we pull directly
-      # from the flake input for the current system.
-      niri = inputs.niri.packages.${pkgs.stem}.niri-unstable or inputs.niri.packages.${pkgs.system}.default;
+  den.aspects.workstation.wayland = {
+    nixos =
+      {
+        inputs',
+        user,
+        lib,
+        pkgs,
+        ...
+      }:
+      let
+        # In blueprint: `perSystem.niri.niri-unstable`. In den we pull directly
+        # from the flake input for the current system.
+        niri = inputs'.niri.packages.niri-unstable;
 
-      tuigreetTheme = {
-        border = "blue";
-        text = "cyan";
-        prompt = "white";
-        time = "white";
-        action = "white";
-        button = "cyan";
-        container = "darkgray";
-        input = "white";
-      };
+        tuigreetTheme = {
+          border = "blue";
+          text = "cyan";
+          prompt = "white";
+          time = "white";
+          action = "white";
+          button = "cyan";
+          container = "darkgray";
+          input = "white";
+        };
 
-      themeString = lib.pipe tuigreetTheme [
-        (lib.mapAttrsToList (k: v: "${k}=${v}"))
-        (lib.concatStringsSep ";")
-      ];
+        themeString = lib.pipe tuigreetTheme [
+          (lib.mapAttrsToList (k: v: "${k}=${v}"))
+          (lib.concatStringsSep ";")
+        ];
 
-      tuigreetOptions = [
-        "--issue"
-        "--asterisks"
-        "--time"
-        "--user-menu"
-        "--greet-align left"
-        "--theme '${themeString}'"
-      ];
+        tuigreetOptions = [
+          "--issue"
+          "--asterisks"
+          "--time"
+          "--user-menu"
+          "--greet-align left"
+          "--theme '${themeString}'"
+        ];
 
-      tuigreetCmd = lib.concatStringsSep " " ([ "${pkgs.tuigreet}/bin/tuigreet" ] ++ tuigreetOptions);
-    in {
-      security.pam.services = {
-        hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
-      };
+        tuigreetCmd = lib.concatStringsSep " " ([ "${pkgs.tuigreet}/bin/tuigreet" ] ++ tuigreetOptions);
+      in
+      {
+        security.pam.services = {
+          hyprlock.fprintAuth = false; # use hyprlock's built in fprint implementation
+        };
 
-      services = {
-        xserver.enable = lib.mkForce false;
+        services = {
+          xserver.enable = lib.mkForce false;
 
-        greetd = {
-          enable = true;
-          settings = {
-            terminal.vt = 1;
-            initial_session = {
-              command = "${niri}/bin/niri-session";
-              user = "${config.user.name}";
+          greetd = {
+            enable = true;
+            settings = {
+              terminal.vt = 1;
+              initial_session = {
+                command = "${niri}/bin/niri-session";
+                user = "${user.userName}";
+              };
+              default_session = {
+                command = tuigreetCmd;
+                user = "greeter";
+              };
             };
-            default_session = {
-              command = tuigreetCmd;
-              user = "greeter";
-            };
+          };
+
+          displayManager = {
+            sessionPackages = [
+              niri
+            ];
           };
         };
 
-        displayManager = {
-          sessionPackages = [
-            niri
+        programs.niri = {
+          enable = true;
+          package = niri;
+          useNautilus = true;
+        };
+
+        environment = {
+          variables = {
+            XDG_SESSION_TYPE = "wayland";
+            XDG_SESSION_DESKTOP = "niri";
+            XDG_CURRENT_DESKTOP = "niri";
+            MOZ_ENABLE_WAYLAND = "1";
+            MOZ_DBUS_REMOTE = "1";
+            ANKI_WAYLAND = "1";
+            NIXOS_OZONE_WL = "1";
+            QT_QPA_PLATFORM = "wayland";
+            QT_QPA_PLATFORMTHEME = "gtk3";
+            QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+            QS_ICON_THEME = "Papirus";
+            ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+            SDL_VIDEODRIVER = "wayland";
+            CLUTTER_BACKEND = "wayland";
+            GTK_USE_PORTAL = "1";
+            DIRENV_LOG_FORMAT = "";
+          };
+          systemPackages = [
+            pkgs.nautilus
           ];
         };
-      };
 
-      programs.niri = {
-        enable = true;
-        package = niri;
-        useNautilus = true;
-      };
-
-      environment = {
-        variables = {
-          XDG_SESSION_TYPE = "wayland";
-          XDG_SESSION_DESKTOP = "niri";
-          XDG_CURRENT_DESKTOP = "niri";
-          MOZ_ENABLE_WAYLAND = "1";
-          MOZ_DBUS_REMOTE = "1";
-          ANKI_WAYLAND = "1";
-          NIXOS_OZONE_WL = "1";
-          QT_QPA_PLATFORM = "wayland";
-          QT_QPA_PLATFORMTHEME = "gtk3";
-          QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-          QS_ICON_THEME = "Papirus";
-          ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-          SDL_VIDEODRIVER = "wayland";
-          CLUTTER_BACKEND = "wayland";
-          GTK_USE_PORTAL = "1";
-          DIRENV_LOG_FORMAT = "";
-        };
-        systemPackages = [
-          pkgs.nautilus
-        ];
-      };
-
-      xdg.portal = {
-        enable = true;
-        wlr.enable = false;
-        config = {
-          niri = {
-            "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
-            "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
-            "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+        xdg.portal = {
+          enable = true;
+          wlr.enable = false;
+          config = {
+            niri = {
+              "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+              "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+              "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+            };
           };
+          extraPortals = with pkgs; [
+            xdg-desktop-portal-gtk
+            xdg-desktop-portal-gnome
+          ];
         };
-        extraPortals = with pkgs; [
-          xdg-desktop-portal-gtk
-          xdg-desktop-portal-gnome
-        ];
+
+        environment.etc."issue".text = # env
+          ''
+            ███▄▄▄▄    ▄█  ▀████     ████▀  ▄██████▄     ▄████████
+            ███▀▀▀██▄ ███    ███    ████▀  ███    ███   ███    ███
+            ███   ███ ███     ███   ███    ███    ███   ███    █▀
+            ███   ███ ███     ▀███▄███▀    ███    ███   ███
+            ███   ███ ███     ████▀██▄     ███    ███ ▀███████████
+            ███   ███ ███     ███  ▀███    ███    ███          ███
+            ███   ███ ███   ▄███     ███▄  ███    ███    ▄█    ███
+             ▀█   █▀  █▀   ████       ███▄  ▀██████▀   ▄████████▀
+
+            omarchy who?
+          '';
+
+        security.pam.services = {
+          login.fprintAuth = false;
+          greetd.fprintAuth = false;
+        };
       };
-
-      environment.etc."issue".text = # env
-        ''
-          ███▄▄▄▄    ▄█  ▀████     ████▀  ▄██████▄     ▄████████
-          ███▀▀▀██▄ ███    ███    ████▀  ███    ███   ███    ███
-          ███   ███ ███     ███   ███    ███    ███   ███    █▀
-          ███   ███ ███     ▀███▄███▀    ███    ███   ███
-          ███   ███ ███     ████▀██▄     ███    ███ ▀███████████
-          ███   ███ ███     ███  ▀███    ███    ███          ███
-          ███   ███ ███   ▄███     ███▄  ███    ███    ▄█    ███
-           ▀█   █▀  █▀   ████       ███▄  ▀██████▀   ▄████████▀
-
-          omarchy who?
-        '';
-
-      security.pam.services = {
-        login.fprintAuth = false;
-        greetd.fprintAuth = false;
-      };
-    };
   };
 }

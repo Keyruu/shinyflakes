@@ -1,7 +1,11 @@
-{ lib, ... }:
+{ inputs, lib, ... }:
 {
-  den.aspects.secure-boot = {
+  den.aspects.workstation.secure-boot = {
     nixos = { pkgs, ... }: {
+      imports = [
+        inputs.lanzaboote.nixosModules.lanzaboote
+      ];
+
       environment.systemPackages = with pkgs; [
         # For debugging and troubleshooting Secure Boot.
         sbctl

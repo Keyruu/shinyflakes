@@ -1,12 +1,12 @@
 { ... }:
 {
-  den.aspects.onepassword = {
-    nixos = { config, pkgs, ... }: {
+  den.aspects.workstation.onepassword = {
+    nixos = { user, pkgs, ... }: {
       programs._1password.enable = true;
       programs._1password-gui = {
         enable = true;
         package = pkgs._1password-gui;
-        polkitPolicyOwners = [ config.user.name ];
+        polkitPolicyOwners = [ user.userName ];
       };
 
       environment.etc = {

@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.ssh-access = {
+  den.aspects.server.ssh-access = {
     nixos = { pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         htop

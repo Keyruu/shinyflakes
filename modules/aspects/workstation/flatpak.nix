@@ -1,7 +1,7 @@
-{ ... }:
+{ inputs, ... }:
 {
-  den.aspects.flatpak = {
-    nixos = { inputs, ... }: {
+  den.aspects.workstation.flatpak = {
+    nixos = { ... }: {
       imports = [
         inputs.nix-flatpak.nixosModules.nix-flatpak
       ];

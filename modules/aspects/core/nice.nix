@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  den.aspects.nice = {
+  den.aspects.core.nice = {
     nixos = { ... }: {
       systemd.services = {
         nix-daemon.serviceConfig = {

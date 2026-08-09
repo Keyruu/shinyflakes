@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.hetzner = {
+  den.aspects.server.hetzner = {
     nixos = { modulesPath, ... }: {
       imports = [
         (modulesPath + "/profiles/qemu-guest.nix")

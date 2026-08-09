@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.kanata = {
+  den.aspects.workstation.kanata = {
     nixos = { ... }: {
       services.kanata = {
         enable = true;

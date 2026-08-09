@@ -1,7 +1,7 @@
-{ ... }:
+{ inputs, ... }:
 {
-  den.aspects.gaming = {
-    nixos = { inputs, pkgs, config, ... }: {
+  den.aspects.workstation.gaming = {
+    nixos = { user, pkgs, ... }: {
       imports = [
         inputs.nix-gaming.nixosModules.platformOptimizations
       ];
@@ -42,7 +42,7 @@
         java.enable = true;
       };
 
-      users.users.${config.user.name}.extraGroups = [ "gamemode" ];
+      users.users.${user.userName}.extraGroups = [ "gamemode" ];
 
       hardware = {
         graphics = {

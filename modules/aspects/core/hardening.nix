@@ -1,5 +1,5 @@
 {
-  den.aspects.hardening = {
+  den.aspects.core.hardening = {
     nixos = {
       # Prevent replacing the running kernel w/o reboot
       security.protectKernelImage = true;

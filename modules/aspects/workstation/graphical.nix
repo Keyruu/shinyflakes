@@ -1,11 +1,7 @@
 { ... }:
 {
-  den.aspects.graphical = {
-    nixos = { inputs, pkgs, ... }: {
-      imports = [
-        inputs.vicinae.nixosModules.default
-      ];
-
+  den.aspects.workstation.graphical = {
+    nixos = { pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         libnotify
         mesa

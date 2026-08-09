@@ -10,15 +10,8 @@
   ...
 }:
 {
-  # Angle-bracket `<X>` syntax. Set once here; child files that use
-  # `<X>` declare `__findFile` in their function args to bring it into
-  # lexical scope. See den docs: angle-brackets.mdx.
-  _module.args.__findFile = den.lib.__findFile;
-
   imports = [
     inputs.den.flakeModule
-    (inputs.den.namespace "apps" false)
-    (inputs.den.namespace "stacks" false)
   ];
 
   # Every user gets homeManager by default. Override per-user via
@@ -38,10 +31,20 @@
   den.default = {
     nixos.system.stateVersion = "26.05";
     homeManager.home.stateVersion = "26.11";
+
+    includes = [
+      # Sets the system hostname as defined in `den.hosts.<name>.hostName`
+      den.batteries.hostname
+
+      # Provides inputs' (the flake’s inputs with system pre-selected) as a top-level module argument.
+      den.batteries.inputs'
+
+      # Provides self' (the flake’s self outputs with system pre-selected) as a top-level module argument.
+      den.batteries.self'
+    ];
   };
 
-  # Hosts.
-  den.hosts.x86_64-linux.carryall.users.lucas = { };
+  # Hosts are declared in their own modules/hosts/<host>/default.nix.
 
   den.schema.flake-system.includes = [ den.policies.system-to-flake-parts ];
   den.schema.flake-system.excludes = [ den.policies.packages-to-flake ];

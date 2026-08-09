@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.mesh.nixos =
+  den.aspects.options.mesh =
     { lib, ... }: {
       options.services.mesh = with lib.types; {
         interface = lib.mkOption {

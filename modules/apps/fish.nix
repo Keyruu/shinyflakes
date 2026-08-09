@@ -1,0 +1,85 @@
+{ ... }:
+{
+  den.aspects.apps.fish = {
+    homeManager =
+      {
+        pkgs,
+        config,
+        self',
+        ...
+      }:
+      {
+        home.packages = [ self'.packages.zs ];
+
+        programs.man.generateCaches = false;
+
+        programs.fish = {
+          enable = true;
+
+          plugins = [
+            {
+              name = "fish-ai";
+              src = pkgs.fetchFromGitHub {
+                owner = "Realiserad";
+                repo = "fish-ai";
+                rev = "v2.3.1";
+                hash = "sha256-bgFvzjX/TphyoAz4X9Xsux8zK/N9QeBY04d9q5z8lwc=";
+              };
+            }
+          ];
+
+          functions = {
+            starship_transient_rprompt_func = "starship module time";
+            rebuild = # fish
+              ''
+                argparse 'o/offline' -- $argv; or return
+                set config_name (if test (count $argv) -gt 0; echo $argv[1]; else; hostname; end)
+                set -l flags
+                if set -q _flag_offline
+                  set flags --offline
+                end
+                if not sudo -n true 2>/dev/null
+                  notify-send "rebuild" "sudo password required"
+                end
+                sudo nixos-rebuild switch --flake ~/shinyflakes\?submodules=1#$config_name $flags
+              '';
+          };
+
+          shellInit =
+            # fish
+            ''
+              starship init fish | source
+
+              fish_add_path $HOME/.pnpm-bin
+              fish_add_path $HOME/.local/bin
+
+              fish_vi_key_bindings
+              bind --mode insert --sets-mode default \;\; repaint
+              bind --mode insert \cj history-search-forward
+              bind --mode insert \ck history-search-backward
+              bind --mode insert \cl forward-char
+              bind --mode insert \ch backward-char
+
+              set -U fish_greeting
+
+              set -x KUBECONFIG ~/.kube/active
+
+              if test -f "${config.sops.templates."shell.env".path}"
+                while read -l line
+                  if string match -q -v '^#' "$line" && string match -q '*=*' "$line"
+                    set -gx (string split -m1 '=' "$line")
+                  end
+                end < "${config.sops.templates."shell.env".path}"
+              else
+                echo "Warning: SOPS secrets file not found at ${config.sops.templates."shell.env".path}" >&2
+              end
+
+              function last_history_item
+                echo $history[1]
+              end
+              abbr -a !! --position anywhere --function last_history_item
+            '';
+        };
+      };
+  };
+}

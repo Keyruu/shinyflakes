@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects."mesh-server" = {
+  den.aspects.server.mesh-server = {
     nixos = { lib, config, ... }: {
       options.services.mesh.server.enable = lib.mkEnableOption "Enable for mesh server";
 

@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.sound = {
+  den.aspects.workstation.sound = {
     nixos = { pkgs, ... }: {
       services.pipewire = {
         enable = true;
