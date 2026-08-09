@@ -19,6 +19,7 @@
         age.keyFile = "/var/lib/sops-nix/keys.txt";
       };
     };
+
     homeManager = { config, ... }: {
       imports = [
         inputs.sops-nix.homeManagerModules.sops

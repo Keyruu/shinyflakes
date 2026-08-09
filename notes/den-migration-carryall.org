@@ -166,7 +166,7 @@ Map:
 
 Apps stay as =apps.X = { ... }= (no =den.aspects.= prefix). Namespace
 already declared in =modules/den.nix=. DO NOT rename to
-=den.aspects.apps.X=. Same for =stacks.X= once stacks are added.
+=den.aspects.tools.X=. Same for =stacks.X= once stacks are added.
 
 * Block 2 — Latent bug fixes                                       :bugs:fix:
 :PROPERTIES:

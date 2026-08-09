@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.server.hetzner-disk-root = {
+  den.aspects.server.hetzner.disk-root = {
     nixos = { ... }: {
       disko.devices = {
         disk.sda = {

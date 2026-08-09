@@ -1,19 +1,46 @@
 { inputs, ... }:
 {
-  den.aspects.workstation.niri = {
+  den.aspects.workstation.wm.niri = {
     nixos =
-      { inputs', ... }:
+      {
+        pkgs,
+        inputs',
+        lib,
+        ...
+      }:
       let
-        niri = inputs'.niri.niri-unstable;
+        niri = inputs'.niri.packages.niri-unstable;
       in
       {
-        displayManager = {
-          sessionPackages = [
-            niri
-          ];
+        services.xserver.enable = lib.mkForce false;
+
+        services.displayManager.sessionPackages = [
+          niri
+        ];
+
+        programs.niri = {
+          enable = true;
+          package = niri;
+          useNautilus = true;
         };
 
+        xdg.portal = {
+          enable = true;
+          wlr.enable = false;
+          config = {
+            niri = {
+              "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+              "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+              "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+            };
+          };
+          extraPortals = with pkgs; [
+            xdg-desktop-portal-gtk
+            xdg-desktop-portal-gnome
+          ];
+        };
       };
+
     homeManager =
       {
         pkgs,

@@ -20,26 +20,7 @@
       den.aspects.core.gc
       den.aspects.core.hardening
 
-      # Workstation — nixos-only aspects
-      den.aspects.workstation.wayland
-      den.aspects.workstation.bluetooth
-      den.aspects.workstation.blueman
-      den.aspects.workstation.fonts
-      den.aspects.workstation.networking
-      den.aspects.workstation.sound
-      den.aspects.workstation.gaming
-      den.aspects.workstation.onepassword
-      den.aspects.workstation.printing
-      den.aspects.workstation.plymouth
-      den.aspects.workstation.systemd-boot
-      den.aspects.workstation.kanata
-      den.aspects.workstation.build-machines
-      den.aspects.workstation.wireguard
-      den.aspects.workstation.gotify-desktop
-      den.aspects.workstation.appimage
-      den.aspects.workstation.flatpak
-      den.aspects.workstation.graphical
-      den.aspects.workstation.udev
+      # Workstation — host-specific (shared concerns moved to users/lucas.nix)
       den.aspects.workstation.fprintd
 
       # Mesh options + client

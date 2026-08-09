@@ -55,17 +55,24 @@ lsp.config("nixd", {
 lsp.config("nil_ls", { settings = { nix = { flake = { autoArchive = true, autoEvalInputs = true } } } })
 -- lsp.config("tix", { cmd = { "tix", "lsp" }, filetypes = { "nix" } })
 
+-- nvim 0.12 inlay_hint passes LSP hint columns straight to
+-- nvim_buf_set_extmark, which throws "Invalid 'col': out of range" when the
+-- column is past EOL (e.g. nixd after a line was shortened). Upstream has no
+-- clamp (verified: neovim#39772, #36318 fixed by 1f18ea1c on master, not on
+-- release-0.12, and that PR doesn't clamp either). Clamp inline virt_text
+-- extmarks to EOL before they reach nvim. Affects only extmarks with
+-- virt_text_pos="inline", which is what inlay_hint uses.
+local _orig_set_extmark = vim.api.nvim_buf_set_extmark
+vim.api.nvim_buf_set_extmark = function(buf, ns, line, col, opts)
+	if opts and opts.virt_text_pos == "inline" then
+		local ok, lines = pcall(vim.api.nvim_buf_get_lines, buf, line, line + 1, false)
+		if ok and lines[1] then
+			col = math.max(0, math.min(col, #lines[1]))
+		end
+	end
+	return _orig_set_extmark(buf, ns, line, col, opts)
+end
+
 lsp.inlay_hint.enable(true)
--- vim.api.nvim_create_autocmd("LspAttach", {
--- 	callback = function(ev)
--- 		local cid = ev.data and ev.data.client_id
--- 		if cid then
--- 			local c = vim.lsp.get_client_by_id(cid)
--- 			if c and c.name == "tix" then
--- 				vim.lsp.inlay_hint.enable(false, { bufnr = ev.buf, client_id = cid })
--- 			end
--- 		end
--- 	end,
--- })
 
 require("trouble").setup({ auto_close = true })
