@@ -2,7 +2,8 @@
 let
   my = config.services.my.karaoke;
   inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet karaokeDomain;
+  inherit (flake.lib) quadlet;
+  karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
 in
 {
   sops.secrets = {

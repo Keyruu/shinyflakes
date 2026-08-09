@@ -1,4 +1,7 @@
-{ flake, inputs, ... }:
+{
+  inputs,
+  ...
+}:
 let
   inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
@@ -33,12 +36,6 @@ rec {
     ipv4 = parseIpList ipv4Txt;
     ipv6 = parseIpList ipv6Txt;
     all = ipv4 ++ ipv6;
-  };
-
-  karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
-
-  hostMatrix = {
-    host = builtins.attrNames flake.nixosConfigurations;
   };
 
   # Kanshi shared core. Monitors hold only intrinsic bits (criteria/mode/scale);

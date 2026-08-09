@@ -6,7 +6,7 @@
 }:
 let
   mentat = config.services.mesh.people.lucas.devices.mentat.ip;
-  inherit (flake.lib) karaokeDomain;
+  karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
   proxyHosts = {
     "traccar.peeraten.net" = {
       proxyHost = mentat;
