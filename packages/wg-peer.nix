@@ -1,6 +1,6 @@
-{ pkgs, perSystem, ... }:
+{ inputs, pkgs, ... }:
 
-perSystem.pog.pog.pog {
+(import inputs.pog { inherit pkgs; }).pog {
   name = "wg-peer";
   description = "Provision new WireGuard peers and generate configurations";
 

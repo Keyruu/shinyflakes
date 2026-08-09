@@ -1,7 +1,8 @@
 {
   inputs,
   pkgs,
-  perSystem,
+  jira-nvim,
+  pi-guardian-nvim,
   ...
 }:
 inputs.nix-wrapper-modules.lib.evalPackage [
@@ -25,7 +26,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         # LSPs
         nixd
         nil
-        perSystem.tix.default
+        # perSystem.tix.default
         gopls
         rust-analyzer
         typescript-language-server
@@ -87,8 +88,8 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         lint.data = nvim-lint;
         orgmode.data = orgmode;
         # perSystem custom plugins
-        jira.data = perSystem.self.jira-nvim;
-        piguard.data = perSystem.self.pi-guardian-nvim;
+        jira.data = jira-nvim;
+        piguard.data = pi-guardian-nvim;
       };
     }
   )

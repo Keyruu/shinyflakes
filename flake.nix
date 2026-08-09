@@ -31,15 +31,11 @@
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
     nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";
 
-    # base
-    blueprint = {
-      url = "github:numtide/blueprint";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # den migration — runs alongside blueprint until Phase 4
     import-tree.url = "github:denful/import-tree";
     den.url = "github:denful/den";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
 
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
@@ -90,12 +86,6 @@
     copyparty.url = "github:9001/copyparty";
 
     pog.url = "github:jpetrucciani/pog";
-
-    flake-utils.url = "github:numtide/flake-utils";
-    nix-topology = {
-      url = "github:Keyruu/nix-topology";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # workstation
     home-manager = {
@@ -163,33 +153,5 @@
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
   };
 
-  outputs =
-    inputs:
-    let
-      bp = inputs.blueprint {
-        inherit inputs;
-        prefix = "nix";
-      };
-      lib = inputs.nixpkgs.lib;
-
-      # den-evaluated config from modules/**. Lives alongside blueprint
-      # outputs until Phase 4 finishes the host migration. Inspect with:
-      #   nix eval '.?submodules=1#den.den.hosts'
-      den = (inputs.nixpkgs.lib.evalModules {
-        modules = [ (inputs.import-tree ./modules) ];
-        specialArgs.inputs = inputs;
-      }).config;
-    in
-    bp
-    // {
-      # aggregated services.my across all host configs. prime's dashboard
-      # and gatus read from here so they see mentat/carryall/thopter too.
-      allMyServices = lib.foldl' lib.mergeAttrs { } (
-        lib.mapAttrsToList (_: c: c.config.services.my or { }) bp.nixosConfigurations
-      );
-    }
-    // {
-      # den migration milestone 1: skeleton loads. No hosts yet.
-      inherit den;
-    };
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }

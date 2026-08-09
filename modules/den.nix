@@ -1,28 +1,18 @@
-# Den entry point — the equivalent of blueprint's auto-discovery root.
-#
-# Currently a skeleton. Phase 1 only wires the framework; hosts and shared
-# modules move in phases 2–3. Keep this file minimal until then.
-#
-# Conventions:
-# - Universal flake modules (sops-nix, lanzaboote, home-manager) go in
-#   top-level `imports` so every host gets them.
-# - Aspect-internal flake module imports (e.g. sops for a single user
-#   concern) go inside the aspect's `{ nixos = { imports = [...]; }; }`.
-# - Aspects inside dedicated namespaces (`apps`, `stacks`) live under
-#   `modules/<namespace>/<name>.nix` and reference via `<namespace/<name>>`.
-# - Aspects that are pure cross-cutting concerns live at top level
-#   (`modules/aspects/<name>.nix` or `modules/<name>.nix`) and reference
-#   via `<name>` or `den.aspects.<name>`.
+# Den entry point. Per the den convention, leaf aspects live under
+# `modules/aspects/<domain>/<name>.nix` and umbrellas at
+# `modules/aspects/<name>.nix`. Cross-references use direct
+# `den.aspects.<domain>.<name>` (no angle-bracket sugar).
 
 {
   inputs,
   den,
   lib,
-  __findFile,
   ...
 }:
 {
-  # Angle-bracket syntax: <secrets> === den.aspects.secrets, <stacks/immich> === stacks.immich.
+  # Angle-bracket `<X>` syntax. Set once here; child files that use
+  # `<X>` declare `__findFile` in their function args to bring it into
+  # lexical scope. See den docs: angle-brackets.mdx.
   _module.args.__findFile = den.lib.__findFile;
 
   imports = [
@@ -35,5 +25,24 @@
   # `den.hosts.<sys>.<host>.users.<name>.classes = [ ... ];`.
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
 
-  # No hosts yet — Phase 2 adds den.hosts.x86_64-linux.<name> declarations.
+  # Auto-provision OS user (account + home dir) and grant wheel + networkmanager
+  # to every user entity that opts in. Per-host extraGroups are layered on top
+  # by the host's aspect.
+  den.schema.host.includes = [
+    den.batteries.define-user
+    den.batteries.primary-user
+  ];
+
+  # Shared defaults applied to every host/user/home via den.default.
+  # Per-host overrides still win via den.aspects.<host>.nixos.* priority.
+  den.default = {
+    nixos.system.stateVersion = "26.05";
+    homeManager.home.stateVersion = "26.11";
+  };
+
+  # Hosts.
+  den.hosts.x86_64-linux.carryall.users.lucas = { };
+
+  den.schema.flake-system.includes = [ den.policies.system-to-flake-parts ];
+  den.schema.flake-system.excludes = [ den.policies.packages-to-flake ];
 }

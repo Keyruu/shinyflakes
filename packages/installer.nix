@@ -1,6 +1,6 @@
-{ pkgs, perSystem, ... }:
+{ inputs, pkgs, ... }:
 
-perSystem.pog.pog.pog {
+(import inputs.pog { inherit pkgs; }).pog {
   name = "shiny-install";
   description = "Interactive guided NixOS installer for shinyflakes hosts";
 

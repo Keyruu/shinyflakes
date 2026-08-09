@@ -1,6 +1,6 @@
-{ pkgs, perSystem, ... }:
+{ inputs, pkgs, ... }:
 
-perSystem.pog.pog.pog {
+(import inputs.pog { inherit pkgs; }).pog {
   name = "mesh-expose";
   description = "Expose a local port to the internet via frp tunnel";
 
