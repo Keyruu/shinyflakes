@@ -14,6 +14,9 @@
     inputs.den.flakeModule
   ];
 
+  # debug
+  flake.den = den;
+
   # Every user gets homeManager by default. Override per-user via
   # `den.hosts.<sys>.<host>.users.<name>.classes = [ ... ];`.
   den.schema.user.classes = lib.mkDefault [ "homeManager" ];
@@ -24,6 +27,9 @@
   den.schema.host.includes = [
     den.batteries.define-user
     den.batteries.primary-user
+
+    den.aspects.options.my.services
+    den.aspects.options.my.stack
   ];
 
   # Shared defaults applied to every host/user/home via den.default.
@@ -42,7 +48,8 @@
       # Provides self' (the flake’s self outputs with system pre-selected) as a top-level module argument.
       den.batteries.self'
 
-      den.aspects.options.mesh
+      den.aspects.options.my.services
+      den.aspects.options.my.stack
     ];
   };
 

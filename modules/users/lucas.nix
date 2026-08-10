@@ -1,6 +1,9 @@
 { den, inputs, ... }:
 {
   den.aspects.lucas = { host, ... }: {
+    # service-access moved to modules/people.nix as entity data.
+    # Lucas's homeManager config + per-host aspect wiring stays here.
+
     includes = [
       # Creates OS-level user accounts (users.users.<name>) with isNormalUser and home directory.
       # Also sets home.username and home.homeDirectory for Home Manager. Works on NixOS, Darwin, and standalone Home Manager.
@@ -25,71 +28,19 @@
         "chapterskip"
       ])
 
-      den.aspects.tools."1password"
-      den.aspects.tools.calendar
-      den.aspects.browsers.chromium
-      den.aspects.tools.clipse
-      den.aspects.tools.colorpicker
-      den.aspects.tools.element
-      den.aspects.browsers.firefox
-      den.aspects.shell.fish
-      den.aspects.terminals.foot
-      den.aspects.tools.gaming
-      den.aspects.terminals.ghostty
-      den.aspects.tools.git
-      den.aspects.browsers.glide
-      den.aspects.tools.k9s
-      den.aspects.terminals.kitty
-      den.aspects.tools.lazygit
-      den.aspects.tools.mail
-      den.aspects.tools.mpv
-      den.aspects.editors.neovim
-      den.aspects.tools.nh
-      den.aspects.tools.nix-index-database
-      den.aspects.tools.noctalia
-      den.aspects.tools.repos
-      den.aspects.tools.satty
-      den.aspects.tools.screenshot
-      den.aspects.browsers.sidebery
-      den.aspects.shell.ssh
-      den.aspects.tools.system
-      den.aspects.tools.television
-      den.aspects.shell.tmux
-      den.aspects.tools.vicinae
-      den.aspects.browsers.vimium-c
-      den.aspects.editors.vscode
-      den.aspects.tools.yazi
-      den.aspects.editors.zed
-      den.aspects.shell.zellij
-      den.aspects.browsers.zen
-      den.aspects.shell.zsh
+      den.aspects.core
 
-      # workstation-wide home concerns
-      den.aspects.tools.which-key
-      den.aspects.tools.kbptr
-      den.aspects.workstation.wm.gtk
-      den.aspects.workstation.wm.idle
-      den.aspects.workstation.wm.kanshi
-      den.aspects.workstation.wm.lock
-      den.aspects.workstation.wm.niri
-      den.aspects.workstation.wm.session
-      den.aspects.workstation.bluetooth
-      den.aspects.workstation.wm.fonts
-      den.aspects.workstation.networking
-      den.aspects.workstation.sound
-      den.aspects.workstation.gaming
-      den.aspects.workstation.onepassword
-      den.aspects.workstation.printing
-      den.aspects.workstation.plymouth
-      den.aspects.workstation.systemd-boot
-      den.aspects.workstation.kanata
-      den.aspects.workstation.build-machines
-      den.aspects.workstation.wireguard
-      den.aspects.workstation.gotify-desktop
-      den.aspects.workstation.appimage
-      den.aspects.workstation.flatpak
-      den.aspects.workstation.wm.graphical
-      den.aspects.workstation.udev
+      den.aspects.browsers
+
+      den.aspects.terminals
+
+      den.aspects.shell
+
+      den.aspects.editors
+
+      den.aspects.tools
+
+      den.aspects.workstation
     ];
 
     homeManager =

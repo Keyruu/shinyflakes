@@ -1,6 +1,7 @@
 {
   den,
   inputs,
+  config,
   ...
 }:
 {
@@ -8,69 +9,83 @@
   # Second den-native host. Mesh client, fprintd-tod, lanzaboote secure-boot.
   den.hosts.x86_64-linux.thopter.users.lucas = { };
 
-  den.aspects.thopter = {
-    includes = [
-      # Core (every host)
-      den.aspects.core.common
-      den.aspects.core.secrets
-      den.aspects.core.nixConfig
-      den.aspects.core.locale
-      den.aspects.core.nice
-      den.aspects.core.podman
-      den.aspects.core.gc
-      den.aspects.core.hardening
+  den.aspects.thopter =
+    let
+      mesh-ip = config.den.people.lucas.devices.thopter.ip;
+    in
+    {
+      # Mesh client identity (this host as a wireguard peer). The
+      # mesh-device quirk flows to the Hetzner mesh server via
+      # policies/mesh.nix's collection policy. IP from people.nix
+      # (single source of truth). allowedIPs lets thopter route the
+      # LAN through the mesh.
+      mesh-device = {
+        name = "thopter";
+        ip = mesh-ip;
+        publicKey = "PL5/3dK1BeIxoJufy51QHjMFQOq7SFR7WZ0sLmjqZW4=";
+        allowedIPs = [ "192.168.100.0/24" ];
+      };
 
-      # Workstation — host-specific (shared concerns moved to users/lucas.nix)
-      den.aspects.workstation.laptop
-      den.aspects.workstation.secure-boot
-      den.aspects.workstation.fprintd
+      includes = [
+        # Core (every host)
+        den.aspects.core.common
+        den.aspects.core.secrets
+        den.aspects.core.nixConfig
+        den.aspects.core.locale
+        den.aspects.core.nice
+        den.aspects.core.podman
+        den.aspects.core.gc
+        den.aspects.core.hardening
 
-      # Mesh client (connects to mentat/prime via wireguard).
-      # den.aspects.options.mesh
-      # den.aspects.workstation.mesh-client
-    ];
+        # Workstation — host-specific (shared concerns moved to users/lucas.nix)
+        den.aspects.workstation.laptop
+        den.aspects.workstation.secure-boot
+        den.aspects.workstation.fprintd
 
-    nixos = { pkgs, ... }: {
-      imports = [
-        inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
-        inputs.nixos-hardware.nixosModules.common-cpu-intel
-        inputs.nixos-hardware.nixosModules.common-gpu-intel
+        # Mesh client — connects to the Hetzner mesh server (see
+        # policies/mesh.nix for the synthetic server entry).
+        den.aspects.workstation.mesh-client
       ];
 
-      nixpkgs.hostPlatform = "x86_64-linux";
+      nixos = { pkgs, ... }: {
+        imports = [
+          inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-yoga-7th-gen
+          inputs.nixos-hardware.nixosModules.common-cpu-intel
+          inputs.nixos-hardware.nixosModules.common-gpu-intel
+        ];
 
-      networking.nftables.enable = true;
+        nixpkgs.hostPlatform = "x86_64-linux";
 
-      services.libinput.enable = true;
+        networking.nftables.enable = true;
 
-      # Host-level extras on top of den.batteries.define-user (which provisions
-      # the OS user + home dir). wheel/networkmanager added by primary-user.
-      users.users.lucas.extraGroups = [
-        "networkmanager"
-        "ydotool"
-        "docker"
-        "disk"
-      ];
+        services.libinput.enable = true;
 
-      # Mesh client config. IP pulled from blueprint's mesh.people.lucas.devices.thopter
-      # until that data is migrated to a den aspect.
-      # services.mesh = {
-      #   ip = "100.67.0.4";
-      #   client = {
-      #     enable = true;
-      #     autostart = false;
-      #     keyName = "thopterMeshKey";
-      #     allowedIPs = [
-      #       "192.168.100.0/24"
-      #     ];
-      #     ws = {
-      #       enable = true;
-      #       defaultInterface = "wlp0s20f3";
-      #     };
-      #   };
-      # };
+        # Host-level extras on top of den.batteries.define-user (which provisions
+        # the OS user + home dir). wheel/networkmanager added by primary-user.
+        users.users.lucas.extraGroups = [
+          "networkmanager"
+          "ydotool"
+          "docker"
+          "disk"
+        ];
 
-      # X1 Yoga Gen 7 has a Goodix fingerprint reader — needs the TOD driver.
+        # Mesh client config. IP from people.nix (single source of truth).
+        # SOPS secret `thopterMeshKey` must exist in nix/secrets.yaml
+        # holding the matching wg private key.
+        services.mesh = {
+          ip = mesh-ip;
+          subnet = "100.67.0.0/24";
+          client = {
+            keyName = "thopterMeshKey";
+            autostart = false;
+            ws = {
+              enable = true;
+              defaultInterface = "wlp0s20f3";
+            };
+          };
+        };
+
+        # X1 Yoga Gen 7 has a Goodix fingerprint reader — needs the TOD driver.
       # fprintd-tod package is selected automatically when tod.enable is set.
       services.fprintd = {
         package = pkgs.fprintd;

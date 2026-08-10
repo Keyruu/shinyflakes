@@ -1,10 +1,49 @@
-{ ... }:
+# Mesh server aspect — wg interface + wstunnel relay + caddy vhost.
+#
+# Consumer of the `mesh-device` quirk. Each NixOS host that includes this
+# aspect (or rather, the host aspect that includes this) emits a
+# `mesh-device` quirk. This consumer builds the wg peer list from the
+# collected quirk data, plus the unmanaged devices from den.people.*
+# (simon/nadine guests don't have NixOS host entities).
+#
+# One host runs the server. Decide which via:
+#   den.aspects.<server-host>.includes = [ den.aspects.server.mesh-server ];
+# All other mesh-capable hosts use den.aspects.workstation.mesh-client.
+#
+# ponytail: caddy vhost + wstunnel config is copy-paste from the legacy
+# nix/modules/services/mesh/server.nix. Replace once the wg key path
+# (sops.placeholder.meshServerKey) is wired in the host's secrets.
+{ config, lib, pkgs, ... }:
+let
+  mesh = config.services.mesh;
+
+  # All devices to peer with: managed hosts (from mesh-device quirk) +
+  # unmanaged guest devices (from den.people.*.devices, minus any that
+  # overlap with managed hosts).
+  peerFromQuirk = device: {
+    publicKey = device.publicKey;
+    allowedIPs = [ "${device.ip}/32" ] ++ (device.allowedIPs or [ ]);
+    persistentKeepalive = 25;
+  };
+in
 {
   den.aspects.server.mesh-server = {
-    nixos = { lib, config, ... }: {
-      options.services.mesh.server.enable = lib.mkEnableOption "Enable for mesh server";
+    nixos =
+      { mesh-devices, config, lib, ... }:
+      let
+        managedPeers = lib.filter (device: !(device.isServer or false)) mesh-devices;
+        # Unmanaged guest devices — simon, nadine. Lucas's managed hosts
+        # are already in mesh-devices. ponytail: filter overlaps by IP.
+        guestPeers = lib.concatMap (
+          person: lib.mapAttrsToList (_name: dev: peerFromQuirk {
+            inherit (dev) publicKey ip allowedIPs;
+          }) person.devices
+        ) (lib.attrValues (lib.filterAttrs (name: _: name != "lucas") config.den.people));
+        allPeers = map peerFromQuirk managedPeers ++ guestPeers;
 
-      config = lib.mkIf config.services.mesh.server.enable {
+        ownKeyFile = config.sops.secrets.meshServerKey.path;
+      in
+      {
         sops.secrets.meshServerKey = {
           mode = "0600";
         };
@@ -17,24 +56,15 @@
         networking.firewall.allowedUDPPorts = [ 51234 ];
         networking.nat = {
           enable = true;
-          internalInterfaces = [ "mesh0" ];
+          internalInterfaces = [ mesh.interface ];
           externalInterface = "eth0";
         };
 
-        networking.wg-quick.interfaces.mesh0 = {
-          address = [ "100.67.0.1/24" ]; # VPN subnet
+        networking.wg-quick.interfaces.${mesh.interface} = {
+          address = [ "${mesh.ip}/24" ];
           listenPort = 51234;
-          privateKeyFile = config.sops.secrets.meshServerKey.path;
-          peers =
-            with builtins;
-            map (peer: {
-              inherit (peer) publicKey;
-              allowedIPs = [
-                "${peer.ip}/32"
-              ]
-              ++ peer.allowedIPs;
-              persistentKeepalive = 25;
-            }) (concatMap (person: attrValues person.devices) (attrValues config.services.mesh.people));
+          privateKeyFile = ownKeyFile;
+          peers = allPeers;
         };
 
         services.wstunnel = {
@@ -56,17 +86,10 @@
           };
         };
 
-        services.caddy.virtualHosts =
-          let
-            caddyConfig = {
-              extraConfig = "reverse_proxy 127.0.0.1:51233";
-            };
-          in
-          {
-            "service.peeraten.net" = caddyConfig;
-            "mesh.peeraten.net" = caddyConfig;
-          };
+        services.caddy.virtualHosts = {
+          "service.peeraten.net".extraConfig = "reverse_proxy 127.0.0.1:51233";
+          "mesh.peeraten.net".extraConfig = "reverse_proxy 127.0.0.1:51233";
+        };
       };
-    };
   };
 }

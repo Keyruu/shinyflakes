@@ -1,6 +1,6 @@
 {
   den,
-  inputs,
+  config,
   ...
 }:
 {
@@ -8,27 +8,41 @@
   # Second den-native workstation after carryall.
   den.hosts.x86_64-linux.muadib.users.lucas = { };
 
-  den.aspects.muadib = {
-    includes = [
-      # Core (every host)
-      den.aspects.core.common
-      den.aspects.core.secrets
-      den.aspects.core.nixConfig
-      den.aspects.core.locale
-      den.aspects.core.nice
-      den.aspects.core.podman
-      den.aspects.core.gc
-      den.aspects.core.hardening
+  den.aspects.muadib =
+    let
+      mesh-ip = config.den.people.lucas.devices.muadib.ip;
+    in
+    {
+      # Mesh client identity (this host as a wireguard peer). The
+      # mesh-device quirk flows to the Hetzner mesh server via
+      # policies/mesh.nix's collection policy. IP from people.nix
+      # (single source of truth).
+      mesh-device = {
+        name = "muadib";
+        ip = mesh-ip;
+        publicKey = "dBpryxEEqSYKnaMjdStm/cqf7R3QtlWNZDQnr4dKek4=";
+      };
 
-      # Workstation — host-specific (shared concerns moved to users/lucas.nix)
-      den.aspects.workstation.fprintd
+      includes = [
+        # Core (every host)
+        den.aspects.core.common
+        den.aspects.core.secrets
+        den.aspects.core.nixConfig
+        den.aspects.core.locale
+        den.aspects.core.nice
+        den.aspects.core.podman
+        den.aspects.core.gc
+        den.aspects.core.hardening
 
-      # Mesh options + client
-      # den.aspects.options.mesh
-      # den.aspects.server.mesh-client
-    ];
+        # Workstation — host-specific (shared concerns moved to users/lucas.nix)
+        den.aspects.workstation.fprintd
 
-    nixos = { pkgs, ... }: {
+        # Mesh client — connects to the Hetzner mesh server (see
+        # policies/mesh.nix for the synthetic server entry).
+        den.aspects.workstation.mesh-client
+      ];
+
+      nixos = { pkgs, ... }: {
       nixpkgs.hostPlatform = "x86_64-linux";
 
       # Zen kernel — gaming-focused desktop
@@ -46,18 +60,21 @@
         "disk"
       ];
 
-      # Mesh client config. IP from blueprint's mesh.people.lucas.devices.muadib.
-      # services.mesh = {
-      #   ip = "100.67.0.6";
-      #   client = {
-      #     enable = true;
-      #     ws = {
-      #       enable = true;
-      #       defaultInterface = "enp42s0";
-      #     };
-      #     keyName = "muadibMeshKey";
-      #   };
-      # };
+      # Mesh client config. IP from people.nix (single source of truth).
+      # SOPS secret `muadibMeshKey` must exist in nix/secrets.yaml
+      # holding the matching wg private key.
+      services.mesh = {
+        ip = mesh-ip;
+        subnet = "100.67.0.0/24";
+        client = {
+          keyName = "muadibMeshKey";
+          autostart = true;
+          ws = {
+            enable = true;
+            defaultInterface = "enp42s0";
+          };
+        };
+      };
 
       # Custom firewall ports for game servers (hytale UDP range, etc).
       # mesh0 rules removed — mesh disabled.

@@ -1,7 +1,11 @@
-{ ... }:
+{ inputs, ... }:
 {
   den.aspects.core.podman = {
     nixos = { pkgs, ... }: {
+      imports = [
+        inputs.quadlet-nix.nixosModules.quadlet
+      ];
+
       environment.systemPackages = [
         pkgs.docker-compose
       ];
@@ -10,19 +14,22 @@
       # into an `iifname { ... }` set, where the iptables `+` wildcard never matches.
       networking.firewall.trustedInterfaces = [ "podman0" ];
 
-      virtualisation.podman = {
-        enable = true;
-        autoPrune = {
+      virtualisation = {
+        podman = {
           enable = true;
-          flags = [ "--all" ];
-          dates = "daily";
+          autoPrune = {
+            enable = true;
+            flags = [ "--all" ];
+            dates = "daily";
+          };
+          dockerCompat = true;
+          dockerSocket.enable = true;
+          defaultNetwork.settings = {
+            # Required for container networking to be able to use names.
+            dns_enabled = true;
+          };
         };
-        dockerCompat = true;
-        dockerSocket.enable = true;
-        defaultNetwork.settings = {
-          # Required for container networking to be able to use names.
-          dns_enabled = true;
-        };
+        quadlet.autoEscape = true;
       };
     };
   };
