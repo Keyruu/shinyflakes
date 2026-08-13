@@ -4,22 +4,23 @@
     nixos =
       { public-proxy, ... }:
       let
-        # Stash the producing host's IP onto each entry so vhost generation
-        # doesn't have to thread source-context through every step.
-        withHostIp = entry: entry.value // { hostIp = entry.source.host.addr; };
-        byDomain = lib.groupBy (e: e.domain) (map withHostIp public-proxy);
+        # Each entry carries its producing host's mesh IP (`hostIp`),
+        # baked in at the registry. Falls back to 127.0.0.1 for LAN-only
+        # hosts without mesh routing — out-of-scope cross-host reach.
+        byDomain = lib.groupBy (e: e.domain) public-proxy;
       in
       {
         services.caddy.virtualHosts = lib.mapAttrs (
           _: entries:
           let
             cfg = lib.head entries;
+            targetIp = if cfg.hostIp != null then cfg.hostIp else "127.0.0.1";
           in
           {
             extraConfig = ''
               import coraza-waf
               ${lib.optionalString cfg.cloudflareOnly "import cloudflare-only"}
-              reverse_proxy http://${cfg.hostIp}:${toString cfg.port}
+              reverse_proxy http://${targetIp}:${toString cfg.port}
             '';
           }
         ) byDomain;

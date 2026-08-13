@@ -16,17 +16,31 @@
 # ponytail: per-service OIDC client profile (redirect URIs, PKCE, scopes)
 # lives in the oidc-config quirk emitted by each service aspect. The
 # service file is the single source of truth for its OIDC config.
-{ config, lib, ... }:
+{ config, ... }:
+let
+  topLevelConfig = config;
+in
 {
   den.aspects.server.authelia = {
     nixos =
-      { config, lib, oidc-config, ... }:
+      {
+        config,
+        lib,
+        oidc-config,
+        ...
+      }:
       let
         # Flatten all persons' service-access into one tagged list:
         #   [ { person = "lucas"; service = "immich"; } ... ]
-        allAccess = lib.concatLists (lib.mapAttrsToList (person: p:
-          map (svc: { inherit person; service = svc; }) p.service-access
-        ) config.den.people);
+        allAccess = lib.concatLists (
+          lib.mapAttrsToList (
+            person: p:
+            map (svc: {
+              inherit person;
+              service = svc;
+            }) p.service-access
+          ) topLevelConfig.den.people
+        );
 
         # Unique service names referenced by any grant.
         services = lib.unique (map (entry: entry.service) allAccess);
@@ -43,8 +57,7 @@
 
         # `oidc-config` quirk entries are flat attrsets:
         # { name; enable; clientId; scopes; redirectPath; tokenEndpointAuthMethod; domain; redirectUri }.
-        clientFor = clientId:
-          lib.head (lib.filter (c: c.clientId == clientId) oidc-config);
+        clientFor = clientId: lib.head (lib.filter (c: c.clientId == clientId) oidc-config);
       in
       {
         # Declare SOPS secrets for each OIDC client id.
@@ -54,15 +67,13 @@
 
         services.authelia.instances.main.settings.identity_providers.oidc = {
           authorization_policies = lib.genAttrs services buildPolicy;
-          clients = lib.genAttrs (map (c: c.clientId) oidc-config) (
-            clientId: {
-              client_id = clientId;
-              client_name = clientId;
-              client_secret = config.sops.placeholder."${clientId}ClientSecret";
-              authorization_policy = "${clientId}_access";
-              inherit (clientFor clientId) scopes redirectUri tokenEndpointAuthMethod;
-            }
-          );
+          clients = lib.genAttrs (map (c: c.clientId) oidc-config) (clientId: {
+            client_id = clientId;
+            client_name = clientId;
+            client_secret = config.sops.placeholder."${clientId}ClientSecret";
+            authorization_policy = "${clientId}_access";
+            inherit (clientFor clientId) scopes redirectUri tokenEndpointAuthMethod;
+          });
         };
       };
   };
