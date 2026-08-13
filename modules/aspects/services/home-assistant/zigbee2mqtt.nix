@@ -1,0 +1,93 @@
+{ ... }:
+{
+  den.aspects.services.home-assistant.zigbee2mqtt = {
+    nixos = { config, ... }:
+      let
+        my = config.services.my.zigbee2mqtt;
+      in
+      {
+        sops.secrets = {
+          z2mNetworkKey.owner = "root";
+          z2mPanId.owner = "root";
+          z2mExtraPanId.owner = "root";
+          mqttPassword.owner = "root";
+        };
+
+        sops.templates."z2mConfiguration.yaml" = {
+          restartUnits = [ "zigbee2mqtt.service" ];
+          content = # yaml
+            ''
+              version: 5
+              mqtt:
+                base_topic: zigbee2mqtt
+                server: mqtt://mqtt
+                user: mqtt
+                password: ${config.sops.placeholder.mqttPassword}
+              serial:
+                adapter: zstack
+                port: /dev/ttyACM0
+              advanced:
+                homeassistant_legacy_entity_attributes: false
+                homeassistant_legacy_triggers: false
+                legacy_api: false
+                legacy_availability_payload: false
+                channel: 11
+                network_key: ${config.sops.placeholder.z2mNetworkKey}
+                pan_id: ${config.sops.placeholder.z2mPanId}
+                ext_pan_id: ${config.sops.placeholder.z2mExtraPanId}
+              frontend:
+                enabled: true
+                package: zigbee2mqtt-windfront
+              homeassistant:
+                enabled: true
+                experimental_event_entities: true
+              devices: devices.yaml
+              device_options:
+                legacy: false
+              groups: groups.yaml
+            '';
+        };
+
+        services.my.zigbee2mqtt = {
+          port = 3845;
+          domain = "z2m.port.peeraten.net";
+          proxy = {
+            enable = true;
+            cert.host = "port.peeraten.net";
+          };
+          backup.enable = true;
+          stack = {
+            enable = true;
+            directories = [ "data" ];
+            security.enable = false;
+
+            containers = {
+              zigbee2mqtt = {
+                containerConfig = {
+                  image = "docker.io/koenkk/zigbee2mqtt:2.13.0";
+                  publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
+                  environments = {
+                    TZ = "Europe/Berlin";
+                  };
+                  volumes = [
+                    "${my.stack.path}/data:/app/data"
+                    "${config.sops.templates."z2mConfiguration.yaml".path}:/app/data/configuration.yaml:ro"
+                    "/run/udev:/run/udev:ro"
+                  ];
+                  # connects to mqtt via the mqtt stack's network (networkAlias `mqtt`)
+                  networks = [ "mqtt" ];
+                  devices = [
+                    "/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9e1108923db6ed1198add80ea8669f5d-if00-port0:/dev/ttyACM0"
+                  ];
+                };
+                unitConfig = {
+                  After = [ "mqtt.service" ];
+                  Requires = [ "mqtt.service" ];
+                };
+              };
+            };
+          };
+        };
+      };
+  };
+}

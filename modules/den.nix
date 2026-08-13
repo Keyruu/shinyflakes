@@ -47,6 +47,9 @@
 
       den.aspects.options.my.services
       den.aspects.options.my.stack
+      # Legacy services.mesh option bridge (interface, ip, subnet) — see
+      # modules/aspects/options/mesh.nix for the migration note.
+      den.aspects.options.mesh
     ];
   };
 

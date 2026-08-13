@@ -1,10 +1,10 @@
 {
   den,
-config,
+  config,
   ...
 }:
 {
-  # Mentat: home server. First den-native host, no blueprint equivalent.
+  # Mentat: home server. Mesh server, ZFS NAS, runs every self-hosted service.
   den.hosts.x86_64-linux.mentat = {
     users.root.classes = [ ];
 
@@ -20,15 +20,84 @@ config,
   den.aspects.mentat = {
     mesh-device = { host, ... }: host.mesh // { name = "mentat"; };
 
+    nixos = { lib, ... }: {
+      # define-user battery (in den.schema.host.includes) sets
+      # users.users.root.isNormalUser = true and home = "/home/root",
+      # both wrong for root (uid 0, home should be /root). Override.
+      users.users.root = {
+        isSystemUser = lib.mkForce true;
+        isNormalUser = lib.mkForce false;
+        home = lib.mkForce "/root";
+      };
+    };
+
     includes = [
-      den.aspects.services.immich
-      den.aspects.server.gatus
-      den.aspects.server.prometheus
-      # Prime-side consumers, included on mentat for local eval only
+      # Core (every host) — pulled in via modules/users/root.nix's
+      # `den.aspects.core` include. Don't add the individual core aspects
+      # here; that would cause duplicate definitions (e.g. kernel.sysctl
+      # set twice).
+
+      # Server infrastructure
+      # Note: den.aspects.server.headless lives in modules/users/root.nix —
+      # it's a per-user aspect, not a per-host one. Including it here
+      # would cause duplicate users.users.root.shell definitions.
+      den.aspects.server.ssh-access
+      den.aspects.server.comin
+      den.aspects.server.beszel-agent
+      den.aspects.server.cert
+      den.aspects.server.backup
+      den.aspects.server.nas
+      # nginx + ACME acceptTerms (used by copyparty, syncthing, blocky-ui,
+      # calibre-web, paperless, etc. for direct nginx vhosts)
+      den.aspects.server.nginx
+      den.aspects.server.nginx-extras
+      # Mesh firewall: disabled for now — the aspect uses `config.den.people`
+      # inside the inner nixos function which doesn't have `den` in scope.
+      # The equivalent nftables forward rules from nix/hosts/mentat/modules/mesh.nix
+      # can be ported to modules/hosts/mentat/mesh.nix as plain config when
+      # the people registry moves to den.ponytail: see modules/aspects/server/mesh-firewall.nix.
+      # den.aspects.server.mesh-firewall
+      # Monitoring infrastructure: declares services.monitoring options,
+      # wires up cadvisor + comin.exporter + node_exporter + fluent-bit.
+      # The actual dashboards live in monitoring.nix below.
+      den.aspects.server.monitoring-infra
+      den.aspects.server.monitoring
+
+      # Prime-side consumers included on mentat for local eval only
       # (prime is not a den-managed host).
       den.aspects.server.public-proxy
       den.aspects.server.dashboard
       den.aspects.server.authelia
+
+      # Services
+      den.aspects.services.cockpit
+      den.aspects.services.syncthing
+      den.aspects.services.copyparty
+      den.aspects.services.glance
+      den.aspects.services.harmonia
+      den.aspects.services.renovate
+      den.aspects.services.print
+      den.aspects.services.forgejo-notify
+      den.aspects.services.forgejo-runner
+      den.aspects.services.blocky
+      den.aspects.services.actualbudget
+      den.aspects.services.backrest
+      den.aspects.services.calibre-web
+      den.aspects.services.changedetection
+      den.aspects.services.forgejo
+      den.aspects.services.hermes
+      den.aspects.services.hytale
+      den.aspects.services.home-assistant
+      den.aspects.services.isponsorblocktv
+      den.aspects.services.karakeep
+      den.aspects.services.karaoke
+      den.aspects.services.media
+      den.aspects.services.paperless
+      den.aspects.services.radicale
+      den.aspects.services.speedtest-tracker
+      den.aspects.services.terraria
+      den.aspects.services.traccar
+      den.aspects.services.immich
     ];
   };
 }

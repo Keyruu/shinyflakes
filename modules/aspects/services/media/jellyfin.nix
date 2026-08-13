@@ -1,0 +1,132 @@
+{ ... }:
+{
+  den.aspects.services.media.jellyfin = {
+    nixos =
+      {
+        config,
+        pkgs,
+        self',
+        ...
+      }:
+      let
+        my = config.services.my.jellyfin;
+        domain = "tv.peeraten.net";
+      in
+      {
+        sops.secrets.jellyfinClientSecret = { };
+
+        # SSO-Auth plugin config, see https://www.authelia.com/integration/openid-connect/clients/jellyfin/
+        sops.templates."jellyfin-sso.xml" = {
+          restartUnits = [ "jellyfin.service" ];
+          content = ''
+            <?xml version="1.0" encoding="utf-8"?>
+            <PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+              <SamlConfigs />
+              <OidConfigs>
+                <item>
+                  <key>
+                    <string>authelia</string>
+                  </key>
+                  <value>
+                    <PluginConfiguration>
+                      <OidEndpoint>https://auth.peeraten.net</OidEndpoint>
+                      <OidClientId>jellyfin</OidClientId>
+                      <OidSecret>${config.sops.placeholder.jellyfinClientSecret}</OidSecret>
+                      <Enabled>true</Enabled>
+                      <EnableAuthorization>true</EnableAuthorization>
+                      <EnableAllFolders>true</EnableAllFolders>
+                      <EnabledFolders />
+                      <AdminRoles>
+                        <string>jellyfin_admins</string>
+                      </AdminRoles>
+                      <Roles>
+                        <string>jellyfin_users</string>
+                        <string>jellyfin_admins</string>
+                      </Roles>
+                      <EnableFolderRoles>false</EnableFolderRoles>
+                      <EnableLiveTvRoles>false</EnableLiveTvRoles>
+                      <EnableLiveTv>false</EnableLiveTv>
+                      <EnableLiveTvManagement>false</EnableLiveTvManagement>
+                      <LiveTvRoles />
+                      <LiveTvManagementRoles />
+                      <FolderRoleMappings />
+                      <RoleClaim>groups</RoleClaim>
+                      <OidScopes>
+                        <string>groups</string>
+                      </OidScopes>
+                      <DisableHttps>false</DisableHttps>
+                      <DoNotValidateEndpoints>false</DoNotValidateEndpoints>
+                      <DoNotValidateIssuerName>false</DoNotValidateIssuerName>
+                      <SchemeOverride>https</SchemeOverride>
+                      <!-- plugin sends PAR with basic auth but redeems tokens with post body;
+                           authelia allows one method per client, so skip PAR -->
+                      <DisablePushedAuthorization>true</DisablePushedAuthorization>
+                    </PluginConfiguration>
+                  </value>
+                </item>
+              </OidConfigs>
+            </PluginConfiguration>
+          '';
+        };
+
+        # C+ copy instead of ro mount — jellyfin rewrites the plugin's meta.json on load
+        systemd.tmpfiles.rules = [
+          "C+ ${my.stack.path}/config/plugins/sso-authentication - - - - ${self'.packages.jellyfin-sso-plugin}"
+        ];
+
+        services.my.jellyfin = {
+          zfs = true;
+          port = 8096;
+          domain = domain;
+          dashboard = {
+            enable = true;
+            title = "Jellyfin";
+            groups = [ "jellyfin_users" ];
+          };
+          proxy = {
+            enable = true;
+            cert = {
+              provided = false;
+              host = domain;
+            };
+          };
+          backup.enable = true;
+          stack = {
+            enable = true;
+            directories = [
+              "config"
+              "cache"
+            ];
+            security.enable = false;
+
+            containers = {
+              jellyfin = {
+                containerConfig = {
+                  image = "ghcr.io/jellyfin/jellyfin:10.11.11";
+                  # AMD Renoir iGPU for VAAPI transcoding
+                  devices = [ "/dev/dri:/dev/dri" ];
+                  volumes = [
+                    "${my.stack.path}/config:/config"
+                    "${my.stack.path}/cache:/cache"
+                    "/main/media:/media"
+                  ];
+                  publishPorts = [
+                    "127.0.0.1:${toString my.port}:8096"
+                    "${config.services.mesh.ip}:${toString my.port}:8096"
+                  ];
+                };
+                unitConfig = {
+                  "X-RestartTrigger" = [ "${self'.packages.jellyfin-sso-plugin}" ];
+                };
+                # copy instead of ro mount — the plugin writes user-link state back into its
+                # config XML during login; declarative config still wins on every restart
+                serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/install -Dm600 ${
+                  config.sops.templates."jellyfin-sso.xml".path
+                } ${my.stack.path}/config/plugins/configurations/SSO-Auth.xml";
+              };
+            };
+          };
+        };
+      };
+  };
+}

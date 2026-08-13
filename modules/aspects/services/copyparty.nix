@@ -1,0 +1,105 @@
+{ den, inputs, ... }:
+{
+  den.aspects.services.copyparty = {
+    includes = [
+      den.aspects.options.backup
+    ];
+
+    nixos = { config, pkgs, ... }: {
+      systemd.services.copyparty = {
+        after = [ "zfs-encrypted.target" ];
+        requires = [ "zfs-encrypted.target" ];
+        wantedBy = [ "zfs-encrypted.target" ];
+      };
+      systemd.tmpfiles.rules = [
+        "d /etc/stacks/copyparty 0770 root root"
+      ];
+
+      imports = [
+        inputs.copyparty.nixosModules.default
+      ];
+
+      sops.secrets.copypartyPassword = { };
+      sops.secrets.copypartyBrotherPassword = { };
+
+      networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ config.services.copyparty.settings.p ];
+
+      services.my.copyparty =
+        let
+          domain = "files.keyruu.de";
+        in
+        {
+          enable = true;
+          port = 3210;
+          inherit domain;
+          proxy = {
+            enable = true;
+            cert = {
+              provided = false;
+              host = domain;
+            };
+          };
+        };
+
+      services.copyparty = {
+        enable = true;
+        package = inputs.copyparty.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        user = "root";
+        group = "root";
+
+        settings = {
+          i = "0.0.0.0";
+          p = config.services.my.copyparty.port;
+          shr = "/shared";
+          shr-adm = "root";
+          ipr = "192.168.100.0/24,100.67.0.0/16=root";
+          rproxy = -1;
+          xff-src = "lan,100.67.0.0/16";
+          hist = "/etc/stacks/copyparty";
+        };
+
+        accounts = {
+          "root" = {
+            passwordFile = config.sops.secrets.copypartyPassword.path;
+          };
+          "brother" = {
+            passwordFile = config.sops.secrets.copypartyBrotherPassword.path;
+          };
+        };
+
+        volumes = {
+          "/" = {
+            path = "/main";
+            access = {
+              rwmd = [ "root" ];
+            };
+          };
+          "/public" = {
+            path = "/main/dav/public";
+            access = {
+              r = "*";
+              rwmd = [ "root" ];
+            };
+          };
+          "/documents" = {
+            path = "/main/documents";
+            access = {
+              rw = [ "brother" ];
+              rwmd = [ "root" ];
+            };
+          };
+        };
+
+        openFilesLimit = 8192;
+      };
+
+      services.nginx.virtualHosts = {
+        "files.lab.keyruu.de" = {
+          useACMEHost = "lab.keyruu.de";
+          forceSSL = true;
+          inherit (config.services.nginx.virtualHosts."files.keyruu.de") locations;
+        };
+      };
+    };
+  };
+}

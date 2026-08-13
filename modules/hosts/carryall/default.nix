@@ -27,15 +27,10 @@
     mesh-device = { host, ... }: host.mesh // { name = "carryall"; };
 
     includes = [
-      # Core (every host)
-      den.aspects.core.common
-      den.aspects.core.secrets
-      den.aspects.core.nixConfig
-      den.aspects.core.locale
-      den.aspects.core.nice
-      den.aspects.core.podman
-      den.aspects.core.gc
-      den.aspects.core.hardening
+      # Core (every host) — pulled in via modules/users/lucas.nix's
+      # `den.aspects.core` include. Don't add the individual core aspects
+      # here; that would cause duplicate definitions (e.g. boot.kernelPackages
+      # set twice).
 
       # Workstation — host-specific (shared concerns moved to users/lucas.nix)
       den.aspects.workstation.laptop
