@@ -2,7 +2,8 @@
   ...
 }:
 {
-  den.aspects.options.my.services.nixos =
+  den.aspects.options.my.services = {
+    nixos =
     {
       config,
       lib,
@@ -26,7 +27,6 @@
       );
 
       # Allowlist for a service = IPs of people who have service-access for this service.
-      # Used by nginx vhost when topology includes "internal".
       allowlistIps =
         name:
         let
@@ -109,6 +109,16 @@
                         };
                         default = { };
                       };
+                      whitelist = lib.mkOption {
+                        type = lib.types.submodule {
+                          options.enable = lib.mkOption {
+                            type = lib.types.bool;
+                            default = false;
+                            description = "Restrict the nginx vhost to den.people with service-access for this service.";
+                          };
+                        };
+                        default = { };
+                      };
                     };
                   };
                   default = { };
@@ -132,6 +142,82 @@
                           };
                         };
                         default = { };
+                      };
+                    };
+                  };
+                  default = { };
+                };
+
+                # Per-service slices consumed via the `service` quirk.
+                dashboard = lib.mkOption {
+                  type = lib.types.submodule {
+                    options = {
+                      enable = lib.mkOption { type = lib.types.bool; default = true; };
+                      title = lib.mkOption { type = lib.types.str; default = name; };
+                      icon = lib.mkOption {
+                        type = lib.types.str;
+                        default = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${name}.svg";
+                      };
+                      newTab = lib.mkOption { type = lib.types.bool; default = true; };
+                      groups = lib.mkOption {
+                        type = lib.types.listOf lib.types.str;
+                        default = [ "admin" "${name}_users" ];
+                      };
+                    };
+                  };
+                  default = { };
+                };
+                monitor = lib.mkOption {
+                  type = lib.types.submodule {
+                    options = {
+                      enable = lib.mkOption { type = lib.types.bool; default = true; };
+                      url = lib.mkOption {
+                        type = lib.types.nullOr lib.types.str;
+                        default = null;
+                        description = "Override full URL (else built from domain + healthPath).";
+                      };
+                      healthPath = lib.mkOption { type = lib.types.str; default = "/"; };
+                      interval = lib.mkOption { type = lib.types.str; default = "30s"; };
+                      conditions = lib.mkOption {
+                        type = lib.types.listOf lib.types.str;
+                        default = [ "[STATUS] == 200" ];
+                      };
+                    };
+                  };
+                  default = { };
+                };
+                scrape = lib.mkOption {
+                  type = lib.types.submodule {
+                    options = {
+                      enable = lib.mkOption { type = lib.types.bool; default = false; };
+                      port = lib.mkOption {
+                        type = lib.types.nullOr lib.types.port;
+                        default = null;
+                        description = "Override port (else service.port).";
+                      };
+                      metricsPath = lib.mkOption { type = lib.types.str; default = "/metrics"; };
+                      interval = lib.mkOption { type = lib.types.str; default = "15s"; };
+                    };
+                  };
+                  default = { };
+                };
+                oidc = lib.mkOption {
+                  type = lib.types.submodule {
+                    options = {
+                      enable = lib.mkOption { type = lib.types.bool; default = false; };
+                      clientId = lib.mkOption { type = lib.types.str; default = name; };
+                      redirectPath = lib.mkOption {
+                        type = lib.types.str;
+                        default = "";
+                        description = "Path appended to https://\${domain} to form redirectUri.";
+                      };
+                      scopes = lib.mkOption {
+                        type = lib.types.listOf lib.types.str;
+                        default = [ "openid" "email" "profile" ];
+                      };
+                      tokenEndpointAuthMethod = lib.mkOption {
+                        type = lib.types.enum [ "client_secret_basic" "client_secret_post" "none" ];
+                        default = "client_secret_post";
                       };
                     };
                   };
@@ -164,6 +250,22 @@
             {
               assertion = cfg.proxy.cloudflareOnly -> cfg.proxy.server == "caddy";
               message = "services.my.${name}: proxy.cloudflareOnly only applies to caddy.";
+            }
+            {
+              assertion = cfg.dashboard.enable -> cfg.domain != null;
+              message = "services.my.${name}: dashboard.enable requires domain to be set.";
+            }
+            {
+              assertion = cfg.monitor.enable -> (cfg.domain != null || cfg.monitor.url != null);
+              message = "services.my.${name}: monitor.enable requires domain or monitor.url.";
+            }
+            {
+              assertion = cfg.scrape.enable -> (cfg.port != null || cfg.scrape.port != null);
+              message = "services.my.${name}: scrape.enable requires port or scrape.port.";
+            }
+            {
+              assertion = cfg.oidc.enable -> cfg.domain != null;
+              message = "services.my.${name}: oidc.enable requires domain.";
             }
           ]) config.services.my
         );
@@ -239,4 +341,53 @@
         );
       };
     };
+
+    # 5 quirk emitters — config thunks reading the host's services.my.
+    # Each entry carries its own `enable` flag; pipes in services-collect.nix
+    # filter out entries where enable is false.
+
+    dashboard = { lib, config, ... }:
+      lib.mapAttrsToList (name: svc:
+        svc.dashboard // {
+          inherit name;
+          inherit (svc) description domain;
+          url = "https://${svc.domain}";
+        }
+      ) (lib.filterAttrs (_: svc: svc.dashboard.enable) config.services.my);
+
+    monitor = { lib, config, ... }:
+      lib.mapAttrsToList (name: svc:
+        svc.monitor // {
+          inherit name;
+          inherit (svc) domain;
+          fullUrl = if svc.monitor.url != null then svc.monitor.url else "https://${svc.domain}${svc.monitor.healthPath}";
+        }
+      ) (lib.filterAttrs (_: svc: svc.monitor.enable) config.services.my);
+
+    scrape = { lib, config, ... }:
+      lib.mapAttrsToList (name: svc:
+        svc.scrape // {
+          inherit name;
+          inherit (svc) port;
+          scrapePort = if svc.scrape.port != null then svc.scrape.port else svc.port;
+        }
+      ) (lib.filterAttrs (_: svc: svc.scrape.enable) config.services.my);
+
+    public-proxy = { lib, config, ... }:
+      lib.mapAttrsToList (name: svc:
+        svc.proxy // {
+          inherit name;
+          inherit (svc) domain port;
+        }
+      ) (lib.filterAttrs (_: svc: svc.proxy.enable) config.services.my);
+
+    oidc-config = { lib, config, ... }:
+      lib.mapAttrsToList (name: svc:
+        svc.oidc // {
+          inherit name;
+          inherit (svc) domain;
+          redirectUri = "https://${svc.domain}${svc.oidc.redirectPath}";
+        }
+      ) (lib.filterAttrs (_: svc: svc.oidc.enable) config.services.my);
+};
 }

@@ -41,31 +41,26 @@
           ];
         };
 
-        # OIDC clients from the oidc-config quirk. Each entry declares
-        # its own clientId, scopes, redirectUri, tokenEndpointAuthMethod.
-        # Secret wired via SOPS placeholder <clientId>ClientSecret.
-        oidcClients = lib.map (entry: entry.value) oidc-config;
-
+        # `oidc-config` quirk entries are flat attrsets:
+        # { name; enable; clientId; scopes; redirectPath; tokenEndpointAuthMethod; domain; redirectUri }.
         clientFor = clientId:
-          lib.head (lib.filter (c: c.clientId == clientId) oidcClients);
+          lib.head (lib.filter (c: c.clientId == clientId) oidc-config);
       in
       {
         # Declare SOPS secrets for each OIDC client id.
         sops.secrets = lib.listToAttrs (
-          map (c: lib.nameValuePair "${c.clientId}ClientSecret" { }) oidcClients
+          map (c: lib.nameValuePair "${c.clientId}ClientSecret" { }) oidc-config
         );
 
         services.authelia.instances.main.settings.identity_providers.oidc = {
           authorization_policies = lib.genAttrs services buildPolicy;
-          clients = lib.genAttrs (map (c: c.clientId) oidcClients) (
+          clients = lib.genAttrs (map (c: c.clientId) oidc-config) (
             clientId: {
               client_id = clientId;
               client_name = clientId;
               client_secret = config.sops.placeholder."${clientId}ClientSecret";
               authorization_policy = "${clientId}_access";
-              scopes = (clientFor clientId).scopes;
-              redirect_uris = [ (clientFor clientId).redirectUri ];
-              token_endpoint_auth_method = (clientFor clientId).tokenEndpointAuthMethod;
+              inherit (clientFor clientId) scopes redirectUri tokenEndpointAuthMethod;
             }
           );
         };

@@ -27,9 +27,6 @@
   den.schema.host.includes = [
     den.batteries.define-user
     den.batteries.primary-user
-
-    den.aspects.options.my.services
-    den.aspects.options.my.stack
   ];
 
   # Shared defaults applied to every host/user/home via den.default.

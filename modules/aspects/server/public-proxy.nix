@@ -4,19 +4,21 @@
     nixos =
       { public-proxy, ... }:
       let
-        entries = lib.map (e: e.value // { hostIp = e.source.host.addr; }) public-proxy;
-        byDomain = lib.groupBy (e: e.domain) entries;
+        # Stash the producing host's IP onto each entry so vhost generation
+        # doesn't have to thread source-context through every step.
+        withHostIp = entry: entry.value // { hostIp = entry.source.host.addr; };
+        byDomain = lib.groupBy (e: e.domain) (map withHostIp public-proxy);
       in
       {
         services.caddy.virtualHosts = lib.mapAttrs (
-          _: es:
+          _: entries:
           let
-            cfg = lib.head es;
+            cfg = lib.head entries;
           in
           {
             extraConfig = ''
               import coraza-waf
-              ${lib.optionalString (cfg.cloudflare or false) "import cloudflare-only"}
+              ${lib.optionalString cfg.cloudflareOnly "import cloudflare-only"}
               reverse_proxy http://${cfg.hostIp}:${toString cfg.port}
             '';
           }

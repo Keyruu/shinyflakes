@@ -51,7 +51,7 @@
         services.nginx.virtualHosts = lib.mkMerge (lib.mapAttrsToList (service: cfg:
           lib.mkIf (cfg.proxy.enable && cfg.proxy.server == "nginx" && cfg.port != null) {
             ${cfg.domain} = {
-              locations."/".extraConfig = lib.mkIf (cfg.proxy.whitelist.enable or false) ''
+              locations."/".extraConfig = lib.mkIf cfg.proxy.whitelist.enable ''
                 ${lib.concatMapStringsSep "\n" (ip: "allow ${ip};") (allowIpsForService service)}
                 allow 192.168.100.0/24;
                 deny all;

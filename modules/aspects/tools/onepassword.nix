@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.tools."1password" = {
+  den.aspects.tools.onepassword = {
     homeManager = {
       xdg.desktopEntries."1password" = {
         name = "1Password";

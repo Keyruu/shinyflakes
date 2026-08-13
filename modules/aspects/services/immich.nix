@@ -9,6 +9,16 @@
         port = 2283;
         domain = "immich.lab.keyruu.de";
         topology = "external";
+
+        # Cross-cutting concern overrides — only where defaults don't fit.
+        dashboard.title = "Immich";
+        monitor.healthPath = "/api/server/ping";
+        scrape.enable = true;
+        oidc = { enable = true; redirectPath = "/api/oauth/redirect"; };
+
+        proxy.enable = true;
+        backup.enable = true;
+
         stack = {
           enable = true;
           directories = [
@@ -32,7 +42,7 @@
             server = {
               containerConfig = {
                 image = "ghcr.io/immich-app/immich-server:v3.1.0";
-                publishPorts = [ "127.0.0.1:2283:2283" ];
+                publishPorts = [ "127.0.0.1:${toString config.services.my.immich.port}:2283" ];
                 volumes = [
                   "/etc/localtime:/etc/localtime:ro"
                   "/main/immich:/data"
@@ -76,46 +86,12 @@
             };
           };
         };
-        backup.enable = true;
-        proxy.enable = true;
       };
 
       # Photos live outside the stack path — declare a separate backup.
       services.restic.backupsWithDefaults."immich-photos" = {
         paths = [ "/main/immich" ];
       };
-    };
-
-    dashboard = { config, ... }: {
-      title = "Immich";
-      description = config.services.my.immich.description;
-      icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/immich.svg";
-      url = "https://${config.services.my.immich.domain}";
-      groups = [ "immich_users" ];
-      newTab = true;
-    };
-
-    monitor = { config, ... }: {
-      url = "https://${config.services.my.immich.domain}/api/server/ping";
-      interval = "30s";
-      conditions = [ "[STATUS] == 200" ];
-    };
-
-    scrape = {
-      port = 2283;
-      metricsPath = "/metrics";
-      interval = "15s";
-    };
-
-    public-proxy = { config, ... }: {
-      domain = config.services.my.immich.domain;
-    };
-
-    oidc-config = { config, ... }: {
-      clientId = "immich";
-      scopes = [ "openid" "email" "profile" ];
-      redirectUri = "https://${config.services.my.immich.domain}/api/oauth/redirect";
-      tokenEndpointAuthMethod = "client_secret_post";
     };
   };
 }

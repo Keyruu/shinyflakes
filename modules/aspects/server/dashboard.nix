@@ -1,18 +1,28 @@
-{ lib, ... }:
+{ ... }:
 {
   den.aspects.server.dashboard = {
     nixos =
-      { dashboard, ... }:
+      { dashboard, self', ... }:
       let
-        # dashboard = [{ value = { title, ... }; source = { host = ...; }; }, ...]
-        cards = lib.map (e: e.value) dashboard;
+        apps = map (entry: {
+          inherit (entry) title description url icon newTab groups;
+        }) dashboard;
       in
       {
-        environment.etc."dashboard/cards.json".text = builtins.toJSON cards;
-        # Custom HTML page would be generated from `cards` here.
-        # Stub: just expose the JSON so the quirk flow is observable.
         services.caddy.virtualHosts."dash.peeraten.net".extraConfig = ''
-          root * /etc/dashboard
+          import coraza-waf
+          import cloudflare-only
+
+          forward_auth 127.0.0.1:8010 {
+            uri /api/authz/forward-auth
+            copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+          }
+
+          # templates injects {{.Req.Header.Get "Remote-Groups"}} etc. into served HTML
+          templates
+          encode
+          header Cache-Control "no-store"
+          root * ${self'.packages.dashboard.override { inherit apps; }}
           file_server
         '';
       };

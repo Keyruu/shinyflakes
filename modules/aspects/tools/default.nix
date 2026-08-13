@@ -1,7 +1,7 @@
 { den, ... }: {
   den.aspects.tools = {
     includes = with den.aspects.tools; [
-      "1password"
+      onepassword
       calendar
       clipse
       colorpicker

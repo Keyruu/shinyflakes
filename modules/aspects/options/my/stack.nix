@@ -5,7 +5,7 @@
 {
   den.aspects.options.my.stack = {
     includes = [
-      den.aspects.server.backup
+      den.aspects.options.backup
       den.aspects.core.podman
     ];
     nixos =
