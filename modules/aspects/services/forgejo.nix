@@ -131,6 +131,7 @@
         };
 
         services.my.forgejo = {
+          description = "Git hosting";
           port = 3004;
           inherit domain;
           dashboard = {

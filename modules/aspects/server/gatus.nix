@@ -7,9 +7,6 @@
         isInternal =
           d: lib.hasSuffix ".lab.keyruu.de" d || lib.hasSuffix ".port.peeraten.net" d;
 
-        # `monitor` quirk entries are direct attrsets (no provenance wrapper).
-        unwrap = entry: entry;
-
         mkEndpoint = entry: {
           name = entry.name;
           url = if entry.url != null then entry.url else entry.fullUrl;

@@ -7,8 +7,12 @@
 # (simon/nadine guests don't have NixOS host entities).
 #
 # One host runs the server. Decide which via:
-#   den.aspects.<server-host>.includes = [ den.aspects.server.mesh-server ];
-# All other mesh-capable hosts use den.aspects.workstation.mesh-client.
+#   den.aspects.<server-host>.includes = [ den.aspects.server.mesh.server ];
+# All other mesh-capable hosts use den.aspects.workstation.mesh.client.
+#
+# Currently unused: mentat's mesh.nix hand-rolls the wg interface. Wire
+# it up after prime is migrated to den (the mentat authelia aspect lives
+# there for "local eval only" and the wg server-side needs full den eval).
 #
 # ponytail: caddy vhost + wstunnel config is copy-paste from the legacy
 # nix/modules/services/mesh/server.nix. Replace once the wg key path
@@ -17,7 +21,6 @@
   ...
 }:
 let
-
   # All devices to peer with: managed hosts (from mesh-device quirk) +
   # unmanaged guest devices (from den.people.*.devices, minus any that
   # overlap with managed hosts).
@@ -28,7 +31,7 @@ let
   };
 in
 {
-  den.aspects.server.mesh-server = {
+  den.aspects.server.mesh.server = {
     nixos =
       {
         mesh-device,

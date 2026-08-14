@@ -4,7 +4,6 @@
 # endpoint from the quirk entry with `isServer = true`, then configures:
 #   - mesh0:        direct UDP peer to the server
 #   - mesh0-ws:     via wstunnel relay (for restricted networks)
-#   - mesh0-all-ws: 0.0.0.0/0 via wstunnel (full tunnel)
 # Plus the `mesh-tunnel` shell tool to switch between them, and a
 # systemd resume hook that restarts wstunnel on suspend.
 #
@@ -13,30 +12,33 @@
 # come from the quirk (one source of truth) instead of being
 # hardcoded literals.
 #
-# ponytail: mesh-tunnel tool + resume hook are copy-paste from
-# the legacy client.nix. No behavior change.
+# ponytail: content is copy-paste from the legacy client.nix. No
+# behavior change.
 { den, ... }:
 {
-  den.aspects.workstation.mesh-client = {
+  den.aspects.workstation.mesh.client = {
     includes = [ den.aspects.options.mesh ];
     nixos =
       {
         mesh-device,
         config,
         lib,
-        pkgs,
         ...
       }:
       let
         mesh = config.services.mesh;
         server = lib.findFirst (device: device.isServer or false) null mesh-device;
-        # ponytail: fail loud if no server declared. Better than silent
-        # broken wg config.
-        assertNoServer = lib.assertMsg (
-          server != null
-        ) "mesh-client requires a mesh-device quirk with isServer = true on the server host";
       in
       {
+        # Mesh server quirk is mandatory — fail loud rather than silently
+        # emitting a broken wg config.
+        assertions = [
+          {
+            assertion = server != null;
+            message = "mesh.client requires a mesh-device quirk with isServer = true on the server host";
+          }
+        ];
+
         # Sops key for this client — one per host, name follows convention.
         sops.secrets.${mesh.client.keyName} = { };
 

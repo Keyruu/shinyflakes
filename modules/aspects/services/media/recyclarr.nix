@@ -7,7 +7,6 @@
   den.aspects.services.media.recyclarr = {
     nixos = { config, ... }:
       let
-        my = config.services.my.recyclarr;
         recyclarrPath = "/etc/stacks/recyclarr/config";
       in
       {

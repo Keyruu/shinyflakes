@@ -10,7 +10,7 @@
       gotify-desktop
       kanata
       laptop
-      mesh-client
+      mesh
       networking
       onepassword
       plymouth

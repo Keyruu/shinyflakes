@@ -52,6 +52,7 @@
         ];
 
         services.my.paperless = {
+          description = "Document archive";
           zfs = true;
           port = 8000;
           domain = "paperless.lab.keyruu.de";

@@ -3,7 +3,6 @@
   den.aspects.services.karaoke = {
     nixos = { config, ... }:
       let
-        my = config.services.my.karaoke;
         karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
       in
       {

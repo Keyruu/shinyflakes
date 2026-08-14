@@ -7,11 +7,6 @@
 #     `networks` (mesh networks like "home" / "nas")
 #   - DROP the rest of the LAN for that device
 #
-# Today's equivalent lives in nix/hosts/mentat/modules/mesh.nix and
-# reads `services.mesh.people` × `services.mesh.networks` directly.
-# That code stays for now (transitional) and will be replaced by this
-# consumer once mesh.nix moves to modules/hosts/mentat/mesh.nix.
-#
 # ponytail: per-device rule generation is O(devices × grants). Fine
 # for ~30 devices. If the mesh grows, aggregate by subnet first.
 { config, ... }:
@@ -19,22 +14,11 @@ let
   topLevelConfig = config;
 in
 {
-  den.aspects.server.mesh-firewall = {
+  den.aspects.server.mesh.firewall = {
     nixos =
       { lib, ... }:
       let
         lanSubnet = "192.168.100.0/24";
-
-        # Flatten all persons' service-access into tagged list.
-        allAccess = lib.concatLists (
-          lib.mapAttrsToList (
-            person: p:
-            map (svc: {
-              inherit person;
-              service = svc;
-            }) p.service-access
-          ) topLevelConfig.den.people
-        );
 
         # For each person × device, decide which CIDRs they can reach.
         # Currently: full LAN access for everyone (placeholder). Tighten

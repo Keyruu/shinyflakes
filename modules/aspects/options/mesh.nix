@@ -93,7 +93,7 @@
           };
         };
         default = { };
-        description = "Mesh client config (consumed by den.aspects.workstation.mesh-client).";
+        description = "Mesh client config (consumed by den.aspects.workstation.mesh.client).";
       };
     };
   };

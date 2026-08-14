@@ -36,6 +36,7 @@
         };
 
         services.my.karakeep = {
+          description = "Bookmarks";
           port = 3000;
           domain = "karakeep.lab.keyruu.de";
           dashboard = {

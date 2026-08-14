@@ -53,7 +53,7 @@
       den.aspects.server.nginx-extras
       # Mesh firewall: nftables forward rules for all peer devices.
       # (Uses topLevelConfig.den.people captured in outer let.)
-      den.aspects.server.mesh-firewall
+      den.aspects.server.mesh.firewall
       # Monitoring infrastructure: declares services.monitoring options,
       # wires up cadvisor + comin.exporter + node_exporter + fluent-bit.
       # The actual dashboards live in monitoring.nix below.

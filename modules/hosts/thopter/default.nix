@@ -44,7 +44,7 @@
 
       # Mesh client — connects to the Hetzner mesh server (see
       # policies/mesh.nix for the synthetic server entry).
-      den.aspects.workstation.mesh-client
+      den.aspects.workstation.mesh.client
     ];
 
     nixos = { pkgs, ... }: {

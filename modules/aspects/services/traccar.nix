@@ -43,6 +43,7 @@
         };
 
         services.my.traccar = {
+          description = "GPS tracking";
           port = 5785;
           domain = "traccar.peeraten.net";
           dashboard = {
