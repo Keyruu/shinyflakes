@@ -20,14 +20,21 @@
   den.aspects.workstation.mesh-client = {
     includes = [ den.aspects.options.mesh ];
     nixos =
-      { mesh-devices, config, lib, pkgs, ... }:
+      {
+        mesh-device,
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       let
         mesh = config.services.mesh;
-        server = lib.findFirst (device: device.isServer or false) null mesh-devices;
+        server = lib.findFirst (device: device.isServer or false) null mesh-device;
         # ponytail: fail loud if no server declared. Better than silent
         # broken wg config.
-        assertNoServer = lib.assertMsg (server != null)
-          "mesh-client requires a mesh-device quirk with isServer = true on the server host";
+        assertNoServer = lib.assertMsg (
+          server != null
+        ) "mesh-client requires a mesh-device quirk with isServer = true on the server host";
       in
       {
         # Sops key for this client — one per host, name follows convention.

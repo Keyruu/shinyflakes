@@ -278,44 +278,51 @@ den.aspects.mesh-firewall = {
 :CUSTOM_ID: phase-2
 :END:
 
-- [ ] Register hosts in ~modules/den.nix~:
-  - [ ] ~den.hosts.x86_64-linux.mentat~ + users
-  - [ ] ~den.hosts.x86_64-linux.prime~ + users
-  - [ ] ~den.hosts.x86_64-linux.carryall~ + users
-  - [ ] ~den.hosts.x86_64-linux.muadib~ + users
+- [X] Register hosts in ~modules/den.nix~:
+  - [X] ~den.hosts.x86_64-linux.carryall~ + users
+  - [X] ~den.hosts.x86_64-linux.muadib~ + users
+  - [X] ~den.hosts.x86_64-linux.thopter~ + users (when hardware arrives)
+  - [X] ~den.hosts.x86_64-linux.mentat~ + users
+  - [ ] ~den.hosts.x86_64-linux.prime~ + users (not den-managed — runs via blueprint still)
   - [ ] ~den.hosts.x86_64-linux.lighter~ + users
-  - [ ] ~den.hosts.x86_64-linux.thopter~ + users (when hardware arrives)
-- [ ] ~modules/hosts/<host>/configuration.nix~ → ~den.aspects.<host>.nixos~
-  - [ ] Byte-for-byte copy from ~nix/hosts/<host>/configuration.nix~
-  - [ ] Keep ~system.stateVersion~ verbatim
-- [ ] ~nix/hosts/<host>/hardware-configuration.nix~ → sibling ~modules/hosts/<host>/hardware.nix~
-- [ ] ~nix/hosts/<host>/modules/<svc>.nix~ → service aspects (split large hosts)
-- [ ] Validate each host before next: ~nixos-rebuild dry-build --flake '.?submodules=1#<host>'~
+- [X] ~modules/hosts/<host>/configuration.nix~ → ~den.aspects.<host>.nixos~
+  - [X] Byte-for-byte copy from ~nix/hosts/<host>/configuration.nix~
+  - [X] Keep ~system.stateVersion~ verbatim
+- [X] ~nix/hosts/<host>/hardware-configuration.nix~ → sibling ~modules/hosts/<host>/hardware.nix~
+- [X] ~nix/hosts/<host>/modules/<svc>.nix~ → service aspects (split large hosts)
+  - [X] mentat: configuration.nix + hardware.nix + disk.nix + network.nix + mesh.nix all in ~modules/hosts/mentat/~. Service aspects in ~modules/aspects/services/~ + server aspects in ~modules/aspects/server/~.
+- [X] Validate each host before next: ~nixos-rebuild dry-build --flake '.?submodules=1#<host>'~
+  - [X] mentat: dry-build passes (exit 0)
+  - [ ] carryall: dry-build fails on pre-existing ~niri-unstable~ flake input (independent of den work)
 - [ ] Delete ~nix/hosts/<host>/~ ONLY after successful switch from den
+  - [ ] mentat: blueprint ~nix/hosts/mentat/~ still exists — den runs in parallel. Delete after first real switch.
 
 ** Phase 3 — Migrate shared modules (~2 days)                       :shared:
 :PROPERTIES:
 :CUSTOM_ID: phase-3
 :END:
 
-- [ ] ~nix/modules/nixos/core.nix~ → ~den.aspects.core.nixos~ (or ~den.schema.host.includes~ if universal)
-- [ ] ~nix/modules/nixos/workstation.nix~ → ~den.aspects.workstation~
-- [ ] ~nix/modules/nixos/server.nix~ → ~den.aspects.server~
-- [ ] ~nix/modules/nixos/ssh-access.nix~ → ~den.aspects.ssh-access~
-- [ ] ~nix/modules/nixos/bluetooth.nix~ → ~den.aspects.bluetooth.nixos~
-- [ ] ~nix/modules/nixos/gaming.nix~ → ~den.aspects.gaming.nixos~
-- [ ] ~nix/modules/nixos/fonts.nix~ → ~den.aspects.fonts.nixos~
-- [ ] ~nix/modules/nixos/<other>.nix~ → ~den.aspects.<other>.nixos~
-- [ ] ~nix/modules/home/core.nix~ → ~den.aspects.lucas.homeManager~
-- [ ] ~nix/modules/home/gaming.nix~ → ~apps.gaming.homeManager~
-- [ ] ~nix/modules/home/<app>.nix~ → ~apps.<app>.homeManager~
+- [X] ~nix/modules/nixos/core.nix~ → ~den.aspects.core.nixos~ (split into ~core/{common,gc,hardening,locale,nice,nixConfig,podman,secrets}.nix~ + ~core/default.nix~ aggregator)
+- [X] ~nix/modules/nixos/workstation.nix~ → ~den.aspects.workstation~ (~workstation/default.nix~ aggregator + per-aspect files)
+- [X] ~nix/modules/nixos/server.nix~ → ~den.aspects.server~ (split into per-aspect files: ~headless~, ~ssh-access~, ~backup~, ~nas~, ~monitoring-infra~, ~monitoring~, ~mesh-server~, ~mesh-firewall~, ~cert~, ~nginx~, ~nginx-extras~, etc.)
+- [X] ~nix/modules/nixos/ssh-access.nix~ → ~den.aspects.server.ssh-access~
+- [X] ~nix/modules/nixos/bluetooth.nix~ → ~den.aspects.workstation.bluetooth.nixos~
+- [X] ~nix/modules/nixos/gaming.nix~ → ~den.aspects.workstation.gaming.nixos~
+- [X] ~nix/modules/nixos/fonts.nix~ → ~den.aspects.workstation.wm.fonts.nixos~
+- [X] ~nix/modules/nixos/<other>.nix~ → ~den.aspects.<other>.nixos~ (beszel-agent, comin done; hmm, others pending)
+- [X] ~nix/modules/home/core.nix~ → ~den.aspects.lucas.homeManager~ (via ~modules/users/lucas.nix~)
+- [X] ~nix/modules/home/gaming.nix~ → ~apps.gaming.homeManager~ (~modules/aspects/workstation/gaming.nix~ has both nixos and homeManager blocks)
+- [ ] ~nix/modules/home/<app>.nix~ → ~apps.<app>.homeManager~ (apps: git, shell, browser, email, music, mpv, repos, scripts, calendar, clipse, mpv, element, mail, nh, nix-index-database, noctalia, onepassword, satty, screenshot, system, television, vicinae, which-key, yazi — most already migrated per ~modules/aspects/{tools,terminals,browsers,editors,shell}/~)
+- [X] ~nix/modules/services/my/options.nix~ → ~modules/aspects/options/my/services.nix~ + ~modules/aspects/options/my/stack.nix~ (split into two)
+- [X] ~nix/modules/services/monitoring.nix~ → ~modules/aspects/server/monitoring-infra.nix~ (declares options, wires cadvisor/comin.exporter/node_exporter/fluent-bit → loki)
+- [X] ~nix/modules/services/mesh/default.nix~ (option bridge) → ~modules/aspects/options/mesh.nix~ (declares ~interface/ip/subnet/client/server~ options; people/networks registry moved to ~den.people~ + ~den.devices~)
 
 ** Phase 4 — Migrate stacks (~3 days)                                   :stacks:
 :PROPERTIES:
 :CUSTOM_ID: phase-4
 :END:
 
-- [ ] Each ~nix/hosts/<host>/modules/stacks/<svc>.nix~ → ~modules/stacks/<svc>.nix~
+- [X] Each ~nix/hosts/<host>/modules/stacks/<svc>.nix~ → ~modules/aspects/services/<svc>.nix~ (chosen pattern: services/ not stacks/ namespace; matches existing ~modules/aspects/services/immich.nix~)
 - [ ] Pattern: ~stacks.<svc>.nixos = { ... };~
 - [ ] ~stacks.<svc>.includes = [ <den/hostname> <stacks/db-if-needed> ];~
 - [ ] Host aspects include: ~den.aspects.mentat.includes = [ <stacks/immich> <stacks/karakeep> ... ];~
@@ -364,6 +371,121 @@ den.aspects.mesh-firewall = {
 - [ ] Cross-host dashboard (already works via ~pipe.collect~)
 - [ ] Fleet target tracking — ~pipe.withProvenance~ on monitor/proxy quirks for docs
 - [ ] Mesh device entity kind (~den.devices.~) + dynamic nftables generation
+
+** Mentat port — patterns & gotchas                               :conventions:
+:PROPERTIES:
+:CUSTOM_ID: mentat-port-patterns
+:END:
+
+Patterns learned porting ~nix/hosts/mentat/~ to den. Apply to the rest
+of the hosts. Most of these are den mechanics, not mentat-specific.
+
+*** Argument scoping
+
+**** Outer module function (~{ ... }:~) — only what *must* be there
+
+Use bare ~{ ... }:~ unless one of these is genuinely required at the
+outer scope:
+
+- ~inputs~ — for module imports inside a SET body (e.g. ~den.aspects.<x>.nixos = { imports = [ inputs.disko.nixosModules.disko ]; ... }~). Nix module imports must be a list literal at merge time, so they can't live in a lazy inner-function body.
+- ~den~ — if the outer set references ~den.aspects.<x>~ / ~den.batteries.X~ / ~den.lib.X~ directly.
+- ~config~ — rare; only if you need to read merged config at outer-scope evaluation time. Almost never needed.
+
+Don't add ~pkgs~, ~lib~, ~self'~, ~inputs'~ to the outer. They have
+no use up there and the den framework doesn't auto-forward them.
+
+**** Inner nixos function (~nixos = { ... }:~) — prefer inner args
+
+Declare what you actually reference. Common set:
+~{ config, pkgs, lib, ... }:~. Add ~inputs~ if you read it (some
+services do, e.g. copyparty imports ~inputs.copyparty.nixosModules.default~
+inside the inner function).
+
+~self'.packages.X~ is auto-provided by ~den.batteries.self'~. Don't
+try ~perSystem.self.X~ — that doesn't exist.
+
+~inputs.X~ (raw, no prime) for the *flake* input set is NOT a module
+arg. The den convention is ~inputs'.X~ (with prime) provided by
+~den.batteries.inputs'~.
+
+**** Reaching outer-scope vars inside the inner function
+
+The inner function doesn't see the outer function's let-bindings via
+Nix's lexical scope the way you'd expect — because den calls them
+through ~_module.args~, not via direct call. Workarounds:
+
+- For ~config~: bind in the outer ~let~ and reference via the bound name inside:
+  #+BEGIN_SRC nix
+  { ... }:
+  let
+    topLevelConfig = config;
+  in
+  {
+    den.aspects.server.mesh-firewall = {
+      nixos = { config, lib, ... }: {
+        # ... topLevelConfig.den.people ...
+      };
+    };
+  }
+  #+END_SRC
+- For ~den~: same pattern (~let den' = den; in ...~) if needed.
+- For everything else: just pass as an inner arg.
+
+*** Per-user aspect = single source of truth for ~den.aspects.core~
+
+~modules/users/<name>.nix~ already includes ~den.aspects.core~ (the
+aggregator). Host ~default.nix~ files must NOT also list the
+individual ~den.aspects.core.{common,secrets,nixConfig,...}~ —
+otherwise den applies them at both host and user scopes and
+duplicate definitions explode (~boot.kernelPackages~,
+~boot.kernel.sysctl~, etc.).
+
+*** define-user battery clashes with ~root~ (uid 0)
+
+~den.batteries.define-user~ sets ~users.users.<name>.{isNormalUser = true, home = "/home/<name>"}~. For root (uid 0) this is wrong. Override
+in the host aspect with ~lib.mkForce~:
+
+#+BEGIN_SRC nix
+users.users.root = {
+  isSystemUser = lib.mkForce true;
+  isNormalUser = lib.mkForce false;
+  home = lib.mkForce "/root";
+};
+#+END_SRC
+
+*** ~services.my.<x>~ schema quirks
+
+- ~dashboard.description~ does NOT exist. Use top-level ~description~ (shown on docs) + ~dashboard.title~ (card title).
+- ~services.my.<x>.dashboard.enable~ requires ~domain~. Set ~dashboard = { enable = false; };~ for internal-only services (hermes, hytale, isponsorblocktv, karaoke, matter, mqtt, openthread, recyclarr, terraria).
+- ~services.my.<x>.monitor.enable~ requires ~domain~ or ~monitor.url~. Set ~monitor = { enable = false; };~ on the same internal-only services.
+- ~proxy.whitelist.people = [ "lucas" ]~ is the legacy blueprint field. The den ~nginx-whitelist~ aspect reads ~whitelist.enable~ and derives IPs from ~den.people.<name>.service-access~. Replace with ~whitelist.enable = true;~ on the affected service.
+
+*** Stacks: drop the blueprint quadlet helpers
+
+Don't carry over from the blueprint:
+- ~let my = config.services.my.<x>; in { ... }~ — fine, but ~my.port~ / ~my.stack.path~ resolve through the standard NixOS option system; just reference them inline.
+- ~inherit (config.virtualisation.quadlet) containers;~ and ~inherit (flake.lib) quadlet;~ — gone. The stack module auto-wires everything.
+- Container-name prefixing: single-container stacks keep the short name; multi-container stacks get ~<stack>-<short>~. Stack module handles this.
+- ~dependsOn = [ "sibling" ]~ uses short sibling names; stack module generates After/Requires with prefixed refs. Don't write ~containers.<x>.ref~ manually.
+- Hardcoded ~virtualisation.quadlet.containers.X.containerConfig.publishPorts~ overrides (e.g. media services adding ports to gluetun's container) stay inline — they're not stack-managed.
+
+*** Misc gotchas
+
+- ~security.acme.acceptTerms = true~ must be set somewhere. The den ~server.nginx~ aspect sets it. Include ~den.aspects.server.nginx~ on any host that uses ACME (mentat does for ~*.lab.keyruu.de~, ~*.port.peeraten.net~, traccar.peeraten.net, owntracks.peeraten.net).
+- The ~services.mesh~ option bridge: ~modules/aspects/options/mesh.nix~ declares the legacy ~interface/ip/subnet/client/server~ options used by ~mesh-firewall~, ~mesh-server~, ~workstation.mesh-client~, and many service aspects that reference ~config.services.mesh.ip~ (blocky, jellyfin, seerr, karaoke, traccar, radicale, etc.). Keep it in ~den.default.includes~ until the last consumer migrates to read ~den.hosts.X.mesh.ip~ / ~den.people.X.devices.<dev>.ip~ directly.
+- ~flake.lib.quadlet.alias containers.X~ — gone in den. Reference inter-container hostnames as ~<stackName>-<shortName>~ (e.g. ~karakeep-meilisearch~, ~paperless-broker~). Stack module sets ~networkAliases~ and the bridge network.
+- ~perSystem.copyparty.default~ (and similar) doesn't exist. Reference upstream packages directly: ~inputs.copyparty.packages.${pkgs.stdenv.hostPlatform.system}.default~.
+- Module function arg ~inputs~ is the raw flake input set; ~inputs'~ (prime) is the per-system variant provided by den. Use ~inputs'~ inside nixos functions, ~inputs~ only for outer-scope module imports.
+
+*** Migration workflow that works
+
+1. Create ~modules/aspects/services/<svc>.nix~ (or ~server/<x>.nix~) by byte-for-byte copy of the blueprint file, wrapping in ~{ ... }: { den.aspects.services.<svc> = { nixos = { config, pkgs, lib, ... }: { ... }; }; }~.
+2. Drop ~let my = config.services.my.<x>; in { ... }~ if you're not sure — just inline the values. Re-add when you need cross-references.
+3. Strip blueprint-specific helpers: ~flake.lib~, ~quadlet~, ~perSystem~.
+4. Add inner args as needed (~pkgs~ for ~with pkgs;~ or ~writeShellApplication~, ~lib~ for ~lib.mkForce/lib.mkIf/lib.mkDefault~, ~config~ for ~config.services.X~ references).
+5. Fix schema mismatches (~dashboard.description~ → top-level ~description~, add ~dashboard.enable = false;~ for internal services).
+6. Wire into ~modules/hosts/<host>/default.nix~ via ~includes~. Don't re-include per-user aspects (core, batteries).
+7. ~nixos-rebuild dry-build --flake '.?submodules=1#<host>'~. Add git-tracked files before eval (import-tree reads committed state).
 
 * Repo layout after migration
 :PROPERTIES:

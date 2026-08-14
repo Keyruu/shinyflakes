@@ -13,9 +13,10 @@
 # ponytail: caddy vhost + wstunnel config is copy-paste from the legacy
 # nix/modules/services/mesh/server.nix. Replace once the wg key path
 # (sops.placeholder.meshServerKey) is wired in the host's secrets.
-{ config, lib, pkgs, ... }:
+{
+  ...
+}:
 let
-  mesh = config.services.mesh;
 
   # All devices to peer with: managed hosts (from mesh-device quirk) +
   # unmanaged guest devices (from den.people.*.devices, minus any that
@@ -29,15 +30,25 @@ in
 {
   den.aspects.server.mesh-server = {
     nixos =
-      { mesh-devices, config, lib, ... }:
+      {
+        mesh-device,
+        config,
+        lib,
+        ...
+      }:
       let
-        managedPeers = lib.filter (device: !(device.isServer or false)) mesh-devices;
+        mesh = config.services.mesh;
+        managedPeers = lib.filter (device: !(device.isServer or false)) mesh-device;
         # Unmanaged guest devices — simon, nadine. Lucas's managed hosts
         # are already in mesh-devices. ponytail: filter overlaps by IP.
         guestPeers = lib.concatMap (
-          person: lib.mapAttrsToList (_name: dev: peerFromQuirk {
-            inherit (dev) publicKey ip allowedIPs;
-          }) person.devices
+          person:
+          lib.mapAttrsToList (
+            _name: dev:
+            peerFromQuirk {
+              inherit (dev) publicKey ip allowedIPs;
+            }
+          ) person.devices
         ) (lib.attrValues (lib.filterAttrs (name: _: name != "lucas") config.den.people));
         allPeers = map peerFromQuirk managedPeers ++ guestPeers;
 

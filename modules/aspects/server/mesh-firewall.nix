@@ -14,26 +14,35 @@
 #
 # ponytail: per-device rule generation is O(devices × grants). Fine
 # for ~30 devices. If the mesh grows, aggregate by subnet first.
-{ config, lib, ... }:
+{ config, ... }:
+let
+  topLevelConfig = config;
+in
 {
   den.aspects.server.mesh-firewall = {
     nixos =
-      { config, lib, ... }:
+      { lib, ... }:
       let
-        mesh = config.services.mesh;
         lanSubnet = "192.168.100.0/24";
 
         # Flatten all persons' service-access into tagged list.
-        allAccess = lib.concatLists (lib.mapAttrsToList (person: p:
-          map (svc: { inherit person; service = svc; }) p.service-access
-        ) config.den.people);
+        allAccess = lib.concatLists (
+          lib.mapAttrsToList (
+            person: p:
+            map (svc: {
+              inherit person;
+              service = svc;
+            }) p.service-access
+          ) topLevelConfig.den.people
+        );
 
         # For each person × device, decide which CIDRs they can reach.
         # Currently: full LAN access for everyone (placeholder). Tighten
         # when service-access grows network-grant entries.
-        rulesForDevice = personName: deviceName: device:
+        rulesForDevice =
+          personName: deviceName: device:
           let
-            cidrs = [ lanSubnet ];  # ponytail: derive from grants
+            cidrs = [ lanSubnet ]; # ponytail: derive from grants
             acceptLines = lib.concatMapStrings (cidr: ''
               ip saddr ${device.ip} ip daddr ${cidr} accept comment "${personName}-${deviceName} -> ${cidr}"
             '') cidrs;
@@ -43,10 +52,12 @@
           in
           acceptLines + dropLine;
 
-        allDevices = lib.concatLists (lib.mapAttrsToList (personName: person:
-          lib.mapAttrsToList (deviceName: device: rulesForDevice personName deviceName device)
-            person.devices
-        ) config.den.people);
+        allDevices = lib.concatLists (
+          lib.mapAttrsToList (
+            personName: person:
+            lib.mapAttrsToList (deviceName: device: rulesForDevice personName deviceName device) person.devices
+          ) topLevelConfig.den.people
+        );
       in
       {
         boot.kernel.sysctl = {
