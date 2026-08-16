@@ -9,24 +9,15 @@
         ...
       }:
       {
-        home.packages = [ self'.packages.zs ];
+        home.packages = [
+          pkgs.starship
+          self'.packages.zs
+        ];
 
         programs.man.generateCaches = false;
 
         programs.fish = {
           enable = true;
-
-          plugins = [
-            {
-              name = "fish-ai";
-              src = pkgs.fetchFromGitHub {
-                owner = "Realiserad";
-                repo = "fish-ai";
-                rev = "v2.3.1";
-                hash = "sha256-bgFvzjX/TphyoAz4X9Xsux8zK/N9QeBY04d9q5z8lwc=";
-              };
-            }
-          ];
 
           functions = {
             starship_transient_rprompt_func = "starship module time";
