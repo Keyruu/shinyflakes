@@ -1,4 +1,4 @@
-<img src="docs/shinyflakes.png" width="200" />
+<img src="assets/shinyflakes.png" width="200" />
 
 # ✨ shinyflakes ❄️
 
