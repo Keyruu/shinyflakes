@@ -26,6 +26,7 @@
         zaiKey = { };
         minimaxKey = { };
       };
+
       sops.templates."shell.env".content = ''
         OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
         GEMINI_API_KEY=${config.sops.placeholder.geminiKey}

@@ -15,9 +15,6 @@
     nixos = { pkgs, host, ... }: {
       nixpkgs.hostPlatform = "x86_64-linux";
 
-      # Zen kernel — gaming-focused desktop
-      boot.kernelPackages = pkgs.linuxPackages_zen;
-
       networking.nftables.enable = true;
 
       services.libinput.enable = true;

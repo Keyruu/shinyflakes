@@ -18,5 +18,12 @@
       wireguard
       wm
     ];
+
+    # Zen kernel for all workstations (carryall, muadib, thopter).
+    # Blueprint-side: `nix/modules/nixos/laptop.nix` set it per-laptop,
+    # `muadib/configuration.nix` set it directly. Centralizing here.
+    nixos = { pkgs, ... }: {
+      boot.kernelPackages = pkgs.linuxPackages_zen;
+    };
   };
 }

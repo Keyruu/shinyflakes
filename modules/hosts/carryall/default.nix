@@ -11,9 +11,10 @@
     includes = [
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
+      den.aspects.workstation.fprintd
     ];
 
-    nixos = { ... }: {
+    nixos = { pkgs, lib, ... }: {
       imports = [
         inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
         inputs.nixos-hardware.nixosModules.common-cpu-intel
@@ -21,6 +22,11 @@
       ];
 
       nixpkgs.hostPlatform = "x86_64-linux";
+
+      # Preserve the old hostname from the blueprint side so anything that
+      # key off `hostname` (avahi, mesh peer allowlists, cert SANs, ssh host keys,
+      # monitoring scrapes) keeps working until the next planned rename.
+      networking.hostName = lib.mkForce "PCL2025101301";
 
       services.mesh = {
         ip = den.people.lucas.carryall.ip;
@@ -34,6 +40,14 @@
       networking.nftables.enable = true;
 
       services.libinput.enable = true;
+
+      # Workstation packages migrated from blueprint's workstation.nix + wayland.nix
+      # (those nixos modules aren't migrated to den yet — see phase 3 cleanup).
+      environment.systemPackages = with pkgs; [
+        distrobox
+        nautilus
+      ];
+      virtualisation.podman.dockerCompat = true;
 
       # Host-level extras on top of den.batteries.define-user (which provisions
       # the OS user + home dir). wheel/networkmanager added by primary-user.
