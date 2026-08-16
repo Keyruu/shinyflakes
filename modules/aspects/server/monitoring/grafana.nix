@@ -2,7 +2,7 @@
 {
   den.aspects.server.grafana = {
     nixos =
-      { config, inputs', pkgs, ... }:
+      { config, pkgs, ... }:
       let
         smallPkgs = import inputs.nixpkgs-small { inherit (pkgs.stdenv.hostPlatform) system; };
       in

@@ -131,12 +131,12 @@
         };
 
         services.my.forgejo = {
+          title = "Forgejo";
           description = "Git hosting";
           port = 3004;
           inherit domain;
           dashboard = {
             enable = true;
-            title = "Forgejo";
           };
           proxy = {
             enable = true;

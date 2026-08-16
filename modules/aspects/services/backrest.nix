@@ -19,9 +19,9 @@
           zfs = true;
           port = 9898;
           domain = "backrest.lab.keyruu.de";
+          title = "Backrest";
           dashboard = {
             enable = true;
-            title = "Backrest";
           };
           monitor.enable = false;
           proxy.enable = true;

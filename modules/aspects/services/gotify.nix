@@ -24,10 +24,21 @@
           port = 8080;
           domain = "notify.keyruu.de";
           description = "Push notifications";
+          title = "Gotify";
           dashboard = {
             enable = true;
-            title = "Gotify";
             groups = [ "gotify_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.gotifyClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$SIhdt7CYwNU4Yu.AgoLKJg$zeq9B6VOCUYHZdSJVFn387AkAn56Dg/lzJ6R3RJDXtlfGiQgb6gY6tJIDRFPMKf/eQddyF14wMhqyPADFbT5Zw";
+            redirectUris = [
+              "https://notify.keyruu.de/auth/oidc/callback"
+              # android app OIDC login
+              "gotify://oidc/callback"
+            ];
+            requirePkce = true;
           };
           proxy.enable = false;
           backup.enable = true;

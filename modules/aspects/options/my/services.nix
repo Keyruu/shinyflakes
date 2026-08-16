@@ -50,6 +50,11 @@
                 {
                   options = {
                     enable = lib.mkEnableOption "my service";
+                    title = lib.mkOption {
+                      type = lib.types.str;
+                      default = name;
+                      description = "Display title (used by dashboard cards + authelia OIDC client_name).";
+                    };
                     description = lib.mkOption {
                       type = lib.types.str;
                       default = name;
@@ -176,10 +181,6 @@
                             type = lib.types.bool;
                             default = true;
                           };
-                          title = lib.mkOption {
-                            type = lib.types.str;
-                            default = name;
-                          };
                           icon = lib.mkOption {
                             type = lib.types.str;
                             default = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${name}.svg";
@@ -262,10 +263,23 @@
                             type = lib.types.str;
                             default = name;
                           };
-                          redirectPath = lib.mkOption {
-                            type = lib.types.str;
-                            default = "";
-                            description = "Path appended to https://\${domain} to form redirectUri.";
+                          clientSecret = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = ''
+                              Authelia's `client_secret` field — pbkdf2 hash of the
+                              plaintext secret stored in sops under `<clientId>ClientSecret`.
+                              Hash is store-safe (authelia verifies plaintext against hash).
+                            '';
+                          };
+                          redirectUris = lib.mkOption {
+                            type = lib.types.listOf lib.types.str;
+                            default = [ ];
+                            description = ''
+                              Full redirect URIs (authelia's `redirect_uris`). Use
+                              complete URLs (e.g. "https://x.example/callback" or
+                              "app.scheme:///path") — no path-vs-URI magic.
+                            '';
                           };
                           scopes = lib.mkOption {
                             type = lib.types.listOf lib.types.str;
@@ -275,13 +289,40 @@
                               "profile"
                             ];
                           };
-                          tokenEndpointAuthMethod = lib.mkOption {
+                          requirePkce = lib.mkOption {
+                            type = lib.types.bool;
+                            default = false;
+                            description = "Whether to require PKCE on the authelia client.";
+                          };
+                          pkceChallengeMethod = lib.mkOption {
                             type = lib.types.enum [
-                              "client_secret_basic"
-                              "client_secret_post"
-                              "none"
+                              "S256"
+                              "plain"
                             ];
-                            default = "client_secret_post";
+                            default = "S256";
+                          };
+                          # Name of an authelia `claims_policy` (declared in
+                          # authelia's `identity_providers.oidc.claims_policies`
+                          # block). The policy declaration itself stays inline
+                          # in authelia.nix since it's authelia-side config
+                          # (prime-only) and may diverge per-service.
+                          claimsPolicy = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = "Name of a pre-declared authelia `claims_policy` to reference.";
+                          };
+                          # null = omit `token_endpoint_auth_method` from the authelia
+                          # client entry (authelia's internal default `client_secret_basic`
+                          # applies). Setting to "client_secret_post" or "none" overrides.
+                          tokenEndpointAuthMethod = lib.mkOption {
+                            type = lib.types.nullOr (
+                              lib.types.enum [
+                                "client_secret_basic"
+                                "client_secret_post"
+                                "none"
+                              ]
+                            );
+                            default = null;
                           };
                         };
                       };
@@ -330,6 +371,14 @@
                 {
                   assertion = cfg.oidc.enable -> cfg.domain != null;
                   message = "services.my.${name}: oidc.enable requires domain.";
+                }
+                {
+                  assertion = cfg.oidc.enable -> cfg.oidc.clientSecret != null;
+                  message = "services.my.${name}: oidc.enable requires oidc.clientSecret (pbkdf2 hash of the sops secret).";
+                }
+                {
+                  assertion = cfg.oidc.enable -> cfg.oidc.redirectUris != [ ];
+                  message = "services.my.${name}: oidc.enable requires oidc.redirectUris to be non-empty.";
                 }
               ]) config.services.my
             );
@@ -425,7 +474,7 @@
           svc.dashboard
           // {
             inherit name;
-            inherit (svc) description domain;
+            inherit (svc) title description domain;
             hostIp = hostIp host;
             url = "https://${svc.domain}";
           }
@@ -500,9 +549,8 @@
           svc.oidc
           // {
             inherit name;
-            inherit (svc) domain;
+            inherit (svc) title description domain;
             hostIp = hostIp host;
-            redirectUri = "https://${svc.domain}${svc.oidc.redirectPath}";
           }
         ) (lib.filterAttrs (_: svc: svc.oidc.enable) config.services.my);
     };

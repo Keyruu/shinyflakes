@@ -46,10 +46,17 @@
           description = "GPS tracking";
           port = 5785;
           domain = "traccar.peeraten.net";
+          title = "Traccar";
           dashboard = {
             enable = true;
-            title = "Traccar";
             groups = [ "traccar_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.traccarClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$oTo3lzrqLPo8RnnCcAfkLQ$4774FjY4HMgVY1qDx6OuJyAJq1ZzrPVSUCN8sySQxXV.Sie5tmmj3bTolb6wl5QB74Lk2AZDvxiYmcR2qE3GGg";
+            redirectUris = [ "https://traccar.peeraten.net/api/session/openid/callback" ];
+            # tokenEndpointAuthMethod null = authelia's default `client_secret_basic`
           };
           stack = {
             enable = true;

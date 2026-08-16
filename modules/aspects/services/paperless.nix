@@ -52,14 +52,22 @@
         ];
 
         services.my.paperless = {
+          title = "Paperless";
           description = "Document archive";
           zfs = true;
           port = 8000;
           domain = "paperless.lab.keyruu.de";
           dashboard = {
             enable = true;
-            title = "Paperless";
             groups = [ "paperless_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.paperlessClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$8Ae87YeR85fdzSb383vraQ$tn7EEPTtuqLfFkYCz9Ob66PPyaDhq.ePyQlE/tU390Y4YTVtweYrWZ5AZRtMWLoiTaDPoMJF1Yny0fcWPpPxdw";
+            redirectUris = [ "https://paperless.lab.keyruu.de/accounts/oidc/authelia/login/callback/" ];
+            requirePkce = true;
+            # pkceChallengeMethod defaults to "S256"
           };
           monitor.conditions = [ "[STATUS] == 403" ];
           proxy = {

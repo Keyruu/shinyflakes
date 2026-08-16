@@ -11,7 +11,7 @@ in
       };
       ip = lib.mkOption {
         type = str;
-        default = lucas.${host.hostName}.ip;
+        default = lucas.devices.${host.hostName}.ip;
       };
       subnet = lib.mkOption {
         type = str;

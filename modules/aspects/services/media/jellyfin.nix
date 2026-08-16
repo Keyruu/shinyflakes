@@ -78,10 +78,25 @@
           zfs = true;
           port = 8096;
           domain = domain;
+          title = "Jellyfin";
           dashboard = {
             enable = true;
-            title = "Jellyfin";
             groups = [ "jellyfin_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.jellyfinClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$dmBzWqEysSSvtFh5FMm7Jg$CSLvNfuYfDedxPvzmineAamCw3hSLLOdKxQ1kV04e6wGXsscmVi65ENj/6gj9bkkrpUWz2feNjsqfMfJhtab7g";
+            redirectUris = [ "https://tv.peeraten.net/sso/OID/redirect/authelia" ];
+            # jellyfin plugin needs `groups` scope (no email)
+            scopes = [
+              "openid"
+              "profile"
+              "groups"
+            ];
+            requirePkce = true;
+            # PAR is disabled in the plugin config (mixed auth styles), token redemption uses post
+            tokenEndpointAuthMethod = "client_secret_post";
           };
           proxy = {
             enable = true;

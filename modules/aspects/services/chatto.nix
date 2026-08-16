@@ -107,13 +107,19 @@
         ];
 
         services.my.chatto = {
+          title = "Chatto";
+          description = "Chat";
           port = 4000;
           inherit domain;
-          description = "Chat";
           dashboard = {
             enable = true;
-            title = "Chatto";
             groups = [ "chatto_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.chat toClientSecret — authelia verifies plaintext against this
+            clientSecret = "$pbkdf2-sha512$310000$FWnJlvN79QNRXsOzOe.DHw$JrgYpTy8Sb80G50aTy8BMppD1FcDSkxk/o2QsLr5RFmLk6QLEq6Tv1pm8WW/D1bLXEOp/AO5QSvtEK3s3b24Ng";
+            redirectUris = [ "https://${domain}/auth/providers/authelia/callback" ];
           };
           proxy = {
             enable = false;

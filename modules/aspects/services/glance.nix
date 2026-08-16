@@ -52,9 +52,9 @@
           port = 5678;
           domain = "glance.lab.keyruu.de";
           proxy.enable = true;
+          title = "Glance";
           dashboard = {
             enable = true;
-            title = "Glance";
           };
         };
         services.glance = {

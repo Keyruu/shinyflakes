@@ -51,6 +51,19 @@ let
           example = [ "admin" ];
           description = "Authelia groups always granted (admin, user). Service-specific groups are auto-derived from service-access grants.";
         };
+        # TODO(phase 7): replace per-person canAccess with per-device canAccess on
+        # the `den.devices.<sys>.<host>.<name>` entity kind (see notes/den-migration.org
+        # "Mesh devices + dynamic ACLs"). Until then, mesh.nix reads this for nftables
+        # forward rules; default [] = drop-all from the LAN for every device.
+        canAccess = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [
+            "home"
+            "nas"
+          ];
+          description = "Named networks (from `services.mesh.networks`) this person's devices may reach.";
+        };
         devices = lib.mkOption {
           type = lib.types.attrsOf deviceType;
           default = { };

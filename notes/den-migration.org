@@ -334,15 +334,40 @@ den.aspects.mesh-firewall = {
 :CUSTOM_ID: phase-5
 :END:
 
-- [ ] Define quirks:
-  - [ ] ~den.quirks.proxy~
-  - [ ] ~den.quirks.dashboard~
-  - [ ] ~den.quirks.monitor~
-- [ ] Service stacks emit ~proxy = { ... }; dashboard = { ... }; monitor = { ... };~
-- [ ] Consumer aspects on prime subscribe via ~pipe.collect~
-- [ ] Delete ~nix/modules/services/my/options.nix~ registry
-- [ ] Delete ~nix/hosts/prime/modules/dashboard.nix~'s ~flake.allMyServices~ walk
-- [ ] Refactor ~nix/hosts/mentat/modules/monitoring/gatus.nix~ to consume ~monitor~ quirk
+- [X] Define quirks (~modules/policies/services-collect.nix~):
+  - [X] ~den.quirks.dashboard~
+  - [X] ~den.quirks.monitor~
+  - [X] ~den.quirks.scrape~
+  - [X] ~den.quirks.public-proxy~
+  - [X] ~den.quirks.oidc-config~
+- [X] Service emitters (~modules/aspects/options/my/services.nix~):
+  - [X] ~dashboard~ quirk emitter reads per-service slice
+  - [X] ~monitor~ quirk emitter reads per-service slice
+  - [X] ~scrape~ quirk emitter reads per-service slice
+  - [X] ~public-proxy~ quirk emitter reads per-service slice
+  - [X] ~oidc-config~ quirk emitter reads per-service slice
+- [X] Schema: top-level ~services.my.<x>.title~ (used by dashboard + authelia ~client_name~)
+- [X] Schema: ~services.my.<x>.dashboard.title~ removed (folded into top-level ~title~)
+- [X] Schema: ~services.my.<x>.oidc~: ~redirectUris~ (list), ~clientSecret~ (pbkdf2 hash), ~requirePkce~, ~pkceChallengeMethod~, ~tokenEndpointAuthMethod~ (null = omit)
+- [X] Migrate ~dashboard.title~ → top-level ~title~ on:
+  - [X] backrest, glance, forgejo, cockpit, immich, karakeep, paperless, traccar, chatto, gotify, seerr, jellyfin
+- [X] Migrate ~oidc-config~ emitters (phase 5-B — proof first):
+  - [X] chatto (default auth method, single redirect URI)
+  - [X] paperless (PKCE)
+  - [X] immich (multi-redirect URI, ~client_secret_post~) — forced by ~redirectPath~ deletion
+- [X] Migrate ~oidc-config~ emitters (phase 5-A — remaining):
+  - [X] traccar — single redirect URI, default auth method
+  - [X] karakeep — single redirect URI, default auth method, ~claimsPolicy = "karakeep"~ (client reference; policy declaration stays inline in authelia.nix)
+  - [X] jellyfin — single redirect URI, PKCE, ~client_secret_post~, custom scopes (~openid profile groups~)
+  - [X] gotify — multi-redirect URI (web + ~gotify://~ scheme), PKCE
+  - [X] seerr — single redirect URI (~https://requests.peeraten.net/login~, see upstream preview-new-oidc), custom scopes (~groups~), ~client_secret_post~
+- [X] Consumer aspects on prime subscribe via ~pipe.collect~:
+  - [X] ~modules/aspects/server/dashboard.nix~ reads ~dashboard~
+  - [X] ~modules/aspects/server/authelia.nix~ reads ~oidc-config~ (pure mode — inline ~clients~ block deleted)
+- [ ] Refactor ~modules/aspects/options/my/services.nix~ to remove the inline caddy/proxy consumer (replaced by ~public-proxy~ quirk consumer; ~modules/aspects/server/proxy.nix~ still hand-rolled for bespoke routes)
+- [ ] Refactor mentat's gatus to consume ~monitor~ quirk
+- [ ] Delete ~nix/modules/services/my/options.nix~ registry (blueprint side)
+- [ ] Delete ~nix/hosts/prime/modules/dashboard.nix~'s ~flake.allMyServices~ walk (blueprint side)
 
 ** Phase 6 — Validate + delete blueprint (~1 day)                  :cleanup:
 :PROPERTIES:

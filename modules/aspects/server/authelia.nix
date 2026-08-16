@@ -1,20 +1,58 @@
 {
   den,
+  lib,
   ...
 }:
+let
+  # Build one authelia client block from an `oidc-config` quirk entry.
+  # Only emit optional fields when they carry meaningful non-default
+  # values — authelia's own defaults (e.g. `token_endpoint_auth_method`
+  # defaults to `client_secret_basic`, `require_pkce` defaults to false)
+  # apply when the field is absent.
+  buildClient =
+    entry:
+    let
+      pkce = entry.requirePkce;
+      authMethod = entry.tokenEndpointAuthMethod;
+      claimsPolicy = entry.claimsPolicy;
+    in
+    {
+      client_id = entry.clientId;
+      client_name = entry.title;
+      client_secret = entry.clientSecret;
+      authorization_policy = "${entry.name}_access";
+      redirect_uris = entry.redirectUris;
+      scopes = entry.scopes;
+    }
+    // lib.optionalAttrs (authMethod != null) {
+      token_endpoint_auth_method = authMethod;
+    }
+    // lib.optionalAttrs pkce {
+      require_pkce = pkce;
+      pkce_challenge_method = entry.pkceChallengeMethod;
+    }
+    // lib.optionalAttrs (claimsPolicy != null) {
+      claims_policy = claimsPolicy;
+    };
+in
 {
-  # ponytail: OIDC clients are still inlined with hardcoded pbkdf2 hashes.
-  # Phase 5 design was per-service `oidc-config` quirk emitters that
-  # the consumer (this aspect, pre-merge) read to build the clients
-  # list — no service emits that quirk yet, and rewiring 8 services is
-  # larger than this migration. Inline the clients, mark with a
-  # comment, swap out when service-side emitters land.
+  # Phase 5 cutover: clients are generated from the `oidc-config` quirk
+  # (collected from every host that emits `services.my.<x>.oidc.enable = true`).
+  # All 8 OIDC services migrated: chatto, paperless, immich, traccar,
+  # karakeep, jellyfin, gotify, seerr.
+  #
+  # Bespoke authelia fields not covered by the schema (claims_policy
+  # declarations, cors.allowed_origins, …) stay as global settings below.
+  # Per-service `claims_policy` client references go through the schema
+  # (see karakeep for an example); the policy declarations themselves stay
+  # inline because authelia-side config is prime-only.
   den.aspects.server.authelia = {
     nixos =
       {
         config,
         lib,
         pkgs,
+        oidc-config,
         ...
       }:
       let
@@ -119,7 +157,11 @@
               };
 
               identity_providers.oidc = {
-                # karakeep reads email from the ID token instead of userinfo (not OIDC-conformant),
+                # karakeep reads email from the ID token instead of userinfo (not OIDC-conformant).
+                # The client reference (`claims_policy = "karakeep"`) is set via the
+                # `oidc-config` quirk entry in karakeep's services.my.oidc.claimsPolicy.
+                # The policy declaration itself stays inline because authelia-side
+                # config is prime-only.
                 # see https://www.authelia.com/integration/openid-connect/clients/karakeep/
                 claims_policies.karakeep.id_token = [ "email" ];
 
@@ -130,127 +172,9 @@
                 authorization_policies = lib.genAttrs services_ buildPolicy;
 
                 # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe)
-                clients = [
-                  {
-                    client_id = "traccar";
-                    client_name = "Traccar";
-                    client_secret = "$pbkdf2-sha512$310000$oTo3lzrqLPo8RnnCcAfkLQ$4774FjY4HMgVY1qDx6OuJyAJq1ZzrPVSUCN8sySQxXV.Sie5tmmj3bTolb6wl5QB74Lk2AZDvxiYmcR2qE3GGg";
-                    authorization_policy = "traccar_access";
-                    redirect_uris = [ "https://traccar.peeraten.net/api/session/openid/callback" ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                  }
-                  {
-                    client_id = "immich";
-                    client_name = "Immich";
-                    client_secret = "$pbkdf2-sha512$310000$QhbRJZS0kKRqmu6vG4ca4w$kX.mERhv3AmgzQcuiwVPmBwKbiWjCqBb/2QrsMRX2jIYBL0dCvalKgG1ybxo1mWB9VFJKyRg31Zs4JSuwDIszw";
-                    authorization_policy = "immich_access";
-                    redirect_uris = [
-                      "https://immich.lab.keyruu.de/auth/login"
-                      "https://immich.lab.keyruu.de/user-settings"
-                      "app.immich:///oauth-callback"
-                    ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                    # immich sends the secret in the token request body
-                    token_endpoint_auth_method = "client_secret_post";
-                  }
-                  {
-                    client_id = "paperless";
-                    client_name = "Paperless";
-                    client_secret = "$pbkdf2-sha512$310000$8Ae87YeR85fdzSb383vraQ$tn7EEPTtuqLfFkYCz9Ob66PPyaDhq.ePyQlE/tU390Y4YTVtweYrWZ5AZRtMWLoiTaDPoMJF1Yny0fcWPpPxdw";
-                    authorization_policy = "paperless_access";
-                    require_pkce = true;
-                    pkce_challenge_method = "S256";
-                    redirect_uris = [ "https://paperless.lab.keyruu.de/accounts/oidc/authelia/login/callback/" ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                  }
-                  {
-                    client_id = "karakeep";
-                    client_name = "Karakeep";
-                    client_secret = "$pbkdf2-sha512$310000$OysQ.ABOca710He0J/6sLQ$y5QXX0NxBPtmr11BdlfQiWSd5d96PET7yIXoPCn8oFX8RC85RkQ8/w1AdjUphpRnomWCT2Ea1eSl.n.xOSvFug";
-                    authorization_policy = "karakeep_access";
-                    claims_policy = "karakeep";
-                    redirect_uris = [ "https://karakeep.lab.keyruu.de/api/auth/callback/custom" ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                  }
-                  {
-                    client_id = "jellyfin";
-                    client_name = "Jellyfin";
-                    client_secret = "$pbkdf2-sha512$310000$dmBzWqEysSSvtFh5FMm7Jg$CSLvNfuYfDedxPvzmineAamCw3hSLLOdKxQ1kV04e6wGXsscmVi65ENj/6gj9bkkrpUWz2feNjsqfMfJhtab7g";
-                    authorization_policy = "jellyfin_access";
-                    require_pkce = true;
-                    pkce_challenge_method = "S256";
-                    redirect_uris = [ "https://tv.peeraten.net/sso/OID/redirect/authelia" ];
-                    scopes = [
-                      "openid"
-                      "profile"
-                      "groups"
-                    ];
-                    # PAR is disabled in the plugin config (mixed auth styles), token redemption uses post
-                    token_endpoint_auth_method = "client_secret_post";
-                  }
-                  {
-                    client_id = "gotify";
-                    client_name = "Gotify";
-                    client_secret = "$pbkdf2-sha512$310000$SIhdt7CYwNU4Yu.AgoLKJg$zeq9B6VOCUYHZdSJVFn387AkAn56Dg/lzJ6R3RJDXtlfGiQgb6gY6tJIDRFPMKf/eQddyF14wMhqyPADFbT5Zw";
-                    authorization_policy = "gotify_access";
-                    require_pkce = true;
-                    pkce_challenge_method = "S256";
-                    redirect_uris = [
-                      "https://notify.keyruu.de/auth/oidc/callback"
-                      # android app OIDC login
-                      "gotify://oidc/callback"
-                    ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                  }
-                  {
-                    client_id = "seerr";
-                    client_name = "Seerr";
-                    client_secret = "$pbkdf2-sha512$310000$WUZzEHrJICZuPexBj.d8yQ$kDatMzQnK.Ha0WlaqxCfGrVx6szvYnEejUxbxtEpImfaymhLIKjQuK454h8A9I0NMqx43TA7.v0JbGpYdx.azw";
-                    authorization_policy = "seerr_access";
-                    # preview-new-oidc redirect is plain /login,
-                    # see https://github.com/seerr-team/seerr/discussions/2721
-                    redirect_uris = [ "https://requests.peeraten.net/login" ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                      "groups"
-                    ];
-                    token_endpoint_auth_method = "client_secret_post";
-                  }
-                  {
-                    client_id = "chatto";
-                    client_name = "Chatto";
-                    client_secret = "$pbkdf2-sha512$310000$FWnJlvN79QNRXsOzOe.DHw$JrgYpTy8Sb80G50aTy8BMppD1FcDSkxk/o2QsLr5RFmLk6QLEq6Tv1pm8WW/D1bLXEOp/AO5QSvtEK3s3b24Ng";
-                    authorization_policy = "chatto_access";
-                    redirect_uris = [ "https://chat.peeraten.net/auth/providers/authelia/callback" ];
-                    scopes = [
-                      "openid"
-                      "email"
-                      "profile"
-                    ];
-                  }
-                ];
+                # Generated from `oidc-config` quirk entries (see phase 5 cutover note above).
+                # Each `services.my.<x>` with `oidc.enable = true` produces one client.
+                clients = map buildClient oidc-config;
               };
             };
           };

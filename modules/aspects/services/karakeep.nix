@@ -36,13 +36,22 @@
         };
 
         services.my.karakeep = {
+          title = "Karakeep";
           description = "Bookmarks";
           port = 3000;
           domain = "karakeep.lab.keyruu.de";
           dashboard = {
             enable = true;
-            title = "Karakeep";
             groups = [ "karakeep_users" ];
+          };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.karakeepClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$OysQ.ABOca710He0J/6sLQ$y5QXX0NxBPtmr11BdlfQiWSd5d96PET7yIXoPCn8oFX8RC85RkQ8/w1AdjUphpRnomWCT2Ea1eSl.n.xOSvFug";
+            redirectUris = [ "https://karakeep.lab.keyruu.de/api/auth/callback/custom" ];
+            # karakeep reads email from the ID token instead of userinfo (not OIDC-conformant);
+            # the named policy `karakeep` is declared inline in authelia.nix.
+            claimsPolicy = "karakeep";
           };
           monitor.conditions = [ "[STATUS] == 403" ];
           proxy = {

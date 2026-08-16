@@ -132,10 +132,25 @@
             zfs = true;
             port = 5055;
             inherit domain;
+            title = "Seerr";
             dashboard = {
               enable = true;
-              title = "Seerr";
               groups = [ "seerr_users" ];
+            };
+            oidc = {
+              enable = true;
+              # pbkdf2 hash of sops.seerrClientSecret
+              clientSecret = "$pbkdf2-sha512$310000$WUZzEHrJICZuPexBj.d8yQ$kDatMzQnK.Ha0WlaqxCfGrVx6szvYnEejUxbxtEpImfaymhLIKjQuK454h8A9I0NMqx43TA7.v0JbGpYdx.azw";
+              # preview-new-oidc redirect is plain /login,
+              # see https://github.com/seerr-team/seerr/discussions/2721
+              redirectUris = [ "https://requests.peeraten.net/login" ];
+              scopes = [
+                "openid"
+                "email"
+                "profile"
+                "groups"
+              ];
+              tokenEndpointAuthMethod = "client_secret_post";
             };
             proxy = {
               enable = true;

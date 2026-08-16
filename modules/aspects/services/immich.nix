@@ -6,9 +6,13 @@
         my = config.services.my.immich;
       in
       {
-        # immichEnv: postgres + redis auth from /main secrets. ClientSecret is
-        # auto-declared by the authelia aspect under `<clientId>ClientSecret`.
-        sops.secrets.immichEnv = { };
+        # immichEnv: postgres + redis auth from /main secrets. immichClientSecret
+        # is consumed by the OIDC config (pbkdf2 hash for authelia) and the
+        # immich-config.json sops template below.
+        sops.secrets = {
+          immichEnv = { };
+          immichClientSecret = { };
+        };
 
         # Partial immich config, deep-merged over immich defaults. UI settings
         # for these keys become read-only.
@@ -29,6 +33,7 @@
 
         services.my.immich = {
           enable = true;
+          title = "Immich";
           description = "Photo library";
           zfs = true;
           port = 2283;
@@ -36,10 +41,22 @@
           topology = "external";
 
           # Cross-cutting concern overrides — only where defaults don't fit.
-          dashboard.title = "Immich";
           monitor.healthPath = "/api/server/ping";
           scrape.enable = true;
-          oidc = { enable = true; redirectPath = "/api/oauth/redirect"; };
+          oidc = {
+            enable = true;
+            # pbkdf2 hash of sops.immichClientSecret
+            clientSecret = "$pbkdf2-sha512$310000$QhbRJZS0kKRqmu6vG4ca4w$kX.mERhv3AmgzQcuiwVPmBwKbiWjCqBb/2QrsMRX2jIYBL0dCvalKgG1ybxo1mWB9VFJKyRg31Zs4JSuwDIszw";
+            # Three URIs from the prior inline authelia client (mobile app uses
+            # app.immich:/// scheme; web flow uses two distinct paths).
+            redirectUris = [
+              "https://immich.lab.keyruu.de/auth/login"
+              "https://immich.lab.keyruu.de/user-settings"
+              "app.immich:///oauth-callback"
+            ];
+            # immich sends the secret in the token request body
+            tokenEndpointAuthMethod = "client_secret_post";
+          };
 
           proxy.enable = true;
           backup.enable = true;

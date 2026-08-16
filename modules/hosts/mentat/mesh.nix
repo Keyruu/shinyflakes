@@ -45,6 +45,11 @@
         mode = "0600";
       };
 
+      services.mesh.networks = {
+        home = "192.168.100.0/24";
+        nas = "192.168.100.7/32";
+      };
+
       networking.nat = {
         enable = true;
         internalInterfaces = [ "mesh0" ];
