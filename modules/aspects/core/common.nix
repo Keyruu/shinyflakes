@@ -92,6 +92,7 @@
             usbutils
             dig
             trippy
+            isd
           ];
 
           variables = {
