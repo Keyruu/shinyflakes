@@ -17,20 +17,20 @@
         "chapterskip"
       ])
 
-      den.aspects.core
+      den.aspects.core.default
       den.aspects.core.secrets
 
-      den.aspects.browsers
+      den.aspects.browsers.default
 
-      den.aspects.terminals
+      den.aspects.terminals.default
 
-      den.aspects.shell
+      den.aspects.shell.default
 
-      den.aspects.editors
+      den.aspects.editors.default
 
-      den.aspects.tools
+      den.aspects.tools.default
 
-      den.aspects.workstation
+      den.aspects.workstation.default
     ];
 
     homeManager =

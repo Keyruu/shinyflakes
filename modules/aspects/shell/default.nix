@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.shell = {
+  den.aspects.shell.default = {
     includes = with den.aspects.shell; [
       fish
       ssh

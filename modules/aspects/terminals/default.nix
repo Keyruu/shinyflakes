@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.terminals = {
+  den.aspects.terminals.default = {
     includes = with den.aspects.terminals; [
       foot
       ghostty

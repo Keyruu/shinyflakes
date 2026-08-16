@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.workstation = {
+  den.aspects.workstation.default = {
     includes = with den.aspects.workstation; [
       appimage
       bluetooth

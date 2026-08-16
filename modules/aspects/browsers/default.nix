@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.browsers = {
+  den.aspects.browsers.default = {
     includes = with den.aspects.browsers; [
       chromium
       firefox

@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.core = {
+  den.aspects.core.default = {
     includes = with den.aspects.core; [
       common
       gc

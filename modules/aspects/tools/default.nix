@@ -1,5 +1,5 @@
 { den, ... }: {
-  den.aspects.tools = {
+  den.aspects.tools.default = {
     includes = with den.aspects.tools; [
       onepassword
       calendar
