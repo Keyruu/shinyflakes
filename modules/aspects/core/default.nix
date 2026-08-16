@@ -8,7 +8,6 @@
       nice
       nixConfig
       podman
-      secrets
     ];
   };
 }

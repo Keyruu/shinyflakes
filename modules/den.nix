@@ -40,6 +40,7 @@
       # Provides self' (the flake’s self outputs with system pre-selected) as a class module argument. e.g. nixos = {self', ...}
       den.batteries.self'
 
+      den.aspects.core
       den.aspects.options.my.services
       den.aspects.options.my.stack
       # Legacy services.mesh option bridge (interface, ip, subnet) — see

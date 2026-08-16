@@ -18,6 +18,7 @@
       ])
 
       den.aspects.core
+      den.aspects.core.secrets
 
       den.aspects.browsers
 
