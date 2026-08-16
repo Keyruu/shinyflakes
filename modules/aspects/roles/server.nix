@@ -1,4 +1,4 @@
-{ den, ... }:
+{ den, inputs, ... }:
 {
   den.aspects.roles.server = {
     role = "server";
@@ -14,5 +14,14 @@
       den.aspects.options.my.services
       den.aspects.options.my.stack
     ];
+    nixos =
+      {
+        ...
+      }:
+      {
+        imports = [
+          inputs.sops-nix.nixosModules.sops
+        ];
+      };
   };
 }
