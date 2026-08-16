@@ -24,6 +24,7 @@
       den.aspects.server.authelia
       den.aspects.server.dashboard
       den.aspects.server.proxy
+      den.aspects.server.public-proxy
       den.aspects.server.webpages
       den.aspects.server.frp
       den.aspects.server.edge-protection

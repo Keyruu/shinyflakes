@@ -309,10 +309,10 @@ den.aspects.mesh-firewall = {
 - [X] ~nix/modules/nixos/bluetooth.nix~ → ~den.aspects.workstation.bluetooth.nixos~
 - [X] ~nix/modules/nixos/gaming.nix~ → ~den.aspects.workstation.gaming.nixos~
 - [X] ~nix/modules/nixos/fonts.nix~ → ~den.aspects.workstation.wm.fonts.nixos~
-- [X] ~nix/modules/nixos/<other>.nix~ → ~den.aspects.<other>.nixos~ (beszel-agent, comin done; hmm, others pending)
+- [X] ~nix/modules/nixos/<other>.nix~ → ~den.aspects.<other>.nixos~ (most migrated; remaining: ~quadlet.nix~, ~sudo-notify.nix~, ~wayland.nix~, ~workstation.nix~, ~kanata/, ~hetzner/)
 - [X] ~nix/modules/home/core.nix~ → ~den.aspects.lucas.homeManager~ (via ~modules/users/lucas.nix~)
 - [X] ~nix/modules/home/gaming.nix~ → ~apps.gaming.homeManager~ (~modules/aspects/workstation/gaming.nix~ has both nixos and homeManager blocks)
-- [ ] ~nix/modules/home/<app>.nix~ → ~apps.<app>.homeManager~ (apps: git, shell, browser, email, music, mpv, repos, scripts, calendar, clipse, mpv, element, mail, nh, nix-index-database, noctalia, onepassword, satty, screenshot, system, television, vicinae, which-key, yazi — most already migrated per ~modules/aspects/{tools,terminals,browsers,editors,shell}/~)
+- [X] ~nix/modules/home/<app>.nix~ → ~apps.<app>.homeManager~ (most migrated per ~modules/aspects/{tools,terminals,browsers,editors,shell}/~; remaining: ~programs/{1password,spotify}.nix~, ~shell/tmux/{menu,sesh}.nix~)
 - [X] ~nix/modules/services/my/options.nix~ → ~modules/aspects/options/my/services.nix~ + ~modules/aspects/options/my/stack.nix~ (split into two)
 - [X] ~nix/modules/services/monitoring.nix~ → ~modules/aspects/server/monitoring-infra.nix~ (declares options, wires cadvisor/comin.exporter/node_exporter/fluent-bit → loki)
 - [X] ~nix/modules/services/mesh/default.nix~ (option bridge) → ~modules/aspects/options/mesh.nix~ (declares ~interface/ip/subnet/client/server~ options; people/networks registry moved to ~den.people~ + ~den.devices~)
@@ -364,8 +364,15 @@ den.aspects.mesh-firewall = {
 - [X] Consumer aspects on prime subscribe via ~pipe.collect~:
   - [X] ~modules/aspects/server/dashboard.nix~ reads ~dashboard~
   - [X] ~modules/aspects/server/authelia.nix~ reads ~oidc-config~ (pure mode — inline ~clients~ block deleted)
-- [ ] Refactor ~modules/aspects/options/my/services.nix~ to remove the inline caddy/proxy consumer (replaced by ~public-proxy~ quirk consumer; ~modules/aspects/server/proxy.nix~ still hand-rolled for bespoke routes)
-- [ ] Refactor mentat's gatus to consume ~monitor~ quirk
+- [X] Caddy / proxy split is correct as-is:
+  - ~services.my.<x>.proxy.public = true~ is the explicit opt-in to the ~public-proxy~ quirk. Set on **nginx-proxied services** (typically mentat-hosted) that also need public exposure via prime's caddy — internal nginx stays on the service's host, prime's caddy sits in front for the public internet.
+  - Inline caddy consumer (~modules/aspects/options/my/services.nix~) handles **same-host caddy** services (liwan, koito, anything else running on prime) → ~127.0.0.1:port~. Filter: ~proxy.enable && proxy.server == "caddy"~.
+  - Inline nginx consumer (~modules/aspects/options/my/services.nix~) handles **same-host nginx** services → nginx vhost on the service's host.
+  - ~public-proxy~ quirk emitter filters to ~proxy.enable && proxy.server == "nginx" && proxy.public~.
+  - ~public-proxy~ quirk consumer (~modules/aspects/server/public-proxy.nix~) writes caddy vhosts on prime → ~http://<producing-host-mesh-ip>:port~. Filters out same-host entries internally (defense in depth).
+  - Hand-rolled ~modules/aspects/server/proxy.nix~ stays for bespoke routes (waf directives, geoblock, websocket splits, forward_auth).
+  - Assertions: ~proxy.public -> proxy.server == "nginx" && port != null && domain != null~.
+- [X] Refactor mentat's gatus to consume ~monitor~ quirk (~modules/aspects/server/gatus.nix~)
 - [ ] Delete ~nix/modules/services/my/options.nix~ registry (blueprint side)
 - [ ] Delete ~nix/hosts/prime/modules/dashboard.nix~'s ~flake.allMyServices~ walk (blueprint side)
 

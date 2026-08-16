@@ -5,7 +5,10 @@
 {
   den.aspects.options.my.services =
     let
-      hostIp = host: host.mesh.ip or null;
+      # `host.mesh.ip` (den entity record) is always null — the entity
+      # record doesn't carry the NixOS-merged value. Read from the
+      # emitting scope's merged config instead.
+      hostIp = config: config.services.mesh.ip or null;
     in
     {
       nixos =
@@ -113,6 +116,25 @@
                               "caddy"
                             ];
                             default = "nginx";
+                          };
+                          # Opt-in to the `public-proxy` quirk on prime. Set
+                          # this on a service whose internal proxy is nginx
+                          # (`server = "nginx"`) but also needs public
+                          # exposure via prime's caddy — the service's own
+                          # nginx handles mesh-internal routing, prime's
+                          # caddy sits in front for the public internet.
+                          # Same-host caddy services (running on prime itself)
+                          # leave this false; the inline caddy consumer
+                          # below handles them.
+                          public = lib.mkOption {
+                            type = lib.types.bool;
+                            default = false;
+                            description = ''
+                              Also expose this nginx-proxied service via
+                              prime's caddy (public internet). Emits a
+                              `public-proxy` quirk entry. Requires
+                              `proxy.server = "nginx"`.
+                            '';
                           };
                           cloudflareOnly = lib.mkOption {
                             type = lib.types.bool;
@@ -369,6 +391,18 @@
                   message = "services.my.${name}: scrape.enable requires port or scrape.port.";
                 }
                 {
+                  assertion = cfg.proxy.public -> cfg.proxy.server == "nginx";
+                  message = "services.my.${name}: proxy.public requires proxy.server = \"nginx\" (caddy-proxied services are exposed via the inline caddy consumer; nginx-proxied services need prime's caddy in front).";
+                }
+                {
+                  assertion = cfg.proxy.public -> cfg.port != null;
+                  message = "services.my.${name}: proxy.public requires port.";
+                }
+                {
+                  assertion = cfg.proxy.public -> cfg.domain != null;
+                  message = "services.my.${name}: proxy.public requires domain.";
+                }
+                {
                   assertion = cfg.oidc.enable -> cfg.domain != null;
                   message = "services.my.${name}: oidc.enable requires domain.";
                 }
@@ -475,7 +509,7 @@
           // {
             inherit name;
             inherit (svc) title description domain;
-            hostIp = hostIp host;
+            hostIp = hostIp config;
             url = "https://${svc.domain}";
           }
         ) (lib.filterAttrs (_: svc: svc.dashboard.enable) config.services.my);
@@ -493,7 +527,7 @@
           // {
             inherit name;
             inherit (svc) domain;
-            hostIp = hostIp host;
+            hostIp = hostIp config;
             fullUrl =
               if svc.monitor.url != null then
                 svc.monitor.url
@@ -515,7 +549,7 @@
           // {
             inherit name;
             inherit (svc) port;
-            hostIp = hostIp host;
+            hostIp = hostIp config;
             scrapePort = if svc.scrape.port != null then svc.scrape.port else svc.port;
           }
         ) (lib.filterAttrs (_: svc: svc.scrape.enable) config.services.my);
@@ -527,15 +561,21 @@
           host,
           ...
         }:
+        # Emit only for nginx-proxied services that explicitly opt in via
+        # `proxy.public = true`. These services run their own nginx (internal
+        # routing on the service's host) AND need public exposure via prime's
+        # caddy. Same-host caddy services (liwan, koito, anything else on
+        # prime) are handled by the inline caddy consumer below and must
+        # NOT set `proxy.public = true`.
         lib.mapAttrsToList (
           name: svc:
           svc.proxy
           // {
             inherit name;
             inherit (svc) domain port;
-            hostIp = hostIp host;
+            hostIp = hostIp config;
           }
-        ) (lib.filterAttrs (_: svc: svc.proxy.enable) config.services.my);
+        ) (lib.filterAttrs (_: svc: svc.proxy.enable && svc.proxy.server == "nginx" && svc.proxy.public) config.services.my);
 
       oidc-config =
         {
@@ -550,7 +590,7 @@
           // {
             inherit name;
             inherit (svc) title description domain;
-            hostIp = hostIp host;
+            hostIp = hostIp config;
           }
         ) (lib.filterAttrs (_: svc: svc.oidc.enable) config.services.my);
     };
