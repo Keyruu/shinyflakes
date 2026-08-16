@@ -3,23 +3,29 @@ let
   inherit (den.lib.policy) pipe;
 in
 {
-  den.quirks.dashboard    = { description = "Service dashboard cards for prime's HTML UI"; };
-  den.quirks.monitor      = { description = "Service health checks for mentat's gatus"; };
-  den.quirks.scrape       = { description = "Service metrics endpoints for mentat's prometheus"; };
-  den.quirks.public-proxy = { description = "Service reverse-proxy entries for prime's caddy"; };
-  den.quirks.oidc-config  = { description = "OIDC client config for prime's authelia"; };
+  den.quirks.dashboard = {
+    description = "Service dashboard cards for prime's HTML UI";
+  };
+  den.quirks.monitor = {
+    description = "Service health checks for mentat's gatus";
+  };
+  den.quirks.scrape = {
+    description = "Service metrics endpoints for mentat's prometheus";
+  };
+  den.quirks.public-proxy = {
+    description = "Service reverse-proxy entries for prime's caddy";
+  };
+  den.quirks.oidc-config = {
+    description = "OIDC client config for prime's authelia";
+  };
 
-  # Cross-host collection without `pipe.withProvenance` so config-thunk
-  # markers stay at top level — `resolveMarkers` at consumer wrap resolves
-  # them against the consuming host's evalModules config. Cross-host
-  # consumers (prometheus, public-proxy) lose source.host info; if needed,
-  # re-add via a per-quirk transform once the basic path works.
+  # i couldn't get withProvenance working :(
   den.policies.collect-service-facts = { host, ... }: [
-    (pipe.from "dashboard"    [ (pipe.collect ({ host, ... }: true)) ])
-    (pipe.from "monitor"      [ (pipe.collect ({ host, ... }: true)) ])
-    (pipe.from "scrape"       [ (pipe.collect ({ host, ... }: true)) ])
+    (pipe.from "dashboard" [ (pipe.collect ({ host, ... }: true)) ])
+    (pipe.from "monitor" [ (pipe.collect ({ host, ... }: true)) ])
+    (pipe.from "scrape" [ (pipe.collect ({ host, ... }: true)) ])
     (pipe.from "public-proxy" [ (pipe.collect ({ host, ... }: true)) ])
-    (pipe.from "oidc-config"  [ (pipe.collect ({ host, ... }: true)) ])
+    (pipe.from "oidc-config" [ (pipe.collect ({ host, ... }: true)) ])
   ];
 
   den.schema.host.includes = [ den.policies.collect-service-facts ];

@@ -5,17 +5,13 @@
       bluetooth
       build-machines
       flatpak
-      fprintd
-      gaming
       gotify-desktop
       kanata
-      laptop
-      mesh
+      mesh-client
       networking
       onepassword
       plymouth
       printing
-      secure-boot
       sound
       systemd-boot
       udev

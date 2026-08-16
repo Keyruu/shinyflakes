@@ -1,44 +1,16 @@
 {
   den,
   inputs,
-  config,
   ...
 }:
 {
   # Lucas laptop. First den-native host, no blueprint equivalent.
-  den.hosts.x86_64-linux.carryall = {
-    users.lucas = { };
-
-    # Mesh identity lives on the host entity. `mesh-device` quirk below
-    # reads from here so the registry's `hostIp` and the mesh peer list
-    # share one source of truth. IP source from people.nix is legacy —
-    # mesh-device data should move to host entities once `mesh-server`
-    # consumers read from there too.
-    mesh = {
-      ip = config.den.people.lucas.devices.carryall.ip;
-      publicKey = "7Qn12iKEGxRNIEAOkoKQ2FUXKzvWWEP6ORJ3IHJ/sBI=";
-    };
-  };
+  den.hosts.x86_64-linux.carryall.users.lucas = { };
 
   den.aspects.carryall = {
-    # Mesh client identity (this host as a wireguard peer). The
-    # mesh-device quirk flows to the Hetzner mesh server via
-    # policies/mesh.nix's collection policy.
-    mesh-device = { host, ... }: host.mesh // { name = "carryall"; };
-
     includes = [
-      # Core (every host) — pulled in via modules/users/lucas.nix's
-      # `den.aspects.core` include. Don't add the individual core aspects
-      # here; that would cause duplicate definitions (e.g. boot.kernelPackages
-      # set twice).
-
-      # Workstation — host-specific (shared concerns moved to users/lucas.nix)
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
-
-      # Mesh client — connects to the Hetzner mesh server (see
-      # policies/mesh.nix for the synthetic server entry).
-      den.aspects.workstation.mesh.client
     ];
 
     nixos = { ... }: {
@@ -50,12 +22,8 @@
 
       nixpkgs.hostPlatform = "x86_64-linux";
 
-      # Mesh client config (consumed by workstation.mesh-client aspect).
-      # SOPS secret `carryallMeshKey` must exist in nix/secrets.yaml
-      # holding the matching wg private key.
       services.mesh = {
-        ip = config.den.hosts.x86_64-linux.carryall.mesh.ip;
-        subnet = "100.67.0.0/24";
+        ip = den.people.lucas.carryall.ip;
         client = {
           keyName = "carryallMeshKey";
           autostart = true;

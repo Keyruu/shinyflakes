@@ -1,18 +1,7 @@
 { den, inputs, ... }:
 {
   den.aspects.lucas = { host, ... }: {
-    # service-access moved to modules/people.nix as entity data.
-    # Lucas's homeManager config + per-host aspect wiring stays here.
-
     includes = [
-      # Creates OS-level user accounts (users.users.<name>) with isNormalUser and home directory.
-      # Also sets home.username and home.homeDirectory for Home Manager. Works on NixOS, Darwin, and standalone Home Manager.
-      den.batteries.define-user
-
-      # Marks a user as the primary (admin-level) user. On NixOS, adds wheel and networkmanager groups.
-      # On Darwin, sets system.primaryUser. On WSL, sets defaultUser.
-      den.batteries.primary-user
-
       # Projects user-relevant classes (like homeManager) from the host’s aspect tree onto users who opt in.
       # Any homeManager key defined in the host aspect is forwarded to the user’s home-manager evaluation.
       den.batteries.host-aspects
@@ -45,7 +34,6 @@
 
     homeManager =
       {
-        config,
         pkgs,
         inputs',
         self',
@@ -245,115 +233,6 @@
           self'.packages.forge-pr
           self'.packages.hx
         ];
-
-        # from nix/modules/home/shell/default.nix
-        sops.secrets = {
-          openaiKey = { };
-          geminiKey = { };
-          mammouthKey = { };
-          opencodeKey = { };
-          scalewayKey = { };
-          hcloudToken = { };
-          cloudflareToken = { };
-          jiraToken = { };
-          datadogApiKeyMp = { };
-          datadogAppKeyMp = { };
-          hassKey = { };
-          openrouterKey = { };
-          litellmMasterKey = { };
-          zaiKey = { };
-          minimaxKey = { };
-        };
-        sops.templates."shell.env".content = ''
-          OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
-          GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
-          MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
-          OPENCODE_API_KEY=${config.sops.placeholder.opencodeKey}
-          SCALEWAY_API_KEY=${config.sops.placeholder.scalewayKey}
-          CLOUDFLARE_API_TOKEN=${config.sops.placeholder.cloudflareToken}
-          HCLOUD_TOKEN=${config.sops.placeholder.hcloudToken}
-          TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}
-          TF_VAR_hcloud_token=${config.sops.placeholder.hcloudToken}
-          JIRA_API_TOKEN=${config.sops.placeholder.jiraToken}
-          DATADOG_API_KEY_MP=${config.sops.placeholder.datadogApiKeyMp}
-          DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
-          HASS_KEY=${config.sops.placeholder.hassKey}
-          OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
-          LITELLM_BASE_URL=https://litellm.lab.keyruu.de
-          LITELLM_API_KEY=${config.sops.placeholder.litellmMasterKey}
-          ZAI_API_KEY=${config.sops.placeholder.zaiKey}
-          MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
-        '';
-
-        home.sessionVariables = {
-          # clean up ~
-          LESSHISTFILE = config.xdg.cacheHome + "/less/history";
-          LESSKEY = config.xdg.configHome + "/less/lesskey";
-          WINEPREFIX = config.xdg.dataHome + "/wine";
-
-          # set default applications
-          EDITOR = "nvim";
-          BROWSER = "glide";
-          TERMINAL = "footclient";
-
-          # enable scrolling in git diff
-          DELTA_PAGER = "less -R";
-
-          # MANPAGER = "sh -c 'col -bx | bat -l man -p'";
-          PNPM_HOME = "$HOME/.pnpm-bin";
-        };
-
-        home.shellAliases = {
-          k = "kubectl";
-          mv = "mv -iv";
-          rm = "rm -I";
-          cp = "cp -iv";
-          ln = "ln -iv";
-          lf = "lfub";
-          gs = "git status";
-          gd = "git diff";
-          ga = "git add";
-          gc = "git clone";
-          ztab = "zellij action new-tab";
-          vi = "nvim";
-          ".." = "cd ..";
-          "..." = "cd ../..";
-          deploy-mentat = "nixos-rebuild --flake ~/shinyflakes?submodules=1#mentat switch --target-host root@192.168.100.7 --build-host root@192.168.100.7 --no-reexec";
-          deploy-prime = "nixos-rebuild --flake ~/shinyflakes?submodules=1#prime switch --target-host root@prime --build-host root@prime --no-reexec";
-          select-k9s = ''KUBECONFIG="$(find ~/.kube -maxdepth 1 -type f -name "*.yml" -o -name "*.yaml" -o -name "config" | fzf --prompt="Select kubeconfig: ")" k9s'';
-        };
-
-        programs = {
-          starship = {
-            enable = true;
-            enableTransience = false;
-            enableFishIntegration = false;
-
-            settings = {
-              right_format = "$time";
-              kubernetes = {
-                disabled = true;
-              };
-              time = {
-                disabled = false;
-              };
-            };
-          };
-
-          fzf.enable = true;
-          zoxide.enable = true;
-          lsd = {
-            enable = true;
-            enableFishIntegration = true;
-          };
-          bat.enable = true;
-          direnv.enable = true;
-          mise = {
-            enable = true;
-            enableFishIntegration = true;
-            globalConfig.settings.disable_tools = [ "aqua:aws/aws-cli" ];
-          };
-        };
       };
   };
 }

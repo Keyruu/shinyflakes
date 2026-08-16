@@ -1,6 +1,6 @@
-[submodule "nix/modules/private"]
-	path = nix/modules/private
+[submodule "modules/aspects/private"]
+	path = modules/aspects/private
 	url = https://git.keyruu.de/lucas/privateflakes.git
-[submodule "nix/modules/agents"]
-	path = nix/modules/agents
-	url = https://git.keyruu.de/lucas/agents.git 
+[submodule "modules/aspects/agents"]
+	path = modules/aspects/agents
+	url = https://git.keyruu.de/lucas/agents.git

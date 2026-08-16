@@ -1,4 +1,5 @@
 {
+  den,
   ...
 }:
 {
@@ -35,7 +36,7 @@
             name:
             let
               granted = lib.attrValues (
-                lib.filterAttrs (_: p: builtins.elem name (p.service-access or [ ])) config.den.people
+                lib.filterAttrs (_: p: builtins.elem name (p.service-access or [ ])) den.people
               );
               ips = lib.concatMap (p: lib.concatMap (_: d: [ d.ip ]) (lib.attrValues p.devices)) granted;
             in
@@ -67,6 +68,21 @@
                       type = lib.types.nullOr lib.types.str;
                       default = null;
                       description = "Public domain name (e.g. \"karakeep.lab.keyruu.de\"). null for internal-only services.";
+                    };
+                    origins = lib.mkOption {
+                      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+                      default = null;
+                      description = ''
+                        WebService Origins strings, joined with spaces and
+                        written to `services.<name>.settings.WebService.Origins`.
+                        Each entry is one origin the service should accept
+                        (e.g. `"https://x.example"` or `"ws://x.example"`).
+
+                        When `null`, consumers may derive their own default
+                        from `domain` (e.g. cockpit defaults to https/wss
+                        URLs built from `domain`). Set explicitly for
+                        mesh-direct or other non-HTTPS deployments.
+                      '';
                     };
                     topology = lib.mkOption {
                       type = lib.types.enum [
@@ -416,7 +432,12 @@
         ) (lib.filterAttrs (_: svc: svc.dashboard.enable) config.services.my);
 
       monitor =
-        { lib, config, host, ... }:
+        {
+          lib,
+          config,
+          host,
+          ...
+        }:
         lib.mapAttrsToList (
           name: svc:
           svc.monitor
@@ -433,7 +454,12 @@
         ) (lib.filterAttrs (_: svc: svc.monitor.enable) config.services.my);
 
       scrape =
-        { lib, config, host, ... }:
+        {
+          lib,
+          config,
+          host,
+          ...
+        }:
         lib.mapAttrsToList (
           name: svc:
           svc.scrape
@@ -446,7 +472,12 @@
         ) (lib.filterAttrs (_: svc: svc.scrape.enable) config.services.my);
 
       public-proxy =
-        { lib, config, host, ... }:
+        {
+          lib,
+          config,
+          host,
+          ...
+        }:
         lib.mapAttrsToList (
           name: svc:
           svc.proxy
@@ -458,7 +489,12 @@
         ) (lib.filterAttrs (_: svc: svc.proxy.enable) config.services.my);
 
       oidc-config =
-        { lib, config, host, ... }:
+        {
+          lib,
+          config,
+          host,
+          ...
+        }:
         lib.mapAttrsToList (
           name: svc:
           svc.oidc

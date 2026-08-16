@@ -1,5 +1,9 @@
+{ den, ... }:
+let
+  lucas = den.people.lucas;
+in
 {
-  den.aspects.options.mesh.nixos = { lib, ... }: {
+  den.aspects.options.mesh.nixos = { host, lib, ... }: {
     options.services.mesh = with lib.types; {
       interface = lib.mkOption {
         type = str;
@@ -7,6 +11,7 @@
       };
       ip = lib.mkOption {
         type = str;
+        default = lucas.${host.hostName}.ip;
       };
       subnet = lib.mkOption {
         type = str;
@@ -20,36 +25,6 @@
           nas = "192.168.100.7/32";
         };
         description = "Named networks that can be referenced in canAccess";
-      };
-      people = lib.mkOption {
-        type = attrsOf (submodule {
-          options = {
-            canAccess = lib.mkOption {
-              type = listOf str;
-              default = [ ];
-              description = "List of network names from services.mesh.networks";
-            };
-
-            devices = lib.mkOption {
-              type = attrsOf (submodule {
-                options = {
-                  ip = lib.mkOption {
-                    type = str;
-                  };
-                  publicKey = lib.mkOption {
-                    type = str;
-                  };
-                  allowedIPs = lib.mkOption {
-                    type = listOf str;
-                    default = [ ];
-                  };
-                };
-              });
-              default = { };
-            };
-          };
-        });
-        default = { };
       };
       zones = lib.mkOption {
         type = attrsOf (
@@ -72,6 +47,7 @@
             keyName = lib.mkOption {
               type = str;
               description = "SOPS secret name holding this host's wg private key (e.g. \"carryallMeshKey\").";
+              default = "${host.hostName}MeshKey";
             };
             autostart = lib.mkOption {
               type = bool;

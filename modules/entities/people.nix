@@ -1,20 +1,7 @@
 # People entity schema — unified identity layer for mesh + authelia.
 #
-# Mirrors the fleet-demo's custom entity pattern
-# (https://github.com/denful/den/blob/main/templates/fleet-demo/modules/users.nix):
-# each person is a `den.people.<name>` scope, regardless of whether they
-# own a NixOS-managed host. Simon and nadine are guest users with mesh
-# devices but no NixOS accounts; lucas has both.
-#
-# Per-person data lives in modules/people.nix (devices, email, staticGroups,
+# Per-person data lives in modules/aspects/private/people.nix (devices, email, staticGroups,
 # service-access). Auto-imported by `inputs.import-tree ./modules` in flake.nix.
-#
-# Per-person behavior (home-manager, ssh-keys, etc.) lives in
-# `den.aspects.<name>` (e.g. modules/users/lucas.nix).
-#
-# ponytail: this duplicates devices with the legacy `services.mesh.people`
-# registry during the additive migration. Delete the legacy option after
-# the last consumer (mentat nftables, nginx whitelist) migrates.
 { lib, den, ... }:
 let
   deviceType = lib.types.submodule {
@@ -72,7 +59,10 @@ let
         service-access = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          example = [ "immich" "karakeep" ];
+          example = [
+            "immich"
+            "karakeep"
+          ];
           description = "Service names this person is granted access to (matches services.my.<name>). Consumed by authelia (auto-derive <svc>_users groups + policies + OIDC clients), nginx-whitelist (IP allowlist), and mesh-firewall (nftables forward rules).";
         };
       };

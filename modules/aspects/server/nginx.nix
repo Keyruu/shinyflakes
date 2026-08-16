@@ -22,6 +22,8 @@
       ];
 
       users.users.nginx.extraGroups = [ "acme" ];
+
+      services.nginx.clientMaxBodySize = "5000M";
     };
   };
 }

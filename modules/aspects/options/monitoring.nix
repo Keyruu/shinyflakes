@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.options.monitoring =
+  den.aspects.options.monitoring.nixos =
     { config, lib, ... }:
     let
       cfg = config.services.monitoring;

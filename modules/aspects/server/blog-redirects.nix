@@ -1,0 +1,29 @@
+# oblivion.keyruu.de — static redirects to keyruu.de/blog for old
+# Hugo paths and tag pages. Replaces nix/hosts/prime/modules/blog-redirects.nix.
+{ ... }:
+{
+  den.aspects.server.blog-redirects = {
+    nixos = {
+      services.caddy.virtualHosts."oblivion.keyruu.de".extraConfig = ''
+        import coraza-waf
+        import cloudflare-only
+
+        redir /MacOS/Raycast* https://keyruu.de/blog/raycast/ permanent
+        redir /MacOS/Window-Management* https://keyruu.de/blog/window-management/ permanent
+        redir /Homelab/Monitoring* https://keyruu.de/blog/monitoring/ permanent
+        redir /Homelab/Docker-Compose-on-NixOS* https://keyruu.de/blog/docker-compose-on-nixos/ permanent
+        redir /Homelab/NixOS-for-Servers* https://keyruu.de/blog/nixos-for-servers/ permanent
+        redir /Homelab/Quadlet* https://keyruu.de/blog/quadlet/ permanent
+        redir /Web-Development/Everything-in-Go* https://keyruu.de/blog/everything-in-go/ permanent
+
+        handle_path /tags/* {
+          redir https://keyruu.de/blog/tag/{path} permanent
+        }
+
+        handle {
+          redir https://keyruu.de/blog{uri} permanent
+        }
+      '';
+    };
+  };
+}

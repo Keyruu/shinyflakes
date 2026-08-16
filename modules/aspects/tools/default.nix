@@ -18,6 +18,7 @@
       repos
       satty
       screenshot
+      syncthing
       system
       television
       vicinae

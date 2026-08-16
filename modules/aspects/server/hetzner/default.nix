@@ -4,7 +4,6 @@
     nixos = { modulesPath, ... }: {
       imports = [
         (modulesPath + "/profiles/qemu-guest.nix")
-        ./disk-root.nix
       ];
 
       networking.useDHCP = true;

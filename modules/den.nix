@@ -1,8 +1,3 @@
-# Den entry point. Per the den convention, leaf aspects live under
-# `modules/aspects/<domain>/<name>.nix` and umbrellas at
-# `modules/aspects/<name>.nix`. Cross-references use direct
-# `den.aspects.<domain>.<name>` (no angle-bracket sugar).
-
 {
   inputs,
   den,
@@ -39,12 +34,13 @@
       # Sets the system hostname as defined in `den.hosts.<name>.hostName`
       den.batteries.hostname
 
-      # Provides inputs' (the flake’s inputs with system pre-selected) as a top-level module argument.
+      # Provides inputs' (the flake’s inputs with system pre-selected) as a class module argument. e.g. nixos = {self', ...}
       den.batteries.inputs'
 
-      # Provides self' (the flake’s self outputs with system pre-selected) as a top-level module argument.
+      # Provides self' (the flake’s self outputs with system pre-selected) as a class module argument. e.g. nixos = {self', ...}
       den.batteries.self'
 
+      den.aspects.core
       den.aspects.options.my.services
       den.aspects.options.my.stack
       # Legacy services.mesh option bridge (interface, ip, subnet) — see

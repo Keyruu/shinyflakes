@@ -16,49 +16,58 @@
 # `proxy.whitelist.people` field. Once all stacks move to
 # `access.people`, the legacy field is removed and the lookup
 # in modules/aspects/options/my.nix is deleted.
-{ config, lib, ... }:
+{ den, ... }:
 {
   den.aspects.server.nginx-whitelist = {
     nixos =
       { config, lib, ... }:
       let
         # services.my entries with IP whitelist still enabled.
-        whitelistedServices = lib.filterAttrs (_: svc:
-          svc.proxy.whitelist.enable or false
+        whitelistedServices = lib.filterAttrs (
+          _: svc: svc.proxy.whitelist.enable or false
         ) config.services.my;
 
         # Flatten all persons' service-access into tagged list.
-        allAccess = lib.concatLists (lib.mapAttrsToList (person: p:
-          map (svc: { inherit person; service = svc; }) p.service-access
-        ) config.den.people);
+        allAccess = lib.concatLists (
+          lib.mapAttrsToList (
+            person: p:
+            map (svc: {
+              inherit person;
+              service = svc;
+            }) p.service-access
+          ) den.people
+        );
 
         # Per service, IPs to allow. Expand grantedBy person → all
         # their device IPs.
-        allowIpsForService = service:
+        allowIpsForService =
+          service:
           let
-            grantedPersons = lib.unique (map (entry:
-              if entry.service == service then entry.person else null
-            ) allAccess);
+            grantedPersons = lib.unique (
+              map (entry: if entry.service == service then entry.person else null) allAccess
+            );
             filtered = lib.filter (p: p != null) grantedPersons;
-            ips = lib.concatMap (person:
-              lib.mapAttrsToList (_: device: device.ip)
-                (config.den.people.${person}.devices or { })
+            ips = lib.concatMap (
+              person: lib.mapAttrsToList (_: device: device.ip) (den.people.${person}.devices or { })
             ) filtered;
           in
           lib.unique ips;
       in
       {
-        services.nginx.virtualHosts = lib.mkMerge (lib.mapAttrsToList (service: cfg:
-          lib.mkIf (cfg.proxy.enable && cfg.proxy.server == "nginx" && cfg.port != null) {
-            ${cfg.domain} = {
-              locations."/".extraConfig = lib.mkIf cfg.proxy.whitelist.enable ''
-                ${lib.concatMapStringsSep "\n" (ip: "allow ${ip};") (allowIpsForService service)}
-                allow 192.168.100.0/24;
-                deny all;
-              '';
-            };
-          }
-        ) whitelistedServices);
+        services.nginx.virtualHosts = lib.mkMerge (
+          lib.mapAttrsToList (
+            service: cfg:
+            lib.mkIf (cfg.proxy.enable && cfg.proxy.server == "nginx" && cfg.port != null) {
+              ${cfg.domain} = {
+                locations."/".extraConfig = lib.mkIf cfg.proxy.whitelist.enable ''
+                  ${lib.concatMapStringsSep "\n" (ip: "allow ${ip};") (allowIpsForService service)}
+                  allow 192.168.100.0/24;
+                  deny all;
+                '';
+              };
+            }
+          ) whitelistedServices
+        );
       };
   };
 }
