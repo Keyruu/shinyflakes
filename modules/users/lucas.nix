@@ -31,6 +31,10 @@
       den.aspects.tools.default
 
       den.aspects.workstation.default
+
+      den.aspects.agents.pi
+      den.aspects.agents.opencode
+      den.aspects.agents.claude-code
     ];
 
     homeManager =

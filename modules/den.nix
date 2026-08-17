@@ -22,6 +22,10 @@
   den.schema.host.includes = [
     den.batteries.define-user
     den.batteries.primary-user
+
+    den.aspects.options.my.services
+    den.aspects.options.my.stack
+    den.aspects.options.mesh
   ];
 
   # Shared defaults applied to every host/user/home via den.default.
@@ -39,13 +43,6 @@
 
       # Provides self' (the flake’s self outputs with system pre-selected) as a class module argument. e.g. nixos = {self', ...}
       den.batteries.self'
-
-      den.aspects.core
-      den.aspects.options.my.services
-      den.aspects.options.my.stack
-      # Legacy services.mesh option bridge (interface, ip, subnet) — see
-      # modules/aspects/options/mesh.nix for the migration note.
-      den.aspects.options.mesh
     ];
   };
 

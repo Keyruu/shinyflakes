@@ -95,12 +95,15 @@ in
           ) den.people
         );
         services_ = lib.unique (map (entry: entry.service) allAccess);
-        buildPolicy = service: {
+        # Policy names match `<service>_access` so the client references
+        # (built by buildClient from `entry.name`) resolve.
+        servicesAccess = map (s: "${s}_access") services_;
+        buildPolicy = name: {
           default_policy = "deny";
           rules = [
             {
               policy = "one_factor";
-              subject = "group:${service}_users";
+              subject = "group:${lib.removeSuffix "_access" name}_users";
             }
           ];
         };
@@ -169,7 +172,7 @@ in
                 cors.allowed_origins = [ "https://dash.peeraten.net" ];
                 cors.endpoints = [ "userinfo" ];
 
-                authorization_policies = lib.genAttrs services_ buildPolicy;
+                authorization_policies = lib.genAttrs servicesAccess buildPolicy;
 
                 # client_secret values are pbkdf2 digests of the sops <name>ClientSecret (hash is store-safe)
                 # Generated from `oidc-config` quirk entries (see phase 5 cutover note above).
