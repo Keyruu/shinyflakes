@@ -1,8 +1,6 @@
-{ den, ... }:
+{ ... }:
 {
   den.aspects.server.caddy = {
-    includes = [ den.aspects.options.cloudflare ];
-
     nixos =
       {
         config,

@@ -20,9 +20,6 @@
   # to every user entity that opts in. Per-host extraGroups are layered on top
   # by the host's aspect.
   den.schema.host.includes = [
-    den.batteries.define-user
-    den.batteries.primary-user
-
     den.aspects.options.my.services
     den.aspects.options.my.stack
     den.aspects.options.mesh

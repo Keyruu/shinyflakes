@@ -1,10 +1,6 @@
-{ den, inputs, ... }:
+{ inputs, ... }:
 {
   den.aspects.services.copyparty = {
-    includes = [
-      den.aspects.options.backup
-    ];
-
     nixos = { config, pkgs, ... }: {
       systemd.services.copyparty = {
         after = [ "zfs-encrypted.target" ];
@@ -22,7 +18,9 @@
       sops.secrets.copypartyPassword = { };
       sops.secrets.copypartyBrotherPassword = { };
 
-      networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ config.services.copyparty.settings.p ];
+      networking.firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [
+        config.services.copyparty.settings.p
+      ];
 
       services.my.copyparty =
         let

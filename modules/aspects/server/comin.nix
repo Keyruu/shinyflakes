@@ -1,10 +1,6 @@
-{ den, inputs, ... }:
+{ inputs, ... }:
 {
   den.aspects.server.comin = {
-    includes = [
-      den.aspects.core.secrets
-    ];
-
     nixos = { config, pkgs, ... }: {
       imports = [
         inputs.comin.nixosModules.comin
@@ -31,50 +27,52 @@
           }
         ];
 
-        postDeploymentCommand = let
-          comin-notify = pkgs.writeShellApplication {
-            name = "comin-notify";
-            runtimeInputs = [ pkgs.gotify-cli ];
-            text = ''
-              GOTIFY_TOKEN=$(cat ${config.sops.secrets.cominGotifyToken.path})
-              export GOTIFY_TOKEN
+        postDeploymentCommand =
+          let
+            comin-notify = pkgs.writeShellApplication {
+              name = "comin-notify";
+              runtimeInputs = [ pkgs.gotify-cli ];
+              text = ''
+                  GOTIFY_TOKEN=$(cat ${config.sops.secrets.cominGotifyToken.path})
+                  export GOTIFY_TOKEN
 
-              status="''${COMIN_STATUS:-unknown}"
-              hostname="''${COMIN_HOSTNAME:-unknown}"
-              gitRef="''${COMIN_GIT_REF:-}"
-              gitMsg="''${COMIN_GIT_MSG:-}"
-              generation="''${COMIN_GENERATION:-}"
-              errorMsg="''${COMIN_ERROR_MSG:-}"
+                  status="''${COMIN_STATUS:-unknown}"
+                  hostname="''${COMIN_HOSTNAME:-unknown}"
+                  gitRef="''${COMIN_GIT_REF:-}"
+                  gitMsg="''${COMIN_GIT_MSG:-}"
+                  generation="''${COMIN_GENERATION:-}"
+                  errorMsg="''${COMIN_ERROR_MSG:-}"
 
-              if [ "$status" = "done" ]; then
-                title="Deployment Success: $hostname"
-                priority=4
-                message="Host: $hostname
-            Status: $status
-            Git Ref: $gitRef
-            Commit: $gitMsg
-            Generation: $generation"
-              else
-                title="Deployment Failed: $hostname"
-                priority=8
-                message="Host: $hostname
-            Status: $status
-            Git Ref: $gitRef
-            Commit: $gitMsg
-            Generation: $generation
-            Error: $errorMsg"
-              fi
+                  if [ "$status" = "done" ]; then
+                    title="Deployment Success: $hostname"
+                    priority=4
+                    message="Host: $hostname
+                Status: $status
+                Git Ref: $gitRef
+                Commit: $gitMsg
+                Generation: $generation"
+                  else
+                    title="Deployment Failed: $hostname"
+                    priority=8
+                    message="Host: $hostname
+                Status: $status
+                Git Ref: $gitRef
+                Commit: $gitMsg
+                Generation: $generation
+                Error: $errorMsg"
+                  fi
 
-              if ! gotify push \
-                --url "https://notify.keyruu.de" \
-                --title "$title" \
-                --priority "$priority" \
-                "$message"; then
-                echo "Failed to send gotify notification" >&2
-              fi
-            '';
-          };
-        in "${comin-notify}/bin/comin-notify";
+                  if ! gotify push \
+                    --url "https://notify.keyruu.de" \
+                    --title "$title" \
+                    --priority "$priority" \
+                    "$message"; then
+                    echo "Failed to send gotify notification" >&2
+                  fi
+              '';
+            };
+          in
+          "${comin-notify}/bin/comin-notify";
       };
     };
   };

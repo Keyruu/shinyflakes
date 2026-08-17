@@ -27,7 +27,6 @@
         # the symlink with a real copy (fresh mtime) after link generation;
         # force=true lets the next rebuild clobber the regular file.
         xdg.configFile."zellij/config.kdl".force = true;
-        xdg.configFile."zellij/layouts/project.kdl".force = true;
         home.activation.zellijConfigCopy = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
           for cfg in "${config.xdg.configHome}/zellij/config.kdl" \
                      "${config.xdg.configHome}/zellij/layouts/project.kdl"; do
@@ -382,34 +381,34 @@
                   // Secondary modifier is Super instead of zellij's default Alt
                   // (Alt is the WM mod). Needs kitty keyboard protocol — foot,
                   // ghostty and kitty all support it.
-                  bind "Super h" { GoToPreviousTab; }
-                  bind "Super l" { GoToNextTab; }
-                  bind "Super n" { NewPane; }
-                  bind "Super f" { ToggleFloatingPanes; }
+                  bind "Alt h" { GoToPreviousTab; }
+                  bind "Alt l" { GoToNextTab; }
+                  bind "Alt n" { NewPane; }
+                  bind "Alt f" { ToggleFloatingPanes; }
                   // pi instance overview — jump to any pi across sessions
-                  bind "Super p" {
+                  bind "Alt p" {
                     Run "${lib.getExe self'.packages.pi-herd}" {
                       floating true
                       close_on_exit true
                       name "pi herd"
                     }
                   }
-                  bind "Super s" {
+                  bind "Alt s" {
                     Run "${lib.getExe self'.packages.zs}" {
                       floating true
                       close_on_exit true
                       name "zs"
                     }
                   }
-                  bind "Super i" { MoveTab "Left"; }
-                  bind "Super o" { MoveTab "Right"; }
-                  bind "Super =" "Super +" { Resize "Increase"; }
-                  bind "Super -" { Resize "Decrease"; }
+                  bind "Alt i" { MoveTab "Left"; }
+                  bind "Alt o" { MoveTab "Right"; }
+                  bind "Alt =" "Super +" { Resize "Increase"; }
+                  bind "Alt -" { Resize "Decrease"; }
                   // re-apply swap layout — snaps the floating lazygit pane back
                   // to 80% after a monitor/terminal resize (floating pane sizes
                   // are only computed at spawn)
-                  bind "Super [" { PreviousSwapLayout; }
-                  bind "Super ]" { NextSwapLayout; }
+                  bind "Alt [" { PreviousSwapLayout; }
+                  bind "Alt ]" { NextSwapLayout; }
                   bind "Ctrl h" {
                     MessagePlugin "${navPlugin}" {
                       name "move_focus_or_tab"
@@ -444,54 +443,57 @@
         };
 
         xdg.configFile = {
-          "zellij/layouts/project.kdl".text =
-            # kdl
-            ''
-              layout {
-                // template so NewTab-created tabs also get both bars
-                default_tab_template {
-                  pane size=1 borderless=true {
-                    plugin location="zellij:tab-bar"
-                  }
-                  children
-                  pane size=1 borderless=true {
-                    plugin location="zellij:status-bar"
-                  }
-                }
-
-                tab hide_floating_panes=true {
-                  pane split_direction="vertical" {
-                    pane split_direction="horizontal" {
-                      pane command="nvim"
-                      pane size="30%"
+          "zellij/layouts/project.kdl" = {
+            force = true;
+            text =
+              # kdl
+              ''
+                layout {
+                  // template so NewTab-created tabs also get both bars
+                  default_tab_template {
+                    pane size=1 borderless=true {
+                      plugin location="zellij:tab-bar"
                     }
-                    pane command="pi" size="40%"
-                  }
-
-                  floating_panes {
-                    pane command="lazygit" {
-                      width "80%"
-                      height "80%"
-                      x "10%"
-                      y "10%"
+                    children
+                    pane size=1 borderless=true {
+                      plugin location="zellij:status-bar"
                     }
                   }
-                }
 
-                // base swap layout for floating panes: Super ] re-applies these
-                // percentages at the current terminal size after a monitor switch
-                swap_floating_layout {
-                  floating_panes {
-                    pane {
-                      width "80%"
-                      height "80%"
-                      x "10%"
-                      y "10%"
+                  tab hide_floating_panes=true {
+                    pane split_direction="vertical" {
+                      pane split_direction="horizontal" {
+                        pane command="nvim"
+                        pane size="30%"
+                      }
+                      pane command="pi" size="40%"
+                    }
+
+                    floating_panes {
+                      pane command="lazygit" {
+                        width "80%"
+                        height "80%"
+                        x "10%"
+                        y "10%"
+                      }
+                    }
+                  }
+
+                  // base swap layout for floating panes: Super ] re-applies these
+                  // percentages at the current terminal size after a monitor switch
+                  swap_floating_layout {
+                    floating_panes {
+                      pane {
+                        width "80%"
+                        height "80%"
+                        x "10%"
+                        y "10%"
+                      }
                     }
                   }
                 }
-              }
-            '';
+              '';
+          };
         };
       };
   };

@@ -46,7 +46,8 @@
             enable = true;
 
             # allow me to use systemd without password every time
-            extraConfig = ''
+            # skipped when user is root — root already has full polkit access
+            extraConfig = lib.mkIf (user.userName != "root") ''
               polkit.addRule(function(action, subject) {
                 if (action.id == "org.freedesktop.systemd1.manage-units" &&
                   subject.user == "${user.userName}") {

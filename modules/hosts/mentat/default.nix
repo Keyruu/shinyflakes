@@ -10,7 +10,6 @@
     includes = [
       den.aspects.roles.server
 
-      den.aspects.server.nas
       den.aspects.server.nginx
       den.aspects.server.monitoring
 

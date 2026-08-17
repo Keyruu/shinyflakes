@@ -73,6 +73,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         mini.data = mini-nvim;
         conform.data = conform-nvim;
         snacks.data = snacks-nvim;
+        fzf-lua.data = fzf-lua;
         flash.data = flash-nvim;
         todo.data = todo-comments-nvim;
         yazi.data = yazi-nvim;

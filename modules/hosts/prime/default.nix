@@ -3,8 +3,7 @@
   ...
 }:
 {
-  den.hosts.x86_64-linux.prime = {
-  };
+  den.hosts.x86_64-linux.prime.users.root.classes = [ ];
 
   den.aspects.prime = {
     nixos = { ... }: {

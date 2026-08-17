@@ -1,11 +1,7 @@
-{ den, ... }:
+{ ... }:
 {
-  den.aspects.server.nas = {
-    includes = [
-      den.aspects.options.backup
-    ];
-
-    nixos = { pkgs, config, self', ... }: {
+  den.aspects.mentat = {
+    nixos = { pkgs, self', ... }: {
       boot = {
         supportedFilesystems = [ "zfs" ];
         zfs = {

@@ -1,7 +1,6 @@
-{ den, ... }:
+{ ... }:
 {
   den.aspects.workstation.mesh-client = {
-    includes = [ den.aspects.options.mesh ];
     nixos =
       {
         lib,

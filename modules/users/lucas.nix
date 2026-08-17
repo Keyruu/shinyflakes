@@ -2,6 +2,9 @@
 {
   den.aspects.lucas = { host, ... }: {
     includes = [
+      den.batteries.define-user
+      den.batteries.primary-user
+
       # Projects user-relevant classes (like homeManager) from the host’s aspect tree onto users who opt in.
       # Any homeManager key defined in the host aspect is forwarded to the user’s home-manager evaluation.
       den.batteries.host-aspects
