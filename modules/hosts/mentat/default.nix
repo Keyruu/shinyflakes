@@ -4,18 +4,20 @@
 }:
 {
   # Mentat: home server. Mesh server, ZFS NAS, runs every self-hosted service.
-  den.hosts.x86_64-linux.mentat = { };
+  den.hosts.x86_64-linux.mentat.users.root.classes = [ ];
 
   den.aspects.mentat = {
     includes = [
       den.aspects.roles.server
 
+      den.aspects.tools.syncthing
+
+      den.aspects.server.backup
       den.aspects.server.nginx
       den.aspects.server.monitoring
 
       # Services
       den.aspects.services.cockpit
-      den.aspects.services.syncthing
       den.aspects.services.copyparty
       den.aspects.services.glance
       den.aspects.services.harmonia
@@ -31,7 +33,7 @@
       den.aspects.services.forgejo
       den.aspects.services.hermes
       den.aspects.services.hytale
-      den.aspects.services.home-assistant
+      den.aspects.services.home-assistant.default
       den.aspects.services.isponsorblocktv
       den.aspects.services.karakeep
       den.aspects.services.karaoke

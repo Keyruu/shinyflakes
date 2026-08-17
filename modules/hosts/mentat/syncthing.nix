@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.services.syncthing = {
+  den.aspects.mentat = {
     nixos = { config, ... }: {
       systemd.services.syncthing = {
         after = [ "zfs-encrypted.target" ];

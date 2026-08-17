@@ -1,6 +1,6 @@
 { den, ... }:
 {
-  den.aspects.services.home-assistant = {
+  den.aspects.services.home-assistant.default = {
     includes = [
       # Satellite services
       den.aspects.services.home-assistant.esphome

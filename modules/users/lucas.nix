@@ -21,7 +21,6 @@
       ])
 
       den.aspects.core.default
-      den.aspects.core.secrets
 
       den.aspects.browsers.default
 

@@ -12,6 +12,7 @@
       onepassword
       plymouth
       printing
+      secrets
       sound
       systemd-boot
       udev
