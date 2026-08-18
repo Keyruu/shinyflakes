@@ -8,8 +8,6 @@ frontend:
     - /hacsfiles/custom-sidebar/custom-sidebar-yaml.js
 
 automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
 
 http:
   use_x_forwarded_for: true

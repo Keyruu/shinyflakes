@@ -12,7 +12,10 @@
     # Work monitors (the docks) are primary; the laptop screen is the
     # secondary — handle social while docked, solo when undocked.
     displays = {
-      primary = [ "home" "work" ];
+      primary = [
+        "home"
+        "work"
+      ];
       secondaries = [ "laptop" ];
       positions = {
         laptop = "0,0";
@@ -44,8 +47,9 @@
       networking.hostName = lib.mkForce "PCL2025101301";
 
       services.mesh = {
-        ip = den.people.lucas.carryall.ip;
+        ip = den.people.lucas.devices.carryall.ip;
         client = {
+          enable = true;
           keyName = "carryallMeshKey";
           autostart = true;
           ws.enable = false;

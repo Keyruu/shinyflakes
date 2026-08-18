@@ -41,36 +41,6 @@ in
         );
         default = { };
       };
-      client = lib.mkOption {
-        type = submodule {
-          options = {
-            keyName = lib.mkOption {
-              type = str;
-              description = "SOPS secret name holding this host's wg private key (e.g. \"carryallMeshKey\").";
-              default = "${host.hostName}MeshKey";
-            };
-            autostart = lib.mkOption {
-              type = bool;
-              default = true;
-            };
-            ws = lib.mkOption {
-              type = submodule {
-                options = {
-                  enable = lib.mkEnableOption "enable websocket tunnel modes";
-                  defaultInterface = lib.mkOption {
-                    type = str;
-                    example = "wlp0s20f3";
-                    description = "Default outbound interface for Cloudflare route exclusions.";
-                  };
-                };
-              };
-              default = { };
-            };
-          };
-        };
-        default = { };
-        description = "Mesh client config (consumed by den.aspects.workstation.mesh.client).";
-      };
     };
   };
 }

@@ -2,6 +2,8 @@
 {
   den.aspects.services.home-assistant.default = {
     includes = [
+      den.aspects.services.home-assistant.automations
+
       # Satellite services
       den.aspects.services.home-assistant.esphome
       den.aspects.services.home-assistant.matter
@@ -84,6 +86,8 @@
         # configuration.yaml from ./config; automations.yaml comes from automations.nix
         environment.etc."stacks/home-assistant/config/configuration.yaml".source =
           ./config/configuration.yaml;
+        environment.etc."stacks/home-assistant/custom_sentences".source =
+          ./config/custom_sentences;
       };
   };
 }

@@ -1,5 +1,6 @@
-_: {
-  den.aspects.services.home-assistant.nixos = _: {
+{ ... }:
+{
+  den.aspects.services.home-assistant.automations.nixos = _: {
     environment.etc."stacks/home-assistant/config/automations.yaml".text = # yaml
       ''
         - id: '1739042540563'

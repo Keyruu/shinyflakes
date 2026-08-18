@@ -6,12 +6,11 @@
         lib,
         config,
         pkgs,
-        flake,
         ...
       }:
       let
         inherit (config.services) mesh;
-        inherit (flake.lib.cloudflare) ipv4 ipv6;
+        inherit (config.cloudflare) ipv4 ipv6;
         wsCfg = mesh.client.ws;
 
         mkPeer = endpoint: {
