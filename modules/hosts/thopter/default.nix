@@ -5,7 +5,19 @@
 }:
 {
   # Lucas laptop — Lenovo ThinkPad X1 Yoga Gen 7.
-  den.hosts.x86_64-linux.thopter.users.lucas = { };
+  den.hosts.x86_64-linux.thopter = {
+    users.lucas = { };
+
+    displays = {
+      primary = [ "home" "work" ];
+      secondaries = [ "laptop" ];
+      positions = {
+        laptop = "0,0";
+        home = "-320,-1440";
+        work = "-411,-1543";
+      };
+    };
+  };
 
   den.aspects.thopter = {
     includes = [

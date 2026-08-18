@@ -5,7 +5,22 @@
 }:
 {
   # Lucas laptop. First den-native host, no blueprint equivalent.
-  den.hosts.x86_64-linux.carryall.users.lucas = { };
+  den.hosts.x86_64-linux.carryall = {
+    users.lucas = { };
+
+    # Kanshi profiles auto-generated from this config + options.monitors.
+    # Work monitors (the docks) are primary; the laptop screen is the
+    # secondary — handle social while docked, solo when undocked.
+    displays = {
+      primary = [ "home" "work" ];
+      secondaries = [ "laptop" ];
+      positions = {
+        laptop = "0,0";
+        home = "-320,-1440";
+        work = "-411,-1543";
+      };
+    };
+  };
 
   den.aspects.carryall = {
     includes = [

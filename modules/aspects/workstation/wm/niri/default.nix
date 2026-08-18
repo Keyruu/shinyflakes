@@ -1,6 +1,35 @@
-{ inputs, ... }:
+{ inputs, lib, ... }:
+let
+  # kdl output block per monitor from the registry + `displays` layout.
+  # Used as a transient default at niri startup; kanshi overrides once a
+  # profile applies.
+  mkOutputBlock = name: displays: monitors:
+    let
+      mon = monitors.${name};
+      pos = displays.positions.${name} or "0,0";
+      parts = lib.splitString "," pos;
+      x = builtins.elemAt parts 0;
+      y = builtins.elemAt parts 1;
+      px = "x=" + x;
+      py = "y=" + y;
+      # niri rejects the @NNHz suffix in `mode`; kanshi accepts both.
+      mode = lib.removeSuffix "Hz" mon.mode;
+    in
+    ''
+      output "${mon.criteria}" {
+          mode "${mode}"
+          scale ${toString mon.scale}
+          position ${px} ${py}
+      }
+    '';
+
+  mkOutputBlocks = displays: monitors:
+    lib.concatMapStringsSep "\n"
+      (n: mkOutputBlock n displays monitors)
+      (displays.primary ++ displays.secondaries);
+in
 {
-  den.aspects.workstation.wm.niri = {
+  den.aspects.workstation.wm.niri = { host, ... }: {
     nixos =
       {
         pkgs,
@@ -45,6 +74,7 @@
       {
         pkgs,
         inputs',
+        config,
         ...
       }:
       {
@@ -72,6 +102,9 @@
 
           config = # kdl
             ''
+              ${lib.optionalString (host.displays != null)
+                (mkOutputBlocks host.displays config.monitors)}
+
               xwayland-satellite {}
 
               spawn-at-startup "niriusd"
@@ -102,7 +135,6 @@
               workspace "social"
 
               include "${./input.kdl}"
-              include "${./outputs.kdl}"
               include "${./layout.kdl}"
               include "${./window-rules.kdl}"
               include "${./binds.kdl}"

@@ -34,6 +34,8 @@
 
       den.aspects.workstation.default
 
+      den.aspects.options.kanshi.monitors
+
       den.aspects.agents.pi
       den.aspects.agents.opencode
       den.aspects.agents.claude-code

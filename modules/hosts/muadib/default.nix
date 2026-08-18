@@ -5,7 +5,20 @@
 {
   # Lucas desktop workstation. AMD, linuxPackages_zen, gaming.
   # Second den-native workstation after carryall.
-  den.hosts.x86_64-linux.muadib.users.lucas = { };
+  den.hosts.x86_64-linux.muadib = {
+    users.lucas = { };
+
+    # Desktop: home is the always-on work display, side panel is the
+    # secondary that handles social when docked.
+    displays = {
+      primary = [ "home" ];
+      secondaries = [ "side" ];
+      positions = {
+        home = "0,0";
+        side = "2560,720";
+      };
+    };
+  };
 
   den.aspects.muadib = {
     includes = [

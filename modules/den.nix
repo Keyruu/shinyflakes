@@ -19,11 +19,47 @@
   # Auto-provision OS user (account + home dir) and grant wheel + networkmanager
   # to every user entity that opts in. Per-host extraGroups are layered on top
   # by the host's aspect.
-  den.schema.host.includes = [
-    den.aspects.options.my.services
-    den.aspects.options.my.stack
-    den.aspects.options.mesh
-  ];
+  den.schema.host = {
+    options.displays = lib.mkOption {
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            primary = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = ''
+                Work monitors: always carry the work workspaces (browse, work) and
+                act as the layout anchor. For a docked laptop these are the docks;
+                for a desktop this is the always-on display.
+              '';
+            };
+            secondaries = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = ''
+                Supporting monitors: get social workspaces when present alongside
+                a primary. For a docked laptop this is the built-in screen; for a
+                desktop it's the side panel.
+              '';
+            };
+            positions = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = { };
+              description = "Per-monitor kanshi position (e.g. \"-320,-1440\"). Defaults to \"0,0\".";
+            };
+          };
+        }
+      );
+      default = null;
+      description = "Monitor layout for this host. Null = no monitor management (e.g. servers).";
+    };
+
+    includes = [
+      den.aspects.options.my.services
+      den.aspects.options.my.stack
+      den.aspects.options.mesh
+    ];
+  };
 
   # Shared defaults applied to every host/user/home via den.default.
   # Per-host overrides still win via den.aspects.<host>.nixos.* priority.
