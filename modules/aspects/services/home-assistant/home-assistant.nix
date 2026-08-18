@@ -67,6 +67,7 @@
                 volumes = [
                   "${my.stack.path}/config:/config"
                   "${my.stack.path}/config/configuration.yaml:/config/configuration.yaml:ro"
+                  "${config.environment.etc."stacks/home-assistant/config/automations.yaml".source}:/config/automations.yaml:ro"
                   "/run/dbus:/run/dbus:ro"
                   "/etc/localtime:/etc/localtime:ro"
                 ];
