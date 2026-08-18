@@ -2,8 +2,6 @@
 {
   den.aspects.services.home-assistant.default = {
     includes = [
-      den.aspects.services.home-assistant.automations
-
       # Satellite services
       den.aspects.services.home-assistant.esphome
       den.aspects.services.home-assistant.matter
@@ -67,7 +65,6 @@
                 volumes = [
                   "${my.stack.path}/config:/config"
                   "${my.stack.path}/config/configuration.yaml:/config/configuration.yaml:ro"
-                  "${config.environment.etc."stacks/home-assistant/config/automations.yaml".source}:/config/automations.yaml:ro"
                   "/run/dbus:/run/dbus:ro"
                   "/etc/localtime:/etc/localtime:ro"
                 ];
