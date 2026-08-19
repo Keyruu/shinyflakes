@@ -1,6 +1,7 @@
-{ ... }:
+{ den, ... }:
 {
   den.aspects.workstation.mesh-client = {
+    includes = [ den.aspects.options.cloudflare ];
     nixos =
       {
         lib,
@@ -10,7 +11,7 @@
       }:
       let
         inherit (config.services) mesh;
-        inherit (config.cloudflare) ipv4 ipv6;
+        inherit (config.cloudflare.ips) ipv4 ipv6;
         wsCfg = mesh.client.ws;
 
         mkPeer = endpoint: {

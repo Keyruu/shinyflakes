@@ -22,6 +22,7 @@ o.clipboard = ""
 o.laststatus = 3
 o.splitkeep = "screen"
 o.signcolumn = "yes"
+o.colorcolumn = "80"
 
 -- neovim doesn't auto-create stdpath("cache"); plugins like snacks.lazygit
 -- write into it, so ensure it exists at startup.

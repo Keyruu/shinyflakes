@@ -68,6 +68,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         devicons.data = nvim-web-devicons;
         colorizer.data = nvim-colorizer-lua;
         noice.data = noice-nvim;
+        tiny-cmdline.data = tiny-cmdline-nvim;
         which-key.data = which-key-nvim;
         highlight-undo.data = highlight-undo-nvim;
         mini.data = mini-nvim;
