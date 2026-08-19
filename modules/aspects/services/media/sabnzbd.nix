@@ -25,7 +25,6 @@
                     PUID = "0";
                     PGID = "0";
                     TZ = "Europe/Berlin";
-                    WHITELIST = "sabnzbd.lab.keyruu.de,sabnzbd,localhost,127.0.0.1";
                   };
                   volumes = [
                     "/etc/localtime:/etc/localtime:ro"
