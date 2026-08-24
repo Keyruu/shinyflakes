@@ -107,11 +107,11 @@
               inherit engines;
             };
             extensions = {
-              packages = with inputs'.firefox-addons.packages; [
-                ublock-origin
-                vimium-c
-                sponsorblock
-              ];
+              # packages = with inputs'.firefox-addons.packages; [
+              #   ublock-origin
+              #   vimium-c
+              #   sponsorblock
+              # ];
             };
           };
         };

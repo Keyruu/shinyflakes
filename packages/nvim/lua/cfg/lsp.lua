@@ -20,7 +20,6 @@ local lsp = vim.lsp
 lsp.enable({
 	"nixd",
 	"nil_ls",
-	-- "tix",
 	"lua_ls",
 	"astro",
 	"gopls",
@@ -53,7 +52,6 @@ lsp.config("nixd", {
 	},
 })
 lsp.config("nil_ls", { settings = { nix = { flake = { autoArchive = true, autoEvalInputs = true } } } })
--- lsp.config("tix", { cmd = { "tix", "lsp" }, filetypes = { "nix" } })
 
 -- nvim 0.12 inlay_hint passes LSP hint columns straight to
 -- nvim_buf_set_extmark, which throws "Invalid 'col': out of range" when the

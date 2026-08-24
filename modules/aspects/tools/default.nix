@@ -1,7 +1,6 @@
 { den, ... }: {
   den.aspects.tools.default = {
     includes = with den.aspects.tools; [
-      onepassword
       calendar
       clipse
       colorpicker

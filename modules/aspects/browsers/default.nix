@@ -3,10 +3,10 @@
     includes = with den.aspects.browsers; [
       chromium
       firefox
-      glide
+      # glide
       sidebery
       vimium-c
-      zen
+      # zen
     ];
   };
 }

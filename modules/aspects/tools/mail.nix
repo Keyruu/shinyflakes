@@ -41,12 +41,12 @@
             profiles = rec {
               private = {
                 isDefault = true;
-                extensions = with inputs'.rycee.legacyPackages.thunderbird-addons; [
-                  tbkeys
-                ];
+                # extensions = with inputs'.rycee.legacyPackages.thunderbird-addons; [
+                #   tbkeys
+                # ];
               };
               work = {
-                inherit (private) extensions;
+                # inherit (private) extensions;
               };
             };
           };

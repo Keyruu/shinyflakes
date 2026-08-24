@@ -1,165 +1,126 @@
-{ inputs, pkgs, ... }:
-
-(import inputs.pog { inherit pkgs; }).pog {
+{ pkgs, ... }:
+pkgs.writeShellApplication {
   name = "wg-peer";
-  description = "Provision new WireGuard peers and generate configurations";
-
-  flags = [
-    {
-      name = "endpoint";
-      short = "e";
-      description = "server endpoint (host:port)";
-      required = true;
-      argument = "ENDPOINT";
-    }
-    {
-      name = "allowed-ips";
-      short = "a";
-      description = "allowed IPs (comma-sep)";
-      default = "100.67.0.0/24, 192.168.100.0/24";
-      argument = "IPS";
-    }
-    {
-      name = "peer-address";
-      short = "p";
-      description = "peer IP (e.g. 10.0.0.2/32)";
-      required = true;
-      argument = "ADDRESS";
-    }
-    {
-      name = "dns";
-      short = "d";
-      description = "DNS servers (comma-sep)";
-      default = "100.67.0.2";
-      argument = "DNS";
-    }
-    {
-      name = "keepalive";
-      short = "k";
-      description = "keepalive interval (0=off)";
-      default = "25";
-      argument = "SECONDS";
-    }
-    {
-      name = "mtu";
-      short = "m";
-      description = "interface MTU";
-      argument = "MTU";
-    }
-    {
-      name = "output";
-      short = "o";
-      description = "output file path";
-      argument = "FILE";
-    }
-    {
-      name = "qrcode";
-      short = "q";
-      bool = true;
-      description = "show QR code";
-    }
-    {
-      name = "serverconfig";
-      short = "s";
-      bool = true;
-      description = "show server peer block";
-    }
+  runtimeInputs = with pkgs; [
+    coreutils
+    gnugrep
+    qrencode
+    wireguard-tools
   ];
-
-  script = ''
-    if [ -t 0 ]; then
-      die "Server private key must be provided via stdin"
+  text = ''
+    if [ -t 1 ] && [ -z "''${NO_COLOR:-}" ] && [ "''${TERM:-}" != "dumb" ]; then
+      GREEN=$'\033[1;32m'; BLUE=$'\033[1;34m'; YELLOW=$'\033[1;33m'; PURPLE=$'\033[1;35m'; RED=$'\033[1;31m'; RESET=$'\033[0m'
+    else
+      GREEN=""; BLUE=""; YELLOW=""; PURPLE=""; RED=""; RESET=""
     fi
+    debug() { [ -n "''${VERBOSE:-}" ] && printf '%s%s%s\n' "$PURPLE" "$*" "$RESET" >&2; }
+    die() { printf '%s%s%s\n' "$RED" "$*" "$RESET" >&2; exit "''${2:-1}"; }
 
-    SERVER_PRIVATE_KEY=$(${pkgs.coreutils}/bin/cat)
+    usage() {
+      cat <<EOF
+    wg-peer — provision a WireGuard peer and emit config
 
-    if [ -z "$SERVER_PRIVATE_KEY" ]; then
-      die "Server private key cannot be empty"
-    fi
+    Usage:
+      cat server_private.key | wg-peer -e HOST:PORT -p PEER_IP/CIDR [options]
 
-    # validate the private key (base64, 44 chars with =)
-    if ! echo "$SERVER_PRIVATE_KEY" | ${pkgs.gnugrep}/bin/grep -qE '^[A-Za-z0-9+/]{43}=$'; then
-      die "Invalid server private key format"
-    fi
+    Required:
+      -e, --endpoint HOST:PORT       server endpoint
+      -p, --peer-address IP/CIDR     peer tunnel address
 
-    debug "Deriving server public key from provided private key"
+    Options:
+      -a, --allowed-ips CIDRS        LIST   default: "100.67.0.0/24, 192.168.100.0/24"
+      -d, --dns DNS                  LIST   default: 100.67.0.2
+      -k, --keepalive SECONDS        STR    default: 25 (0 disables)
+      -m, --mtu MTU                  STR
+      -o, --output FILE              PATH
+      -q, --qrcode                          show QR code
+      -s, --serverconfig                     emit server-side peer block
+      -v, --verbose
+      -h, --help
+    EOF
+    }
+    [ "''${1:-}" = "-h" ] || [ "''${1:-}" = "--help" ] && { usage; exit 0; }
 
-    SERVER_PUBLIC_KEY=$(echo "$SERVER_PRIVATE_KEY" | ${pkgs.wireguard-tools}/bin/wg pubkey)
+    endpoint=""; peer_address=""; mtu=""; output=""
+    allowed_ips="100.67.0.0/24, 192.168.100.0/24"
+    dns="100.67.0.2"
+    keepalive="25"
+    qrcode=0
+    serverconfig=0
 
-    if [ -z "$SERVER_PUBLIC_KEY" ]; then
-      die "Failed to derive server public key"
-    fi
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -e|--endpoint)     endpoint="$2";     shift 2 ;;
+        -a|--allowed-ips)  allowed_ips="$2";  shift 2 ;;
+        -p|--peer-address) peer_address="$2"; shift 2 ;;
+        -d|--dns)          dns="$2";          shift 2 ;;
+        -k|--keepalive)    keepalive="$2";    shift 2 ;;
+        -m|--mtu)          mtu="$2";          shift 2 ;;
+        -o|--output)       output="$2";       shift 2 ;;
+        -q|--qrcode)       qrcode=1;          shift ;;
+        -s|--serverconfig) serverconfig=1;    shift ;;
+        -v|--verbose)      VERBOSE=1;         shift ;;
+        -h|--help)         usage; exit 0 ;;
+        --) shift; break ;;
+        -*) die "unknown flag: $1" ;;
+        *)  die "unexpected positional: $1" ;;
+      esac
+    done
 
-    green "Server public key derived: $SERVER_PUBLIC_KEY"
+    [ -t 0 ] && die "Server private key must be provided via stdin"
+    [ -z "$endpoint" ] && die "--endpoint is required"
+    [ -z "$peer_address" ] && die "--peer-address is required"
 
-    debug "Generating new peer keypair"
+    SERVER_PRIVATE_KEY=$(cat)
+    [ -z "$SERVER_PRIVATE_KEY" ] && die "Server private key cannot be empty"
+    printf '%s' "$SERVER_PRIVATE_KEY" | grep -qE '^[A-Za-z0-9+/]{43}=$' \
+      || die "Invalid server private key format"
 
-    PEER_PRIVATE_KEY=$(${pkgs.wireguard-tools}/bin/wg genkey)
-    PEER_PUBLIC_KEY=$(echo "$PEER_PRIVATE_KEY" | ${pkgs.wireguard-tools}/bin/wg pubkey)
+    debug "Deriving server public key"
+    SERVER_PUBLIC_KEY=$(printf '%s' "$SERVER_PRIVATE_KEY" | wg pubkey)
+    [ -z "$SERVER_PUBLIC_KEY" ] && die "Failed to derive server public key"
+    printf '%sServer public key: %s%s\n' "$GREEN" "$SERVER_PUBLIC_KEY" "$RESET"
 
-    green "Peer keypair generated"
-    debug "Peer public key: $PEER_PUBLIC_KEY"
+    debug "Generating peer keypair"
+    PEER_PRIVATE_KEY=$(wg genkey)
+    PEER_PUBLIC_KEY=$(printf '%s' "$PEER_PRIVATE_KEY" | wg pubkey)
+    printf '%sPeer keypair generated%s\n' "$GREEN" "$RESET"
 
     CONFIG="[Interface]
     PrivateKey = $PEER_PRIVATE_KEY
     Address = $peer_address"
-
-    if [ -n "$dns" ]; then
-      CONFIG="$CONFIG
+    [ -n "$dns" ] && CONFIG="$CONFIG
     DNS = $dns"
-    fi
-
-    if [ -n "$mtu" ]; then
-      CONFIG="$CONFIG
+    [ -n "$mtu" ] && CONFIG="$CONFIG
     MTU = $mtu"
-    fi
-
     CONFIG="$CONFIG
     [Peer]
     PublicKey = $SERVER_PUBLIC_KEY
     Endpoint = $endpoint
     AllowedIPs = $allowed_ips"
-
-    if [ "$keepalive" != "0" ]; then
-      CONFIG="$CONFIG
+    [ "$keepalive" != "0" ] && CONFIG="$CONFIG
     PersistentKeepalive = $keepalive"
-    fi
 
-    echo ""
-    blue "=== PEER CONFIGURATION ==="
-    echo ""
-    echo "$CONFIG"
-    echo ""
+    printf '\n%s=== PEER CONFIGURATION ===%s\n\n%s\n\n' "$BLUE" "$RESET" "$CONFIG"
 
     if [ -n "$output" ]; then
-      echo "$CONFIG" > "$output"
-      ${pkgs.coreutils}/bin/chmod 600 "$output"
-      green "Configuration written to: $output"
+      printf '%s' "$CONFIG" > "$output"
+      chmod 600 "$output"
+      printf '%sConfiguration written to: %s%s\n' "$GREEN" "$output" "$RESET"
     fi
 
     if [ "$qrcode" = "1" ]; then
-      echo ""
-      blue "=== QR CODE ==="
-      echo ""
-      echo "$CONFIG" | ${pkgs.qrencode}/bin/qrencode -t ANSIUTF8
+      printf '\n%s=== QR CODE ===%s\n\n' "$BLUE" "$RESET"
+      printf '%s' "$CONFIG" | qrencode -t ANSIUTF8
     fi
 
     if [ "$serverconfig" = "1" ]; then
-      echo ""
-      blue "=== ADD THIS TO YOUR SERVER CONFIG ==="
-      echo ""
-      echo "[Peer]"
-      echo "PublicKey = $PEER_PUBLIC_KEY"
-      echo "AllowedIPs = $peer_address"
-      echo ""
-      yellow "Remember to reload WireGuard on the server!"
+      printf '\n%s=== ADD THIS TO YOUR SERVER CONFIG ===%s\n\n' "$BLUE" "$RESET"
+      printf '[Peer]\nPublicKey = %s\nAllowedIPs = %s\n\n' "$PEER_PUBLIC_KEY" "$peer_address"
+      printf '%sRemember to reload WireGuard on the server!%s\n' "$YELLOW" "$RESET"
     fi
 
-    echo ""
-    green "=== SUMMARY ==="
-    echo "Peer Address:    $peer_address"
-    echo "Peer Public Key: $PEER_PUBLIC_KEY"
-    echo "Server Endpoint: $endpoint"
-    echo ""
+    printf '\n%s=== SUMMARY ===%s\nPeer Address:    %s\nPeer Public Key: %s\nServer Endpoint: %s\n\n' \
+      "$GREEN" "$RESET" "$peer_address" "$PEER_PUBLIC_KEY" "$endpoint"
   '';
 }

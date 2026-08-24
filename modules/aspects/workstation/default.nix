@@ -4,7 +4,6 @@
       appimage
       bluetooth
       build-machines
-      flatpak
       gotify-desktop
       kanata
       mesh-client

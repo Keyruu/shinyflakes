@@ -42,10 +42,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    pedantix.url = "github:swarsel/pedantix";
-
-    tix.url = "github:JRMurr/tix";
-
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -85,25 +81,9 @@
 
     copyparty.url = "github:9001/copyparty";
 
-    pog.url = "github:jpetrucciani/pog";
-
     # workstation
     home-manager = {
       url = "github:nix-community/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    firefox-addons = {
-      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    rycee = {
-      url = "gitlab:rycee/nur-expressions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -120,8 +100,6 @@
 
     niri.url = "github:sodiboo/niri-flake";
 
-    spicetify-nix.url = "github:Gerg-L/spicetify-nix";
-
     nvf = {
       url = "github:NotAShelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -132,7 +110,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
+    helium = {
+      url = "github:schembriaiden/helium-browser-nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     noctalia = {
       url = "github:noctalia-dev/noctalia";
@@ -140,13 +121,6 @@
     };
 
     llm-agents.url = "github:numtide/llm-agents.nix";
-
-    glide = {
-      url = "github:glide-browser/glide.nix";
-      # optionally: follow your flake's inputs
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
 
     # web
     homepage.url = "git+https://git.keyruu.de/lucas/homepage";

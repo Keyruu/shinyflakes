@@ -11,13 +11,23 @@ map("n", "<S-q>", function()
   vim.cmd("bprevious")
   vim.api.nvim_buf_delete(cur, {})
 end, "Delete buffer")
-map("n", "<leader>bD", ':%bdelete|edit #|normal`"<CR>', "Delete other buffers")
+
+local function buf_only()
+  local cur = vim.api.nvim_get_current_buf()
+  for _, b in ipairs(vim.api.nvim_list_bufs()) do
+    if b ~= cur and vim.api.nvim_buf_is_loaded(b) then
+      vim.api.nvim_buf_delete(b, { force = true })
+    end
+  end
+end
+
+map("n", "<leader>bD", buf_only, "Delete other buffers")
 
 -- typable helix-style commands (discoverable via <leader>fc palette)
 vim.api.nvim_create_user_command("Format", function()
   require("conform").format({ async = true, lsp_format = "fallback" })
 end, { desc = "Format buffer (conform, lsp fallback)" })
-vim.api.nvim_create_user_command("BufOnly", '%bdelete|edit #|normal`"', { desc = "Close other buffers" })
+vim.api.nvim_create_user_command("BufOnly", buf_only, { desc = "Close other buffers" })
 
 -- clipboard
 for _, m in ipairs({ "n", "v" }) do
