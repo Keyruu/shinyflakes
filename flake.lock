@@ -1151,7 +1151,8 @@
         "terranix": "terranix",
         "treefmt-nix": "treefmt-nix_5",
         "vicinae": "vicinae",
-        "vicinae-extensions": "vicinae-extensions"
+        "vicinae-extensions": "vicinae-extensions",
+        "zellij": "zellij"
       }
     },
     "rust-overlay": {
@@ -1560,6 +1561,26 @@
       "original": {
         "owner": "Supreeeme",
         "repo": "xwayland-satellite",
+        "type": "github"
+      }
+    },
+    "zellij": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788198916,
+        "narHash": "sha256-eSzfulvjBbhC0/v57vZxE4A6lWLpk/6wXEvFOBwZLLI=",
+        "owner": "Keyruu",
+        "repo": "zellij",
+        "rev": "d862ff6eed7daef087a149f25c0cb237d4edab15",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Keyruu",
+        "repo": "zellij",
         "type": "github"
       }
     }

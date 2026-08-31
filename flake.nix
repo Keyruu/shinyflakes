@@ -122,6 +122,11 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    zellij = {
+      url = "github:Keyruu/zellij";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # web
     homepage.url = "git+https://git.keyruu.de/lucas/homepage";
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
