@@ -132,5 +132,12 @@
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
+  outputs = inputs:
+    let
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
+    in
+    flake // {
+      # pipeline host discovery (build.yml: setup job)
+      lib.hostMatrix.host = builtins.attrNames flake.nixosConfigurations;
+    };
 }

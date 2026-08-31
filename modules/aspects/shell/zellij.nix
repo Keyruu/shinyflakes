@@ -214,6 +214,7 @@
                   bind "d" { NewPane "Down"; SwitchToMode "Locked"; }
                   bind "r" { NewPane "Right"; SwitchToMode "Locked"; }
                   bind "s" { NewPane "stacked"; SwitchToMode "Locked"; }
+                  bind "S" { ToggleStackListOrientation; SwitchToMode "Locked"; }
                   bind "x" { CloseFocus; SwitchToMode "Locked"; }
                   bind "f" { ToggleFocusFullscreen; SwitchToMode "Locked"; }
                   bind "z" { TogglePaneFrames; SwitchToMode "Locked"; }

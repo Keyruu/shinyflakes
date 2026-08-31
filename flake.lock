@@ -1571,11 +1571,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788198916,
-        "narHash": "sha256-eSzfulvjBbhC0/v57vZxE4A6lWLpk/6wXEvFOBwZLLI=",
+        "lastModified": 1788202475,
+        "narHash": "sha256-/55gpTf17cKqELtzWN9rpKrhJawYbHHPHkaHN5FDRuo=",
         "owner": "Keyruu",
         "repo": "zellij",
-        "rev": "d862ff6eed7daef087a149f25c0cb237d4edab15",
+        "rev": "15f70407a6f46fafd8ef11b165afdde134b549f7",
         "type": "github"
       },
       "original": {
