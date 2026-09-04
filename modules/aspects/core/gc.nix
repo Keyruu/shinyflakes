@@ -1,7 +1,7 @@
 {
   den.aspects.core.gc = {
     nixos = { ... }: {
-      services.journald.extraConfig = "SystemMaxUse=1G";
+      services.journald.settings.Journal.SystemMaxUse = "1G";
 
       # GC mid-build when free space drops below 3G, free up to 10G —
       # prime's 37G disk fills up during comin updates otherwise
