@@ -9,5 +9,12 @@ runs:
       env:
         TOKEN: ${{ inputs.token }}
       run: |
+        # ponytail: assume all submodules use https://. Add ssh:// branch when needed.
         git submodule init
-        git -c "submodule.nix/modules/private.url=https://x-access-token:${TOKEN}@git.keyruu.de/lucas/privateflakes.git" submodule update --recursive
+        mapfile -t lines < <(git config -f .gitmodules --get-regexp '^submodule\..*\.url')
+        for line in "${lines[@]}"; do
+            key="${line%% *}"
+            url="${line#* }"
+            set -- "$@" -c "${key}=${url/https:\/\//https://x-access-token:${TOKEN}@}"
+        done
+        git "$@" submodule update --recursive

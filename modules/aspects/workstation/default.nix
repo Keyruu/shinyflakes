@@ -13,6 +13,7 @@
       printing
       secrets
       sound
+      sunshine
       systemd-boot
       udev
       wireguard
