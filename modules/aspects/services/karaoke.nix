@@ -39,7 +39,7 @@
             containers = {
               karaoke = {
                 containerConfig = {
-                  image = "docker.io/vicwomg/pikaraoke:1.21.0";
+                  image = "docker.io/vicwomg/pikaraoke:1.23.0";
                   publishPorts = [ "${config.services.mesh.ip}:5555:5555" ];
                   entrypoint = [
                     "/bin/sh"
