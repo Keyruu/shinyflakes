@@ -41,7 +41,7 @@
             # and these caps despite the OWASP drop-ALL default
             security.readOnlyRootFilesystem = false;
             containerConfig = {
-              image = "docker.io/nousresearch/hermes-agent:v2026.7.7.2";
+              image = "docker.io/nousresearch/hermes-agent:v2026.8.16.2";
               exec = [
                 "gateway"
                 "run"
