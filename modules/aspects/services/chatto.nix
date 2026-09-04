@@ -155,7 +155,7 @@
 
               livekit = {
                 containerConfig = {
-                  image = "docker.io/livekit/livekit-server:v1.13.5";
+                  image = "docker.io/livekit/livekit-server:v1.13.6";
                   exec = "--config /etc/livekit.yaml";
                   publishPorts = [
                     "3478:3478/udp"
