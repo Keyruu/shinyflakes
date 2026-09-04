@@ -170,6 +170,7 @@
               default_mode "locked"
               default_shell "${fish}"
               scrollback_editor "${lib.getExe self'.packages.nvim-scrollback}"
+              default_stack_list_orientation "horizontal"
 
               // Zellij's official "unlock-first" preset (from presets.rs),
               // adapted: unlock is Ctrl-Space (not Ctrl-g), secondary modifier
@@ -392,6 +393,7 @@
                       floating true
                       close_on_exit true
                       name "pi herd"
+                      launch_or_focus true
                     }
                   }
                   bind "Alt s" {
@@ -399,6 +401,7 @@
                       floating true
                       close_on_exit true
                       name "zs"
+                      launch_or_focus true
                     }
                   }
                   bind "Alt i" { MoveTab "Left"; }

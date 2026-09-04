@@ -48,7 +48,6 @@
           platform = "forgejo";
           platformAutomerge = false;
           automergeStrategy = "rebase";
-          extends = [ ":disableMonorepoGrouping" ];
           autodiscover = true;
           autodiscoverFilter = [ "lucas/*" ];
 
