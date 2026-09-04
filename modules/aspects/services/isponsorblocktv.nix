@@ -14,7 +14,7 @@
           containers = {
             isponsorblocktv = {
               containerConfig = {
-                image = "ghcr.io/dmunozv04/isponsorblocktv:v2.10.0";
+                image = "ghcr.io/dmunozv04/isponsorblocktv:v2.11.0";
                 networks = [ "host" ];
                 volumes = [
                   "/etc/stacks/isponsorblocktv/data:/app/data"
