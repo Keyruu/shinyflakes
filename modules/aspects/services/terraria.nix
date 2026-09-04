@@ -13,7 +13,7 @@
           containers = {
             terraria = {
               containerConfig = {
-                image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5.6";
+                image = "docker.io/passivelemon/terraria-docker:terraria-1.4.5.8";
                 publishPorts = [ "7777:7777" ];
                 volumes = [
                   "/etc/stacks/terraria/config:/opt/terraria/config/"
