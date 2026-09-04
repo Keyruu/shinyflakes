@@ -49,7 +49,7 @@
 
             containers.gotify = {
               containerConfig = {
-                image = "docker.io/gotify/server:3.0.0";
+                image = "docker.io/gotify/server:3.1.0";
                 publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
                 volumes = [ "${my.stack.path}/data:/app/data" ];
                 environmentFiles = [ config.sops.templates."gotify.env".path ];
