@@ -188,7 +188,7 @@
               };
               anubis = {
                 containerConfig = {
-                  image = "ghcr.io/techarohq/anubis:v1.26.2";
+                  image = "ghcr.io/techarohq/anubis:v1.27.0";
                   publishPorts = [
                     "${meshIp}:${toString my.port}:3000"
                   ];
