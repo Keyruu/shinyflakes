@@ -13,5 +13,5 @@ pkgs.caddy.withPlugins {
     "github.com/greenpau/caddy-security@${caddySecurityVersion}"
     "github.com/porech/caddy-maxmind-geolocation@${caddyMaxmindVersion}"
   ];
-  hash = "sha256-nZ03CyB2g7RoqkU9+sD/dcB73aTtTEzQCb2t+vKZ7ck=";
+  hash = "sha256-3SE4SiW+oLA6cyguw29YC3bYQDWOQaZqDHvkW/M4DXQ=";
 }
