@@ -96,12 +96,20 @@
           import coraza-waf
           import cloudflare-only
 
-          forward_auth 127.0.0.1:8010 {
-            uri /api/authz/forward-auth?policy=multi_scrobbler_access
-            copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+          # ListenBrainz endpoint is its own bearer-token auth (LZE_TOKEN);
+          # skip forward_auth so player submissions work without browser cookies.
+          handle /1* {
+            reverse_proxy http://127.0.0.1:${toString my.port}
           }
 
-          reverse_proxy http://127.0.0.1:${toString my.port}
+          handle {
+            forward_auth 127.0.0.1:8010 {
+              uri /api/authz/forward-auth?policy=multi_scrobbler_access
+              copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+            }
+
+            reverse_proxy http://127.0.0.1:${toString my.port}
+          }
         '';
       };
     };
