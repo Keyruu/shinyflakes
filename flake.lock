@@ -1582,11 +1582,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788338245,
-        "narHash": "sha256-9QXu/+sL0OXWuA+m29QUw7qaMuH9YrF/cJPtCXCeRRY=",
+        "lastModified": 1788772475,
+        "narHash": "sha256-BEPZRDUNIjuC00frr49q09My1K5ds6kK6wGvcH0ns2M=",
         "owner": "Keyruu",
         "repo": "zellij",
-        "rev": "fa272d3f3517928ec3a6a485bb3426bbd80b42fd",
+        "rev": "81d67add604760e795c660c54104ace5d4ad484f",
         "type": "github"
       },
       "original": {

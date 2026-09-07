@@ -44,6 +44,11 @@
           LZE_TOKEN=${config.sops.placeholder.multiScrobblerListenBrainzToken}
           LASTFM_API_KEY=${config.sops.placeholder.multiScrobblerLastfmApiKey}
           LASTFM_SECRET=${config.sops.placeholder.multiScrobblerLastfmSharedSecret}
+          SOURCE_LASTFM_ID=lastfm-source
+          SOURCE_LASTFM_NAME=Last.fm
+          SOURCE_LASTFM_ENABLE=true
+          SOURCE_LASTFM_API_KEY=${config.sops.placeholder.multiScrobblerLastfmApiKey}
+          SOURCE_LASTFM_SECRET=${config.sops.placeholder.multiScrobblerLastfmSharedSecret}
         '';
       };
 
@@ -91,10 +96,11 @@
           import coraza-waf
           import cloudflare-only
 
-          @protected not path /1*
-          basic_auth @protected {
-            lucas {$PASSWORD_HASH}
+          forward_auth 127.0.0.1:8010 {
+            uri /api/authz/forward-auth?policy=multi_scrobbler_access
+            copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
           }
+
           reverse_proxy http://127.0.0.1:${toString my.port}
         '';
       };

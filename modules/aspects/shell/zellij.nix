@@ -390,18 +390,16 @@
                   // pi instance overview — jump to any pi across sessions
                   bind "Alt p" {
                     Run "${lib.getExe self'.packages.pi-herd}" {
-                      floating true
+                      scratchpad true
                       close_on_exit true
                       name "pi herd"
-                      launch_or_focus true
                     }
                   }
                   bind "Alt s" {
                     Run "${lib.getExe self'.packages.zs}" {
-                      floating true
+                      scratchpad true
                       close_on_exit true
                       name "zs"
-                      launch_or_focus true
                     }
                   }
                   bind "Alt i" { MoveTab "Left"; }
