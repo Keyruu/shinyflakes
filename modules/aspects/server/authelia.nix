@@ -151,7 +151,7 @@ in
                 }
                 {
                   domain = "keyruu.de";
-                  authelia_url = "https://auth.peeraten.net";
+                  authelia_url = "https://auth.keyruu.de";
                 }
               ];
 
@@ -189,6 +189,11 @@ in
           caddy.virtualHosts."auth.peeraten.net".extraConfig = ''
             import coraza-waf
             import cloudflare-only
+
+            reverse_proxy 127.0.0.1:8010
+          '';
+          caddy.virtualHosts."auth.keyruu.de".extraConfig = ''
+            import coraza-waf
 
             reverse_proxy 127.0.0.1:8010
           '';
