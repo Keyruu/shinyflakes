@@ -149,6 +149,10 @@ in
                   domain = "peeraten.net";
                   authelia_url = "https://auth.peeraten.net";
                 }
+                {
+                  domain = "keyruu.de";
+                  authelia_url = "https://auth.peeraten.net";
+                }
               ];
 
               storage.local.path = "/var/lib/authelia-main/db.sqlite3";
