@@ -17,7 +17,7 @@
         home.sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
 
         home.packages = with pkgs; [
-          qt6ct
+          qt6Packages.qt6ct
         ];
 
         programs.dank-material-shell = {
