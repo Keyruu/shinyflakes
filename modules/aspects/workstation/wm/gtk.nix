@@ -17,6 +17,10 @@
               };
               extraCss = # css
                 ''
+                  /* DankMaterialShell injects dms colors via matugen; this
+                     import must stay first so our extraCss below layers on top. */
+                  @import url("dank-colors.css");
+
                   /* No (default) title bar on wayland */
                   headerbar.default-decoration {
                     margin-bottom: 50px;
@@ -33,10 +37,10 @@
           in
           {
             enable = true;
-            theme = {
-              name = "Dark";
-              package = pkgs.gnome-themes-extra;
-            };
+            # theme = {
+            #   name = "Dark";
+            #   package = pkgs.gnome-themes-extra;
+            # };
             iconTheme = {
               name = "Papirus";
               package = pkgs.papirus-icon-theme;
