@@ -33,124 +33,205 @@
           settings = {
             currentThemeName = "custom";
             customThemeFile = "${config.home.homeDirectory}/.config/DankMaterialShell/theme.json";
+            clockFormat = "24h";
+            barElevationEnabled = false;
             blurEnabled = true;
-            use24HourClock = true;
+            showWorkspaceName = true;
+            showWorkspaceApps = true;
+            workspaceFollowFocus = true;
+            workspaceActiveAppHighlightEnabled = true;
             clockDateFormat = "ddd dd.MM.";
-            showOccupiedWorkspacesOnly = true;
-            runningAppsCurrentWorkspace = true;
-            scrollTitleEnabled = true;
-            soundsEnabled = true;
-            soundNewNotification = true;
-
-            # idle: lock at 5min, screen off at 5min+10s, suspend at 15min
-            acLockTimeout = 300;
             acMonitorTimeout = 310;
+            acLockTimeout = 300;
             acSuspendTimeout = 900;
-            batteryLockTimeout = 300;
             batteryMonitorTimeout = 310;
+            batteryLockTimeout = 300;
             batterySuspendTimeout = 900;
             lockBeforeSuspend = true;
-            fadeToLockEnabled = true;
-            fadeToLockGracePeriod = 5;
-            fadeToDpmsEnabled = true;
-            fadeToDpmsGracePeriod = 5;
+            dankIslandBarId = "default";
+            dankIslandHomeCompactTight = true;
 
-            barConfigs =
-              let
-                commonBar = {
-                  enabled = true;
-                  position = 0;
-                  showOnLastDisplay = true;
-                  transparency = 0.7;
-                  widgetTransparency = 1.0;
-                  noBackground = false;
-                  spacing = 5;
-                  innerPadding = 5;
-                  bottomGap = 0;
+            desktopClockCustomColor = {
+              r = 1; g = 1; b = 1; a = 1;
+              hsvHue = -1; hsvSaturation = 0; hsvValue = 1;
+              hslHue = -1; hslSaturation = 0; hslLightness = 1;
+              valid = true;
+            };
 
-                  leftWidgets = [
-                    { id = "launcherButton"; enabled = true; }
-                    { id = "workspaceSwitcher"; enabled = true; }
-                    {
-                      id = "runningApps";
-                      enabled = true;
-                      runningAppsCompactMode = true;
-                      runningAppsCurrentWorkspace = true;
-                    }
-                    { id = "focusedWindow"; enabled = true; }
-                  ];
+            systemMonitorCustomColor = {
+              r = 1; g = 1; b = 1; a = 1;
+              hsvHue = -1; hsvSaturation = 0; hsvValue = 1;
+              hslHue = -1; hslSaturation = 0; hslLightness = 1;
+              valid = true;
+            };
 
-                  centerWidgets = [
-                    { id = "music"; enabled = true; }
-                  ];
+            builtInPluginSettings = {
+              dms_settings_search = { trigger = "?"; };
+              dms_clipboard_search = { trigger = "cb"; };
+              dms_power = { trigger = "pw"; };
+              dms_qr_generator = { trigger = "qrg"; };
+            };
 
-                  rightWidgets = [
-                    { id = "systemTray"; enabled = true; }
-                    { id = "khalNextEvent"; enabled = true; }
-                    {
-                      id = "cpuUsage";
-                      enabled = true;
-                      minimumWidth = true;
-                      showLabel = false;
-                    }
-                    {
-                      id = "memUsage";
-                      enabled = true;
-                      minimumWidth = true;
-                      showLabel = false;
-                      showSwap = false;
-                    }
-                    { id = "battery"; enabled = true; }
-                    {
-                      id = "controlCenterButton";
-                      enabled = true;
-                      showNetworkIcon = true;
-                      showBluetoothIcon = true;
-                      showAudioIcon = true;
-                      showAudioPercent = false;
-                      showMicIcon = true;
-                      showMicPercent = false;
-                      showBrightnessIcon = false;
-                    }
-                    { id = "clock"; enabled = true; }
-                    { id = "idleInhibitor"; enabled = true; }
-                    { id = "notificationButton"; enabled = true; }
-                  ];
+            configVersion = 17;
 
-                  scrollEnabled = true;
-                  scrollXBehavior = "column";
-                  scrollYBehavior = "workspace";
-                  maximizeDetection = true;
-                  squareCorners = false;
-                  visible = true;
-                  autoHide = false;
-                  popupGapsAuto = true;
-                  popupGapsManual = 4;
-                };
-              in
-              [
-                (commonBar // {
-                  id = "default";
-                  name = "Main Bar";
-                  screenPreferences = [
-                    "HDMI-A-1"
-                    "HDMI-A-2"
-                    "DP-1"
-                    "DP-2"
-                    "DP-3"
-                    "DVI-I-1"
-                  ];
-                  fontScale = 1.0;
-                  iconScale = 1.0;
-                })
-                (commonBar // {
-                  id = "laptop";
-                  name = "Laptop Bar";
-                  screenPreferences = [ "eDP-1" ];
-                  fontScale = 0.85;
-                  iconScale = 0.85;
-                })
-              ];
+            barConfigs = [
+              {
+                id = "default";
+                name = "Main Bar";
+                enabled = true;
+                position = 0;
+                screenPreferences = [ "all" ];
+                showOnLastDisplay = true;
+                autoHide = false;
+                bottomGap = 0;
+                transparency = 0.7;
+                widgetTransparency = 1;
+                noBackground = false;
+                spacing = 5;
+                innerPadding = 5;
+                popupGapsAuto = true;
+                popupGapsManual = 4;
+                scrollEnabled = true;
+                scrollXBehavior = "column";
+                scrollYBehavior = "workspace";
+                maximizeDetection = true;
+                squareCorners = false;
+                visible = true;
+                shadowIntensity = 0;
+                attachToScreenEdge = false;
+                gothCornersEnabled = false;
+                borderEnabled = false;
+                maximizeWidgetIcons = false;
+                maximizeWidgetText = false;
+                removeWidgetPadding = false;
+                widgetPadding = 9;
+                barInsetPadding = 24;
+                fontScale = 0.9;
+                iconScale = 0.8;
+
+                leftWidgets = [
+                  { id = "workspaceSwitcher"; enabled = true; }
+                  {
+                    id = "runningApps";
+                    enabled = true;
+                    runningAppsCompactMode = true;
+                    runningAppsCurrentWorkspace = true;
+                    runningAppsGroupByApp = true;
+                    runningAppsCurrentMonitor = false;
+                  }
+                  {
+                    id = "focusedWindow";
+                    enabled = true;
+                    focusedWindowSize = 1;
+                    focusedWindowCompactMode = false;
+                  }
+                ];
+
+                centerWidgets = [
+                  { id = "music"; enabled = true; }
+                ];
+
+                rightWidgets = [
+                  { id = "systemTray"; enabled = true; }
+                  { id = "khalNextEvent"; enabled = true; }
+                  {
+                    id = "cpuUsage";
+                    enabled = true;
+                    minimumWidth = true;
+                    showLabel = false;
+                  }
+                  {
+                    id = "memUsage";
+                    enabled = true;
+                    minimumWidth = true;
+                    showLabel = false;
+                    showSwap = false;
+                  }
+                  { id = "battery"; enabled = true; }
+                  { id = "clock"; enabled = true; }
+                  { id = "idleInhibitor"; enabled = true; }
+                  { id = "notificationButton"; enabled = true; }
+                ];
+              }
+              {
+                id = "laptop";
+                name = "Laptop Bar";
+                enabled = true;
+                position = 0;
+                screenPreferences = [ "eDP-1" ];
+                showOnLastDisplay = true;
+                autoHide = false;
+                bottomGap = 0;
+                transparency = 0.7;
+                widgetTransparency = 1;
+                noBackground = false;
+                spacing = 5;
+                innerPadding = 5;
+                popupGapsAuto = true;
+                popupGapsManual = 4;
+                scrollEnabled = true;
+                scrollXBehavior = "column";
+                scrollYBehavior = "workspace";
+                maximizeDetection = true;
+                squareCorners = false;
+                visible = true;
+                shadowIntensity = 0;
+                attachToScreenEdge = false;
+                gothCornersEnabled = false;
+                borderEnabled = false;
+                fontScale = 0.85;
+                iconScale = 0.85;
+
+                leftWidgets = [
+                  { id = "launcherButton"; enabled = true; }
+                  { id = "workspaceSwitcher"; enabled = true; }
+                  {
+                    id = "runningApps";
+                    enabled = true;
+                    runningAppsCompactMode = true;
+                    runningAppsCurrentWorkspace = true;
+                  }
+                  { id = "focusedWindow"; enabled = true; }
+                ];
+
+                centerWidgets = [
+                  { id = "music"; enabled = true; }
+                ];
+
+                rightWidgets = [
+                  { id = "systemTray"; enabled = true; }
+                  { id = "khalNextEvent"; enabled = true; }
+                  {
+                    id = "cpuUsage";
+                    enabled = true;
+                    minimumWidth = true;
+                    showLabel = false;
+                  }
+                  {
+                    id = "memUsage";
+                    enabled = true;
+                    minimumWidth = true;
+                    showLabel = false;
+                    showSwap = false;
+                  }
+                  { id = "battery"; enabled = true; }
+                  {
+                    id = "controlCenterButton";
+                    enabled = true;
+                    showAudioIcon = true;
+                    showAudioPercent = false;
+                    showBluetoothIcon = true;
+                    showBrightnessIcon = false;
+                    showMicIcon = true;
+                    showMicPercent = false;
+                    showNetworkIcon = true;
+                  }
+                  { id = "clock"; enabled = true; }
+                  { id = "idleInhibitor"; enabled = true; }
+                  { id = "notificationButton"; enabled = true; }
+                ];
+              }
+            ];
           };
         };
 
