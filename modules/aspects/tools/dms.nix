@@ -2,13 +2,22 @@
 {
   den.aspects.tools.dms = {
     homeManager =
-      { config, user, ... }:
+      { config, pkgs, user, ... }:
       let
         t = user.theme;
       in
       {
         imports = [
           inputs.dms.homeModules.dank-material-shell
+        ];
+
+        # qt5ct/qt6ct read ~/.config/qt{5,6}ct/colors.conf (dms writes it via
+        # matugen) only when QT_QPA_PLATFORMTHEME points at them. Without
+        # this env var, Qt apps use their built-in defaults and ignore dms.
+        home.sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
+
+        home.packages = with pkgs; [
+          qt6ct
         ];
 
         programs.dank-material-shell = {
