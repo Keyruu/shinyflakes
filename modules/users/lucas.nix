@@ -231,7 +231,7 @@
           tea
           handy
           plezy
-          spotify
+          sone
 
           # self'.packages.numr
           # self'.packages.glide-browser

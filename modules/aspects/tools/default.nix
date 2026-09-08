@@ -14,6 +14,7 @@
       nh
       nix-index-database
       noctalia
+      dms
       repos
       satty
       screenshot
