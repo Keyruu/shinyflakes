@@ -132,7 +132,14 @@
                 (commonBar // {
                   id = "default";
                   name = "Main Bar";
-                  screenPreferences = [ "all" ];
+                  screenPreferences = [
+                    "HDMI-A-1"
+                    "HDMI-A-2"
+                    "DP-1"
+                    "DP-2"
+                    "DP-3"
+                    "DVI-I-1"
+                  ];
                   fontScale = 1.0;
                   iconScale = 1.0;
                 })
