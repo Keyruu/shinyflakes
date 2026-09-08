@@ -33,8 +33,6 @@
           settings = {
             currentThemeName = "custom";
             customThemeFile = "${config.home.homeDirectory}/.config/DankMaterialShell/theme.json";
-            wallpaperPath = ../../../assets/dark-bg.jpg;
-            wallpaperFillMode = "Fill";
             clockFormat = "24h";
             barElevationEnabled = false;
             blurEnabled = true;
@@ -234,6 +232,12 @@
                 ];
               }
             ];
+          };
+
+          # wallpaperPath lives in session.json (SessionSpec), not settings.json
+          session = {
+            wallpaperPath = ../../../assets/dark-bg.jpg;
+            wallpaperFillMode = "Fill";
           };
         };
 
