@@ -46,7 +46,7 @@
             barElevationEnabled = false;
             blurEnabled = true;
             showWorkspaceName = true;
-            showWorkspaceApps = true;
+            showWorkspaceApps = false;
             workspaceFollowFocus = true;
             workspaceActiveAppHighlightEnabled = true;
             clockDateFormat = "ddd dd.MM.";
