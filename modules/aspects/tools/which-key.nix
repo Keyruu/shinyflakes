@@ -273,8 +273,6 @@
         xdg.desktopEntries.which-key = {
           name = "wlr-which-key";
           exec = "${lib.getExe pkgs.wlr-which-key}";
-          terminal = false;
-          type = "Application";
           categories = [ "Utility" ];
           icon = "dialog-question";
         };

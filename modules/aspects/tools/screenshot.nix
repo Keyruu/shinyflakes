@@ -74,8 +74,6 @@
         mkEntry = mode: label: {
           name = "Screenshot (${label})";
           exec = "${lib.getExe screenshot} ${mode}";
-          terminal = false;
-          type = "Application";
           categories = [
             "Utility"
             "Graphics"

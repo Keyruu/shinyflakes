@@ -140,8 +140,6 @@
               settings = {
                 Path = "/home/lucas/.local/share/Steam/steamapps/common/tModLoader";
               };
-              terminal = false;
-              type = "Application";
               categories = [ "Game" ];
               icon = "terraria";
             };

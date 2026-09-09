@@ -118,7 +118,6 @@ in
           comment = "Re-evaluate kanshi profiles";
           exec = "${pkgs.kanshi}/bin/kanshictl reload";
           icon = "preferences-desktop-display";
-          terminal = false;
           categories = [ "Utility" ];
         };
 

@@ -26,14 +26,12 @@
           name = "Vicinae Deeplink Handler";
           exec = "vicinae %u";
           icon = "vicin.ae";
-          type = "Application";
           categories = [
             "System"
             "Utility"
           ];
           genericName = "Vicinae Deeplink Handler";
           comment = "Open Vicinae Deeplinks";
-          terminal = false;
           noDisplay = true;
           mimeType = [
             "x-scheme-handler/vicinae"

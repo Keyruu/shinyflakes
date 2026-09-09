@@ -9,9 +9,17 @@ import qs.Modules.Plugins
 PluginComponent {
     id: root
 
+    // Disable click-to-open; popout opens via DankBar's global hover handler
+    // (requires services.dms.bar.hoverPopouts = true in dms.nix).
+    pillClickAction: () => {}
+
     property string eventText: "No events"
     property string agendaText: ""
     property var agendaLines: []
+    readonly property string displayText: {
+        const max = 60;
+        return eventText.length > max ? eventText.substring(0, max - 1) + "…" : eventText;
+    }
 
     Timer {
         interval: 60000
@@ -61,18 +69,15 @@ PluginComponent {
             DankIcon {
                 name: "calendar_today"
                 size: root.iconSize
-                color: Theme.primary
+                color: Theme.widgetIconColor
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             StyledText {
-                text: root.eventText
-                font.pixelSize: Theme.fontSizeMedium
-                color: Theme.surfaceText
+                text: root.displayText
+                font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+                color: Theme.widgetTextColor
                 anchors.verticalCenter: parent.verticalCenter
-                elide: Text.ElideRight
-                maximumLineCount: 1
-                width: Math.min(implicitWidth, 300)
             }
         }
     }
@@ -84,7 +89,7 @@ PluginComponent {
             DankIcon {
                 name: "calendar_today"
                 size: root.iconSize
-                color: Theme.primary
+                color: Theme.widgetIconColor
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }
@@ -119,7 +124,7 @@ PluginComponent {
                             text: parent.cleanText
                             font.pixelSize: parent.isHeader ? Theme.fontSizeMedium : Theme.fontSizeSmall
                             font.weight: parent.isHeader ? Font.Bold : Font.Normal
-                            color: parent.isHeader ? Theme.primary : Theme.surfaceText
+                            color: parent.isHeader ? Theme.primary : Theme.widgetTextColor
                             textFormat: parent.isHeader ? Text.PlainText : Text.RichText
                             wrapMode: Text.WordWrap
                         }

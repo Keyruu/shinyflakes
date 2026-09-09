@@ -5,6 +5,35 @@
       { config, pkgs, user, ... }:
       let
         t = user.theme;
+
+        # Shared DankBar defaults for both `default` and `laptop` bars. Per-bar
+        # entries override id / name / screenPreferences / fontScale / iconScale
+        # and their widget lists.
+        commonBar = {
+          enabled = true;
+          position = 0;
+          showOnLastDisplay = true;
+          autoHide = false;
+          bottomGap = 0;
+          transparency = 0.7;
+          widgetTransparency = 1;
+          noBackground = false;
+          spacing = 5;
+          innerPadding = 5;
+          popupGapsAuto = true;
+          popupGapsManual = 4;
+          scrollEnabled = true;
+          scrollXBehavior = "column";
+          scrollYBehavior = "workspace";
+          maximizeDetection = true;
+          squareCorners = false;
+          visible = true;
+          shadowIntensity = 0;
+          attachToScreenEdge = false;
+          gothCornersEnabled = false;
+          borderEnabled = false;
+          hoverPopouts = true;
+        };
       in
       {
         imports = [
@@ -45,6 +74,30 @@
             clockFormat = "24h";
             barElevationEnabled = false;
             blurEnabled = true;
+            controlCenterWidgets = [
+              { id = "volumeSlider"; enabled = true; width = 50; }
+              { id = "inputVolumeSlider"; enabled = true; width = 50; }
+              { id = "brightnessSlider"; enabled = true; width = 50; }
+              { id = "wifi"; enabled = true; width = 50; }
+              { id = "bluetooth"; enabled = true; width = 50; }
+              { id = "audioOutput"; enabled = true; width = 50; }
+              { id = "audioInput"; enabled = true; width = 50; }
+              { id = "battery"; enabled = true; width = 50; }
+              { id = "nightMode"; enabled = true; width = 50; }
+              { id = "darkMode"; enabled = true; width = 50; }
+              { id = "idleInhibitor"; enabled = true; width = 50; }
+              { id = "builtin_vpn"; enabled = true; width = 50; }
+              { id = "colorPicker"; enabled = true; width = 50; }
+              {
+                id = "diskUsage";
+                enabled = true;
+                width = 50;
+                instanceId = "mttwzfnrtkf31t8zlbr1jaruf4grv";
+                mountPath = "/";
+                showMountPath = true;
+              }
+              { id = "builtin_cups"; enabled = true; width = 50; }
+            ];
             showWorkspaceName = true;
             showWorkspaceApps = false;
             workspaceFollowFocus = true;
@@ -57,22 +110,6 @@
             batteryLockTimeout = 300;
             batterySuspendTimeout = 900;
             lockBeforeSuspend = true;
-            dankIslandBarId = "default";
-            dankIslandHomeCompactTight = true;
-
-            desktopClockCustomColor = {
-              r = 1; g = 1; b = 1; a = 1;
-              hsvHue = -1; hsvSaturation = 0; hsvValue = 1;
-              hslHue = -1; hslSaturation = 0; hslLightness = 1;
-              valid = true;
-            };
-
-            systemMonitorCustomColor = {
-              r = 1; g = 1; b = 1; a = 1;
-              hsvHue = -1; hsvSaturation = 0; hsvValue = 1;
-              hslHue = -1; hslSaturation = 0; hslLightness = 1;
-              valid = true;
-            };
 
             builtInPluginSettings = {
               dms_settings_search = { trigger = "?"; };
@@ -81,42 +118,23 @@
               dms_qr_generator = { trigger = "qrg"; };
             };
 
-            configVersion = 17;
+            configVersion = 18;
 
             barConfigs = [
-              {
+              (commonBar // {
                 id = "default";
                 name = "Main Bar";
-                enabled = true;
-                position = 0;
                 screenPreferences = [ "all" ];
-                showOnLastDisplay = true;
-                autoHide = false;
-                bottomGap = 0;
-                transparency = 0.7;
-                widgetTransparency = 1;
-                noBackground = false;
-                spacing = 5;
-                innerPadding = 5;
-                popupGapsAuto = true;
-                popupGapsManual = 4;
-                scrollEnabled = true;
-                scrollXBehavior = "column";
-                scrollYBehavior = "workspace";
-                maximizeDetection = true;
-                squareCorners = false;
-                visible = true;
-                shadowIntensity = 0;
-                attachToScreenEdge = false;
-                gothCornersEnabled = false;
-                borderEnabled = false;
+                fontScale = 0.9;
+                iconScale = 0.8;
                 maximizeWidgetIcons = false;
                 maximizeWidgetText = false;
                 removeWidgetPadding = false;
                 widgetPadding = 9;
                 barInsetPadding = 24;
-                fontScale = 0.9;
-                iconScale = 0.8;
+                island = true;
+                islandHomeCompactTight = true;
+                islandNotificationExpand = true;
 
                 leftWidgets = [
                   { id = "workspaceSwitcher"; enabled = true; }
@@ -156,43 +174,47 @@
                     showLabel = false;
                     showSwap = false;
                   }
-                  { id = "battery"; enabled = true; }
-                  { id = "clock"; enabled = true; }
-                  { id = "idleInhibitor"; enabled = true; }
-                  { id = "notificationButton"; enabled = true; }
+                  {
+                    id = "controlCenterButton";
+                    enabled = true;
+                    showNetworkIcon = true;
+                    showBluetoothIcon = true;
+                    showAudioIcon = true;
+                    showAudioPercent = true;
+                    showVpnIcon = true;
+                    showBrightnessIcon = false;
+                    showBrightnessPercent = false;
+                    showMicIcon = true;
+                    showMicPercent = true;
+                    showBatteryIcon = true;
+                    showPrinterIcon = false;
+                    showScreenSharingIcon = true;
+                    showIdleInhibitorIcon = true;
+                    showDoNotDisturbIcon = false;
+                    controlCenterGroupOrder = [
+                      "network"
+                      "vpn"
+                      "bluetooth"
+                      "audio"
+                      "microphone"
+                      "brightness"
+                      "battery"
+                      "printer"
+                      "screenSharing"
+                      "idleInhibitor"
+                      "doNotDisturb"
+                    ];
+                  }
                 ];
-              }
-              {
+              })
+              (commonBar // {
                 id = "laptop";
                 name = "Laptop Bar";
-                enabled = true;
-                position = 0;
                 screenPreferences = [ "eDP-1" ];
-                showOnLastDisplay = true;
-                autoHide = false;
-                bottomGap = 0;
-                transparency = 0.7;
-                widgetTransparency = 1;
-                noBackground = false;
-                spacing = 5;
-                innerPadding = 5;
-                popupGapsAuto = true;
-                popupGapsManual = 4;
-                scrollEnabled = true;
-                scrollXBehavior = "column";
-                scrollYBehavior = "workspace";
-                maximizeDetection = true;
-                squareCorners = false;
-                visible = true;
-                shadowIntensity = 0;
-                attachToScreenEdge = false;
-                gothCornersEnabled = false;
-                borderEnabled = false;
                 fontScale = 0.85;
                 iconScale = 0.85;
 
                 leftWidgets = [
-                  { id = "launcherButton"; enabled = true; }
                   { id = "workspaceSwitcher"; enabled = true; }
                   {
                     id = "runningApps";
@@ -203,9 +225,7 @@
                   { id = "focusedWindow"; enabled = true; }
                 ];
 
-                centerWidgets = [
-                  { id = "music"; enabled = true; }
-                ];
+                centerWidgets = [ ];
 
                 rightWidgets = [
                   { id = "systemTray"; enabled = true; }
@@ -223,23 +243,21 @@
                     showLabel = false;
                     showSwap = false;
                   }
-                  { id = "battery"; enabled = true; }
                   {
                     id = "controlCenterButton";
                     enabled = true;
                     showAudioIcon = true;
-                    showAudioPercent = false;
+                    showAudioPercent = true;
                     showBluetoothIcon = true;
                     showBrightnessIcon = false;
                     showMicIcon = true;
-                    showMicPercent = false;
+                    showMicPercent = true;
                     showNetworkIcon = true;
+                    showIdleInhibitorIcon = true;
+                    showBatteryIcon = true;
                   }
-                  { id = "clock"; enabled = true; }
-                  { id = "idleInhibitor"; enabled = true; }
-                  { id = "notificationButton"; enabled = true; }
                 ];
-              }
+              })
             ];
           };
 
@@ -247,6 +265,43 @@
           session = {
             wallpaperPath = ../../../assets/dark-bg.jpg;
             wallpaperFillMode = "Fill";
+          };
+        };
+
+        xdg.desktopEntries = {
+          caffeine = {
+            name = "Caffeine";
+            exec = "dms ipc call inhibit toggle";
+            categories = [ "Utility" ];
+            icon = "caffeine";
+          };
+
+          notification-center = {
+            name = "Notification Center";
+            exec = "dms ipc call notifications toggle";
+            categories = [ "Utility" ];
+            icon = "notifications";
+          };
+
+          clear-notification = {
+            name = "Clear Notifications";
+            exec = "dms ipc call notifications clearAll";
+            categories = [ "Utility" ];
+            icon = "notification-disabled";
+          };
+
+          do-not-disturb = {
+            name = "Toggle DND";
+            exec = "dms ipc call notifications toggleDoNotDisturb";
+            categories = [ "Utility" ];
+            icon = "notification-disabled";
+          };
+
+          dms-calendar = {
+            name = "DMS Calendar";
+            exec = "dms ipc call dash toggle overview";
+            categories = [ "Office" ];
+            icon = "calendar";
           };
         };
 

@@ -13,7 +13,7 @@
       mpv
       nh
       nix-index-database
-      noctalia
+      # noctalia
       dms
       repos
       satty

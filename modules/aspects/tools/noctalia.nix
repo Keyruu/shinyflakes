@@ -225,8 +225,6 @@
           caffeine = {
             name = "Caffeine";
             exec = "noctalia msg caffeine-toggle";
-            terminal = false;
-            type = "Application";
             categories = [ "Utility" ];
             icon = "caffeine";
           };
@@ -234,8 +232,6 @@
           notification-center = {
             name = "Notification Center";
             exec = "noctalia msg panel-toggle control-center notifications";
-            terminal = false;
-            type = "Application";
             categories = [ "Utility" ];
             icon = "notifications";
           };
@@ -243,8 +239,6 @@
           clear-notification = {
             name = "Clear Notifications";
             exec = "noctalia msg notification-clear-history";
-            terminal = false;
-            type = "Application";
             categories = [ "Utility" ];
             icon = "notification-disabled";
           };
@@ -252,8 +246,6 @@
           do-not-disturb = {
             name = "Toggle DND";
             exec = "noctalia msg notification-dnd-toggle";
-            terminal = false;
-            type = "Application";
             categories = [ "Utility" ];
             icon = "notification-disabled";
           };

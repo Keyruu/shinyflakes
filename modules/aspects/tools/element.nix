@@ -6,7 +6,6 @@
         name = "Element (fixed)";
         exec = "element-desktop --password-store=\"gnome-libsecret\" %u";
         icon = "element";
-        type = "Application";
         categories = [
           "Network"
           "InstantMessaging"
