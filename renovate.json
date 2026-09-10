@@ -92,7 +92,7 @@
       ],
       "postUpgradeTasks": {
         "commands": [
-          "bash -c 'nix run .#update-hash -- $(basename {{{packageFile}}} .nix)'"
+          "bash -c 'nix run .?submodules=1#update-hash -- $(basename {{{packageFile}}} .nix)'"
         ],
         "fileFilters": [
           "nix/packages/**"
@@ -105,7 +105,7 @@
       "matchManagers": ["nix"],
       "postUpgradeTasks": {
         "commands": [
-          "bash -c 'nix run .#update-hash -- caddy'"
+          "bash -c 'nix run .?submodules=1#update-hash -- caddy'"
         ],
         "fileFilters": [
           "nix/packages/caddy.nix"

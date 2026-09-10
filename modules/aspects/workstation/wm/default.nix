@@ -4,9 +4,10 @@
       fonts
       graphical
       gtk
-      idle
+      qt
+      # idle
       kanshi
-      lock
+      # lock
       niri
       session
     ];

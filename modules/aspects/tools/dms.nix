@@ -2,7 +2,7 @@
 {
   den.aspects.tools.dms = {
     homeManager =
-      { config, pkgs, user, ... }:
+      { config, user, ... }:
       let
         t = user.theme;
 
@@ -12,7 +12,7 @@
         commonBar = {
           enabled = true;
           position = 0;
-          showOnLastDisplay = true;
+          showOnLastDisplay = false;
           autoHide = false;
           bottomGap = 0;
           transparency = 0.7;
@@ -34,19 +34,83 @@
           borderEnabled = false;
           hoverPopouts = true;
         };
+
+        # Both bars share identical widget layouts — defined once.
+        leftWidgets = [
+          { id = "workspaceSwitcher"; enabled = true; }
+          {
+            id = "runningApps";
+            enabled = true;
+            runningAppsCompactMode = true;
+            runningAppsCurrentWorkspace = true;
+            runningAppsGroupByApp = true;
+            runningAppsCurrentMonitor = false;
+          }
+          {
+            id = "focusedWindow";
+            enabled = true;
+            focusedWindowSize = 1;
+            focusedWindowCompactMode = false;
+          }
+        ];
+
+        centerWidgets = [
+          { id = "music"; enabled = true; mediaSize = 0; }
+        ];
+
+        rightWidgets = [
+          { id = "systemTray"; enabled = true; }
+          { id = "khalNextEvent"; enabled = true; }
+          {
+            id = "cpuUsage";
+            enabled = true;
+            minimumWidth = true;
+            showLabel = false;
+          }
+          {
+            id = "memUsage";
+            enabled = true;
+            minimumWidth = true;
+            showLabel = false;
+            showSwap = false;
+          }
+          {
+            id = "controlCenterButton";
+            enabled = true;
+            showNetworkIcon = true;
+            showBluetoothIcon = true;
+            showAudioIcon = true;
+            showAudioPercent = true;
+            showVpnIcon = true;
+            showBrightnessIcon = false;
+            showBrightnessPercent = false;
+            showMicIcon = true;
+            showMicPercent = true;
+            showBatteryIcon = true;
+            showPrinterIcon = false;
+            showScreenSharingIcon = true;
+            showIdleInhibitorIcon = true;
+            showDoNotDisturbIcon = false;
+            controlCenterGroupOrder = [
+              "network"
+              "vpn"
+              "bluetooth"
+              "audio"
+              "microphone"
+              "brightness"
+              "battery"
+              "printer"
+              "screenSharing"
+              "idleInhibitor"
+              "doNotDisturb"
+            ];
+          }
+          { id = "clock"; enabled = true; clockDateOrder = "dateFirst"; }
+        ];
       in
       {
         imports = [
           inputs.dms.homeModules.dank-material-shell
-        ];
-
-        # qt5ct/qt6ct read ~/.config/qt{5,6}ct/colors.conf (dms writes it via
-        # matugen) only when QT_QPA_PLATFORMTHEME points at them. Without
-        # this env var, Qt apps use their built-in defaults and ignore dms.
-        home.sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
-
-        home.packages = with pkgs; [
-          qt6Packages.qt6ct
         ];
 
         programs.dank-material-shell = {
@@ -84,7 +148,6 @@
               { id = "audioInput"; enabled = true; width = 50; }
               { id = "battery"; enabled = true; width = 50; }
               { id = "nightMode"; enabled = true; width = 50; }
-              { id = "darkMode"; enabled = true; width = 50; }
               { id = "idleInhibitor"; enabled = true; width = 50; }
               { id = "builtin_vpn"; enabled = true; width = 50; }
               { id = "colorPicker"; enabled = true; width = 50; }
@@ -99,13 +162,13 @@
               { id = "builtin_cups"; enabled = true; width = 50; }
             ];
             showWorkspaceName = true;
-            showWorkspaceApps = false;
             workspaceFollowFocus = true;
             workspaceActiveAppHighlightEnabled = true;
             clockDateFormat = "ddd dd.MM.";
             acMonitorTimeout = 310;
             acLockTimeout = 300;
             acSuspendTimeout = 900;
+            acPostLockMonitorTimeout = 60;
             batteryMonitorTimeout = 310;
             batteryLockTimeout = 300;
             batterySuspendTimeout = 900;
@@ -124,7 +187,14 @@
               (commonBar // {
                 id = "default";
                 name = "Main Bar";
-                screenPreferences = [ "all" ];
+                screenPreferences = [
+                  "HDMI-A-1"
+                  "HDMI-A-2"
+                  "DP-1"
+                  "DP-2"
+                  "DP-3"
+                  "DVI-I-1"
+                ];
                 fontScale = 0.9;
                 iconScale = 0.8;
                 maximizeWidgetIcons = false;
@@ -132,80 +202,9 @@
                 removeWidgetPadding = false;
                 widgetPadding = 9;
                 barInsetPadding = 24;
-                island = true;
-                islandHomeCompactTight = true;
-                islandNotificationExpand = true;
+                island = false;
 
-                leftWidgets = [
-                  { id = "workspaceSwitcher"; enabled = true; }
-                  {
-                    id = "runningApps";
-                    enabled = true;
-                    runningAppsCompactMode = true;
-                    runningAppsCurrentWorkspace = true;
-                    runningAppsGroupByApp = true;
-                    runningAppsCurrentMonitor = false;
-                  }
-                  {
-                    id = "focusedWindow";
-                    enabled = true;
-                    focusedWindowSize = 1;
-                    focusedWindowCompactMode = false;
-                  }
-                ];
-
-                centerWidgets = [
-                  { id = "music"; enabled = true; }
-                ];
-
-                rightWidgets = [
-                  { id = "systemTray"; enabled = true; }
-                  { id = "khalNextEvent"; enabled = true; }
-                  {
-                    id = "cpuUsage";
-                    enabled = true;
-                    minimumWidth = true;
-                    showLabel = false;
-                  }
-                  {
-                    id = "memUsage";
-                    enabled = true;
-                    minimumWidth = true;
-                    showLabel = false;
-                    showSwap = false;
-                  }
-                  {
-                    id = "controlCenterButton";
-                    enabled = true;
-                    showNetworkIcon = true;
-                    showBluetoothIcon = true;
-                    showAudioIcon = true;
-                    showAudioPercent = true;
-                    showVpnIcon = true;
-                    showBrightnessIcon = false;
-                    showBrightnessPercent = false;
-                    showMicIcon = true;
-                    showMicPercent = true;
-                    showBatteryIcon = true;
-                    showPrinterIcon = false;
-                    showScreenSharingIcon = true;
-                    showIdleInhibitorIcon = true;
-                    showDoNotDisturbIcon = false;
-                    controlCenterGroupOrder = [
-                      "network"
-                      "vpn"
-                      "bluetooth"
-                      "audio"
-                      "microphone"
-                      "brightness"
-                      "battery"
-                      "printer"
-                      "screenSharing"
-                      "idleInhibitor"
-                      "doNotDisturb"
-                    ];
-                  }
-                ];
+                inherit leftWidgets centerWidgets rightWidgets;
               })
               (commonBar // {
                 id = "laptop";
@@ -213,50 +212,9 @@
                 screenPreferences = [ "eDP-1" ];
                 fontScale = 0.85;
                 iconScale = 0.85;
+                island = false;
 
-                leftWidgets = [
-                  { id = "workspaceSwitcher"; enabled = true; }
-                  {
-                    id = "runningApps";
-                    enabled = true;
-                    runningAppsCompactMode = true;
-                    runningAppsCurrentWorkspace = true;
-                  }
-                  { id = "focusedWindow"; enabled = true; }
-                ];
-
-                centerWidgets = [ ];
-
-                rightWidgets = [
-                  { id = "systemTray"; enabled = true; }
-                  { id = "khalNextEvent"; enabled = true; }
-                  {
-                    id = "cpuUsage";
-                    enabled = true;
-                    minimumWidth = true;
-                    showLabel = false;
-                  }
-                  {
-                    id = "memUsage";
-                    enabled = true;
-                    minimumWidth = true;
-                    showLabel = false;
-                    showSwap = false;
-                  }
-                  {
-                    id = "controlCenterButton";
-                    enabled = true;
-                    showAudioIcon = true;
-                    showAudioPercent = true;
-                    showBluetoothIcon = true;
-                    showBrightnessIcon = false;
-                    showMicIcon = true;
-                    showMicPercent = true;
-                    showNetworkIcon = true;
-                    showIdleInhibitorIcon = true;
-                    showBatteryIcon = true;
-                  }
-                ];
+                inherit leftWidgets centerWidgets rightWidgets;
               })
             ];
           };

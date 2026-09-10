@@ -9,9 +9,10 @@ import qs.Modules.Plugins
 PluginComponent {
     id: root
 
-    // Disable click-to-open; popout opens via DankBar's global hover handler
-    // (requires services.dms.bar.hoverPopouts = true in dms.nix).
-    pillClickAction: () => {}
+    // Open on hover (via the global DankBar hover-popout handler in 1.6) and
+    // click — both routes converge on the same popout. To enable hover, set
+    // `bar.hoverPopouts = true` for every bar config in dms.nix. There is no
+    // public API in DMS 1.6 to suppress click while keeping hover.
 
     property string eventText: "No events"
     property string agendaText: ""
