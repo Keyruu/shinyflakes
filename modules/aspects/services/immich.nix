@@ -102,7 +102,7 @@
 
               machine-learning = {
                 containerConfig = {
-                  image = "ghcr.io/immich-app/immich-machine-learning:v3.1.0";
+                  image = "ghcr.io/immich-app/immich-machine-learning:v3.2.0";
                   volumes = [
                     "${my.stack.path}/model-cache:/cache"
                   ];
