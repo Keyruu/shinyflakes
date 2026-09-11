@@ -6,6 +6,7 @@
       # glide
       sidebery
       vimium-c
+      vivaldi
       # zen
     ];
   };

@@ -33,6 +33,18 @@
           gothCornersEnabled = false;
           borderEnabled = false;
           hoverPopouts = true;
+          island = true;
+          islandHomeCompactTight = true;
+          islandNotificationExpand = true;
+          islandHomeLayout = [
+            { id = "media"; enabled = true; }
+            { id = "clock"; enabled = true; }
+            { id = "weather"; enabled = false; }
+            { id = "status"; enabled = false; }
+            { id = "volume"; enabled = false; }
+            { id = "brightness"; enabled = false; }
+            { id = "notifications"; enabled = true; }
+          ];
         };
 
         # Both bars share identical widget layouts — defined once.
@@ -105,7 +117,6 @@
               "doNotDisturb"
             ];
           }
-          { id = "clock"; enabled = true; clockDateOrder = "dateFirst"; }
         ];
       in
       {
@@ -124,6 +135,7 @@
           enableSystemMonitoring = true;
           enableClipboardPaste = true;
           enableCalendarEvents = true;
+          managePluginSettings = true;
 
           plugins = {
             khalNextEvent = {
@@ -202,7 +214,6 @@
                 removeWidgetPadding = false;
                 widgetPadding = 9;
                 barInsetPadding = 24;
-                island = false;
 
                 inherit leftWidgets centerWidgets rightWidgets;
               })
@@ -212,7 +223,6 @@
                 screenPreferences = [ "eDP-1" ];
                 fontScale = 0.85;
                 iconScale = 0.85;
-                island = false;
 
                 inherit leftWidgets centerWidgets rightWidgets;
               })

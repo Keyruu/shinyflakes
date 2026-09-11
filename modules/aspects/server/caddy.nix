@@ -98,5 +98,14 @@
           '';
         };
       };
+    scrape = { config, ... }: [
+      {
+        name = "caddy";
+        metricsPath = "/metrics";
+        interval = "15s";
+        scrapePort = "2019";
+        hostIp = config.services.mesh.ip;
+      }
+    ];
   };
 }

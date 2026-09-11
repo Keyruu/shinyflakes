@@ -21,6 +21,7 @@
             .glide-browser-wrapped
             .glide-wrapped
             helium
+            vivaldi
           '';
           mode = "0755";
         };

@@ -402,6 +402,13 @@
                       name "zs"
                     }
                   }
+                  bind "Alt g" {
+                    Run "${lib.getExe pkgs.lazygit}" {
+                      scratchpad true
+                      close_on_exit true
+                      name "lazygit"
+                    }
+                  }
                   bind "Alt i" { MoveTab "Left"; }
                   bind "Alt o" { MoveTab "Right"; }
                   bind "Alt =" "Super +" { Resize "Increase"; }

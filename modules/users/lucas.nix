@@ -18,6 +18,7 @@
         "slack"
         "spotify"
         "chapterskip"
+        "vivaldi"
       ])
 
       den.aspects.core.default

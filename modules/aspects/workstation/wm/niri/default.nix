@@ -77,6 +77,19 @@ in
         config,
         ...
       }:
+      let
+        mirror = pkgs.writeShellApplication {
+          name = "mirror";
+          runtimeInputs = [
+            pkgs.wl-mirror
+            inputs'.niri.packages.niri-unstable
+            pkgs.jq
+          ];
+          text = ''
+            exec wl-mirror "$(niri msg --json focused-output | jq -r .name)"
+          '';
+        };
+      in
       {
         imports = [
           inputs.niri.homeModules.niri
@@ -94,7 +107,15 @@ in
           nirius
           iio-niri
           xwayland-satellite
+          wl-mirror
         ];
+
+        xdg.desktopEntries.mirror = {
+          name = "Mirror Screen";
+          exec = "${mirror}/bin/mirror";
+          categories = [ "Utility" ];
+          icon = "video-display";
+        };
 
         programs.niri = {
           enable = true;

@@ -58,6 +58,11 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^at\.yrlf\.wl_mirror$"#
+    open-fullscreen true
+}
+
+window-rule {
     match app-id=r#"^kitty$"#
     draw-border-with-background false
 }
