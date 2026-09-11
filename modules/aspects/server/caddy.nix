@@ -22,11 +22,15 @@
           };
         };
 
-        networking.firewall.allowedTCPPorts = [
-          80
-          443
-        ];
-
+        networking.firewall = {
+          allowedTCPPorts = [
+            80
+            443
+          ];
+          interfaces."${config.services.mesh.interface}".allowedTCPPorts = [
+            2019
+          ];
+        };
         security.acme = {
           acceptTerms = true;
           defaults.email = "me@keyruu.de";
@@ -50,6 +54,7 @@
           logDir = "/var/log/caddy";
 
           globalConfig = ''
+            admin ${config.services.mesh.ip}:2019
             order coraza_waf first
             servers {
               trusted_proxies static ${lib.concatStringsSep " " config.cloudflare.ips.all}
@@ -98,14 +103,15 @@
           '';
         };
       };
-    scrape = { config, ... }: [
-      {
-        name = "caddy";
-        metricsPath = "/metrics";
-        interval = "15s";
-        scrapePort = "2019";
-        hostIp = config.services.mesh.ip;
-      }
-    ];
+    scrape = { config, ... }:
+      if config.services.monitoring.metrics.enable then [
+        {
+          name = "caddy";
+          metricsPath = "/metrics";
+          interval = "15s";
+          scrapePort = "2019";
+          hostIp = config.services.mesh.ip;
+        }
+      ] else [ ];
   };
 }
