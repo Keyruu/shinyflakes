@@ -57,6 +57,7 @@
             admin ${config.services.mesh.ip}:2019
             order coraza_waf first
             servers {
+              metrics
               trusted_proxies static ${lib.concatStringsSep " " config.cloudflare.ips.all}
               trusted_proxies_strict
               client_ip_headers Cf-Connecting-Ip X-Forwarded-For
