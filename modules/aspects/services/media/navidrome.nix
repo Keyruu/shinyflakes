@@ -20,7 +20,7 @@
             containers = {
               navidrome = {
                 containerConfig = {
-                  image = "docker.io/deluan/navidrome:0.63.2";
+                  image = "docker.io/deluan/navidrome:0.64.0";
                   publishPorts = [ "127.0.0.1:${toString my.port}:4533" ];
                   environments = {
                     ND_LOGLEVEL = "info";
