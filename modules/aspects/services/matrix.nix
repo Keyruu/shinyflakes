@@ -59,7 +59,7 @@ in
 
           containers.matrix = {
             containerConfig = {
-              image = "forgejo.ellis.link/continuwuation/continuwuity:v26.8.1-maxperf";
+              image = "forgejo.ellis.link/continuwuation/continuwuity:v26.9.0-maxperf";
               publishPorts = [ "127.0.0.1:${toString port}:8008" ];
               volumes = [
                 "${my.stack.path}/db:/var/lib/continuwuity"
