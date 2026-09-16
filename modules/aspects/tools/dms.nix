@@ -37,19 +37,43 @@
           islandHomeCompactTight = true;
           islandNotificationExpand = true;
           islandHomeLayout = [
-            { id = "media"; enabled = true; }
-            { id = "clock"; enabled = true; }
-            { id = "weather"; enabled = false; }
-            { id = "status"; enabled = false; }
-            { id = "volume"; enabled = false; }
-            { id = "brightness"; enabled = false; }
-            { id = "notifications"; enabled = true; }
+            {
+              id = "media";
+              enabled = true;
+            }
+            {
+              id = "clock";
+              enabled = true;
+            }
+            {
+              id = "weather";
+              enabled = false;
+            }
+            {
+              id = "status";
+              enabled = false;
+            }
+            {
+              id = "volume";
+              enabled = false;
+            }
+            {
+              id = "brightness";
+              enabled = false;
+            }
+            {
+              id = "notifications";
+              enabled = true;
+            }
           ];
         };
 
         # Both bars share identical widget layouts — defined once.
         leftWidgets = [
-          { id = "workspaceSwitcher"; enabled = true; }
+          {
+            id = "workspaceSwitcher";
+            enabled = true;
+          }
           {
             id = "runningApps";
             enabled = true;
@@ -67,12 +91,22 @@
         ];
 
         centerWidgets = [
-          { id = "music"; enabled = true; mediaSize = 0; }
+          {
+            id = "music";
+            enabled = true;
+            mediaSize = 0;
+          }
         ];
 
         rightWidgets = [
-          { id = "systemTray"; enabled = true; }
-          { id = "khalNextEvent"; enabled = true; }
+          {
+            id = "systemTray";
+            enabled = true;
+          }
+          {
+            id = "khalNextEvent";
+            enabled = true;
+          }
           {
             id = "cpuUsage";
             enabled = true;
@@ -151,18 +185,66 @@
             barElevationEnabled = false;
             blurEnabled = true;
             controlCenterWidgets = [
-              { id = "volumeSlider"; enabled = true; width = 50; }
-              { id = "inputVolumeSlider"; enabled = true; width = 50; }
-              { id = "brightnessSlider"; enabled = true; width = 50; }
-              { id = "wifi"; enabled = true; width = 50; }
-              { id = "bluetooth"; enabled = true; width = 50; }
-              { id = "audioOutput"; enabled = true; width = 50; }
-              { id = "audioInput"; enabled = true; width = 50; }
-              { id = "battery"; enabled = true; width = 50; }
-              { id = "nightMode"; enabled = true; width = 50; }
-              { id = "idleInhibitor"; enabled = true; width = 50; }
-              { id = "builtin_vpn"; enabled = true; width = 50; }
-              { id = "colorPicker"; enabled = true; width = 50; }
+              {
+                id = "volumeSlider";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "inputVolumeSlider";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "brightnessSlider";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "wifi";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "bluetooth";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "audioOutput";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "audioInput";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "battery";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "nightMode";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "idleInhibitor";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "builtin_vpn";
+                enabled = true;
+                width = 50;
+              }
+              {
+                id = "colorPicker";
+                enabled = true;
+                width = 50;
+              }
               {
                 id = "diskUsage";
                 enabled = true;
@@ -171,7 +253,11 @@
                 mountPath = "/";
                 showMountPath = true;
               }
-              { id = "builtin_cups"; enabled = true; width = 50; }
+              {
+                id = "builtin_cups";
+                enabled = true;
+                width = 50;
+              }
             ];
             showWorkspaceName = true;
             workspaceFollowFocus = true;
@@ -187,45 +273,61 @@
             lockBeforeSuspend = true;
 
             builtInPluginSettings = {
-              dms_settings_search = { trigger = "?"; };
-              dms_clipboard_search = { trigger = "cb"; };
-              dms_power = { trigger = "pw"; };
-              dms_qr_generator = { trigger = "qrg"; };
+              dms_settings_search = {
+                trigger = "?";
+              };
+              dms_clipboard_search = {
+                trigger = "cb";
+              };
+              dms_power = {
+                trigger = "pw";
+              };
+              dms_qr_generator = {
+                trigger = "qrg";
+              };
             };
 
             configVersion = 18;
 
             barConfigs = [
-              (commonBar // {
-                id = "default";
-                name = "Main Bar";
-                screenPreferences = [
-                  "HDMI-A-1"
-                  "HDMI-A-2"
-                  "DP-1"
-                  "DP-2"
-                  "DP-3"
-                  "DVI-I-1"
-                ];
-                fontScale = 0.9;
-                iconScale = 0.8;
-                maximizeWidgetIcons = false;
-                maximizeWidgetText = false;
-                removeWidgetPadding = false;
-                widgetPadding = 9;
-                barInsetPadding = 24;
+              (
+                commonBar
+                // {
+                  id = "default";
+                  name = "Main Bar";
+                  screenPreferences = [
+                    "HDMI-A-1"
+                    "HDMI-A-2"
+                    "DP-1"
+                    "DP-2"
+                    "DP-3"
+                    "DP-4"
+                    "DP-5"
+                    "DVI-I-1"
+                  ];
+                  fontScale = 0.9;
+                  iconScale = 0.8;
+                  maximizeWidgetIcons = false;
+                  maximizeWidgetText = false;
+                  removeWidgetPadding = false;
+                  widgetPadding = 9;
+                  barInsetPadding = 24;
 
-                inherit leftWidgets centerWidgets rightWidgets;
-              })
-              (commonBar // {
-                id = "laptop";
-                name = "Laptop Bar";
-                screenPreferences = [ "eDP-1" ];
-                fontScale = 0.85;
-                iconScale = 0.85;
+                  inherit leftWidgets centerWidgets rightWidgets;
+                }
+              )
+              (
+                commonBar
+                // {
+                  id = "laptop";
+                  name = "Laptop Bar";
+                  screenPreferences = [ "eDP-1" ];
+                  fontScale = 0.85;
+                  iconScale = 0.85;
 
-                inherit leftWidgets centerWidgets rightWidgets;
-              })
+                  inherit leftWidgets centerWidgets rightWidgets;
+                }
+              )
             ];
           };
 

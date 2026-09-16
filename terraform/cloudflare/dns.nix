@@ -113,6 +113,7 @@
             "chat"
             "requests"
             "status"
+            "matrix"
           ];
         };
         mesh = {

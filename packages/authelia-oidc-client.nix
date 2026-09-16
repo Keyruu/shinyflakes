@@ -13,16 +13,16 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    if [ ! -f nix/secrets.yaml ]; then
-      echo "Error: nix/secrets.yaml not found, run from the repo root" >&2
+    if [ ! -f secrets.yaml ]; then
+      echo "Error: secrets.yaml not found, run from the repo root" >&2
       exit 1
     fi
 
     key="$1ClientSecret"
     secret=$(head -c 48 /dev/urandom | base64 | tr -d '/+=' | head -c 48)
 
-    sops set nix/secrets.yaml "[\"$key\"]" "\"$secret\""
-    echo "Stored $key in nix/secrets.yaml" >&2
+    sops set secrets.yaml "[\"$key\"]" "\"$secret\""
+    echo "Stored $key in secrets.yaml" >&2
 
     echo "client_secret for authelia.nix:" >&2
     authelia crypto hash generate pbkdf2 --variant sha512 --password "$secret" | sed 's/^Digest: //'

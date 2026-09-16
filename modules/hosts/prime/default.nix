@@ -36,6 +36,7 @@
       den.aspects.services.multi-scrobbler
       den.aspects.services.chatto
       den.aspects.services.koito
+      den.aspects.services.matrix
     ];
   };
 }

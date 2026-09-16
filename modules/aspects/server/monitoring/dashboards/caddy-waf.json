@@ -1,0 +1,314 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "uid": "caddy-waf",
+  "title": "Caddy — Coraza WAF",
+  "tags": ["caddy", "waf", "coraza", "security"],
+  "timezone": "browser",
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {
+    "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "1h"],
+    "time_options": ["5m", "15m", "1h", "6h", "24h", "7d"]
+  },
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "version": 1,
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "type": "row",
+      "id": 1,
+      "title": "Overview",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Blocks (total)",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 1000 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "sum(count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" [$__range]))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Unique rule IDs",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "count(count by (rule_id) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[id \\\\\"(?P<rule_id>\\d+)\\\\\"\\]` [$__range])))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Unique client IPs",
+      "datasource": "Loki",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "count(count by (client_ip) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[client \\\\\"(?P<client_ip>[^\\\\\"\\\\]+)\\\\\"\\]` [$__range])))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Blocks over time (by severity)",
+      "datasource": "Loki",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "stacking": { "mode": "normal", "group": "A" },
+            "fillOpacity": 80,
+            "lineWidth": 0,
+            "gradientMode": "opacity"
+          },
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "critical" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
+          { "matcher": { "id": "byName", "options": "warning" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }] },
+          { "matcher": { "id": "byName", "options": "notice" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }] }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["sum"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "sum by (severity) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[severity \\\\\"(?P<severity>\\w+)\\\\\"\\]` [$__interval]))",
+          "legendFormat": "{{severity}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 10,
+      "title": "Breakdown",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 10 },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Top rule IDs",
+      "datasource": "Loki",
+      "gridPos": { "h": 10, "w": 8, "x": 0, "y": 11 },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Hits", "desc": true }],
+        "footer": { "show": false }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Hits" }, "properties": [{ "id": "displayName", "value": "Hits" }, { "id": "unit", "value": "short" }, { "id": "custom.width", "value": 100 }] },
+          { "matcher": { "id": "byName", "options": "rule_id" }, "properties": [{ "id": "displayName", "value": "Rule ID" }, { "id": "type", "value": "string" }] }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (rule_id) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[id \\\\\"(?P<rule_id>\\d+)\\\\\"\\]` [$__range])))",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Value #A": "Hits",
+              "Time": null
+            },
+            "excludeByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Top client IPs",
+      "datasource": "Loki",
+      "gridPos": { "h": 10, "w": 8, "x": 8, "y": 11 },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Hits", "desc": true }],
+        "footer": { "show": false }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Hits" }, "properties": [{ "id": "displayName", "value": "Hits" }, { "id": "unit", "value": "short" }, { "id": "custom.width", "value": 100 }] },
+          { "matcher": { "id": "byName", "options": "client_ip" }, "properties": [{ "id": "displayName", "value": "Client IP" }, { "id": "type", "value": "string" }] }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (client_ip) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[client \\\\\"(?P<client_ip>[^\\\\\"\\\\]+)\\\\\"\\]` [$__range])))",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Value #A": "Hits",
+              "Time": null
+            },
+            "excludeByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "table",
+      "title": "Top URIs",
+      "datasource": "Loki",
+      "gridPos": { "h": 10, "w": 8, "x": 16, "y": 11 },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Hits", "desc": true }],
+        "footer": { "show": false }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Hits" }, "properties": [{ "id": "displayName", "value": "Hits" }, { "id": "unit", "value": "short" }, { "id": "custom.width", "value": 100 }] },
+          { "matcher": { "id": "byName", "options": "target_uri" }, "properties": [{ "id": "displayName", "value": "URI" }, { "id": "type", "value": "string" }] }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "topk(15, sum by (target_uri) (count_over_time({hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\" | regexp `\\[uri \\\\\"(?P<target_uri>[^\\\\\"\\\\]+)\\\\\"\\]` [$__range])))",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Value #A": "Hits",
+              "Time": null
+            },
+            "excludeByName": {}
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 20,
+      "title": "Live",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "panels": []
+    },
+    {
+      "id": 21,
+      "type": "logs",
+      "title": "Recent blocks",
+      "datasource": "Loki",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 22 },
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Loki",
+          "expr": "{hostname=\"prime\", unit=\"caddy.service\"} |= \"Coraza:\""
+        }
+      ]
+    }
+  ]
+}

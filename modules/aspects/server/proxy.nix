@@ -64,20 +64,6 @@ in
             reverse_proxy http://${mentat}:7384
           '';
         };
-        "s3.keyruu.de" = {
-          extraConfig = ''
-            import coraza-waf
-            import cloudflare-only
-            reverse_proxy http://${mentat}:3900
-          '';
-        };
-        "garage.keyruu.de" = {
-          extraConfig = ''
-            import coraza-waf
-            import cloudflare-only
-            reverse_proxy http://${mentat}:3902
-          '';
-        };
         "${karaokeDomain}" = {
           extraConfig = ''
             import coraza-waf
