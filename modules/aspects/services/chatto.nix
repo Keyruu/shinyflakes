@@ -142,7 +142,7 @@
             containers = {
               nats = {
                 containerConfig = {
-                  image = "docker.io/nats:2.14";
+                  image = "docker.io/nats:2.15";
                   exec = "--jetstream --store_dir=/data --config /nats.conf";
                   volumes = [
                     "${config.sops.templates."nats.conf".path}:/nats.conf:ro"
