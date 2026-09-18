@@ -175,7 +175,7 @@
               containers.seerr = {
                 containerConfig = {
                   # digest-pinned: preview-new-oidc is a moving tag (OIDC not in stable yet)
-                  image = "ghcr.io/seerr-team/seerr:preview-new-oidc@sha256:6a2a160b878b98d079c8ee6933f58997bb26d68dbcbc789c1a559bc6955db60d";
+                  image = "ghcr.io/seerr-team/seerr:preview-new-oidc@sha256:28744b1ced522beb7af8e5c966b73c6e46b1dc2c4c8cb497ad2f12d3139699a3";
                   runInit = true;
                   environments = {
                     TZ = "Europe/Berlin";
