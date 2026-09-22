@@ -49,6 +49,8 @@
 
       services.mesh = {
         client = {
+          enable = true;
+          keyName = "thopterMeshKey";
           autostart = false;
           ws = {
             enable = true;
