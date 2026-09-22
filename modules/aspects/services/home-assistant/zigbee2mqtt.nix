@@ -64,7 +64,7 @@
             containers = {
               zigbee2mqtt = {
                 containerConfig = {
-                  image = "docker.io/koenkk/zigbee2mqtt:2.13.0";
+                  image = "docker.io/koenkk/zigbee2mqtt:2.14.1";
                   publishPorts = [ "127.0.0.1:${toString my.port}:8080" ];
                   environments = {
                     TZ = "Europe/Berlin";
