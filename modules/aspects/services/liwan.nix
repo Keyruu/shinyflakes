@@ -24,7 +24,7 @@
 
           containers.liwan = {
             containerConfig = {
-              image = "ghcr.io/explodingcamera/liwan:1.6";
+              image = "ghcr.io/explodingcamera/liwan:1.7";
               publishPorts = [ "127.0.0.1:${toString my.port}:9042" ];
               volumes = [ "${my.stack.path}/data:/data" ];
               environments = {
