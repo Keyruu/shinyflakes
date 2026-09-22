@@ -75,9 +75,10 @@
               PATH = /data/gitea/attachments
 
               [log]
-              MODE = console
-              LEVEL = info
+              MODE = file
+              LEVEL = debug
               ROOT_PATH = /data/gitea/log
+              FILE_NAME = forgejo.log
 
               [security]
               INSTALL_LOCK = true
