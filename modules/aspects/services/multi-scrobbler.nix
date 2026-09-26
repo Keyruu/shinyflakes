@@ -22,8 +22,6 @@
       };
 
       sops.secrets = {
-        multiScrobblerSpotifyClientId = { };
-        multiScrobblerSpotifyClientSecret = { };
         multiScrobblerKoitoToken = { };
         multiScrobblerListenBrainzToken = { };
         multiScrobblerLastfmApiKey = { };
@@ -35,11 +33,11 @@
         owner = "multi-scrobbler";
         group = "multi-scrobbler";
         content = ''
-          SPOTIFY_CLIENT_ID=${config.sops.placeholder.multiScrobblerSpotifyClientId}
-          SPOTIFY_CLIENT_SECRET=${config.sops.placeholder.multiScrobblerSpotifyClientSecret}
+          KOITO_ID=koito
           KOITO_USER=admin
           KOITO_TOKEN=${config.sops.placeholder.multiScrobblerKoitoToken}
           KOITO_URL=http://koito:4110
+          LZE_ID=listenbrainz-endpoint
           LZE_ENABLE=true
           LZE_TOKEN=${config.sops.placeholder.multiScrobblerListenBrainzToken}
           LASTFM_API_KEY=${config.sops.placeholder.multiScrobblerLastfmApiKey}

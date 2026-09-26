@@ -3,7 +3,8 @@ let
   # kdl output block per monitor from the registry + `displays` layout.
   # Used as a transient default at niri startup; kanshi overrides once a
   # profile applies.
-  mkOutputBlock = name: displays: monitors:
+  mkOutputBlock =
+    name: displays: monitors:
     let
       mon = monitors.${name};
       pos = displays.positions.${name} or "0,0";
@@ -23,10 +24,11 @@ let
       }
     '';
 
-  mkOutputBlocks = displays: monitors:
-    lib.concatMapStringsSep "\n"
-      (n: mkOutputBlock n displays monitors)
-      (displays.primary ++ displays.secondaries);
+  mkOutputBlocks =
+    displays: monitors:
+    lib.concatMapStringsSep "\n" (n: mkOutputBlock n displays monitors) (
+      displays.primary ++ displays.secondaries
+    );
 in
 {
   den.aspects.workstation.wm.niri = { host, ... }: {
@@ -86,7 +88,9 @@ in
             pkgs.jq
           ];
           text = ''
-            exec wl-mirror "$(niri msg --json focused-output | jq -r .name)"
+            focused=$(niri msg --json focused-output | jq -r .name)
+            other=$(niri msg --json outputs | jq -r --arg f "$focused" '.[] | select(.name != $f) | .name' | head -n1)
+            exec wl-mirror --fullscreen-output "$focused" "$other"
           '';
         };
       in
@@ -123,8 +127,7 @@ in
 
           config = # kdl
             ''
-              ${lib.optionalString (host.displays != null)
-                (mkOutputBlocks host.displays config.monitors)}
+              ${lib.optionalString (host.displays != null) (mkOutputBlocks host.displays config.monitors)}
 
               xwayland-satellite {}
 

@@ -12,12 +12,10 @@ let
   # Schema: https://chromeenterprise.google/policies/
   policies = {
     DefaultSearchProviderEnabled = true;
-    DefaultSearchProviderName = "Kagi";
-    DefaultSearchProviderKeyword = "kagi.com";
-    DefaultSearchProviderSearchURL = "https://kagi.com/search?q={searchTerms}";
-    DefaultSearchProviderSuggestURL = "https://kagisuggest.com/api/autosuggest?q={searchTerms}";
-    DefaultSearchProviderImageURL = "https://kagi.com/reverse/upload";
-    DefaultSearchProviderNewTabURL = "https://kagi.com/";
+    DefaultSearchProviderName = "Uruky";
+    DefaultSearchProviderKeyword = "uruky.com";
+    DefaultSearchProviderSearchURL = "https://uruky.com/search?q={searchTerms}";
+    DefaultSearchProviderNewTabURL = "https://uruky.com/";
 
     PasswordManagerEnabled = false;
     AutofillAddressEnabled = false;

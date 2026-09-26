@@ -17,6 +17,7 @@
         ];
 
         searchEngines = [
+          "u|uruky: https://uruky.com/search?q=%s Uruky"
           "k|kagi: https://kagi.com/search?q=%s Kagi"
           "np: https://search.nixos.org/packages?channel=unstable&query=%s Nix Packages"
           "no: https://search.nixos.org/options?channel=unstable&query=%s Nix Options"
@@ -41,7 +42,7 @@
           vimSync = true;
 
           inherit keyMappings searchEngines;
-          searchUrl = "https://kagi.com/search?q=%s Kagi";
+          searchUrl = "https://uruky.com/search?q=%s Uruky";
         };
 
         exportFile = "vimium-c/vimium-c-data.json";
