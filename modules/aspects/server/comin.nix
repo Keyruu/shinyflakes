@@ -11,23 +11,7 @@
         cominGotifyToken = { };
       };
 
-      services.comin = {
-        enable = true;
-        hostname = config.networking.hostName;
-        submodules = true;
-        remotes = [
-          {
-            name = "origin";
-            url = "https://git.keyruu.de/lucas/shinyflakes.git";
-            auth = {
-              username = "x-access-token";
-              access_token_path = config.sops.secrets.cominForgejoToken.path;
-            };
-            branches.main.name = "main";
-          }
-        ];
-
-        postDeploymentCommand =
+      services.comin = 
           let
             comin-notify = pkgs.writeShellApplication {
               name = "comin-notify";
@@ -38,23 +22,25 @@
 
                   status="''${COMIN_STATUS:-unknown}"
                   hostname="''${COMIN_HOSTNAME:-unknown}"
+                  phase="''${COMIN_PHASE:-unknown}"
                   gitRef="''${COMIN_GIT_REF:-}"
                   gitMsg="''${COMIN_GIT_MSG:-}"
                   generation="''${COMIN_GENERATION:-}"
                   errorMsg="''${COMIN_ERROR_MSG:-}"
 
+                  title="[$phase] $hostname: $status"
                   if [ "$status" = "done" ]; then
-                    title="Deployment Success: $hostname"
                     priority=4
                     message="Host: $hostname
+                Phase: $phase
                 Status: $status
                 Git Ref: $gitRef
                 Commit: $gitMsg
                 Generation: $generation"
                   else
-                    title="Deployment Failed: $hostname"
                     priority=8
                     message="Host: $hostname
+                Phase: $phase
                 Status: $status
                 Git Ref: $gitRef
                 Commit: $gitMsg
@@ -72,7 +58,24 @@
               '';
             };
           in
-          "${comin-notify}/bin/comin-notify";
+        {
+        enable = true;
+        hostname = config.networking.hostName;
+        submodules = true;
+        remotes = [
+          {
+            name = "origin";
+            url = "https://git.keyruu.de/lucas/shinyflakes.git";
+            auth = {
+              username = "x-access-token";
+              access_token_path = config.sops.secrets.cominForgejoToken.path;
+            };
+            branches.main.name = "main";
+          }
+        ];
+
+        postBuildCommand = "${comin-notify}/bin/comin-notify";
+        postDeploymentCommand = "${comin-notify}/bin/comin-notify";
       };
     };
   };
