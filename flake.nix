@@ -75,7 +75,7 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     comin = {
-      url = "github:Keyruu/comin";
+      url = "github:Keyruu/comin/feature/post-build-command";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -137,11 +137,13 @@
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
     in
-    flake // {
+    flake
+    // {
       # pipeline host discovery (build.yml: setup job)
       lib.hostMatrix.host = builtins.attrNames flake.nixosConfigurations;
     };
