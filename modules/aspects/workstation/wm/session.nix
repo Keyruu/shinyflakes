@@ -35,7 +35,7 @@
             ███   ███ ███   ▄███     ███▄  ███    ███    ▄█    ███
              ▀█   █▀  █▀   ████       ███▄  ▀██████▀   ▄████████▀
 
-            omarchy who?
+            omarchy who? fuck dhh.
           '';
 
         security.pam.services = {

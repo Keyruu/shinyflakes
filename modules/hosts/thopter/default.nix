@@ -9,7 +9,10 @@
     users.lucas = { };
 
     displays = {
-      primary = [ "home" "work" ];
+      primary = [
+        "home"
+        "work"
+      ];
       secondaries = [ "laptop" ];
       positions = {
         laptop = "0,0";
@@ -52,6 +55,9 @@
           enable = true;
           keyName = "thopterMeshKey";
           autostart = false;
+          allowedIPs = [
+            "192.168.100.0/24"
+          ];
           ws = {
             enable = true;
             defaultInterface = "wlp0s20f3";
