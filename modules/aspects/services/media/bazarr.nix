@@ -20,7 +20,7 @@
             containers = {
               bazarr = {
                 containerConfig = {
-                  image = "ghcr.io/hotio/bazarr:release-1.6.1";
+                  image = "ghcr.io/hotio/bazarr:release-1.6.2";
                   environments = {
                     PUID = "0";
                     PGID = "0";
