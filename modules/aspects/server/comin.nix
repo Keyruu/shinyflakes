@@ -11,72 +11,73 @@
         cominGotifyToken = { };
       };
 
-      services.comin = 
-          let
-            comin-notify = pkgs.writeShellApplication {
-              name = "comin-notify";
-              runtimeInputs = [ pkgs.gotify-cli ];
-              text = ''
-                  GOTIFY_TOKEN=$(cat ${config.sops.secrets.cominGotifyToken.path})
-                  export GOTIFY_TOKEN
+      services.comin =
+        let
+          comin-notify = pkgs.writeShellApplication {
+            name = "comin-notify";
+            runtimeInputs = [ pkgs.gotify-cli ];
+            text = # sh
+              ''
+                GOTIFY_TOKEN=$(cat ${config.sops.secrets.cominGotifyToken.path})
+                export GOTIFY_TOKEN
 
-                  status="''${COMIN_STATUS:-unknown}"
-                  hostname="''${COMIN_HOSTNAME:-unknown}"
-                  phase="''${COMIN_PHASE:-unknown}"
-                  gitRef="''${COMIN_GIT_REF:-}"
-                  gitMsg="''${COMIN_GIT_MSG:-}"
-                  generation="''${COMIN_GENERATION:-}"
-                  errorMsg="''${COMIN_ERROR_MSG:-}"
+                status="''${COMIN_STATUS:-unknown}"
+                hostname="''${COMIN_HOSTNAME:-unknown}"
+                phase="''${COMIN_PHASE:-unknown}"
+                gitRef="''${COMIN_GIT_REF:-}"
+                gitMsg="''${COMIN_GIT_MSG:-}"
+                generation="''${COMIN_GENERATION:-}"
+                errorMsg="''${COMIN_ERROR_MSG:-}"
 
-                  title="[$phase] $hostname: $status"
-                  if [ "$status" = "done" ] || [ "$status" = "built" ]; then
-                    priority=4
-                    message="Host: $hostname
+                title="[$phase] $hostname: $status"
+                if [ "$status" = "done" ] || [ "$status" = "built" ]; then
+                  priority=4
+                  message="Host: $hostname
                 Phase: $phase
                 Status: $status
                 Git Ref: $gitRef
                 Commit: $gitMsg
                 Generation: $generation"
-                  else
-                    priority=8
-                    message="Host: $hostname
+                else
+                  priority=8
+                  message="Host: $hostname
                 Phase: $phase
                 Status: $status
                 Git Ref: $gitRef
                 Commit: $gitMsg
                 Generation: $generation
                 Error: $errorMsg"
-                  fi
+                fi
 
-                  if ! gotify push \
-                    --url "https://notify.keyruu.de" \
-                    --title "$title" \
-                    --priority "$priority" \
-                    "$message"; then
-                    echo "Failed to send gotify notification" >&2
-                  fi
+                if ! gotify push \
+                  --url "https://notify.keyruu.de" \
+                  --title "$title" \
+                  --priority "$priority" \
+                  "$message"; then
+                  echo "Failed to send gotify notification" >&2
+                fi
               '';
-            };
-          in
+          };
+        in
         {
-        enable = true;
-        hostname = config.networking.hostName;
-        submodules = true;
-        remotes = [
-          {
-            name = "origin";
-            url = "https://git.keyruu.de/lucas/shinyflakes.git";
-            auth = {
-              username = "x-access-token";
-              access_token_path = config.sops.secrets.cominForgejoToken.path;
-            };
-            branches.main.name = "main";
-          }
-        ];
+          enable = true;
+          hostname = config.networking.hostName;
+          submodules = true;
+          remotes = [
+            {
+              name = "origin";
+              url = "https://git.keyruu.de/lucas/shinyflakes.git";
+              auth = {
+                username = "x-access-token";
+                access_token_path = config.sops.secrets.cominForgejoToken.path;
+              };
+              branches.main.name = "main";
+            }
+          ];
 
-        postBuildCommand = "${comin-notify}/bin/comin-notify";
-        postDeploymentCommand = "${comin-notify}/bin/comin-notify";
-      };
+          postBuildCommand = "${comin-notify}/bin/comin-notify";
+          postDeploymentCommand = "${comin-notify}/bin/comin-notify";
+        };
     };
   };
 }
