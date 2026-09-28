@@ -3,7 +3,7 @@ let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
   corazaCaddyVersion = "v2.6.1";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
-  caddySecurityVersion = "v1.2.2";
+  caddySecurityVersion = "v1.3.0";
   # renovate: datasource=go depName=github.com/porech/caddy-maxmind-geolocation
   caddyMaxmindVersion = "v1.0.3";
 in
