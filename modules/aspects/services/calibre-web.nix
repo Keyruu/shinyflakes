@@ -61,7 +61,7 @@
             containers = {
               calibre-web = {
                 containerConfig = {
-                  image = "ghcr.io/crocodilestick/calibre-web-automated:v4.0.6";
+                  image = "ghcr.io/crocodilestick/calibre-web-automated:v4.0.8";
                   publishPorts = [ "127.0.0.1:${toString my.port}:8083" ];
                   environments = {
                     PUID = toString my.stack.user.uid;
