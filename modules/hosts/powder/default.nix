@@ -26,7 +26,6 @@
 
   den.aspects.powder = {
     includes = [
-      den.aspects.workstation.default
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
       den.aspects.workstation.fprintd
