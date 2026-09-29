@@ -168,14 +168,10 @@ pkgs.writeShellApplication {
     printf '\n'
 
     # --- 3. copy flake onto the target ---------------------------------------
-    # verify mount is writable before we blow up trying to cp into it
-    if ! mount | grep -q " $mount "; then
-      die "nothing mounted at $mount — re-run without --skip-disko, or mount manually first"
-    fi
-    if ! touch "$mount/.shiny-install-write-test" 2>/dev/null; then
-      die "mount at $mount is read-only — check mount flags or filesystem state"
-    fi
-    rm -f "$mount/.shiny-install-write-test"
+    # nixos-generate-config used to create /mnt/etc as a side effect; we no
+    # longer run it (facter handles hardware), so the new root is empty.
+    # cp -r only creates the last component, so /mnt/etc has to exist first.
+    mkdir -p "$mount/etc/nixos"
     printf '%sCopying flake to %s/etc/nixos ...%s\n' "$BLUE" "$mount" "$RESET"
     # cp -r includes .git (submodule refs are gitlinks), which nix tolerates
     # when the actual submodule working trees are present alongside. If a
