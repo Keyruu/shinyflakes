@@ -184,6 +184,11 @@ pkgs.writeShellApplication {
 
     # --- 4. install -----------------------------------------------------------
     gum confirm "Ready to run nixos-install?" || die "aborted" 1
+    # nixos-install evaluates the flake, which only sees the git index
+    # (tracked files) — untracked files like facter.json would be invisible.
+    # Stage hardware.nix + facter.json so the copied tree on $mount is
+    # actually evaluable. The user commits the result afterwards.
+    git -C "$ROOT" add "modules/hosts/$host/hardware.nix" "modules/hosts/$host/facter.json"
     printf '%sInstalling NixOS (this takes a while)...%s\n' "$BLUE" "$RESET"
     # No ?submodules=1 — the placeholder pattern keeps the flake evaluating
     # without the private submodule content; locally you're assumed to have run
