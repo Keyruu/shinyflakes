@@ -88,14 +88,14 @@
     {
       "description": "Update Nix package hashes after version bump",
       "matchFileNames": [
-        "nix/packages/**"
+        "packages/**"
       ],
       "postUpgradeTasks": {
         "commands": [
           "bash -c 'nix run .?submodules=1#update-hash -- $(basename {{{packageFile}}} .nix)'"
         ],
         "fileFilters": [
-          "nix/packages/**"
+          "packages/**"
         ],
         "executionMode": "branch"
       }
@@ -108,7 +108,7 @@
           "bash -c 'nix run .?submodules=1#update-hash -- caddy'"
         ],
         "fileFilters": [
-          "nix/packages/caddy.nix"
+          "packages/caddy.nix"
         ],
         "executionMode": "branch"
       }

@@ -241,6 +241,16 @@
           };
         };
 
+        xdg.dataFile."vicinae/shortcuts/shortcuts.json".text = builtins.toJSON [
+          {
+            id = "sct-kagi";
+            name = "Kagi";
+            icon = "icon://favicon/kagi.com?fallback=icon://omnicast/image?fill%3Dprimary-text";
+            url = "https://kagi.com/search?q={argument}";
+            app = "default";
+          }
+        ];
+
         home.file =
           let
             scripts = ".local/share/vicinae/scripts";

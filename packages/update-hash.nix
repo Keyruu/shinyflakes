@@ -13,7 +13,7 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    file="nix/packages/''${pkgName}.nix"
+    file="packages/''${pkgName}.nix"
 
     if [ ! -f "$file" ]; then
       echo "File not found: $file"
@@ -27,7 +27,7 @@ pkgs.writeShellApplication {
     siblings=("$file")
     currentRev=$(grep -oP 'rev\s*=\s*"\K[a-f0-9]{40}' "$file" 2>/dev/null || true)
     if [ -n "$currentRev" ]; then
-      for other in nix/packages/*.nix; do
+      for other in packages/*.nix; do
         if [ "$other" != "$file" ] && grep -q "rev\s*=\s*\"$currentRev\"" "$other"; then
           siblings+=("$other")
         fi

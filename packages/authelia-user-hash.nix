@@ -12,8 +12,8 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    if [ ! -f nix/secrets.yaml ]; then
-      echo "Error: nix/secrets.yaml not found, run from the repo root" >&2
+    if [ ! -f secrets.yaml ]; then
+      echo "Error: secrets.yaml not found, run from the repo root" >&2
       exit 1
     fi
 
@@ -31,7 +31,7 @@ pkgs.writeShellApplication {
 
     hash=$(authelia crypto hash generate argon2 --password "$password" | sed 's/^Digest: //')
 
-    sops set nix/secrets.yaml "[\"$key\"]" "\"$hash\""
-    echo "Stored $key in nix/secrets.yaml" >&2
+    sops set secrets.yaml "[\"$key\"]" "\"$hash\""
+    echo "Stored $key in secrets.yaml" >&2
   '';
 }

@@ -56,9 +56,9 @@
         xdg.mimeApps = {
           enable = true;
           defaultApplications = {
-            "text/html" = "glide.desktop";
-            "x-scheme-handler/http" = "glide.desktop";
-            "x-scheme-handler/https" = "glide.desktop";
+            "text/html" = "firefox.desktop";
+            "x-scheme-handler/http" = "firefox.desktop";
+            "x-scheme-handler/https" = "firefox.desktop";
             "x-scheme-handler/discord" = "vesktop.desktop";
             "x-scheme-handler/sgnl" = "signal.desktop";
             "x-scheme-handler/signalcaptcha" = "signal.desktop";
