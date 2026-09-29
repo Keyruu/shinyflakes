@@ -1,4 +1,4 @@
-{ den, inputs, lib, ... }:
+{ den, inputs, ... }:
 {
   den.aspects.lucas = { host, ... }: {
     includes = [
@@ -37,12 +37,6 @@
 
       den.aspects.options.kanshi.monitors
 
-      # agents aspects live in the optional `agents` flake input. When the
-      # input is locked the aspects merge in via import-tree.addPath; for
-      # collaborators without access to git.keyruu.de the attributes are
-      # undefined and these includes are skipped.
-    ]
-    ++ lib.optional (inputs ? agents) [
       den.aspects.agents.pi
       den.aspects.agents.opencode
       den.aspects.agents.claude-code

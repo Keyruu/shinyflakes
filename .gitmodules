@@ -1,0 +1,6 @@
+[submodule "modules/aspects/private"]
+	path = modules/aspects/private
+	url = https://git.keyruu.de/lucas/privateflakes.git
+[submodule "modules/aspects/agents"]
+	path = modules/aspects/agents
+	url = https://git.keyruu.de/lucas/agents.git

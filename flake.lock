@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "agents": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1789557409,
-        "narHash": "sha256-dIlJPCLbeF/OxmkdEkTFT7ZkjNC/fvTG/OzhtqmL/P8=",
-        "ref": "refs/heads/main",
-        "rev": "e05ce3c96dd00c2d1032d3c9ea5c2334c1df8b7d",
-        "revCount": 16,
-        "type": "git",
-        "url": "https://git.keyruu.de/lucas/agents.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.keyruu.de/lucas/agents.git"
-      }
-    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -1183,22 +1167,6 @@
         "type": "github"
       }
     },
-    "privateflakes": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1789557395,
-        "narHash": "sha256-2GrYE4k2nApiJS3T5LXMdCZBJb16QkDsaduuRiJOJ0w=",
-        "ref": "refs/heads/main",
-        "rev": "c882ec4189f9665fa69b038740c9edfab29c3d9d",
-        "revCount": 27,
-        "type": "git",
-        "url": "https://git.keyruu.de/lucas/privateflakes.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.keyruu.de/lucas/privateflakes.git"
-      }
-    },
     "quadlet-nix": {
       "locked": {
         "lastModified": 1785695563,
@@ -1216,7 +1184,6 @@
     },
     "root": {
       "inputs": {
-        "agents": "agents",
         "buymeaspezi": "buymeaspezi",
         "comin": "comin",
         "copyparty": "copyparty",
@@ -1242,7 +1209,6 @@
         "noctalia": "noctalia",
         "nvf": "nvf",
         "pkgs-by-name-for-flake-parts": "pkgs-by-name-for-flake-parts",
-        "privateflakes": "privateflakes",
         "quadlet-nix": "quadlet-nix",
         "sops-nix": "sops-nix",
         "terranix": "terranix",

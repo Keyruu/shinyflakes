@@ -115,7 +115,9 @@ pkgs.writeShellApplication {
     printf '\n'
 
     # --- 3. copy flake onto the target ---------------------------------------
-    printf '%sCopying flake to %s/etc/nixos ...%s\n' "$BLUE" "$mount" "$RESET"
+    printf '%sCopying flake (with submodules) to %s/etc/nixos ...%s\n' "$BLUE" "$mount" "$RESET"
+    # copy the whole repo including .git + submodule working trees so the
+    # ?submodules=1 flake ref resolves inside the install chroot
     cp -r "$ROOT/." "$mount/etc/nixos/"
     printf '%sFlake copied.%s\n' "$GREEN" "$RESET"
     printf '\n'
@@ -123,7 +125,7 @@ pkgs.writeShellApplication {
     # --- 4. install -----------------------------------------------------------
     gum confirm "Ready to run nixos-install?" || die "aborted" 1
     printf '%sInstalling NixOS (this takes a while)...%s\n' "$BLUE" "$RESET"
-    nixos-install --no-root-password --flake "$mount/etc/nixos#$host"
+    nixos-install --no-root-password --flake "$mount/etc/nixos?submodules=1#$host"
     printf '%sNixOS installed!%s\n' "$GREEN" "$RESET"
     printf '\n'
 

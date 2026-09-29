@@ -309,15 +309,16 @@ ping nixos.org
 ##### 3. Copy the flake
 
 ```bash
-git clone https://github.com/Keyruu/shinyflakes.git
+# --recurse-submodules pulls in private modules the flake depends on;
+# without them every nix command fails with missing attribute errors
+git clone --recurse-submodules https://github.com/Keyruu/shinyflakes.git
 cd shinyflakes
 ```
 
-Private aspects (authelia seed, agents) live in separate repos on
-`git.keyruu.de` and are pulled in as optional flake inputs. The public
-flake evaluates without them; if you have access, add the inputs and run
-`nix flake update` to populate `flake.lock`. No `?submodules=1` is required
-for any `nix`/`nixos-rebuild` command.
+**Note:** This flake uses git submodules. Every `nix` command needs
+`?submodules=1` in the flake ref, or evaluation fails (e.g.
+`attribute 'link-bypass' missing`). This applies to `nixos-install`,
+`nixos-rebuild`, `nix eval`, `nix build`, etc.
 
 ##### 4. Identify Your Disk
 
@@ -373,7 +374,7 @@ ls -la /mnt/etc/nixos/
 ##### 8. Install NixOS
 
 ```bash
-sudo nixos-install --flake '/mnt/etc/nixos#hostname'
+sudo nixos-install --flake '/mnt/etc/nixos?submodules=1#hostname'
 ```
 
 ##### 9. Set User Password
@@ -489,13 +490,13 @@ Once you have a host installed, deploying changes is straightforward:
 
 ```bash
 # Deploy to a host
-sudo nixos-rebuild switch --flake '.#hostname'
+sudo nixos-rebuild switch --flake '.?submodules=1#hostname'
 
 # Test build without switching
-nixos-rebuild build --flake '.#hostname'
+nixos-rebuild build --flake '.?submodules=1#hostname'
 
 # Test without making it permanent (reverts on reboot)
-sudo nixos-rebuild test --flake '.#hostname'
+sudo nixos-rebuild test --flake '.?submodules=1#hostname'
 ```
 
 **Prerequisites for managing the config:**

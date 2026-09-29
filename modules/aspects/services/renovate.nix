@@ -54,7 +54,7 @@
           hostRules = [ ];
 
           allowedPostUpgradeCommands = [
-            "^bash -c 'nix run \\.#update-hash -- .+'$"
+            "^bash -c 'nix run \\.\\?submodules=1#update-hash -- .+'$"
             "^bash -c 'if \\[ -f flake\\.nix \\]; then nix-update --flake --version=skip default; fi'$"
           ];
           # nixpkgs bash (SSH_SOURCE_BASHRC) treats node's socketpair stdio as an

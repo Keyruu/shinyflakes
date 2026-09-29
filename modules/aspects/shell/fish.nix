@@ -32,7 +32,7 @@
                 if not sudo -n true 2>/dev/null
                   notify-send "rebuild" "sudo password required"
                 end
-                sudo nixos-rebuild switch --flake ~/shinyflakes#$config_name $flags
+                sudo nixos-rebuild switch --flake ~/shinyflakes\?submodules=1#$config_name $flags
               '';
           };
 
