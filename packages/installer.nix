@@ -29,6 +29,7 @@ pkgs.writeShellApplication {
       -u, --user USER                user to set password for   default: lucas
       -m, --mount PATH               mount point of new system  default: /mnt
       -s, --skip-disko               skip disk partitioning
+      -r, --reset                    wipe target disk + umount $mount + close LUKS first
       -n, --no-reboot                do not reboot after install
       -h, --help
     EOF
@@ -39,6 +40,7 @@ pkgs.writeShellApplication {
     mount="/mnt"
     skip_disko=0
     no_reboot=0
+    reset=0
 
     while [ $# -gt 0 ]; do
       case "$1" in
@@ -46,6 +48,7 @@ pkgs.writeShellApplication {
         -u|--user)      user="$2";    shift 2 ;;
         -m|--mount)     mount="$2";   shift 2 ;;
         -s|--skip-disko) skip_disko=1; shift ;;
+        -r|--reset)      reset=1;      shift ;;
         -n|--no-reboot)  no_reboot=1;  shift ;;
         -h|--help)       usage; exit 0 ;;
         --) shift; break ;;
@@ -90,6 +93,32 @@ pkgs.writeShellApplication {
       printf '%sDisko: none found for %s%s\n' "$YELLOW" "$host" "$RESET"
     fi
     printf '\n'
+
+    # --- 0. reset (clean slate from a previous run) -------------------------
+    # Useful when re-running after a partial install: unmount the previous
+    # mount point, close any LUKS mapping disko opened, and wipe the target
+    # disk's signature so disko can re-partition cleanly.
+    if [ "$reset" = "1" ]; then
+      printf '%s--reset: cleaning up previous install state...%s\n' "$YELLOW" "$RESET"
+      umount -R "$mount" 2>/dev/null || true
+      # close any LUKS mapping the previous disko run opened
+      for map in $(dmsetup ls --target crypt 2>/dev/null | awk 'NR>1 {print $1}' | tr -d '"'); do
+        printf '%s  closing LUKS map %s%s\n' "$YELLOW" "$map" "$RESET"
+        cryptsetup close "$map" 2>/dev/null || true
+      done
+      if [ -n "$DISKO_FILE" ]; then
+        # pull device paths straight from the disko config so the user doesn't
+        # have to re-type them
+        TARGET_DEVICES=$(grep -oP 'device\s*=\s*"\K[^"]+' "$DISKO_FILE" | sort -u || true)
+        for dev in $TARGET_DEVICES; do
+          if [ -b "$dev" ]; then
+            printf '%s  wiping %s%s\n' "$YELLOW" "$dev" "$RESET"
+            wipefs -a "$dev" 2>/dev/null || true
+          fi
+        done
+      fi
+      printf '%s--reset: done%s\n\n' "$GREEN" "$RESET"
+    fi
 
     # --- 1. disk partitioning -------------------------------------------------
     if [ "$skip_disko" = "1" ]; then
