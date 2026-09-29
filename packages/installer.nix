@@ -143,27 +143,14 @@ pkgs.writeShellApplication {
     # report, and a NixOS module reads it at eval time to configure the
     # system. Result: declarative hardware spec, no /etc/nixos/hardware-
     # configuration.nix to babysit, and reinstallation just re-runs facter.
-    # Files land directly in the host dir (colocated with default.nix etc.)
-    # so import-tree auto-loads hardware.nix as a NixOS module.
+    # The host's default.nix references this file directly via
+    # `hardware.facter.reportPath = ./facter.json;`.
     printf '%sScanning hardware with nixos-facter...%s\n' "$BLUE" "$RESET"
     nix --experimental-features "nix-command flakes" run nixpkgs#nixos-facter -- \
       -o "$HOST_DIR/facter.json"
-    # hardware.nix tells the NixOS module to load the JSON. Auto-imported by
-    # import-tree as a NixOS module (alongside the rest of the host dir).
-    # NB: the heredoc body must not contain lines that are JUST `{` or `}`
-    # — bash's parser treats lone braces inside heredocs as brace-group
-    # opens/closes, which breaks the script. We inline some trailing chars
-    # so every body line has at least one non-brace token.
-    if [ ! -f "$HOST_DIR/hardware.nix" ]; then
-      cat > "$HOST_DIR/hardware.nix" <<'EOF'
-    # Loads the facter.json hardware report for this host.
-    # Regenerate by re-running shiny-install (or `nix run nixpkgs#nixos-facter -- -o facter.json`).
-    { lib, ... }: { # nix module body
-      hardware.facter.reportPath = ./facter.json;
-    } # end module
-    EOF
-      printf '%shardware.nix scaffolded (edit before commit if needed)%s\n' "$YELLOW" "$RESET"
-    fi
+    # Reminder: ensure the host's default.nix has
+    # `hardware.facter.reportPath = ./facter.json;` so the nixos-facter module
+    # actually wires the JSON into the system config.
     printf '%sHardware report written to %s/%s\n' "$GREEN" "$HOST_DIR" "facter.json"
     printf '\n'
 
@@ -189,9 +176,9 @@ pkgs.writeShellApplication {
     # we can stage the new hardware files there.
     git config --global --add safe.directory "$mount/etc/nixos"
     # Nix reads the git index (staged files), not just HEAD — so a plain
-    # `git add` is enough to make hardware.nix + facter.json visible to
-    # nixos-install. No commit needed in the install target.
-    git -C "$mount/etc/nixos" add "modules/hosts/$host/hardware.nix" "modules/hosts/$host/facter.json"
+    # `git add` is enough to make facter.json visible to nixos-install.
+    # No commit needed in the install target.
+    git -C "$mount/etc/nixos" add "modules/hosts/$host/facter.json"
     printf '%sInstalling NixOS (this takes a while)...%s\n' "$BLUE" "$RESET"
     # No ?submodules=1 — the placeholder pattern keeps the flake evaluating
     # without the private submodule content; locally you're assumed to have run
