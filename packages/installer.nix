@@ -108,14 +108,34 @@ pkgs.writeShellApplication {
     fi
     printf '\n'
 
-    # --- 2. hardware configuration -------------------------------------------
-    printf '%sGenerating hardware configuration...%s\n' "$BLUE" "$RESET"
-    nixos-generate-config --no-filesystems --root "$mount"
-    # persist the generated hw config in the repo so it survives reinstalls
-    # shinyflakes uses hardware.nix (per-host) rather than the upstream
-    # hardware-configuration.nix filename
-    cp "$mount/etc/nixos/hardware-configuration.nix" "$HOST_DIR/hardware.nix"
-    printf '%shardware.nix written to %s%s\n' "$GREEN" "$HOST_DIR" "$RESET"
+    # --- 2. hardware report (nixos-facter) ----------------------------------
+    # shinyflakes uses nixos-facter instead of nixos-generate-config. Facter
+    # scans the *running* hardware (the installer ISO), generates a JSON
+    # report, and a NixOS module reads it at eval time to configure the
+    # system. Result: declarative hardware spec, no /etc/nixos/hardware-
+    # configuration.nix to babysit, and reinstallation just re-runs facter.
+    HARDWARE_DIR="$HOST_DIR/hardware"
+    mkdir -p "$HARDWARE_DIR"
+    printf '%sScanning hardware with nixos-facter...%s\n' "$BLUE" "$RESET"
+    nix --experimental-features "nix-command flakes" run nixpkgs#nixos-facter -- \
+      -o "$HARDWARE_DIR/facter.json"
+    # default.nix tells the NixOS module to load the JSON. Auto-imported by
+    # import-tree as a NixOS module (alongside the rest of the host dir).
+    # NB: the heredoc body must not contain lines that are JUST `{` or `}`
+    # — bash's parser treats lone braces inside heredocs as brace-group
+    # opens/closes, which breaks the script. We inline some trailing chars
+    # so every body line has at least one non-brace token.
+    if [ ! -f "$HARDWARE_DIR/default.nix" ]; then
+      cat > "$HARDWARE_DIR/default.nix" <<'EOF'
+    # Loads the facter.json hardware report for this host.
+    # Regenerate by re-running shiny-install (or `nix run nixpkgs#nixos-facter -- -o facter.json`).
+    { lib, ... }: { # nix module body
+      hardware.facter.reportPath = ./facter.json;
+    } # end module
+    EOF
+      printf '%shardware/default.nix scaffolded (edit before commit if needed)%s\n' "$YELLOW" "$RESET"
+    fi
+    printf '%sHardware report written to %s/%s\n' "$GREEN" "$HARDWARE_DIR" "facter.json"
     printf '\n'
 
     # --- 3. copy flake onto the target ---------------------------------------

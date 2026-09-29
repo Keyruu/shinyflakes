@@ -40,6 +40,11 @@
 
       nixpkgs.hostPlatform = "x86_64-linux";
 
+      hardware.facter = {
+        enable = true;
+        reportPath = ./facter.json;
+      };
+
       # services.mesh = {
       #   ip = den.people.lucas.devices.powder.ip;
       #   client = {
