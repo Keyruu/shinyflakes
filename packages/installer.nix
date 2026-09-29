@@ -62,12 +62,12 @@ pkgs.writeShellApplication {
 
     # prompt for host if not given
     if [ -z "''${host:-}" ]; then
-      host=$(find "$ROOT/nix/hosts" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
+      host=$(find "$ROOT/modules/hosts" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
         | sort | gum choose --header "Select host to install")
       [ -z "$host" ] && die "you must select a host to install!"
     fi
 
-    HOST_DIR="$ROOT/nix/hosts/$host"
+    HOST_DIR="$ROOT/modules/hosts/$host"
     [ -d "$HOST_DIR" ] || die "host '$host' has no config dir at $HOST_DIR"
 
     # disko device config lives in different places per host
@@ -110,14 +110,19 @@ pkgs.writeShellApplication {
     printf '%sGenerating hardware configuration...%s\n' "$BLUE" "$RESET"
     nixos-generate-config --no-filesystems --root "$mount"
     # persist the generated hw config in the repo so it survives reinstalls
-    cp "$mount/etc/nixos/hardware-configuration.nix" "$HOST_DIR/hardware-configuration.nix"
-    printf '%shardware-configuration.nix written to %s%s\n' "$GREEN" "$HOST_DIR" "$RESET"
+    # shinyflakes uses hardware.nix (per-host) rather than the upstream
+    # hardware-configuration.nix filename
+    cp "$mount/etc/nixos/hardware-configuration.nix" "$HOST_DIR/hardware.nix"
+    printf '%shardware.nix written to %s%s\n' "$GREEN" "$HOST_DIR" "$RESET"
     printf '\n'
 
     # --- 3. copy flake onto the target ---------------------------------------
-    printf '%sCopying flake (with submodules) to %s/etc/nixos ...%s\n' "$BLUE" "$mount" "$RESET"
-    # copy the whole repo including .git + submodule working trees so the
-    # ?submodules=1 flake ref resolves inside the install chroot
+    printf '%sCopying flake to %s/etc/nixos ...%s\n' "$BLUE" "$mount" "$RESET"
+    # cp -r includes .git (submodule refs are gitlinks), which nix tolerates
+    # when the actual submodule working trees are present alongside. If a
+    # collaborator cloned without --recurse-submodules the empty placeholder
+    # dirs (modules/aspects/{private,agents}/.gitkeep) cover the missing
+    # aspects so nix eval still succeeds.
     cp -r "$ROOT/." "$mount/etc/nixos/"
     printf '%sFlake copied.%s\n' "$GREEN" "$RESET"
     printf '\n'
@@ -125,7 +130,10 @@ pkgs.writeShellApplication {
     # --- 4. install -----------------------------------------------------------
     gum confirm "Ready to run nixos-install?" || die "aborted" 1
     printf '%sInstalling NixOS (this takes a while)...%s\n' "$BLUE" "$RESET"
-    nixos-install --no-root-password --flake "$mount/etc/nixos?submodules=1#$host"
+    # No ?submodules=1 — the placeholder pattern keeps the flake evaluating
+    # without the private submodule content; locally you're assumed to have run
+    # `git submodule update --init` so private aspects merge in.
+    nixos-install --no-root-password --flake "$mount/etc/nixos#$host"
     printf '%sNixOS installed!%s\n' "$GREEN" "$RESET"
     printf '\n'
 
