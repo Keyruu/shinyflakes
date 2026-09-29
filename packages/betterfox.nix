@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=github-releases depName=yokoffing/Betterfox
-  version = "116.1";
+  version = "154.0";
 in
 pkgs.fetchFromGitHub {
   owner = "yokoffing";
