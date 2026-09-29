@@ -184,6 +184,10 @@ pkgs.writeShellApplication {
 
     # --- 4. install -----------------------------------------------------------
     gum confirm "Ready to run nixos-install?" || die "aborted" 1
+    # The copied flake on $mount is owned by root but git refuses to operate
+    # in a repo owned by someone else ("dubious ownership"). Mark it safe so
+    # the user can `git` against it later if they want.
+    git config --global --add safe.directory "$mount/etc/nixos"
     # nixos-install evaluates the flake, which only sees the git index
     # (tracked files) — untracked files like facter.json would be invisible.
     # Stage hardware.nix + facter.json so the copied tree on $mount is
