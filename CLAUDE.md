@@ -64,25 +64,26 @@ Blueprint automatically:
 
 ### Building and Deploying
 
-**Important:** This flake uses git submodules (e.g. private modules). Every nix
-command must include `?submodules=1` in the flake ref, otherwise evaluation
-fails with errors like `attribute 'link-bypass' missing`. This applies to
-`nixos-rebuild`, `nix build`, `nix eval`, `nix flake check`, etc.
+Private content lives in optional flake inputs (`privateflakes`, `agents`,
+both `flake = false`, `optional = true`), not git submodules. The public
+flake evaluates without them; local devs who need the private aspects add
+access and run `nix flake update`. No `?submodules=1` is required for any
+`nix`/`nixos-rebuild` command.
 
 **Build a NixOS configuration:**
 
 ```bash
 # Build without switching
-nixos-rebuild build --flake '.?submodules=1#hostname'
+nixos-rebuild build --flake '.#hostname'
 
 # Build and switch
-sudo nixos-rebuild switch --flake '.?submodules=1#hostname'
+sudo nixos-rebuild switch --flake '.#hostname'
 
 # Build and test (reverts on reboot)
-sudo nixos-rebuild test --flake '.?submodules=1#hostname'
+sudo nixos-rebuild test --flake '.#hostname'
 
 # Eval / other commands
-nix eval '.?submodules=1#nixosConfigurations.hostname.config...'
+nix eval '.#nixosConfigurations.hostname.config...'
 ```
 
 ### Adding a New Host
@@ -287,15 +288,15 @@ Authelia runs on prime (`auth.peeraten.net`). Config lives in:
 ```bash
 # Generate <service>ClientSecret in nix/secrets.yaml (secret is never printed)
 # and print the pbkdf2 digest for the authelia client config:
-nix run '.?submodules=1#authelia-oidc-client' -- <service>
+nix run '.#authelia-oidc-client' -- <service>
 
 # Prompt for a password and store its argon2 digest as <user>PasswordHash:
-nix run '.?submodules=1#authelia-user-hash' -- <user>
+nix run '.#authelia-user-hash' -- <user>
 ```
 
 ### Adding a New OIDC Client
 
-1. **Secret**: `nix run '.?submodules=1#authelia-oidc-client' -- <service>` —
+1. **Secret**: `nix run '.#authelia-oidc-client' -- <service>` —
    stores `<service>ClientSecret` in sops, prints the pbkdf2 digest.
 2. **Authelia client** (`nix/hosts/prime/modules/authelia.nix`): add an entry to
    `identity_providers.oidc.clients` with the digest as `client_secret` (hash is

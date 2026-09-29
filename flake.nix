@@ -135,12 +135,34 @@
     # web
     homepage.url = "git+https://git.keyruu.de/lucas/homepage";
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
+
+    # private — not submodules anymore, so the flake evaluates without auth.
+    # `inputs ? X` is only true when X is in flake.lock. Collaborators without
+    # git.keyruu.de access clone with an empty lock for these (or run
+    # `nix flake lock` to leave them unlocked), and the private paths get
+    # skipped. Locals with access run `nix flake update` to populate them.
+    privateflakes = {
+      url = "git+https://git.keyruu.de/lucas/privateflakes.git";
+      flake = false;
+    };
+    agents = {
+      url = "git+https://git.keyruu.de/lucas/agents.git";
+      flake = false;
+    };
   };
 
   outputs =
-    inputs:
+    inputs@{ ... }:
     let
-      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
+      lib = inputs.nixpkgs.lib or inputs.flake-parts.lib;
+      # Extra import roots pulled in only when the matching private input is
+      # present. import-tree.addPath just appends to its scan list.
+      extraPaths = lib.filter (p: p != null) [
+        (if inputs ? privateflakes then inputs.privateflakes else null)
+        (if inputs ? agents then inputs.agents else null)
+      ];
+      tree = lib.foldl' (acc: p: acc.addPath p) inputs.import-tree extraPaths;
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } (tree ./modules);
     in
     flake
     // {

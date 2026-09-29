@@ -42,7 +42,7 @@ in
           clientId = "matrix";
           # pbkdf2-sha512 digest of sops.matrixClientSecret — authelia
           # verifies the plaintext against this. Generate with:
-          #   nix run '.?submodules=1#authelia-oidc-client' -- matrix
+          #   nix run '.#authelia-oidc-client' -- matrix
           clientSecret = "$pbkdf2-sha512$310000$t5LcQ34xfdjxgMnp37B.nA$yAtJNPb5Ah9p4cC17HgwOQha6U/xTiyjTckMjasv2mzfTxoy3pKvNFl.1uK6YLftsys4Un37ILAIg/BQDlHu0w";
           redirectUris = [ "https://${domain}/_continuwuity/oidc/complete" ];
           scopes = [
