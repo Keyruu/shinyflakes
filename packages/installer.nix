@@ -70,9 +70,11 @@ pkgs.writeShellApplication {
     HOST_DIR="$ROOT/modules/hosts/$host"
     [ -d "$HOST_DIR" ] || die "host '$host' has no config dir at $HOST_DIR"
 
-    # disko device config lives in different places per host
+    # disko device config — underscore-prefixed so import-tree skips auto-import.
+    # Per-host layouts live alongside the host dir as `_disk.nix`; shared
+    # workstation aspects handle the disko module import + neededForBoot.
     DISKO_FILE=""
-    for f in "$HOST_DIR/disk.nix" "$HOST_DIR/modules/disk-config.nix"; do
+    for f in "$HOST_DIR/_disk.nix" "$HOST_DIR/disk.nix" "$HOST_DIR/modules/disk-config.nix"; do
       [ -f "$f" ] && DISKO_FILE="$f" && break
     done
 

@@ -26,6 +26,7 @@
 
   den.aspects.powder = {
     includes = [
+      den.aspects.workstation.default
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
       den.aspects.workstation.fprintd
@@ -33,6 +34,7 @@
 
     nixos = { pkgs, lib, ... }: {
       imports = [
+        ./_disk.nix
         # inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
       ];
 
