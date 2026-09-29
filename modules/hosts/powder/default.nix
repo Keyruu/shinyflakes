@@ -24,7 +24,7 @@
     };
   };
 
-  den.aspects.carryall = {
+  den.aspects.powder = {
     includes = [
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot

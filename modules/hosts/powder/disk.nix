@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  den.aspects.carryall.nixos = {
+  den.aspects.powder.nixos = {
     imports = [
       inputs.disko.nixosModules.disko
     ];
