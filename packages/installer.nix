@@ -186,13 +186,12 @@ pkgs.writeShellApplication {
     gum confirm "Ready to run nixos-install?" || die "aborted" 1
     # The copied flake on $mount is owned by root but git refuses to operate
     # in a repo owned by someone else ("dubious ownership"). Mark it safe so
-    # the user can `git` against it later if they want.
+    # we can stage the new hardware files there.
     git config --global --add safe.directory "$mount/etc/nixos"
-    # nixos-install evaluates the flake, which only sees the git index
-    # (tracked files) — untracked files like facter.json would be invisible.
-    # Stage hardware.nix + facter.json so the copied tree on $mount is
-    # actually evaluable. The user commits the result afterwards.
-    git -C "$ROOT" add "modules/hosts/$host/hardware.nix" "modules/hosts/$host/facter.json"
+    # Nix reads the git index (staged files), not just HEAD — so a plain
+    # `git add` is enough to make hardware.nix + facter.json visible to
+    # nixos-install. No commit needed in the install target.
+    git -C "$mount/etc/nixos" add "modules/hosts/$host/hardware.nix" "modules/hosts/$host/facter.json"
     printf '%sInstalling NixOS (this takes a while)...%s\n' "$BLUE" "$RESET"
     # No ?submodules=1 — the placeholder pattern keeps the flake evaluating
     # without the private submodule content; locally you're assumed to have run
