@@ -73,7 +73,7 @@
 
           containers.multi-scrobbler = {
             containerConfig = {
-              image = "ghcr.io/foxxmd/multi-scrobbler:0.19.1";
+              image = "ghcr.io/foxxmd/multi-scrobbler:0.19.2";
               publishPorts = [ "127.0.0.1:${toString my.port}:9078" ];
               volumes = [ "${my.stack.path}/config:/config" ];
               environments = {
