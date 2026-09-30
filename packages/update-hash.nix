@@ -42,6 +42,8 @@ pkgs.writeShellApplication {
       name=$(basename "$f" .nix)
       echo "==> Processing: $name"
 
+      originalHash=$(grep -oP 'hash\s*=\s*"\K[^"]*' "$f" | head -1)
+
       sed -i "s|hash = \"[^\"]*\"|hash = \"$fakeHash\"|" "$f"
 
       output=$(nix build ".?submodules=1#$name" 2>&1) || true
@@ -50,6 +52,7 @@ pkgs.writeShellApplication {
 
       if [ -z "$correctHash" ]; then
         echo "    Build failed for $name, restoring hash and continuing"
+        sed -i "s|hash = \"[^\"]*\"|hash = \"$originalHash\"|" "$f"
         echo "$output" | tail -5
         continue
       fi
