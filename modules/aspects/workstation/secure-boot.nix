@@ -7,10 +7,7 @@
       ];
 
       environment.systemPackages = with pkgs; [
-        # For debugging and troubleshooting Secure Boot.
         sbctl
-        tpm2-tss
-        tpm2-tools
       ];
 
       # Lanzaboote currently replaces the systemd-boot module.
@@ -24,10 +21,6 @@
           enable = true;
           pkiBundle = "/var/lib/sbctl";
         };
-
-        # TPM2 Unlocking
-        initrd.availableKernelModules = [ "tpm_tis" ];
-        initrd.systemd.enable = true;
       };
     };
   };
