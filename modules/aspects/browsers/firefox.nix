@@ -170,6 +170,13 @@
       {
         programs.firefox = {
           enable = true;
+          # The firefox wrapper sets MOZ_LEGACY_PROFILES=1, which keeps
+          # Firefox on the pre-67 single-profile layout at
+          # ~/.mozilla/firefox/. HM's default configPath is XDG-based
+          # (~/.config/mozilla/firefox) since stateVersion 26.05, so
+          # force both profiles.ini and the profile dirs to the legacy
+          # path so Firefox actually reads them.
+          configPath = lib.mkForce ".mozilla/firefox";
 
           policies = {
             AutofillAddressEnabled = false;

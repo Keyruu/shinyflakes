@@ -8,7 +8,7 @@
       "https://cache.numtide.com"
       "https://cache.lix.systems"
       "https://vicinae.cachix.org"
-      "https://niri.cachix.org"
+      "https://niri-nix.cachix.org"
       "https://noctalia.cachix.org"
     ];
     extra-trusted-public-keys = [
@@ -17,7 +17,7 @@
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
     ];
   };
@@ -98,7 +98,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    niri.url = "github:sodiboo/niri-flake";
+    niri.url = "git+https://codeberg.org/BANanaD3V/niri-nix";
 
     nvf = {
       url = "github:NotAShelf/nvf";

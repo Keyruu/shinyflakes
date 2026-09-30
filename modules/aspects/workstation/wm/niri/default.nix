@@ -96,7 +96,7 @@ in
       in
       {
         imports = [
-          inputs.niri.homeModules.niri
+          inputs.niri.homeModules.default
         ];
 
         home.pointerCursor = {
@@ -121,11 +121,11 @@ in
           icon = "video-display";
         };
 
-        programs.niri = {
+        wayland.windowManager.niri = {
           enable = true;
           package = inputs'.niri.packages.niri-unstable;
 
-          config = # kdl
+          extraConfig = # kdl
             ''
               ${lib.optionalString (host.displays != null) (mkOutputBlocks host.displays config.monitors)}
 
