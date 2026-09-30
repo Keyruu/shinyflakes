@@ -7,6 +7,7 @@
       {
         pkgs,
         lib,
+        config,
         self',
         ...
       }:
@@ -292,6 +293,18 @@
             };
           };
         };
+        # firefox-nix only honors `browser.bookmarks.file` on first profile
+        # creation; after that the pref is set but Firefox skips the import.
+        # Expose the generated bookmarks.html at a stable path so it's easy
+        # to import via Library → Import Bookmarks from HTML.
+        home.file = lib.mkMerge [
+          (lib.mapAttrs' (
+            name: _:
+            lib.nameValuePair ".local/share/firefox-bookmarks/${name}.html" {
+              source = config.programs.firefox.profiles.${name}.bookmarks.configFile;
+            }
+          ) config.programs.firefox.profiles)
+        ];
       };
   };
 }
