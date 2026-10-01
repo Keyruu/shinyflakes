@@ -7,5 +7,5 @@ pkgs.fetchFromGitHub {
   owner = "yokoffing";
   repo = "Betterfox";
   rev = version;
-  hash = "sha256-Ai8Szbrk/4FhGhS4r5gA2DqjALFRfQKo2a/TwWCIA6g=";
+  hash = "sha256-mIP/WcXUcGrJsWCJzR4zqPOmt0BbbpTZVaN/MbIwBbw=";
 }

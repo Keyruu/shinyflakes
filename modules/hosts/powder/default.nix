@@ -61,6 +61,7 @@
       networking.interfaces.wlp0s20f3.useDHCP = lib.mkForce false;
 
       services.libinput.enable = true;
+      services.tailscale.enable = true;
 
       # Workstation packages migrated from blueprint's workstation.nix + wayland.nix
       # (those nixos modules aren't migrated to den yet — see phase 3 cleanup).
@@ -87,6 +88,9 @@
         info.enable = false;
         nixos.enable = false;
       };
+    };
+    homeManager = { ... }: {
+      services.tailscale-systray.enable = true;
     };
   };
 }
