@@ -135,7 +135,6 @@ in
               spawn-at-startup "iio-niri" "--monitor" "eDP-1"
               spawn-at-startup "clipse" "-listen"
               spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
-              spawn-at-startup "distrobox" "enter" "mdm" "--" "exit"
               spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
               spawn-at-startup "handy"
 
