@@ -112,10 +112,11 @@ in
       };
 
       services.caddy.virtualHosts = {
-        # Client API on 443 — coraza-waf matches chatto/liwan pattern.
+        # Client API on 443 — no WAF: continuwuity already gates every endpoint
+        # behind auth and the JSON payloads trip OWASP rules on CR/LF/args
+        # (same false-positive pattern as chatto gRPC).
         "${domain}" = {
           extraConfig = ''
-            import coraza-waf
             reverse_proxy http://127.0.0.1:${toString port}
           '';
         };
