@@ -28,6 +28,7 @@ in
             - port: 8008
               tls: false
               type: http
+              x_forwarded: true
               resources:
                 - names: [client, federation]
                   compress: false
@@ -49,17 +50,6 @@ in
           suppress_key_server_warning: true
 
           signing_key_path: /data/etc/signing.key
-
-          x_forwarded:
-            enabled: true
-            ip_header: X-Forwarded-For
-            port_header: X-Forwarded-Port
-            proto_header: X-Forwarded-Proto
-            proto_https_value: https
-            trusted_proxies:
-              - 127.0.0.1
-              - ::1
-              - 10.88.0.0/16
 
           macaroon_secret_key: ${config.sops.placeholder.macaroonSecretKey}
 
