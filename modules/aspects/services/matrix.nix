@@ -17,6 +17,9 @@ in
 
       sops.templates."homeserver.yaml" = {
         restartUnits = [ "matrix.service" ];
+        mode = "0440";
+        owner = "matrix";
+        group = "matrix";
         content = ''
           server_name: ${domain}
           public_baseurl: https://${domain}
