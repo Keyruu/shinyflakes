@@ -76,7 +76,10 @@ in
                 CONTINUWUITY_OAUTH__OIDC__DISCOVERY_URL = "https://auth.peeraten.net";
                 CONTINUWUITY_OAUTH__OIDC__CLIENT_ID = "matrix";
                 CONTINUWUITY_OAUTH__OIDC__CLIENT_SECRET_FILE = "/run/secrets/matrix-client-secret";
-                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES = "openid,profile,email,groups";
+                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES__0 = "openid";
+                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES__1 = "profile";
+                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES__2 = "email";
+                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES__3 = "groups";
                 CONTINUWUITY_OAUTH__OIDC__PROVIDER_NAME = "Authelia";
                 # user picks localpart at first OIDC login
                 CONTINUWUITY_OAUTH__OIDC__PROMPT_FOR_LOCALPART = "true";
