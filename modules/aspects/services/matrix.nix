@@ -21,34 +21,37 @@ in
       # struct values via env vars — both `additional_scopes` and
       # `well_known` need a TOML config file. Scalars stay in env for
       # visibility.
-      environment.etc."stacks/matrix/continuwuity.toml".text = ''
-        [global.well_known]
-        client = "https://${domain}"
-        server = "${domain}:8448"
+      sops.templates."continuwuity.toml" = {
+        restartUnits = [ "matrix.service" ];
+        content = ''
+          [global.well_known]
+          client = "https://${domain}"
+          server = "${domain}:8448"
 
-        [global.matrix_rtc]
-        foci = [
-          { type = "livekit", livekit_service_url = "https://livekit.peeraten.net" },
-        ]
+          [global.matrix_rtc]
+          foci = [
+            { type = "livekit", livekit_service_url = "https://livekit.peeraten.net" },
+          ]
 
-        # TURN creds published via `/_matrix/client/v3/capabilities`.
-        # Secret is HMAC-shared with coturn (modules/aspects/services/turn.nix).
-        turn_uri = [
-          "turn:turn.peeraten.net:3478?transport=udp",
-          "turn:turn.peeraten.net:3478?transport=tcp",
-          "turns:turn.peeraten.net:5349?transport=tcp",
-        ]
-        turn_secret = "${config.sops.placeholder.turnSecret}"
-        turn_ttl = 86400
+          # TURN creds published via `/_matrix/client/v3/capabilities`.
+          # Secret is HMAC-shared with coturn (modules/aspects/services/turn.nix).
+          turn_uri = [
+            "turn:turn.peeraten.net:3478?transport=udp",
+            "turn:turn.peeraten.net:3478?transport=tcp",
+            "turns:turn.peeraten.net:5349?transport=tcp",
+          ]
+          turn_secret = "${config.sops.placeholder.turnSecret}"
+          turn_ttl = 86400
 
-        [oauth.oidc]
-        additional_scopes = [
-          "openid",
-          "profile",
-          "email",
-          "groups",
-        ]
-      '';
+          [oauth.oidc]
+          additional_scopes = [
+            "openid",
+            "profile",
+            "email",
+            "groups",
+          ]
+        '';
+      };
 
       # Federation listener — Cloudflare can't proxy arbitrary TCP, so
       # matrix.peeraten.net must be DNS-only and 8448 publicly reachable.
@@ -97,14 +100,9 @@ in
               volumes = [
                 "${my.stack.path}/db:/var/lib/continuwuity"
                 "/etc/stacks/matrix/resolv.conf:/etc/resolv.conf:ro"
-                "/etc/stacks/matrix/continuwuity.toml:/etc/continuwuity.toml:ro"
+                "${config.sops.templates."continuwuity.toml".path}:/etc/continuwuity.toml:ro"
                 "${config.sops.secrets.matrixClientSecret.path}:/run/secrets/matrix-client-secret:ro"
               ];
-              unitConfig = {
-                "X-RestartTrigger" = [
-                  config.environment.etc."stacks/matrix/continuwuity.toml".source
-                ];
-              };
               environments = {
                 CONTINUWUITY_CONFIG = "/etc/continuwuity.toml";
                 CONTINUWUITY_SERVER_NAME = domain;
