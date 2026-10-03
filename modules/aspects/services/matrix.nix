@@ -100,6 +100,11 @@ in
                 "/etc/stacks/matrix/continuwuity.toml:/etc/continuwuity.toml:ro"
                 "${config.sops.secrets.matrixClientSecret.path}:/run/secrets/matrix-client-secret:ro"
               ];
+              unitConfig = {
+                "X-RestartTrigger" = [
+                  config.environment.etc."stacks/matrix/continuwuity.toml".source
+                ];
+              };
               environments = {
                 CONTINUWUITY_CONFIG = "/etc/continuwuity.toml";
                 CONTINUWUITY_SERVER_NAME = domain;
