@@ -60,6 +60,8 @@ in
               - 127.0.0.1
               - ::1
 
+          macaroon_secret_key: ${config.sops.placeholder.macaroonSecretKey}
+
           oidc_providers:
             - idp_id: authelia
               idp_name: Authelia
@@ -108,6 +110,7 @@ in
       networking.firewall.allowedTCPPorts = [ 8448 ];
 
       sops.secrets.matrixClientSecret = { };
+      sops.secrets.macaroonSecretKey = { };
 
       services.my.matrix = {
         inherit port;
