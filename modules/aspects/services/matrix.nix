@@ -49,7 +49,6 @@ in
           suppress_key_server_warning: true
 
           signing_key_path: /data/etc/signing.key
-          old_signing_keys: []
 
           oidc_providers:
             - idp_id: authelia
