@@ -49,7 +49,7 @@
           directories = [ "log" ];
           containers.turn = {
             containerConfig = {
-              image = "docker.io/coturn/coturn:4.7";
+              image = "docker.io/coturn/coturn:4.18";
               exec = "-c /etc/turnserver.conf";
               publishPorts = [
                 "3478:3478/udp"
