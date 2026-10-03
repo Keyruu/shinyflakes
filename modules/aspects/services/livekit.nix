@@ -3,7 +3,6 @@
   den.aspects.services.livekit = {
     nixos = { config, ... }: {
       sops.secrets.livekitApiKey = { };
-      sops.secrets.chattoLivekitApiKey = { };
 
       sops.templates."livekit.yaml" = {
         restartUnits = [ "livekit.service" ];
@@ -16,7 +15,6 @@
           turn:
             enabled: false
           keys:
-            chatto: ${config.sops.placeholder.chattoLivekitApiKey}
             livekit: ${config.sops.placeholder.livekitApiKey}
           logging:
             level: info
