@@ -43,6 +43,7 @@ in
           url_preview_enabled: false
           enable_registration: false
           enable_registration_without_verification: false
+          report_stats: false
           trusted_key_servers:
             - server_name: matrix.org
           suppress_key_server_warning: true
