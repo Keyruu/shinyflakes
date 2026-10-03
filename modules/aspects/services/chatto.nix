@@ -15,7 +15,6 @@
           chattoCookieEncryptionSecret = { };
           chattoCoreSecretKey = { };
           chattoAssetsSigningSecret = { };
-          chattoLivekitApiSecret = { };
           chattoVapidPublicKey = { };
           chattoVapidPrivateKey = { };
           chattoClientSecret = { };
@@ -23,10 +22,7 @@
 
         sops.templates = {
           "chatto.env" = {
-            restartUnits = [
-              "chatto-chatto.service"
-              "chatto-livekit.service"
-            ];
+            restartUnits = [ "chatto-chatto.service" ];
             content = ''
               CHATTO_NATS_EMBEDDED_ENABLED=false
               CHATTO_NATS_CLIENT_URL=nats://nats:4222
@@ -45,8 +41,8 @@
               CHATTO_SMTP_ENABLED=false
               CHATTO_LIVEKIT_ENABLED=true
               CHATTO_LIVEKIT_URL=wss://${livekitDomain}
-              CHATTO_LIVEKIT_API_KEY=chatto
-              CHATTO_LIVEKIT_API_SECRET=${config.sops.placeholder.chattoLivekitApiSecret}
+              CHATTO_LIVEKIT_API_KEY=livekit
+              CHATTO_LIVEKIT_API_SECRET=${config.sops.placeholder.livekitApiKey}
               CHATTO_PUSH_ENABLED=true
               CHATTO_PUSH_VAPID_PUBLIC_KEY=${config.sops.placeholder.chattoVapidPublicKey}
               CHATTO_PUSH_VAPID_PRIVATE_KEY=${config.sops.placeholder.chattoVapidPrivateKey}
@@ -74,37 +70,7 @@
               }
             '';
           };
-
-          "chatto-livekit.yaml" = {
-            restartUnits = [ "chatto-livekit.service" ];
-            content = ''
-              port: 7880
-              rtc:
-                port_range_start: 50000
-                port_range_end: 50200
-                use_external_ip: true
-              turn:
-                enabled: true
-                udp_port: 3478
-              keys:
-                chatto: ${config.sops.placeholder.chattoLivekitApiSecret}
-              webhook:
-                urls:
-                  - https://${domain}/webhooks/livekit
-                api_key: chatto
-              logging:
-                level: info
-            '';
-          };
         };
-
-        networking.firewall.allowedUDPPorts = [ 3478 ];
-        networking.firewall.allowedUDPPortRanges = [
-          {
-            from = 50000;
-            to = 50200;
-          }
-        ];
 
         services.my.chatto = {
           title = "Chatto";
@@ -153,27 +119,6 @@
                 };
               };
 
-              livekit = {
-                containerConfig = {
-                  image = "docker.io/livekit/livekit-server:v1.13.7";
-                  exec = "--config /etc/livekit.yaml";
-                  publishPorts = [
-                    "3478:3478/udp"
-                    "50000-50200:50000-50200/udp"
-                    "127.0.0.1:7880:7880"
-                  ];
-                  volumes = [
-                    "${config.sops.templates."chatto-livekit.yaml".path}:/etc/livekit.yaml:ro"
-                  ];
-                  healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:7880/";
-                  healthInterval = "5s";
-                  healthTimeout = "3s";
-                  healthRetries = 3;
-                  healthStartPeriod = "10s";
-                  networkAliases = [ "livekit" ];
-                };
-              };
-
               chatto = {
                 containerConfig = {
                   image = "ghcr.io/chattocorp/chatto:0.4.24";
@@ -190,26 +135,13 @@
                   environmentFiles = [ config.sops.templates."chatto.env".path ];
                   networkAliases = [ "chatto" ];
                 };
-                dependsOn = [
-                  "nats"
-                  "livekit"
-                ];
+                dependsOn = [ "nats" ];
               };
             };
           };
         };
 
         services.caddy.virtualHosts = {
-          ${livekitDomain} = {
-            extraConfig = ''
-              import websocket /rtc/v1 http://127.0.0.1:7880
-
-              handle {
-                import coraza-waf
-                reverse_proxy http://127.0.0.1:7880
-              }
-            '';
-          };
           ${domain} = {
             extraConfig = ''
               import websocket /api/realtime http://127.0.0.1:${toString my.port}

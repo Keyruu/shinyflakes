@@ -26,6 +26,21 @@ in
         client = "https://${domain}"
         server = "${domain}:8448"
 
+        [global.matrix_rtc]
+        foci = [
+          { type = "livekit", livekit_service_url = "https://livekit.peeraten.net" },
+        ]
+
+        # TURN creds published via `/_matrix/client/v3/capabilities`.
+        # Secret is HMAC-shared with coturn (modules/aspects/services/turn.nix).
+        turn_uri = [
+          "turn:turn.peeraten.net:3478?transport=udp",
+          "turn:turn.peeraten.net:3478?transport=tcp",
+          "turns:turn.peeraten.net:5349?transport=tcp",
+        ]
+        turn_secret = "${config.sops.placeholder.turnSecret}"
+        turn_ttl = 86400
+
         [oauth.oidc]
         additional_scopes = [
           "openid",

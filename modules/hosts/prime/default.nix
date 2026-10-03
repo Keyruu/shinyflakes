@@ -37,6 +37,8 @@
       den.aspects.services.chatto
       den.aspects.services.koito
       den.aspects.services.matrix
+      den.aspects.services.livekit
+      den.aspects.services.turn
     ];
   };
 }
