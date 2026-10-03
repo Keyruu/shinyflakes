@@ -139,7 +139,7 @@ in
 
           containers.matrix = {
             containerConfig = {
-              image = "docker.io/matrixdotorg/synapse:v1.135.2";
+              image = "docker.io/matrixdotorg/synapse:v1.162.0";
               user = "991:991";
               publishPorts = [ "127.0.0.1:${toString port}:8008" ];
               volumes = [
