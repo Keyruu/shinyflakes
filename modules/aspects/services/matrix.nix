@@ -66,7 +66,7 @@ in
                 - groups
               user_mapping_provider:
                 config:
-                  localpart_template: "{{ user.preferred_username }}"
+                  localpart_template: "{{ user.preferred_username.split('@')[0] if '@' in user.preferred_username else user.preferred_username }}"
                   display_name_template: "{{ user.name }}"
                   email_template: "{{ user.email }}"
 
