@@ -23,6 +23,7 @@ in
       # visibility.
       environment.etc."stacks/matrix/continuwuity.toml".text = ''
         [global.well_known]
+        client = "https://${domain}"
         server = "${domain}:8448"
 
         [oauth.oidc]
