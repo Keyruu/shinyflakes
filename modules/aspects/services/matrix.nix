@@ -66,7 +66,7 @@ in
                 - groups
               user_mapping_provider:
                 config:
-                  localpart_template: "{{ user.email.split('@')[0] }}"
+                  localpart_template: "{{ user.sub }}"
                   display_name_template: "{{ user.name }}"
                   email_template: "{{ user.email }}"
 
