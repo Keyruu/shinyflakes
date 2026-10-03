@@ -17,10 +17,14 @@ in
         nameserver 1.1.1.1
       '';
 
-      # Continuuity's figment Env provider doesn't support arrays via env
-      # vars — values like `additional_scopes = [...]` need a TOML config
-      # file. We keep everything else in env for visibility.
+      # Continuuity's figment Env provider doesn't support arrays or nested
+      # struct values via env vars — both `additional_scopes` and
+      # `well_known` need a TOML config file. Scalars stay in env for
+      # visibility.
       environment.etc."stacks/matrix/continuwuity.toml".text = ''
+        [global.well_known]
+        server = "${domain}:8448"
+
         [oauth.oidc]
         additional_scopes = [
           "openid",
@@ -85,8 +89,6 @@ in
                 CONTINUWUITY_SERVER_NAME = domain;
                 CONTINUWUITY_DATABASE_PATH = "/var/lib/continuwuity";
                 CONTINUWUITY_ADDRESS = "0.0.0.0";
-                # tells clients/other servers to reach federation at :8448
-                CONTINUWUITY_WELL_KNOWN = ''{"m.server":"${domain}:8448"}'';
                 CONTINUWUITY_MAX_REQUEST_SIZE = "20000000";
                 CONTINUWUITY_OAUTH__OIDC__DISCOVERY_URL = "https://auth.peeraten.net";
                 CONTINUWUITY_OAUTH__OIDC__CLIENT_ID = "matrix";
