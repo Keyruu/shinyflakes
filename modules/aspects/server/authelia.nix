@@ -23,6 +23,7 @@ let
       authorization_policy = "${entry.name}_access";
       redirect_uris = entry.redirectUris;
       scopes = entry.scopes;
+      subject_identifier = "username";
     }
     // lib.optionalAttrs (authMethod != null) {
       token_endpoint_auth_method = authMethod;
