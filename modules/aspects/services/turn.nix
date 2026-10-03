@@ -64,7 +64,6 @@
               networkAliases = [ "turn" ];
               addCapabilities = [ "NET_ADMIN" "NET_BIND_SERVICE" "CHOWN" "DAC_OVERRIDE" "FOWNER" "SETUID" "SETGID" "SYS_RESOURCE" ];
             };
-            security.noNewPrivileges = false;
           };
         };
       };
