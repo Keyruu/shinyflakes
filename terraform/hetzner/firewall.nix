@@ -90,6 +90,24 @@ in
       }
       {
         direction = "in";
+        protocol = "tcp";
+        port = "3478";
+        source_ips = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+      }
+      {
+        direction = "in";
+        protocol = "tcp";
+        port = "5349";
+        source_ips = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
+      }
+      {
+        direction = "in";
         protocol = "udp";
         port = "50000-50200";
         source_ips = [
