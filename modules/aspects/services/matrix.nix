@@ -166,13 +166,17 @@ in
       services.caddy.virtualHosts = {
         "${domain}" = {
           extraConfig = ''
-            reverse_proxy http://127.0.0.1:${toString port}
+            reverse_proxy http://127.0.0.1:${toString port} {
+              header_up X-Forwarded-Proto https
+            }
           '';
         };
         "${domain}:8448" = {
           listenAddresses = [ ":8448" ];
           extraConfig = ''
-            reverse_proxy http://127.0.0.1:${toString port}
+            reverse_proxy http://127.0.0.1:${toString port} {
+              header_up X-Forwarded-Proto https
+            }
           '';
         };
       };
