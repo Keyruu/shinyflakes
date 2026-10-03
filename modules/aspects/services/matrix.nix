@@ -59,6 +59,7 @@ in
             trusted_proxies:
               - 127.0.0.1
               - ::1
+              - 10.88.0.0/16
 
           macaroon_secret_key: ${config.sops.placeholder.macaroonSecretKey}
 
