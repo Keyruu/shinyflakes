@@ -50,7 +50,7 @@
           containers.turn = {
             containerConfig = {
               image = "docker.io/coturn/coturn:4.7";
-              exec = "--no-daemon --config /etc/turnserver.conf";
+              exec = "-c /etc/turnserver.conf";
               publishPorts = [
                 "3478:3478/udp"
                 "3478:3478/tcp"
