@@ -124,6 +124,10 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
+        turn = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
         # DNS-only: CF-proxied video streaming is ToS-gray and would hide
         # client IPs from the fail2ban jail on prime
         tv = {
