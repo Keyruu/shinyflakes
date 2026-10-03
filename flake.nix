@@ -75,7 +75,7 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     comin = {
-      url = "github:Keyruu/comin/feature/post-build-command";
+      url = "github:nlewo/comin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -94,7 +94,7 @@
 
     vicinae.url = "github:vicinaehq/vicinae";
     vicinae-extensions = {
-      url = "github:Keyruu/vicinae-extensions/all";
+      url = "github:Keyruu/vicinae-extensions/pr/agenda";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

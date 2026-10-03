@@ -108,16 +108,15 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1790442987,
-        "narHash": "sha256-xqF+eTMNDODHQ0zes64gzKYmXRHbbGH3Ib6h0o3j+1E=",
-        "owner": "Keyruu",
+        "lastModified": 1790951208,
+        "narHash": "sha256-eCC1t0pAwtNjDa9Q1X3sO6Uba3cYIUfln3OLaNE1u5Y=",
+        "owner": "nlewo",
         "repo": "comin",
-        "rev": "74594ef738b85dbddad3f9227636506b99703431",
+        "rev": "6814f2df92e702b188b1483b5f46b06bb36dcfb1",
         "type": "github"
       },
       "original": {
-        "owner": "Keyruu",
-        "ref": "feature/post-build-command",
+        "owner": "nlewo",
         "repo": "comin",
         "type": "github"
       }
@@ -1523,16 +1522,16 @@
         "vicinae": "vicinae_2"
       },
       "locked": {
-        "lastModified": 1784536408,
-        "narHash": "sha256-WH+6TiS6kIXSNSBOMe7syg/jRtKlCLQp+SYXHpfqAq4=",
+        "lastModified": 1790961542,
+        "narHash": "sha256-9QeNXplKoZwybxXceW0BTsKrXX3eqk5dB4eHTMlltu8=",
         "owner": "Keyruu",
         "repo": "vicinae-extensions",
-        "rev": "448aa110200df7d44f7a6d6e355327e126162bd3",
+        "rev": "a51c1de2d7dcdaaaa2b7c064e132b8fa1acebd29",
         "type": "github"
       },
       "original": {
         "owner": "Keyruu",
-        "ref": "all",
+        "ref": "pr/agenda",
         "repo": "vicinae-extensions",
         "type": "github"
       }

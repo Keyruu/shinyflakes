@@ -169,8 +169,6 @@
               process-manager
               port-killer
               niri
-              nb-notes
-              wlr-which-key
             ])
             ++ (with self'.packages; [
               raycast-karakeep
