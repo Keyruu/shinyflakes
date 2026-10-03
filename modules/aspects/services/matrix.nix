@@ -50,6 +50,16 @@ in
 
           signing_key_path: /data/etc/signing.key
 
+          x_forwarded:
+            enabled: true
+            ip_header: X-Forwarded-For
+            port_header: X-Forwarded-Port
+            proto_header: X-Forwarded-Proto
+            proto_https_value: https
+            trusted_proxies:
+              - 127.0.0.1
+              - ::1
+
           oidc_providers:
             - idp_id: authelia
               idp_name: Authelia
