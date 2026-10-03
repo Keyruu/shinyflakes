@@ -17,6 +17,19 @@ in
         nameserver 1.1.1.1
       '';
 
+      # Continuuity's figment Env provider doesn't support arrays via env
+      # vars — values like `additional_scopes = [...]` need a TOML config
+      # file. We keep everything else in env for visibility.
+      environment.etc."stacks/matrix/continuwuity.toml".text = ''
+        [oauth.oidc]
+        additional_scopes = [
+          "openid",
+          "profile",
+          "email",
+          "groups",
+        ]
+      '';
+
       # Federation listener — Cloudflare can't proxy arbitrary TCP, so
       # matrix.peeraten.net must be DNS-only and 8448 publicly reachable.
       networking.firewall.allowedTCPPorts = [ 8448 ];
@@ -64,9 +77,11 @@ in
               volumes = [
                 "${my.stack.path}/db:/var/lib/continuwuity"
                 "/etc/stacks/matrix/resolv.conf:/etc/resolv.conf:ro"
+                "/etc/stacks/matrix/continuwuity.toml:/etc/continuwuity.toml:ro"
                 "${config.sops.secrets.matrixClientSecret.path}:/run/secrets/matrix-client-secret:ro"
               ];
               environments = {
+                CONTINUWUITY_CONFIG = "/etc/continuwuity.toml";
                 CONTINUWUITY_SERVER_NAME = domain;
                 CONTINUWUITY_DATABASE_PATH = "/var/lib/continuwuity";
                 CONTINUWUITY_ADDRESS = "0.0.0.0";
@@ -76,7 +91,6 @@ in
                 CONTINUWUITY_OAUTH__OIDC__DISCOVERY_URL = "https://auth.peeraten.net";
                 CONTINUWUITY_OAUTH__OIDC__CLIENT_ID = "matrix";
                 CONTINUWUITY_OAUTH__OIDC__CLIENT_SECRET_FILE = "/run/secrets/matrix-client-secret";
-                CONTINUWUITY_OAUTH__OIDC__ADDITIONAL_SCOPES = ''["openid","profile","email","groups"]'';
                 CONTINUWUITY_OAUTH__OIDC__PROVIDER_NAME = "Authelia";
                 # user picks localpart at first OIDC login
                 CONTINUWUITY_OAUTH__OIDC__PROMPT_FOR_LOCALPART = "true";
