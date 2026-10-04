@@ -73,7 +73,6 @@
               "files.keyruu.de" = mentat;
               "cache.keyruu.de" = mentat;
               "hass.peeraten.net" = mentat;
-              "traccar.peeraten.net" = mentat;
               "tv.peeraten.net" = mentat;
 
               "home.zimtix.de" = desktop;

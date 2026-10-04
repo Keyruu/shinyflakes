@@ -42,7 +42,6 @@
       den.aspects.services.radicale
       den.aspects.services.speedtest-tracker
       den.aspects.services.terraria
-      den.aspects.services.traccar
       den.aspects.services.immich
     ];
   };

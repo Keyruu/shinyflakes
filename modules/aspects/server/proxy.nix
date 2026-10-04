@@ -5,7 +5,7 @@
 #
 # These routes are too custom for the public-proxy quirk consumer to
 # generate (no data field for waf directives / geoblock). Simple routes
-# (traccar, requests, etc.) also exist in this file to keep prime's
+# (requests, etc.) also exist in this file to keep prime's
 # public surface in one place — public-proxy quirk consumer would also
 # generate them, both end up at the same vhost key (deep merge).
 #
@@ -22,13 +22,6 @@ in
         # simple cloudflare-only reverse proxies — duplicate of what
         # public-proxy quirk consumer would generate; deep-merge keeps
         # this vhost entry intact (the quirk entry has compatible fields).
-        "traccar.peeraten.net" = {
-          extraConfig = ''
-            import coraza-waf
-            import cloudflare-only
-            reverse_proxy http://${mentat}:5785
-          '';
-        };
         "requests.peeraten.net" = {
           extraConfig = ''
             import coraza-waf

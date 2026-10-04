@@ -107,7 +107,6 @@
             "dash"
             "hass"
             "headscale"
-            "traccar"
             "service"
             "chat"
             "requests"

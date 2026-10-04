@@ -325,7 +325,7 @@ nix run '.?submodules=1#authelia-user-hash' -- <user>
   pre-link via profile.
 - Redirect URIs, auth method, and PKCE differ per app — always copy from the
   authelia integration guide instead of guessing.
-- Existing clients: traccar, immich, paperless, karakeep, chatto, jellyfin
+- Existing clients: immich, paperless, karakeep, chatto, jellyfin
   (jellyfin uses the SSO-Auth plugin, ro-mounted from
   `nix/packages/jellyfin-sso-plugin.nix` with a sops-templated XML config over
   `/config/plugins/configurations/SSO-Auth.xml`).

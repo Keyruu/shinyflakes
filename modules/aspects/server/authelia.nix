@@ -38,7 +38,7 @@ in
 {
   # Phase 5 cutover: clients are generated from the `oidc-config` quirk
   # (collected from every host that emits `services.my.<x>.oidc.enable = true`).
-  # All 8 OIDC services migrated: chatto, paperless, immich, traccar,
+  # All 7 OIDC services migrated: chatto, paperless, immich,
   # karakeep, jellyfin, gotify, seerr.
   #
   # Bespoke authelia fields not covered by the schema (claims_policy
