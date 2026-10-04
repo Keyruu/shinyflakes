@@ -30,7 +30,6 @@
                 <entry key='web.address'>0.0.0.0</entry>
                 <entry key='web.port'>5785</entry>
                 <entry key='web.url'>https://traccar.peeraten.net</entry>
-                <entry key='owntracks.port'>5144</entry>
                 <entry key='geocoder.enable'>true</entry>
                 <entry key='geocoder.type'>nominatim</entry>
                 <entry key='geocoder.url'>https://eu1.locationiq.com/v1/reverse.php</entry>
@@ -78,8 +77,6 @@
                   publishPorts = [
                     "127.0.0.1:5785:5785"
                     "${config.services.mesh.ip}:5785:5785"
-                    "127.0.0.1:5144:5144"
-                    "${config.services.mesh.ip}:5144:5144"
                   ];
                 };
               };
@@ -93,11 +90,6 @@
             dnsPropagationCheck = true;
             environmentFile = config.sops.secrets.cloudflare.path;
           };
-          "owntracks.peeraten.net" = {
-            dnsProvider = "cloudflare";
-            dnsPropagationCheck = true;
-            environmentFile = config.sops.secrets.cloudflare.path;
-          };
         };
 
         services.nginx.virtualHosts = {
@@ -107,16 +99,6 @@
 
             locations."/" = {
               proxyPass = "http://127.0.0.1:5785";
-              proxyWebsockets = true;
-            };
-          };
-
-          "owntracks.peeraten.net" = {
-            useACMEHost = "owntracks.peeraten.net";
-            forceSSL = true;
-
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:5144";
               proxyWebsockets = true;
             };
           };

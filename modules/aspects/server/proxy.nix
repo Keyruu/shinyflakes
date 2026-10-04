@@ -29,13 +29,6 @@ in
             reverse_proxy http://${mentat}:5785
           '';
         };
-        "owntracks.peeraten.net" = {
-          extraConfig = ''
-            import coraza-waf
-            import cloudflare-only
-            reverse_proxy http://${mentat}:5144
-          '';
-        };
         "requests.peeraten.net" = {
           extraConfig = ''
             import coraza-waf

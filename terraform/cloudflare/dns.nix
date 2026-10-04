@@ -108,7 +108,6 @@
             "hass"
             "headscale"
             "traccar"
-            "owntracks"
             "service"
             "chat"
             "requests"
