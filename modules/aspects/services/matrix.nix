@@ -233,11 +233,6 @@ in
                     "${config.sops.templates."lk-jwt-registration.yaml".path}:/registration.yaml:ro"
                   ];
                   environmentFiles = [ config.sops.templates."lk-jwt.env".path ];
-                  healthCmd = "/lk-jwt-service-healthcheck";
-                  healthInterval = "30s";
-                  healthTimeout = "5s";
-                  healthRetries = 3;
-                  healthStartPeriod = "10s";
                 };
               };
             };
