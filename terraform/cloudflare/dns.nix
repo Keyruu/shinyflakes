@@ -124,6 +124,10 @@
           content = "sleipnir.peeraten.net";
           proxied = false;
         };
+        matrix-rtc = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
+        };
         turn = {
           content = "sleipnir.peeraten.net";
           proxied = false;

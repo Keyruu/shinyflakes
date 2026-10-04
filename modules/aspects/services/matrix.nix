@@ -265,6 +265,7 @@ in
           "${domain}:8448" = {
             listenAddresses = [ ":8448" ];
             extraConfig = ''
+              tls
               reverse_proxy http://127.0.0.1:${toString port} {
                 header_up X-Forwarded-For {remote_host}
                 header_up X-Forwarded-Proto https
