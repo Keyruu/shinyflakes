@@ -2,6 +2,7 @@
 let
   domain = "matrix.peeraten.net";
   port = 8008;
+  matrixRtcDomain = "matrix-rtc.peeraten.net";
 in
 {
   den.aspects.services.matrix = {
@@ -79,7 +80,7 @@ in
               extra_well_known_client_content:
                 org.matrix.msc4143.rtc_foci:
                   - type: livekit
-                    livekit_service_url: https://livekit.peeraten.net
+                    livekit_service_url: https://${matrixRtcDomain}
               listeners:
                 - port: 8008
                   tls: false
@@ -154,6 +155,7 @@ in
                 transports:
                   - type: livekit
                     url: wss://livekit.peeraten.net
+                    livekit_service_url: https://${matrixRtcDomain}
 
               app_service_config_files:
                 - /data/lk-jwt-registration.yaml
@@ -240,6 +242,7 @@ in
                 containerConfig = {
                   image = "ghcr.io/element-hq/lk-jwt-service:0.7.0";
                   user = "991:991";
+                  publishPorts = [ "127.0.0.1:8089:8080" ];
                   volumes = [
                     "${config.sops.templates."lk-jwt-registration.yaml".path}:/registration.yaml:ro"
                   ];
@@ -266,6 +269,11 @@ in
                 header_up X-Forwarded-For {remote_host}
                 header_up X-Forwarded-Proto https
               }
+            '';
+          };
+          "${matrixRtcDomain}" = {
+            extraConfig = ''
+              reverse_proxy http://127.0.0.1:8089
             '';
           };
         };
