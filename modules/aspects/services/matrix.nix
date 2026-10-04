@@ -64,6 +64,11 @@ in
                 - profile
                 - email
                 - groups
+              # `auto` reads from id_token when `openid` is in scopes — but
+              # authelia's id_token only has sub/aud/iat/...; profile/email/groups
+              # claims live in the userinfo endpoint. Force userinfo so
+              # `user.preferred_username`, `user.name`, etc. are available.
+              user_profile_method: "userinfo_endpoint"
               user_mapping_provider:
                 config:
                   # sub is authelia's UUID (stable cross-client user id);
