@@ -20,8 +20,8 @@ in
         sops.templates = {
           "lk-jwt-registration.yaml" = {
             restartUnits = [
-              "matrix.service"
-              "livekit-jwt.service"
+              "matrix-synapse.service"
+              "matrix-livekit-jwt.service"
             ];
             owner = "matrix";
             group = "matrix";
@@ -45,7 +45,7 @@ in
               '';
           };
           "homeserver.yaml" = {
-            restartUnits = [ "matrix.service" ];
+            restartUnits = [ "matrix-synapse.service" ];
             mode = "0440";
             owner = "matrix";
             group = "matrix";
@@ -187,7 +187,7 @@ in
             network.enable = true;
 
             containers = {
-              matrix = {
+              synapse = {
                 containerConfig = {
                   image = "docker.io/matrixdotorg/synapse:v1.162.0";
                   user = "991:991";
