@@ -44,6 +44,22 @@ in
                 io.element.msc4512.proxy_url: "http://livekit-jwt:8080"
               '';
           };
+          "lk-jwt.env" = {
+            restartUnits = [ "matrix-livekit-jwt.service" ];
+            owner = "matrix";
+            group = "matrix";
+            mode = "0440";
+            content = # sh
+              ''
+                LK_JWT_BIND=0.0.0.0:8080
+                LIVEKIT_URL=wss://livekit.peeraten.net
+                LIVEKIT_KEY=livekit
+                LIVEKIT_SECRET=${config.sops.placeholder.livekitApiKey}
+                HS_SERVER_NAME=matrix.peeraten.net
+                FULL_ACCESS_HOMESERVERS=matrix.peeraten.net
+                RUST_LOG=info
+              '';
+          };
           "homeserver.yaml" = {
             restartUnits = [ "matrix-synapse.service" ];
             mode = "0440";
@@ -214,17 +230,9 @@ in
                   image = "ghcr.io/element-hq/lk-jwt-service:0.7.0";
                   user = "991:991";
                   volumes = [
-                    "${config.sops.secrets.livekitApiKey.path}:/lk-key-secret:ro"
                     "${config.sops.templates."lk-jwt-registration.yaml".path}:/registration.yaml:ro"
                   ];
-                  environments = {
-                    LK_JWT_BIND = "0.0.0.0:8080";
-                    LIVEKIT_URL = "wss://livekit.peeraten.net";
-                    LIVEKIT_KEY_FILE = "/lk-key-secret";
-                    HS_SERVER_NAME = domain;
-                    FULL_ACCESS_HOMESERVERS = domain;
-                    RUST_LOG = "info";
-                  };
+                  environmentFiles = [ config.sops.templates."lk-jwt.env".path ];
                   healthCmd = "/lk-jwt-service-healthcheck";
                   healthInterval = "30s";
                   healthTimeout = "5s";
