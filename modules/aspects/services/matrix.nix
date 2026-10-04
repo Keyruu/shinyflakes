@@ -56,7 +56,7 @@ in
                 LIVEKIT_KEY=livekit
                 LIVEKIT_SECRET=${config.sops.placeholder.livekitApiKey}
                 HS_SERVER_NAME=matrix.peeraten.net
-                FULL_ACCESS_HOMESERVERS=matrix.peeraten.net
+                LIVEKIT_FULL_ACCESS_HOMESERVERS=matrix.peeraten.net
                 RUST_LOG=info
               '';
           };
