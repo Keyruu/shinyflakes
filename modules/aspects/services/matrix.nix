@@ -182,6 +182,10 @@ in
           environmentFile = config.sops.secrets.cloudflare.path;
         };
 
+        # /var/lib/acme/${domain}/ is owned by acme:acme mode 0640 — caddy
+        # needs the group to read the cert.
+        users.users.caddy.extraGroups = [ "acme" ];
+
         services.my.matrix = {
           inherit port;
           inherit domain;
