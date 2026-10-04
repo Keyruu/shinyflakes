@@ -160,7 +160,7 @@ in
               environments = {
                 SYNAPSE_CONFIG_PATH = "/data/homeserver.yaml";
               };
-              healthCmd = "wget --no-verbose --tries=1 --spider http://localhost:8008/_matrix/client/versions || exit 1";
+              healthCmd = "curl --fail --silent --output /dev/null http://localhost:8008/_matrix/client/versions || exit 1";
               healthInterval = "30s";
               healthTimeout = "10s";
               healthRetries = 3;
