@@ -69,6 +69,17 @@ in
               server_name: ${domain}
               public_baseurl: https://${domain}
               pid_file: /data/homeserver.pid
+
+              # Sable (and other clients that gate calls on the
+              # well-known) reads `org.matrix.msc4143.rtc_foci` here
+              # instead of from /rtc/transports. Use the deprecated
+              # `livekit_service_url` field — that's what Sable's
+              # livekitSupport() in src/app/hooks/useLivekitSupport.ts
+              # actually checks.
+              extra_well_known_client_content:
+                org.matrix.msc4143.rtc_foci:
+                  - type: livekit
+                    livekit_service_url: https://livekit.peeraten.net
               listeners:
                 - port: 8008
                   tls: false
