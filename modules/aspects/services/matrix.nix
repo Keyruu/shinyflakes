@@ -66,10 +66,10 @@ in
                 - groups
               user_mapping_provider:
                 config:
-                  # localpart is the authelia username — authelia's
-                  # subject_identifier is set to "username" for the matrix
-                  # client only (see authelia.nix buildClient).
-                  localpart_template: "{{ user.sub }}"
+                  # sub is authelia's UUID (stable cross-client user id);
+                  # localpart is the login username (lucas, nadine, simon).
+                  subject_template: "{{ user.sub }}"
+                  localpart_template: "{{ user.preferred_username }}"
                   display_name_template: "{{ user.name }}"
                   email_template: "{{ user.email }}"
 

@@ -24,13 +24,6 @@ let
       redirect_uris = entry.redirectUris;
       scopes = entry.scopes;
     }
-    // lib.optionalAttrs (entry.name == "matrix") {
-      # Use the authelia username as the OIDC subject for synapse. The default
-      # is a UUID, which would make matrix localparts a UUID too. Per-client so
-      # other OIDC clients (chatto, karakeep, …) keep their UUID subs and don't
-      # orphan existing user mappings.
-      subject_identifier = "username";
-    }
     // lib.optionalAttrs (authMethod != null) {
       token_endpoint_auth_method = authMethod;
     }
