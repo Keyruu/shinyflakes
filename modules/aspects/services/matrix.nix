@@ -175,17 +175,6 @@ in
 
         networking.firewall.allowedTCPPorts = [ 8448 ];
 
-        security.acme.certs."${domain}" = {
-          extraDomainNames = [ "matrixRtcDomain" ];
-          dnsProvider = "cloudflare";
-          dnsPropagationCheck = true;
-          environmentFile = config.sops.secrets.cloudflare.path;
-        };
-
-        # /var/lib/acme/${domain}/ is owned by acme:acme mode 0640 — caddy
-        # needs the group to read the cert.
-        users.users.caddy.extraGroups = [ "acme" ];
-
         services.my.matrix = {
           inherit port;
           inherit domain;
@@ -276,7 +265,6 @@ in
           "https://${domain}:8448" = {
             listenAddresses = [ ":8448" ];
             extraConfig = ''
-              tls /var/lib/acme/${domain}/fullchain.pem /var/lib/acme/${domain}/key.pem
               reverse_proxy http://127.0.0.1:${toString port} {
                 header_up X-Forwarded-For {remote_host}
                 header_up X-Forwarded-Proto https

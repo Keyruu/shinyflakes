@@ -113,8 +113,11 @@
             "chat"
             "requests"
             "status"
-            "matrix"
           ];
+        };
+        matrix = {
+          content = "sleipnir.peeraten.net";
+          proxied = false;
         };
         mesh = {
           content = "sleipnir.peeraten.net";
