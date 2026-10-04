@@ -87,8 +87,9 @@ in
           turn_allow_guests: false
 
           experimental_features:
-            msc4140_enabled: true
-            msc3866_enabled: true
+            # MSC4143 (MatrixRTC) — needs synapse v1.140+ for the /rtc/transports
+            # endpoint and v1.157+ for this flag (older releases silently ignore it).
+            msc4143_enabled: true
           livekit:
             livekit_service_url: https://livekit.peeraten.net
             livekit_api_key: livekit
@@ -154,7 +155,7 @@ in
 
           containers.matrix = {
             containerConfig = {
-              image = "docker.io/matrixdotorg/synapse:v1.135.2";
+              image = "docker.io/matrixdotorg/synapse:v1.162.0";
               user = "991:991";
               publishPorts = [ "127.0.0.1:${toString port}:8008" ];
               volumes = [
