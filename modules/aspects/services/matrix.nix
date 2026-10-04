@@ -175,6 +175,13 @@ in
 
         networking.firewall.allowedTCPPorts = [ 8448 ];
 
+        security.acme.certs."${domain}" = {
+          extraDomainNames = [ "matrixRtcDomain" ];
+          dnsProvider = "cloudflare";
+          dnsPropagationCheck = true;
+          environmentFile = config.sops.secrets.cloudflare.path;
+        };
+
         services.my.matrix = {
           inherit port;
           inherit domain;
