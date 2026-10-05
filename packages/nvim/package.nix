@@ -88,6 +88,7 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         quicker.data = quicker-nvim;
         lint.data = nvim-lint;
         orgmode.data = orgmode;
+        diffview.data = diffview-plus-nvim;
         # perSystem custom plugins
         jira.data = jira-nvim;
         piguard.data = pi-guardian-nvim;
