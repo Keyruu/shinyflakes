@@ -14,17 +14,6 @@
       let
         betterfox = self'.packages.betterfox;
 
-        # Tree-style tabs lives in sidebery — collapse the native tab bar.
-        userChrome = ''
-          #TabsToolbar {
-            visibility: collapse !important;
-          }
-
-          #titlebar-buttonbox {
-            height: 32px !important;
-          }
-        '';
-
         extraConfig = builtins.concatStringsSep "\n" [
           (builtins.readFile "${betterfox}/Securefox.js")
           (builtins.readFile "${betterfox}/Fastfox.js")
@@ -35,8 +24,15 @@
           # General
           "intl.accept_languages" = "en-US,en";
           "browser.startup.page" = 3;
-          "browser.aboutConfig.showWarning" = false;
-          "browser.ctrlTab.sortByRecentlyUsed" = false;
+          "browser.ctrlTab.sortByRecentlyUsed" = true;
+          # Vertical tabs (needs revamped sidebar, else Firefox resets the pref)
+          "sidebar.revamp" = true;
+          "sidebar.verticalTabs" = true;
+          # Bookmarks bar visible on every page, not just the new-tab page
+          "browser.toolbars.bookmarks.visibility" = "always";
+          "browser.bookmarks.addedImportButton" = true;
+          # Clicking a bookmark replaces the current tab by default.
+          "browser.tabs.loadBookmarksInTabs" = true;
           "browser.download.useDownloadDir" = false;
           "browser.translations.neverTranslateLanguages" = "de";
           "privacy.clearOnShutdown.history" = false;
@@ -44,10 +40,6 @@
           "layout.css.devPixelsPerPx" = "-1";
           # Dev console chrome
           "devtools.chrome.enabled" = true;
-          # Crash reporting
-          "browser.tabs.crashReporting.sendReport" = false;
-          # Allow userChrome.css
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
           # UX noise
           "accessibility.typeaheadfind.enablesound" = false;
           "general.autoScroll" = true;
@@ -62,25 +54,18 @@
           "device.sensors.enabled" = false;
           "geo.enabled" = false;
           "network.dns.echconfig.enabled" = true;
-          # Telemetry off
-          "toolkit.telemetry.archive.enabled" = false;
-          "toolkit.telemetry.enabled" = false;
-          "toolkit.telemetry.server" = "";
-          "toolkit.telemetry.unified" = false;
+          # Telemetry off — Securefox already sets toolkit.telemetry.*,
+          # datareporting.policy.dataSubmissionEnabled (as "data:,") and
+          # browser.tabs.crashReporting.sendReport.
           "extensions.webcompat-reporter.enabled" = false;
-          "datareporting.policy.dataSubmissionEnabled" = false;
           "browser.ping-centre.telemetry" = false;
           "browser.urlbar.eventTelemetry.enabled" = false;
           # Disable bundled cruft
           "extensions.pocket.enabled" = false;
           "extensions.abuseReport.enabled" = false;
           "extensions.formautofill.creditCards.enabled" = false;
-          "browser.uitour.enabled" = false;
-          "browser.newtabpage.activity-stream.showSponsored" = false;
-          "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
           # Network prediction off
           "network.predictor.enabled" = false;
-          "browser.urlbar.speculativeConnect.enabled" = false;
           # Web feature nukes
           "dom.push.enabled" = false;
           "dom.push.connection.enabled" = false;
@@ -234,6 +219,24 @@
                   installation_mode = "force_installed";
                   updates_disabled = true;
                 };
+
+                "admin@2fas.com" = {
+                  install_url = moz "2fas-two-factor-authentication";
+                  installation_mode = "force_installed";
+                  updates_disabled = true;
+                };
+
+                "enhancerforyoutube@maximerf.addons.mozilla.org" = {
+                  install_url = moz "enhancer-for-youtube";
+                  installation_mode = "force_installed";
+                  updates_disabled = true;
+                };
+
+                "{81b74d53-9416-4fb3-afa2-ab46684b253b}" = {
+                  install_url = moz "tabwrangler";
+                  installation_mode = "force_installed";
+                  updates_disabled = true;
+                };
               };
           };
 
@@ -243,32 +246,39 @@
               isDefault = true;
               inherit
                 search
-                userChrome
                 extraConfig
                 settings
                 ;
               bookmarks = {
                 force = true;
+                # A directory with toolbar = true *is* the Bookmarks Toolbar (HM
+                # forces its label), so these land on the bar.
                 settings = [
                   {
-                    name = "GitHub";
-                    url = "https://github.com";
-                  }
-                  {
-                    name = "Hacker News";
-                    url = "https://news.ycombinator.com";
-                  }
-                  {
-                    name = "Reddit";
-                    url = "https://reddit.com";
-                  }
-                  {
-                    name = "Dash";
-                    url = "https://dash.peeraten.net";
-                  }
-                  {
-                    name = "YouTube";
-                    url = "https://youtube.com";
+                    name = "Bookmarks Toolbar";
+                    toolbar = true;
+                    bookmarks = [
+                      {
+                        name = "GitHub";
+                        url = "https://github.com";
+                      }
+                      {
+                        name = "Hacker News";
+                        url = "https://news.ycombinator.com";
+                      }
+                      {
+                        name = "Reddit";
+                        url = "https://reddit.com";
+                      }
+                      {
+                        name = "Dash";
+                        url = "https://dash.peeraten.net";
+                      }
+                      {
+                        name = "YouTube";
+                        url = "https://youtube.com";
+                      }
+                    ];
                   }
                 ];
               };
@@ -277,34 +287,23 @@
               id = 1;
               inherit
                 search
-                userChrome
                 extraConfig
                 settings
                 ;
-              bookmarks = {
-                force = true;
-                settings = [
-                  {
-                    name = "GitHub";
-                    url = "https://github.com";
-                  }
-                ];
-              };
             };
           };
         };
-        # firefox-nix only honors `browser.bookmarks.file` on first profile
-        # creation; after that the pref is set but Firefox skips the import.
-        # Expose the generated bookmarks.html at a stable path so it's easy
-        # to import via Library → Import Bookmarks from HTML.
-        home.file = lib.mkMerge [
-          (lib.mapAttrs' (
-            name: _:
-            lib.nameValuePair ".local/share/firefox-bookmarks/${name}.html" {
-              source = config.programs.firefox.profiles.${name}.bookmarks.configFile;
-            }
-          ) config.programs.firefox.profiles)
-        ];
+        # Stable path for the generated bookmarks.html. HM also forces
+        # browser.places.importBookmarksHTML = true in user.js, so Firefox
+        # re-imports it on every launch (replace: true), discarding UI edits.
+        home.file = lib.mapAttrs' (
+          name: _:
+          lib.nameValuePair ".local/share/firefox-bookmarks/${name}.html" {
+            source = config.programs.firefox.profiles.${name}.bookmarks.configFile;
+          }
+        ) (
+          lib.filterAttrs (_: p: p.bookmarks.configFile != null) config.programs.firefox.profiles
+        );
       };
   };
 }

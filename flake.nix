@@ -135,6 +135,9 @@
     # web
     homepage.url = "git+https://git.keyruu.de/lucas/homepage";
     buymeaspezi.url = "git+https://git.keyruu.de/lucas/buymeaspezi";
+
+    # work
+    dash0-cli.url = "github:dash0hq/dash0-cli";
   };
 
   outputs =

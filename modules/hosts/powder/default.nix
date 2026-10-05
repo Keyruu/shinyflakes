@@ -28,7 +28,7 @@
     includes = [
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
-      # den.aspects.workstation.fprintd
+      den.aspects.workstation.fprintd
     ];
 
     nixos =
@@ -41,6 +41,7 @@
         imports = [
           ./_disk.nix
           ./_aikido.nix
+          ./_firefox-policies.nix
         ];
 
         nixpkgs.hostPlatform = "x86_64-linux";
@@ -103,7 +104,11 @@
           nixos.enable = false;
         };
       };
-    homeManager = { ... }: {
+    homeManager = { pkgs, inputs', ... }: {
+      home.packages = with pkgs; [
+        google-cloud-sdk
+        inputs'.dash0-cli.packages.default
+      ];
       services.tailscale-systray.enable = true;
     };
   };

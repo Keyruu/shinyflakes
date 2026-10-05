@@ -52,9 +52,12 @@
           '';
 
         # https://codeberg.org/river/wiki#how-do-i-disable-gtk-decorations-e-g-title-bar
+        # GTK3 ignores dconf color-scheme, so without this the GTK3
+        # xdg-desktop-portal-gtk dialogs (file picker) render light.
         disableDecorations = {
           extraConfig = {
             gtk-dialogs-use-header = false;
+            gtk-application-prefer-dark-theme = true;
           };
           extraCss = colorCss + # css
             ''

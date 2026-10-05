@@ -56,7 +56,7 @@
 
         # set default applications
         EDITOR = "nvim";
-        BROWSER = "glide";
+        BROWSER = "browser-picker";
         TERMINAL = "footclient";
 
         # enable scrolling in git diff

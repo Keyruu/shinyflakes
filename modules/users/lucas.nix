@@ -56,9 +56,9 @@
         xdg.mimeApps = {
           enable = true;
           defaultApplications = {
-            "text/html" = "firefox.desktop";
-            "x-scheme-handler/http" = "firefox.desktop";
-            "x-scheme-handler/https" = "firefox.desktop";
+            "text/html" = "browser-picker.desktop";
+            "x-scheme-handler/http" = "browser-picker.desktop";
+            "x-scheme-handler/https" = "browser-picker.desktop";
             "x-scheme-handler/discord" = "vesktop.desktop";
             "x-scheme-handler/sgnl" = "signal.desktop";
             "x-scheme-handler/signalcaptcha" = "signal.desktop";
@@ -235,7 +235,6 @@
           sone
 
           # self'.packages.numr
-          # self'.packages.glide-browser
           self'.packages.wg-peer
           self'.packages.mesh-expose
           self'.packages.mdbook-to-epub
