@@ -168,7 +168,6 @@
             AutofillAddressEnabled = false;
             AutofillCreditCardEnabled = false;
             DontCheckDefaultBrowser = true;
-            NoDefaultBookmarks = lib.mkForce true;
             OfferToSaveLogins = false;
             TranslateEnabled = false;
             ExtensionSettings =
@@ -184,8 +183,8 @@
                   updates_disabled = true;
                 };
 
-                "vimium-c@gdh1995.cn" = {
-                  install_url = moz "vimium-c";
+                "tridactyl.vim@cmcaine.co.uk" = {
+                  install_url = moz "tridactyl-vim";
                   installation_mode = "force_installed";
                   updates_disabled = true;
                 };
@@ -301,9 +300,7 @@
           lib.nameValuePair ".local/share/firefox-bookmarks/${name}.html" {
             source = config.programs.firefox.profiles.${name}.bookmarks.configFile;
           }
-        ) (
-          lib.filterAttrs (_: p: p.bookmarks.configFile != null) config.programs.firefox.profiles
-        );
+        ) (lib.filterAttrs (_: p: p.bookmarks.configFile != null) config.programs.firefox.profiles);
       };
   };
 }

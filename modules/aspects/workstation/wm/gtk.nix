@@ -6,9 +6,9 @@
       let
         t = user.theme;
 
-        # Generated from user.theme; libadwaita reads these vars and re-skins
-        # the active GTK theme (adwaita by default) without us shipping a
-        # full theme package.
+        # Generated from user.theme; re-skins the active GTK theme (Adwaita)
+        # via named colors for both GTK4 (window_bg_color etc.) and GTK3
+        # (theme_bg_color etc. — used by xdg-desktop-portal-gtk dialogs).
         colorCss = # css
           ''
             @define-color accent_color ${t.accent};
@@ -49,6 +49,24 @@
 
             @define-color tertiary_bg_color ${t.elevated};
             @define-color tertiary_fg_color ${t.foreground};
+
+            /* GTK3 Adwaita legacy names */
+            @define-color theme_bg_color ${t.background};
+            @define-color theme_fg_color ${t.foreground};
+            @define-color theme_base_color ${t.surface};
+            @define-color theme_text_color ${t.foreground};
+            @define-color theme_selected_bg_color ${t.accent};
+            @define-color theme_selected_fg_color ${t.onAccent};
+            @define-color theme_unfocused_bg_color ${t.background};
+            @define-color theme_unfocused_fg_color ${t.muted};
+            @define-color theme_unfocused_base_color ${t.background};
+            @define-color theme_unfocused_text_color ${t.muted};
+            @define-color theme_unfocused_selected_bg_color ${t.surface};
+            @define-color theme_unfocused_selected_fg_color ${t.foreground};
+            @define-color borders ${t.border};
+            @define-color unfocused_borders ${t.border};
+            @define-color insensitive_bg_color ${t.background};
+            @define-color insensitive_fg_color ${t.muted};
           '';
 
         # https://codeberg.org/river/wiki#how-do-i-disable-gtk-decorations-e-g-title-bar

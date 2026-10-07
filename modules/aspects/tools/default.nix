@@ -18,6 +18,7 @@
       repos
       satty
       screenshot
+      sofka
       syncthing
       system
       television

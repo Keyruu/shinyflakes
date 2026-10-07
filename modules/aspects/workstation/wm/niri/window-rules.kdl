@@ -88,6 +88,18 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^tridactyl-editor$"#
+    background-effect {
+        blur true
+        xray false
+    }
+    default-column-width { proportion 0.6; }
+    default-window-height { proportion 0.5; }
+    open-floating true
+    open-maximized false
+}
+
+window-rule {
     match app-id=r#"^zen$"#
     match app-id=r#"^zen-beta$"#
     match app-id=r#"^qutebrowser"#
@@ -135,6 +147,7 @@ window-rule {
 layer-rule {
     match namespace=r#"^swaync-notification-window$"#
     match namespace=r#"^noctalia-notifications.*"#
+    match namespace=r#"^dms:dankisland"#
     block-out-from "screencast"
 }
 

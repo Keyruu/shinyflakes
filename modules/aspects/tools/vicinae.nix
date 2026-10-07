@@ -263,124 +263,20 @@
         home.file =
           let
             scripts = ".local/share/vicinae/scripts";
-            jiraConfig = "/home/lucas/.config/.jira/.config.yml";
-
-            mkTerminalScript =
-              {
-                name,
-                title,
-                icon ? "🚀",
-                runtimeInputs ? [ ],
-                command,
-                appId ? "vicinae-script",
-                hold ? true,
-              }:
-              {
-                "${scripts}/${name}.sh".source = "${
-                  pkgs.writeShellApplication {
-                    inherit name;
-                    inherit runtimeInputs;
-                    excludeShellChecks = [ "SC2016" ];
-                    text = # bash
-                      ''
-                        # @vicinae.schemaVersion 1
-                        # @vicinae.title ${title}
-                        # @vicinae.mode terminal
-                        # @vicinae.terminal {"hold": ${lib.boolToString hold}, "appId": "${appId}"}
-                        # @vicinae.icon ${icon}
-
-                        ${command}
-                      '';
-                  }
-                }/bin/${name}";
-              };
-
-            jiraSetup = # bash
-              ''
-                JIRA_API_TOKEN="$(cat ${config.sops.secrets.jiraToken.path})"
-                JIRA_CONFIG_FILE="${jiraConfig}"
-                export JIRA_API_TOKEN
-                export JIRA_CONFIG_FILE
-              '';
           in
-          mkTerminalScript {
-            name = "list-issues";
-            title = "List Issues";
-            icon = "✅";
-            runtimeInputs = [ pkgs.jira-cli-go ];
-            command = # bash
-              ''
-                ${jiraSetup}
-                jira issue list -c "${jiraConfig}" -a"$(jira me)" -s~Done
-              '';
-          }
-          // mkTerminalScript {
-            name = "create-issue";
-            title = "Create Issue";
-            icon = "📝";
-            runtimeInputs = with pkgs; [
-              jira-cli-go
-              fzf
-              jq
-              curl
-              wl-clipboard
-            ];
-            command = # bash
-              ''
-                ${jiraSetup}
-                if ! jira issue create; then
-                  echo "Issue creation was aborted or failed. Exiting."
-                  read -r
-                  exit 1
-                fi
-
-                raw=$(jira issue list \
-                  --paginate 1 \
-                  --raw)
-                issueKey=$(echo "$raw" | jq -r '.[0].key // empty')
-
-                if [[ -z "$issueKey" ]]; then
-                  echo "Failed to get newest issue."
-                  read -r
-                  exit 1
-                fi
-
-                wl-copy "$issueKey"
-                echo "Created and copied $issueKey"
-
-                jira issue move "$issueKey"
-                jira issue assign "$issueKey"
-              '';
-          }
-          // mkTerminalScript {
-            name = "k9s";
-            title = "K9s";
-            icon = "☸️";
-            runtimeInputs = [
-              pkgs.k9s
-              pkgs.fzf
-              pkgs.findutils
-            ];
-            command = # bash
-              ''
-                select-k9s
-              '';
-          }
-          // mkTerminalScript {
-            name = "mesh-tunnel";
-            title = "Mesh Tunnel";
-            icon = "🔒";
-            appId = "vicinae-script-sm";
-            hold = false;
-            runtimeInputs = [ pkgs.fzf ];
-            command = # bash
-              ''
-                mesh-tunnel
-              '';
-          }
-          // {
+          {
             # silent mode: the script re-opens vicinae itself via `vicinae dmenu`,
             # so no terminal window is wanted
+            "${scripts}/mesh-tunnel.sh".source =
+              pkgs.writeScript "mesh-tunnel-dmenu" # bash
+                ''
+                  #!${pkgs.runtimeShell}
+                  # @vicinae.schemaVersion 1
+                  # @vicinae.title Mesh Tunnel
+                  # @vicinae.mode silent
+                  # @vicinae.icon 🔒
+                  exec ${lib.getExe self'.packages.mesh-tunnel} --dmenu
+                '';
             "${scripts}/pi-herd.sh".source =
               pkgs.writeScript "pi-herd-dmenu" # bash
                 ''

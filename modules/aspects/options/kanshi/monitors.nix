@@ -7,23 +7,25 @@
     # the host's `displays` config because it depends on where the monitor
     # sits when docked. `tuxedo` was dropped when `lighter` was retired.
     options.monitors = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          criteria = lib.mkOption {
-            type = lib.types.str;
-            description = "wlroots output criterion to match this monitor.";
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            criteria = lib.mkOption {
+              type = lib.types.str;
+              description = "wlroots output criterion to match this monitor.";
+            };
+            mode = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "Preferred mode string, e.g. \"2560x1440@143.972Hz\".";
+            };
+            scale = lib.mkOption {
+              type = lib.types.float;
+              default = 1.0;
+            };
           };
-          mode = lib.mkOption {
-            type = lib.types.str;
-            default = "";
-            description = "Preferred mode string, e.g. \"2560x1440@143.972Hz\".";
-          };
-          scale = lib.mkOption {
-            type = lib.types.float;
-            default = 1.0;
-          };
-        };
-      });
+        }
+      );
       default = {
         laptop = {
           criteria = "eDP-1";
@@ -36,7 +38,7 @@
           scale = 1.0;
         };
         work = {
-          criteria = "LG Electronics LG HDR 4K 0x00073A91";
+          criteria = "LG Electronics LG ULTRAFINE 509NTFASR003";
           mode = "3840x2160@59.997";
           scale = 1.4;
         };

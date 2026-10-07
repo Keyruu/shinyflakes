@@ -4,7 +4,7 @@
       browser-picker
       chromium
       firefox
-      vimium-c
+      tridactyl
     ];
   };
 }

@@ -63,6 +63,8 @@
               logRetentionDays = 7;
             };
 
+            statistics.enable = true;
+
             upstreams.groups.default = [ "https://cloudflare-dns.com/dns-query" ];
             bootstrapDns = [ "tcp+udp:1.1.1.1" ];
 

@@ -80,6 +80,10 @@
     };
 
     copyparty.url = "github:9001/copyparty";
+    # Pinned: unfloating this would pull v0.31.0, whose Cargo.lock has hyper
+    # 1.12.0 (published 2026-10-06). The registry refuses crates younger than a
+    # day, so the sofka build fails. Bump once the newer crates age past 24h.
+    sofka.url = "github:nklmilojevic/sofka/v0.30.0";
 
     # workstation
     home-manager = {
