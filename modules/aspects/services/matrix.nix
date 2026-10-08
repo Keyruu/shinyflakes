@@ -240,7 +240,7 @@ in
 
               livekit-jwt = {
                 containerConfig = {
-                  image = "ghcr.io/element-hq/lk-jwt-service:0.7.0";
+                  image = "ghcr.io/element-hq/lk-jwt-service:0.8.0";
                   user = "991:991";
                   publishPorts = [ "127.0.0.1:8089:8080" ];
                   volumes = [
