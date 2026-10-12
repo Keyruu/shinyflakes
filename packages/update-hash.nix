@@ -46,9 +46,9 @@ pkgs.writeShellApplication {
 
       sed -i "s|hash = \"[^\"]*\"|hash = \"$fakeHash\"|" "$f"
 
-      output=$(nix build ".?submodules=1#$name" 2>&1) || true
+      output=$(nix build ".#$name" 2>&1) || true
 
-      correctHash=$(echo "$output" | grep 'got:' | grep -o 'sha256-[A-Za-z0-9+/=]*')
+      correctHash=$(echo "$output" | grep 'got:' | grep -o 'sha256-[A-Za-z0-9+/=]*' || true)
 
       if [ -z "$correctHash" ]; then
         echo "    Build failed for $name, restoring hash and continuing"
