@@ -2,65 +2,200 @@
 
 ## Project Structure
 
-This project uses [blueprint](https://github.com/numtide/blueprint) for
-convention-based flake structure. Blueprint automatically discovers and exposes
-Nix configurations based on folder structure, eliminating the need to manually
-maintain flake outputs.
+This repo uses [den](https://github.com/denful/den)
+(dendritic style). All Nix code lives under `modules/` — every `.nix` file
+there is a flake-parts module, loaded automatically by
+[import-tree](https://github.com/denful/import-tree). There is no manual
+import list; adding a file under `modules/` is enough to wire it in. `flake.nix`
+only does:
+
+```nix
+outputs = inputs:
+  let
+    flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
+  in
+  flake // {
+    # CI host matrix — every nixosConfiguration except ciSkip (build.yml)
+    lib.hostMatrix.host = ...;
+  };
+```
 
 ### Folder Structure
 
 ```
-nix/
-├── hosts/              # Host configurations (auto-discovered)
-│   ├── mentat/        # NixOS host
-│   │   ├── configuration.nix  # → nixosConfigurations.mentat
-│   │   ├── hardware-configuration.nix
-│   │   └── modules/   # Host-specific modules
-│   │       ├── stacks/      # Quadlet container definitions
-│   │       ├── default.nix  # Imports all host modules
-│   │       └── *.nix
-│   ├── prime/         # NixOS host
-│   ├── carryall/      # NixOS host (laptop)
-│   └── thopter/       # NixOS host (laptop)
-├── modules/           # Shared modules (auto-discovered)
-│   ├── nixos/        # NixOS modules
-│   │   ├── core.nix
-│   │   ├── workstation.nix
-│   │   └── *.nix
-│   ├── home/         # Home Manager modules
-│   │   ├── linux/
-│   │   └── programs/
-│   └── services/     # Service-specific modules
-├── packages/         # Custom packages (auto-discovered)
-│   └── *.nix        # → packages.<name>
-└── secrets.yaml     # SOPS encrypted secrets
+modules/
+├── den.nix                 # den wiring: schema, den.default (state versions, batteries), policies
+├── nh.nix                  # nh helper packages
+├── overlays.nix            # nixpkgs overlay (zellij from flake input)
+├── packages.nix            # pkgs-by-name wiring for top-level packages/
+├── aspects/
+│   ├── core/               # every host: common, gc, hardening, locale, nice, nixConfig, podman
+│   ├── workstation/        # laptops/desktops only: gaming, kanata, sound, secure-boot, wm/
+│   ├── server/             # servers only: caddy, nginx, monitoring/, backup, mesh-server
+│   ├── roles/              # composite roles (roles.server bundles core + server aspects)
+│   ├── services/           # one aspect per self-hosted service (immich, karakeep, media/, ...)
+│   ├── options/            # option-only aspects (no nixos config): options.mesh, options.my.{services,stack}
+│   ├── tools/ shell/ editors/ terminals/ browsers/   # user-facing homeManager aspects
+│   ├── private/            # git submodule: private data (people, authelia seed, mail, calendar)
+│   ├── agents/             # git submodule: AI agent aspects (pi, opencode, claude-code) + skills
+│   └── placeholder.nix     # public stubs for submodule-only aspects (see below)
+├── hosts/<host>/           # per-host aspect, split across sibling files
+├── entities/               # extra entity kinds: people registry (den.people), theme
+├── policies/               # den policies: quirk collection (services-collect)
+└── users/                  # user aspects (lucas.nix)
+
+packages/                   # custom packages (auto-discovered via pkgs-by-name-for-flake-parts)
+secrets.yaml                # SOPS-encrypted secrets (repo root)
 ```
 
-### New Files Must Be Git-Tracked
+### Git Tracking + Submodules
 
-Blueprint (and nix flakes generally) only sees files committed or staged in git.
-A new file under `nix/` (e.g. a new package) is **invisible** to
-`nix build`/`nixos-rebuild` until it is added to git — you'll get
-`does not provide attribute 'packages.<system>.<name>'`. Run `git add <file>`
-before building any newly created file.
+- New files must be `git add`ed before eval — import-tree reads the committed
+  state, not the working tree. A new file under `modules/` is invisible to
+  `nix build`/`nixos-rebuild` until tracked.
+- `modules/aspects/private/` and `modules/aspects/agents/` are git submodules.
+  Every flake ref needs `?submodules=1`, otherwise evaluation fails with
+  missing attributes (`den.people`, agent aspects, private secrets).
+- Files whose name starts with `_` are skipped by import-tree — they are
+  imported manually (e.g. `hosts/powder/_disk.nix`).
 
-### How Blueprint Works
+## How Den Works
 
-In `flake.nix`:
+### Aspects
+
+An aspect is one concern bundled across Nix classes (`nixos`, `homeManager`,
+...) into a single attrset. The per-class blocks are plain modules — attrset or
+function form, same options, same `mkIf`/`mkForce`:
 
 ```nix
-outputs = inputs: inputs.blueprint {
-  inherit inputs;
-  prefix = "nix";  # All Nix code lives in nix/ folder
+# modules/aspects/services/karakeep.nix (abbreviated)
+{ ... }: {
+  den.aspects.services.karakeep = {
+    nixos = { config, ... }: {
+      sops.secrets = { ... };
+      services.my.karakeep = {
+        port = 3000;
+        domain = "karakeep.lab.keyruu.de";
+      };
+    };
+  };
+}
+```
+
+- **`nixos` / `homeManager`** — owned config per class.
+- **`includes`** — dependency list of other aspects (a DAG). E.g.
+  `den.aspects.core.default` includes `common`, `gc`, `hardening`, `...`;
+  `den.aspects.mentat` includes `den.aspects.roles.server` + its services.
+- **`provides`** — named sub-aspects, reachable as `den.aspects.<name>.<sub>`
+  (e.g. `den.aspects.services.home-assistant.default`).
+- **Context args** — the aspect itself can be a function of its scope:
+  `den.aspects.<name> = { host, ... }: { ... }` runs per host,
+  `{ host, user, ... }:` per user, `{ ... }:` once. Dispatch is purely by
+  argument shape — no specialArgs tricks.
+
+### Multiple Files per Aspect
+
+Aspects merge through the module system: every file under `modules/` that
+writes `den.aspects.<name>.<key>` contributes. Hosts are split across
+siblings, all writing `den.aspects.<host>`:
+
+- `modules/hosts/mentat/default.nix` — host registration + `includes`
+- `configuration.nix`, `hardware.nix`, `disk.nix`, `mesh.nix`, `nas.nix`,
+  `network.nix`, `syncthing.nix`, `cockpit.nix` — each adds
+  `den.aspects.mentat.nixos = { ... }`
+
+Same pattern for services: `aspects/services/home-assistant/{home-assistant,mqtt,esphome,zigbee2mqtt,...}.nix`
+all write `den.aspects.services.home-assistant`. Split whenever a file grows —
+merging is free.
+
+### Hosts and Users
+
+```nix
+# modules/hosts/mentat/default.nix
+{ den, ... }: {
+  # registration: host + its users. Auto-creates den.aspects.mentat,
+  # applied to this host automatically.
+  den.hosts.x86_64-linux.mentat.users.root.classes = [ ];
+
+  den.aspects.mentat = {
+    includes = [
+      den.aspects.roles.server
+      den.aspects.services.immich
+      # ...
+    ];
+  };
+}
+```
+
+- Registering a host auto-creates `den.aspects.<host>` (nixos class).
+- Registering a user auto-creates `den.aspects.<user>`; every user gets the
+  `homeManager` class by default (`den.schema.user.classes` in `den.nix`).
+- User config lives in `modules/users/lucas.nix` — includes
+  (browsers/shell/editors/...) + `homeManager` block.
+- Extra host options are declared via `den.schema.host.options` in `den.nix`
+  (e.g. `displays` for kanshi monitor layout, read by the carryall/powder
+  hosts).
+
+### Batteries and Defaults
+
+`den.batteries.*` are reusable aspects, most wired via `den.default` in
+`modules/den.nix`:
+
+- `hostname` — sets `networking.hostName` from the host name
+- `define-user` / `primary-user` — provision the OS user + home dir, wheel +
+  networkmanager
+- `host-aspects` — project host-aspect homeManager classes onto opted-in users
+- `user-shell "fish"` — login shell at OS + home-manager level
+- `unfree [ "obsidian" ... ]` — scoped unfree allowances (needs exact
+  attr/pname, scope per aspect)
+- `inputs'` / `self'` — flake inputs/outputs with system pre-selected
+
+`den.default` also pins state versions once (`nixos = "26.05"`,
+`home = "26.11"`) — never set them per host or user.
+
+### Entities: People Registry
+
+`modules/entities/people.nix` declares `den.people` — the identity layer for
+mesh + authelia. Per person: `email`, `devices` (mesh wireguard peers: `ip`,
+`publicKey`, `allowedIPs`), `canAccess` (named networks for nftables forward
+rules), `service-access` (auto-derives authelia `<svc>_users` groups,
+policies, OIDC clients, and nginx allowlists). Personal data lives in the
+`private` submodule (`aspects/private/people.nix`).
+
+### Quirks and Policies (Service Facts)
+
+Service aspects emit facts through quirks — `den.quirks.dashboard`, `monitor`,
+`scrape`, `public-proxy`, `oidc-config` — declared on the `services.my.<name>`
+registry. This replaces blueprint's `flake.allMyServices` / `proxyHosts`
+plumbing:
+
+```nix
+services.my.karakeep = {
+  domain = "karakeep.lab.keyruu.de";
+  dashboard.groups = [ "karakeep_users" ];
+  monitor.conditions = [ "[STATUS] == 403" ];
+  oidc = { enable = true; ... };
+  proxy.whitelist.enable = true;  # IP allowlist from den.people service-access
 };
 ```
 
-Blueprint automatically:
+`modules/policies/services-collect.nix` wires `den.policies.collect-service-facts`
+into every host, collecting the quirks. Consumers: glance dashboard (mentat),
+gatus + prometheus (mentat), authelia clients (prime), public caddy/nginx
+proxies (prime). Registering a new service automatically wires monitoring,
+dashboard, proxy, and OIDC.
 
-- Creates `nixosConfigurations.<hostname>` from `nix/hosts/*/configuration.nix`
-- Exposes `nixosModules.<name>` from `nix/modules/nixos/*.nix`
-- Exposes `homeModules.<name>` from `nix/modules/home/*.nix`
-- Creates `packages.<system>.<name>` from `nix/packages/*.nix`
+### Placeholder Aspects (`modules/aspects/placeholder.nix`)
+
+Some aspects are only defined inside git submodules
+(`aspects/private/`, `aspects/agents/`). Direct references like
+`den.aspects.tools.syncthing` would throw `attribute missing` for anyone
+cloning without `--recurse-submodules`. `placeholder.nix` declares those keys
+as empty aspects (`{ }`) so eval works submodule-less; empty attrsets merge
+harmlessly with the real definitions when the submodules are present.
+
+**Rule: any aspect that is only defined in a submodule needs a placeholder
+entry.**
 
 ### Building and Deploying
 
@@ -83,78 +218,72 @@ sudo nixos-rebuild test --flake '.?submodules=1#hostname'
 
 # Eval / other commands
 nix eval '.?submodules=1#nixosConfigurations.hostname.config...'
+
+# Inspect den state (hosts, aspects)
+nix eval '.?submodules=1#den.hosts' --apply 'builtins.attrNames'
+nix eval '.?submodules=1#den.aspects' --apply builtins.attrNames
 ```
+
+Local hosts also work via `nh` (wired in `modules/nh.nix`).
 
 ### Adding a New Host
 
-1. Create `nix/hosts/<hostname>/configuration.nix`:
+1. Create `modules/hosts/<hostname>/default.nix`:
 
 ```nix
-{ inputs, flake, config, pkgs, lib, ... }:
+{ den, inputs, ... }:
 {
-  imports = [
-    inputs.sops-nix.nixosModules.sops
-    flake.modules.nixos.core  # Shared core config
-    ./hardware-configuration.nix
-    ./modules  # Host-specific modules
-  ];
+  # registration — auto-creates and applies den.aspects.<hostname>
+  den.hosts.x86_64-linux.<hostname>.users.lucas = { };
 
-  networking.hostName = "hostname";
-  user.name = "username";
+  den.aspects.<hostname> = {
+    includes = [
+      den.aspects.roles.server  # or workstation.* for laptops
+    ];
 
-  nixpkgs.hostPlatform = "x86_64-linux";
-  system.stateVersion = "24.11";
+    nixos = { pkgs, lib, ... }: {
+      imports = [ inputs.nixos-hardware.nixosModules.<module> ];
+      nixpkgs.hostPlatform = "x86_64-linux";
+    };
+  };
 }
 ```
 
 2. Generate hardware configuration:
 
 ```bash
-nixos-generate-config --root /mnt --show-hardware-config > nix/hosts/<hostname>/hardware-configuration.nix
+nixos-generate-config --root /mnt --show-hardware-config > modules/hosts/<hostname>/hardware.nix
 ```
 
-3. Create `nix/hosts/<hostname>/modules/default.nix` to import host-specific
-   modules:
+Wrap it as `den.aspects.<hostname>.nixos = { config, lib, modulesPath, ... }: { ... }`
+(see `modules/hosts/carryall/hardware.nix` for the pattern).
 
-```nix
-{ ... }:
-{
-  imports = [
-    ./nginx.nix
-    ./stacks
-  ];
-}
-```
+3. Split further as the host grows (`mesh.nix`, `disk.nix`, `nas.nix`) — each
+   sibling writes `den.aspects.<hostname>.nixos` and merges automatically.
 
-4. Blueprint automatically discovers it - just build!
+4. `git add modules/hosts/<hostname>`, then build. Hostname and stateVersion
+   come from `den.batteries.hostname` / `den.default` — don't set them.
 
 ### Project Conventions
 
-- **Host-specific modules** go in `nix/hosts/<hostname>/modules/`
-- **Shared modules** go in `nix/modules/nixos/` or `nix/modules/home/`
-- **Container stacks** go in `nix/hosts/<hostname>/modules/stacks/`
-- **Secrets** are in `nix/secrets.yaml` and managed with SOPS
-- **Custom packages** go in `nix/packages/`
-- Use `flake.modules.nixos.<name>` to reference shared NixOS modules
-- Use `flake.modules.home.<name>` to reference shared Home Manager modules
-
-## Quadlet Helper Library (`flake.lib.quadlet`)
-
-The `flake.lib.quadlet` attrset provides helpers for working with quadlet
-containers. Always use `inherit (flake.lib) quadlet;` in the let block.
-
-| Function          | Input     | Output               | Example                  |
-| ----------------- | --------- | -------------------- | ------------------------ |
-| `quadlet.service` | container | systemd service name | `"karakeep-web.service"` |
-| `quadlet.name`    | container | plain container name | `"karakeep-web"`         |
-| `quadlet.alias`   | container | first network alias  | `"meilisearch"`          |
-
-These helpers work with containers from `config.virtualisation.quadlet.containers`,
-which is where stack-defined containers end up after auto-prefixing.
+- **Host-specific config** goes in `modules/hosts/<host>/*.nix` (split across
+  files, all writing `den.aspects.<host>`)
+- **Cross-cutting NixOS concerns** go in `modules/aspects/{core,workstation,server}/`
+- **Composite roles** go in `modules/aspects/roles/`
+- **Self-hosted services** go in `modules/aspects/services/<name>.nix` via the
+  `services.my` registry
+- **Option-only modules** go in `modules/aspects/options/**` (just `options.*`,
+  no config)
+- **Users** go in `modules/users/<user>.nix`
+- **Secrets** are in `secrets.yaml` (repo root) and managed with SOPS; private
+  data lives in the `aspects/private` submodule
+- **Custom packages** go in top-level `packages/`
+- Reference aspects directly: `den.aspects.<category>.<name>` — no angle
+  brackets, no `flake.modules.*`
 
 ## Stack Module (`services.my.<name>.stack`)
 
-The stack module (`nix/modules/services/my/stack.nix`) reduces boilerplate for
+The stack module (`modules/aspects/options/my/stack.nix`) reduces boilerplate for
 quadlet container stacks by auto-generating tmpfiles, users, networks, backup
 wiring, OWASP security hardening, and container orchestration.
 
@@ -237,12 +366,12 @@ are **not** auto-unlocked at boot — a manual unlock step is required.
 3. **Services start**: All services with `zfs = true` are `wantedBy` the target
    and auto-start once it activates.
 
-### Infrastructure (defined in `nix/hosts/mentat/modules/nas.nix`)
+### Infrastructure (defined in `modules/hosts/mentat/nas.nix`)
 
 - `zfs-encrypted.target` — systemd target representing "datasets are unlocked"
 - `zfs-encrypted-check.service` — oneshot gate that verifies `keystatus =
 available` before the target can activate
-- `zfs-unlock` — shell script package (`nix/packages/zfs-unlock.nix`) that runs
+- `zfs-unlock` — shell script package (`packages/zfs-unlock.nix`) that runs
   `zfs load-key -a`, `zfs mount -a`, and `systemctl start zfs-encrypted.target`
 
 ### Service Option: `services.my.<name>.zfs`
@@ -275,17 +404,18 @@ systemd.services.syncthing = {
 
 ## Authelia OIDC (SSO)
 
-Authelia runs on prime (`auth.peeraten.net`). Config lives in:
-
-- `nix/hosts/prime/modules/authelia.nix` — instance, OIDC clients, access
-  policies
-- `nix/modules/private/authelia.nix` — users seed (identity, groups, initial
-  password hashes)
+Authelia runs on prime (`auth.peeraten.net`). OIDC clients are generated from
+the `oidc-config` quirk — every host with
+`services.my.<name>.oidc.enable = true` is collected by
+`modules/policies/services-collect.nix` and rendered by
+`modules/aspects/server/authelia.nix`. The users seed (identity, groups,
+password hashes) is generated from `den.people` in
+`modules/aspects/private/authelia.nix`.
 
 ### Provisioning Scripts (run from repo root)
 
 ```bash
-# Generate <service>ClientSecret in nix/secrets.yaml (secret is never printed)
+# Generate <service>ClientSecret in secrets.yaml (secret is never printed)
 # and print the pbkdf2 digest for the authelia client config:
 nix run '.?submodules=1#authelia-oidc-client' -- <service>
 
@@ -297,20 +427,31 @@ nix run '.?submodules=1#authelia-user-hash' -- <user>
 
 1. **Secret**: `nix run '.?submodules=1#authelia-oidc-client' -- <service>` —
    stores `<service>ClientSecret` in sops, prints the pbkdf2 digest.
-2. **Authelia client** (`nix/hosts/prime/modules/authelia.nix`): add an entry to
-   `identity_providers.oidc.clients` with the digest as `client_secret` (hash is
-   store-safe) and `authorization_policy = "<service>_access"`. Check the
-   service's page on https://www.authelia.com/integration/openid-connect/clients/
-   for required `token_endpoint_auth_method`, PKCE, scopes, and redirect URIs.
-3. **Access policy**: add `<service>_access = "<service>_users";` to the
-   `authorization_policies` mapAttrs — one group per service.
-4. **Groups**: add `<service>_users` to the relevant users in the seed in
-   `nix/modules/private/authelia.nix`.
-5. **Service side**: reference `config.sops.placeholder.<service>ClientSecret`
-   in a sops template (env file or config file) in the service's stack. Issuer
-   is `https://auth.peeraten.net`.
-6. Build **prime first**, then the service host — the client must exist before
-   the service redirects to it.
+2. **Service side**: enable OIDC on the service's registry entry — the client
+   is derived from it, not hand-written in authelia.nix:
+
+   ```nix
+   services.my.<service>.oidc = {
+     enable = true;
+     clientSecret = "$pbkdf2-sha512$...";  # digest from step 1
+     redirectUris = [ "https://<service>.peeraten.net/api/auth/callback/custom" ];
+     # per-app extras: requirePkce, pkceChallengeMethod, tokenEndpointAuthMethod,
+     # scopes, claimsPolicy — check https://www.authelia.com/integration/openid-connect/clients/
+   };
+   ```
+
+   `authorization_policy = "<service>_access"` is set automatically. Named
+   claims policies are still declared inline in
+   `modules/aspects/server/authelia.nix` (authelia-side config is prime-only).
+3. **Access**: add `<service>` to the person's `service-access` in
+   `modules/aspects/private/people.nix` — groups + access policy are derived
+   from it.
+4. **Stack env**: reference `config.sops.placeholder.<service>ClientSecret`
+   in a sops template in the service's stack. Issuer is
+   `https://auth.peeraten.net`.
+5. Rebuild **prime** (it collects `oidc-config` from all hosts) together with
+   the service host — the client must exist before the service redirects to
+   it.
 
 ### Gotchas
 
@@ -327,7 +468,7 @@ nix run '.?submodules=1#authelia-user-hash' -- <user>
   authelia integration guide instead of guessing.
 - Existing clients: immich, paperless, karakeep, chatto, jellyfin
   (jellyfin uses the SSO-Auth plugin, ro-mounted from
-  `nix/packages/jellyfin-sso-plugin.nix` with a sops-templated XML config over
+  `packages/jellyfin-sso-plugin.nix` with a sops-templated XML config over
   `/config/plugins/configurations/SSO-Auth.xml`).
 
 ## Quadlet Configuration Best Practices
@@ -344,112 +485,98 @@ All quadlet configurations follow this standardized structure using the stack
 module. Comments are for clarification only:
 
 ```nix
-{ config, flake, ... }:
-let
-  my = config.services.my.service-name;
-  # containers is needed for SOPS restartUnits and quadlet.alias references
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
-in
+# modules/aspects/services/service-name.nix
+{ den, ... }:
 {
-  # sops secrets — always one value per secret
-  sops.secrets = {
-    serviceSecret = { };
-  };
+  den.aspects.services.service-name = {
+    nixos =
+      { config, ... }:
+      let
+        my = config.services.my.service-name;
+      in
+      {
+        # sops secrets — always one value per secret
+        sops.secrets = {
+          serviceSecret = { };
+        };
 
-  # template file (if secrets needed)
-  # Reference containers by their full prefixed name from config.virtualisation.quadlet.containers
-  sops.templates."service.env" = {
-    restartUnits = map quadlet.service [
-      containers.service-name-main
-      containers.service-name-db
-    ];
-    content = ''
-      SECRET_KEY=${config.sops.placeholder.serviceSecret}
-    '';
-  };
+        # template file (if secrets needed)
+        # restartUnits use plain "<name>.service" strings — the prefixed container name
+        sops.templates."service.env" = {
+          restartUnits = [
+            "service-name-main.service"
+            "service-name-db.service"
+          ];
+          content = ''
+            SECRET_KEY=${config.sops.placeholder.serviceSecret}
+          '';
+        };
 
-  services.my.service-name = {
-    port = 3000;
-    # .lab for local-only, peeraten.net for public via VPS proxy
-    domain = "service-name.lab.keyruu.de";
-    proxy = {
-      enable = true;
-      whitelist.enable = true;
-    };
-    # backup paths and systemd units are auto-wired from stack config
-    backup.enable = true;
-    stack = {
-      enable = true;
-      directories = [ "data" "config" ];
-      # only for multi-container stacks that need inter-container communication
-      network.enable = true;
-      # OWASP security hardening for all containers
-      security.enable = true;
+        services.my.service-name = {
+          port = 3000;
+          # .lab for local-only, peeraten.net for public via prime's caddy
+          domain = "service-name.lab.keyruu.de";
+          proxy = {
+            enable = true;
+            whitelist.enable = true;
+          };
+          # backup paths and systemd units are auto-wired from stack config
+          backup.enable = true;
+          stack = {
+            enable = true;
+            directories = [ "data" "config" ];
+            # only for multi-container stacks that need inter-container communication
+            network.enable = true;
+            # OWASP security hardening for all containers
+            security.enable = true;
 
-      # containers use short names, auto-prefixed to service-name-main etc.
-      containers = {
-        main = {
-          containerConfig = {
-            # never use latest, always versioned tags
-            image = "service:v0.1.0";
-            # publish ports manually for the main service
-            publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
-            volumes = [
-              "${my.stack.path}/data:/data"
-              "${my.stack.path}/config:/config"
-            ];
-            # non-secret env vars
-            environments = {
-              KEY = "value";
-              # use quadlet.alias with full prefixed name for inter-container hostnames
-              DB_HOST = quadlet.alias containers.service-name-db;
+            # containers use short names, auto-prefixed to service-name-main etc.
+            containers = {
+              main = {
+                containerConfig = {
+                  # never use latest, always versioned tags
+                  image = "service:v0.1.0";
+                  # publish ports manually for the main service
+                  publishPorts = [ "127.0.0.1:${toString my.port}:3000" ];
+                  volumes = [
+                    "${my.stack.path}/data:/data"
+                    "${my.stack.path}/config:/config"
+                  ];
+                  # non-secret env vars
+                  environments = {
+                    KEY = "value";
+                    # inter-container hostnames are the network aliases
+                    DB_HOST = "service-name-db";
+                  };
+                  environmentFiles = [ config.sops.templates."service.env".path ];
+                  # network is auto-wired by stack.network, just set aliases
+                  networkAliases = [ "service-main" ];
+                };
+                # use dependsOn with short sibling names instead of manual After/Requires
+                dependsOn = [ "db" ];
+              };
+
+              db = {
+                containerConfig = {
+                  image = "postgres:16";
+                  volumes = [ "${my.stack.path}/db:/var/lib/postgresql/data" ];
+                  networkAliases = [ "db" ];
+                };
+              };
             };
-            environmentFiles = [ config.sops.templates."service.env".path ];
-            # network is auto-wired by stack.network, just set aliases
-            networkAliases = [ "service-main" ];
-          };
-          # use dependsOn with short sibling names instead of manual After/Requires
-          dependsOn = [ "db" ];
-        };
-
-        db = {
-          containerConfig = {
-            image = "postgres:16";
-            volumes = [ "${my.stack.path}/db:/var/lib/postgresql/data" ];
-            networkAliases = [ "db" ];
           };
         };
       };
-    };
   };
-
-  # here is a definition for a service that is proxied for the public
-  services.my.home-assistant =
-    let
-      domain = "hass.peeraten.net";
-    in
-    {
-      port = 8123;
-      inherit domain;
-      proxy = {
-        enable = true;
-        cert = {
-          provided = false;
-          host = domain;
-        };
-      };
-      backup.enable = true;
-      stack = {
-        enable = true;
-        directories = [ "config" ];
-        # home-assistant uses host networking — define the container in
-        # virtualisation.quadlet.containers directly (not in stack.containers)
-        # since it cannot use stack network auto-wiring
-      };
-    };
 }
 ```
+
+For services proxied for the public: set `proxy.public = true` (requires
+`proxy.server = "nginx"`) — the service's nginx handles mesh-internal routing,
+prime's caddy fronts it for the public internet via the public-proxy quirk.
+Host-networking services (e.g. home-assistant) define their container in
+`virtualisation.quadlet.containers` directly, not in `stack.containers`, since
+they cannot use stack network auto-wiring.
 
 ### Converting Docker Compose to Quadlet
 
@@ -462,42 +589,30 @@ in
 #### 2. Create the Stack Module
 
 ```nix
-{ config, flake, ... }:
-let
-  my = config.services.my.service-name;
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
-in
-{
-  services.my.service-name = {
-    port = 3000;
-    domain = "service-name.lab.keyruu.de";
-    proxy.enable = true;
-    backup.enable = true;
-    stack = {
-      enable = true;
-      directories = [ "data" "config" ];
-      network.enable = true;  # only for multi-container stacks
-      security.enable = true;
+# inside den.aspects.services.service-name.nixos = { config, ... }: { ... }
+services.my.service-name = {
+  port = 3000;
+  domain = "service-name.lab.keyruu.de";
+  proxy.enable = true;
+  backup.enable = true;
+  stack = {
+    enable = true;
+    directories = [ "data" "config" ];
+    network.enable = true;  # only for multi-container stacks
+    security.enable = true;
 
-      containers = {
-        # containers defined here with short names
-        # publish ports manually on the main container
-      };
+    containers = {
+      # containers defined here with short names
+      # publish ports manually on the main container
     };
   };
-}
+};
 ```
 
 #### 3. Handle Secrets
 
 ```nix
-# In your stack file, import containers and quadlet
-{ config, flake, ... }:
-let
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
-in
+# inside the service aspect's nixos block
 {
   # Declare secrets (no restartUnits needed on individual secrets)
   sops.secrets = {
@@ -505,9 +620,9 @@ in
   };
 
   # Create environment template with restart units
-  # Reference full prefixed names from config.virtualisation.quadlet.containers
+  # restartUnits use plain "<name>.service" strings — the prefixed container name
   sops.templates."service.env" = {
-    restartUnits = [ (quadlet.service containers.service-name-main) ];
+    restartUnits = [ "service-name-main.service" ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
     '';
@@ -515,9 +630,9 @@ in
 
   # For multiple containers:
   sops.templates."service.env" = {
-    restartUnits = map quadlet.service [
-      containers.service-name-main
-      containers.service-name-db
+    restartUnits = [
+      "service-name-main.service"
+      "service-name-db.service"
     ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
@@ -639,19 +754,15 @@ stack.containers.main = {
 #### Automatic Restarts with SOPS
 
 Always include `restartUnits` for templates to ensure containers restart when
-secrets change. Reference the full prefixed container names from
-`config.virtualisation.quadlet.containers`.
+secrets change. Use plain `"<container>.service"` strings with the full
+prefixed container name (e.g. `"karakeep-web.service"`, not `"web.service"`).
 
 **Best Practice**: Only add `restartUnits` to the SOPS template, not individual
 secrets. The template will automatically trigger when any referenced secret
 changes, eliminating redundancy.
 
 ```nix
-{ config, flake, ... }:
-let
-  inherit (config.virtualisation.quadlet) containers;
-  inherit (flake.lib) quadlet;
-in
+# inside the service aspect's nixos block
 {
   sops.secrets = {
     serviceSecret = { };
@@ -660,7 +771,7 @@ in
 
   # For single container — use full prefixed name
   sops.templates."service.env" = {
-    restartUnits = [ (quadlet.service containers.service-name-main) ];
+    restartUnits = [ "service-name-main.service" ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
     '';
@@ -668,9 +779,9 @@ in
 
   # For multiple containers
   sops.templates."service.env" = {
-    restartUnits = map quadlet.service [
-      containers.service-name-main
-      containers.service-name-db
+    restartUnits = [
+      "service-name-main.service"
+      "service-name-db.service"
     ];
     content = ''
       SECRET=${config.sops.placeholder.serviceSecret}
@@ -753,15 +864,16 @@ sops.secrets = {
   Use `nix path-info`, `nix eval`, or open the specific source file directly.
   If you must look in the store, target a known path
   (`/nix/store/<hash>-<name>`) — never `find /nix/store` or `rg /nix/store`.
-- Remember to add external proxy configuration in sleipnir for peeraten.net
-  domains
+- Public peeraten.net domains: set `services.my.<name>.proxy.public = true`
+  (requires `proxy.server = "nginx"`) — prime's caddy fronts it via the
+  public-proxy quirk, no external proxy config needed
 - Use `exec` instead of `command` for container arguments
 - Container short names in `stack.containers` are auto-prefixed with the stack
   name (e.g. `web` → `karakeep-web`) — except single-container stacks, which
   keep the short name as-is; name that container after the stack
-- For SOPS `restartUnits` and `quadlet.alias`, always use the full prefixed name
-  from `config.virtualisation.quadlet.containers` (e.g.
-  `containers.karakeep-web`, not `containers.web`)
+- For SOPS `restartUnits` and inter-container hostnames, always use the full
+  prefixed container name (e.g. `"karakeep-web.service"`, not
+  `"web.service"`)
 - Don't create networks for single-container stacks — use default bridge network
   instead
 - Only add `restartUnits` to SOPS templates, not individual secrets (templates
@@ -773,8 +885,6 @@ sops.secrets = {
 - Use proper Quadlet health check options (`healthCmd`, `healthInterval`, etc.)
   instead of Docker Compose style `healthcheck` blocks
 - Use camelCase for SOPS secret names for consistency
-- Always import `containers` from `config.virtualisation.quadlet` and `quadlet`
-  from `flake.lib` in the let block
 - `serviceConfig.Restart = "always"` is already the quadlet-nix default — never
   set it explicitly
 - Per-container security overrides use `security.*` directly on the container

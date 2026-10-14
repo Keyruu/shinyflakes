@@ -46,7 +46,6 @@
       # the OS user + home dir). wheel/networkmanager added by primary-user.
       users.users.lucas.extraGroups = [
         "ydotool"
-        "docker"
         "disk"
       ];
 

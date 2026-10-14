@@ -49,6 +49,13 @@ in
           niri
         ];
 
+        # mkDefault so a host/aspect (e.g. mango) can mkForce a different
+        # greetd session command
+        services.greetd.settings = {
+          default_session.command = lib.mkDefault "${niri}/bin/niri-session";
+          initial_session.command = lib.mkDefault "${niri}/bin/niri-session";
+        };
+
         programs.niri = {
           enable = true;
           package = niri;

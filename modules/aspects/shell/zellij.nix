@@ -477,15 +477,6 @@
                       }
                       pane command="pi" size="40%"
                     }
-
-                    floating_panes {
-                      pane command="lazygit" {
-                        width "80%"
-                        height "80%"
-                        x "10%"
-                        y "10%"
-                      }
-                    }
                   }
 
                   // base swap layout for floating panes: Super ] re-applies these

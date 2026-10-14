@@ -142,17 +142,8 @@
           systemd = {
             enable = true;
             autoStart = true;
-            # Qt's default RHI backend is OpenGL via EGL. The mesa EGL vendor
-            # (libEGL_mesa) pulls in libgallium-26.2.3, which needs GLIBC_2.43
-            # symbols — but vicinae-server's RUNPATH pins glibc 2.42, so the
-            # dlopen of libgallium fails with "version lookup error", EGL init
-            # aborts, and Qt's OpenGL RHI falls back through backends to a FATAL
-            # abort on window show. Vulkan RHI bypasses the libEGL → libgallium
-            # chain entirely (vulkan-icd-loader → mesa vulkan ICDs), so the
-            # mesa/glibc mismatch doesn't bite.
             environment = {
               USE_LAYER_SHELL = 1;
-              QSG_RHI_BACKEND = "vulkan";
             };
           };
 

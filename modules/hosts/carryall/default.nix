@@ -72,14 +72,12 @@
         distrobox
         nautilus
       ];
-      virtualisation.podman.dockerCompat = true;
 
       # Host-level extras on top of den.batteries.define-user (which provisions
       # the OS user + home dir). wheel/networkmanager added by primary-user.
       users.users.lucas.extraGroups = [
         "networkmanager"
         "ydotool"
-        "docker"
         "disk"
       ];
 

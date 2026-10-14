@@ -16,9 +16,7 @@
       (den.batteries.unfree [
         "obsidian"
         "slack"
-        "spotify"
         "chapterskip"
-        "vivaldi"
       ])
 
       den.aspects.core.default

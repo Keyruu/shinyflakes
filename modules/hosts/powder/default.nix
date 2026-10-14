@@ -29,6 +29,7 @@
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
       den.aspects.workstation.fprintd
+      den.aspects.workstation.wm.mango
     ];
 
     nixos =
@@ -84,14 +85,12 @@
           distrobox
           nautilus
         ];
-        virtualisation.podman.dockerCompat = true;
-
+  
         # Host-level extras on top of den.batteries.define-user (which provisions
         # the OS user + home dir). wheel/networkmanager added by primary-user.
         users.users.lucas.extraGroups = [
           "networkmanager"
           "ydotool"
-          "docker"
           "disk"
         ];
 
@@ -106,7 +105,8 @@
       };
     homeManager = { pkgs, inputs', ... }: {
       home.packages = with pkgs; [
-        google-cloud-sdk
+        proton-vpn
+        (google-cloud-sdk.withExtraComponents [ google-cloud-sdk.components.gke-gcloud-auth-plugin ])
         inputs'.dash0-cli.packages.default
       ];
       services.tailscale-systray.enable = true;

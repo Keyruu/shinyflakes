@@ -4,7 +4,6 @@
   nixConfig = {
     extra-substituters = [
       "https://nix-community.cachix.org"
-      "https://nixpkgs.cachix.org"
       "https://cache.numtide.com"
       "https://cache.lix.systems"
       "https://vicinae.cachix.org"
@@ -13,7 +12,6 @@
     ];
     extra-trusted-public-keys = [
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
@@ -31,7 +29,7 @@
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
     nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";
 
-    # den migration — runs alongside blueprint until Phase 4
+    # den — dendritic module system (aspects, hosts, entities)
     import-tree.url = "github:denful/import-tree";
     den.url = "github:denful/den";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -96,13 +94,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    vicinae.url = "github:vicinaehq/vicinae";
+    vicinae.url = "github:Keyruu/vicinae/fix/nix-macos";
     vicinae-extensions = {
       url = "github:Keyruu/vicinae-extensions/pr/agenda";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     niri.url = "git+https://codeberg.org/BANanaD3V/niri-nix";
+
+    mango = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nvf = {
       url = "github:NotAShelf/nvf";
@@ -152,6 +155,11 @@
     flake
     // {
       # pipeline host discovery (build.yml: setup job)
-      lib.hostMatrix.host = builtins.attrNames flake.nixosConfigurations;
+      # ciSkip hosts are built locally only, kept out of the CI matrix
+      lib.hostMatrix.host =
+        let
+          ciSkip = [ "powder" ];
+        in
+        builtins.filter (host: !builtins.elem host ciSkip) (builtins.attrNames flake.nixosConfigurations);
     };
 }

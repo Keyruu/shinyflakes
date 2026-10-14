@@ -10,40 +10,21 @@
 
     homeManager = { config, ... }: {
       sops.secrets = {
-        openaiKey = { };
-        geminiKey = { };
-        mammouthKey = { };
-        opencodeKey = { };
         scalewayKey = { };
         hcloudToken = { };
         cloudflareToken = { };
-        jiraToken = { };
-        datadogApiKeyMp = { };
-        datadogAppKeyMp = { };
         hassKey = { };
-        openrouterKey = { };
-        litellmMasterKey = { };
         zaiKey = { };
         minimaxKey = { };
       };
 
       sops.templates."shell.env".content = ''
-        OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
-        GEMINI_API_KEY=${config.sops.placeholder.geminiKey}
-        MAMMOUTH_API_KEY=${config.sops.placeholder.mammouthKey}
-        OPENCODE_API_KEY=${config.sops.placeholder.opencodeKey}
         SCALEWAY_API_KEY=${config.sops.placeholder.scalewayKey}
         CLOUDFLARE_API_TOKEN=${config.sops.placeholder.cloudflareToken}
         HCLOUD_TOKEN=${config.sops.placeholder.hcloudToken}
         TF_VAR_cloudflare_api_token=${config.sops.placeholder.cloudflareToken}
         TF_VAR_hcloud_token=${config.sops.placeholder.hcloudToken}
-        JIRA_API_TOKEN=${config.sops.placeholder.jiraToken}
-        DATADOG_API_KEY_MP=${config.sops.placeholder.datadogApiKeyMp}
-        DATADOG_APP_KEY_MP=${config.sops.placeholder.datadogAppKeyMp}
         HASS_KEY=${config.sops.placeholder.hassKey}
-        OPENROUTER_API_KEY=${config.sops.placeholder.openrouterKey}
-        LITELLM_BASE_URL=https://litellm.lab.keyruu.de
-        LITELLM_API_KEY=${config.sops.placeholder.litellmMasterKey}
         ZAI_API_KEY=${config.sops.placeholder.zaiKey}
         MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
       '';

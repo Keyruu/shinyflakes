@@ -23,6 +23,7 @@
   den.aspects.muadib = {
     includes = [
       den.aspects.workstation.gaming
+      # den.aspects.workstation.wm.mango
     ];
 
     nixos = { pkgs, host, ... }: {
@@ -36,7 +37,6 @@
       users.users.lucas.extraGroups = [
         "networkmanager"
         "ydotool"
-        "docker"
         "disk"
       ];
 

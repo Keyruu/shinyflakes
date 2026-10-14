@@ -10,18 +10,24 @@
           work = [
             "slack.com"
             "*.slack.com"
-            "mail.google.de"
-            "calendar.google.de"
-            "meet.google.de"
-            "docs.google.de"
+            "mail.google.com"
+            "calendar.google.com"
+            "meet.google.com"
             "docs.google.com"
             "console.cloud.google.com"
             "linear.app"
             "github.com"
             "dash0.com"
             "*.dash0.com"
+            "dash0-dev.com"
+            "*.dash0-dev.com"
             "*.aws.amazon.com"
             "*.awsapps.com"
+            "*.tailcdef0.ts.net"
+            "*.toriihq.com"
+            "*.fleet.co"
+            "*.drata.com"
+            "*.remote.com"
           ];
           default = [ "*.peeraten.net" ];
         };
@@ -32,8 +38,7 @@
         # the alphabetically first one — keep the lists disjoint.
         caseBody = lib.concatStrings (
           lib.mapAttrsToList (
-            profile: hosts:
-              "  ${lib.concatStringsSep "|" hosts}) profile=${lib.escapeShellArg profile} ;;\n"
+            profile: hosts: "  ${lib.concatStringsSep "|" hosts}) profile=${lib.escapeShellArg profile} ;;\n"
           ) routes
         );
 
@@ -82,6 +87,14 @@
               esac
 
               if [[ -z "$profile" ]]; then
+                # Links opened from within vicinae race its action auto-close: the
+                # dmenu request arrives before the launcher window finished closing,
+                # so the dmenu view gets pushed onto a window that hides right after,
+                # and this script hangs forever. Wait out the close before prompting.
+                # VICINAE_OVERRIDES is only set when vicinae itself spawned us.
+                if [[ -n "''${VICINAE_OVERRIDES:-}" ]]; then
+                  sleep 0.5
+                fi
                 # Pipe must not start a line here: inside $( ) bash rejects a
                 # leading |, so the continuation goes on the printf line.
                 profile=$(printf '%s\n' "''${profiles[@]}" \
@@ -101,40 +114,42 @@
       {
         home.packages = [ browserPicker ];
 
-        xdg.desktopEntries = lib.listToAttrs (
-          map (profile: {
-            name = "firefox-${profile}";
-            value = {
-              name = "Firefox (${profile})";
+        xdg.desktopEntries =
+          lib.listToAttrs (
+            map (profile: {
+              name = "firefox-${profile}";
+              value = {
+                name = "Firefox (${profile})";
+                genericName = "Web Browser";
+                exec = "${lib.getExe pkgs.firefox} -P ${profile}";
+                icon = "firefox";
+                categories = [
+                  "Network"
+                  "WebBrowser"
+                ];
+              };
+            }) profileNames
+          )
+          // {
+            browser-picker = {
+              name = "Browser (pick profile)";
               genericName = "Web Browser";
-              exec = "${lib.getExe pkgs.firefox} -P ${profile}";
+              comment = "Open links in a firefox profile of your choice";
+              exec = "${lib.getExe browserPicker} %u";
               icon = "firefox";
               categories = [
                 "Network"
                 "WebBrowser"
               ];
+              mimeType = [
+                "text/html"
+                "text/xhtml"
+                "x-scheme-handler/http"
+                "x-scheme-handler/https"
+              ];
+              terminal = false;
             };
-          }) profileNames
-        ) // {
-          browser-picker = {
-            name = "Browser (pick profile)";
-            genericName = "Web Browser";
-            comment = "Open links in a firefox profile of your choice";
-            exec = "${lib.getExe browserPicker} %u";
-            icon = "firefox";
-            categories = [
-              "Network"
-              "WebBrowser"
-            ];
-            mimeType = [
-              "text/html"
-              "text/xhtml"
-              "x-scheme-handler/http"
-              "x-scheme-handler/https"
-            ];
-            terminal = false;
           };
-        };
       };
   };
 }
