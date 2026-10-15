@@ -72,7 +72,7 @@
         runc
         powertop
         ryzen-monitor-ng
-        isd
+        systemctl-tui
         nvtopPackages.nvidia
         rustic
       ];

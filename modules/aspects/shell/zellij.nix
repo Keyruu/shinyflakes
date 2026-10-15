@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 {
   den.aspects.shell.zellij = {
     homeManager =
@@ -19,6 +19,7 @@
         home.packages = [
           self'.packages.nvim-scrollback
           self'.packages.pi-herd
+          self'.packages.pi-task
         ];
 
         # Zellij live-reloads config via an mtime-polling watcher that follows
@@ -39,6 +40,7 @@
 
         programs.zellij = {
           enable = true;
+          package = inputs.zellij.packages.${pkgs.stdenv.hostPlatform.system}.default;
           extraConfig = # kdl
             ''
               theme "shiny"
@@ -387,7 +389,13 @@
                   bind "Alt l" { GoToNextTab; }
                   bind "Alt n" { NewPane; }
                   bind "Alt f" { ToggleFloatingPanes; }
-                  // pi instance overview — jump to any pi across sessions
+                  bind "Alt t" {
+                    Run "${lib.getExe self'.packages.pi-task}" {
+                      scratchpad true
+                      close_on_exit true
+                      name "pi tasks"
+                    }
+                  }
                   bind "Alt p" {
                     Run "${lib.getExe self'.packages.pi-herd}" {
                       scratchpad true

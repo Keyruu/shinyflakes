@@ -285,6 +285,21 @@ in
                 bind=ALT+SHIFT,Tab,switcher,all_prev
                 bind=SUPER,Tab,switcher,all_next
                 bind=SUPER+SHIFT,Tab,switcher,all_prev
+
+                # touchpad gestures — niri's are hardcoded, not config: 3-finger
+                # vertical switches workspaces, 3-finger horizontal pans the
+                # view, 4-finger vertical toggles overview. Mango tags are a
+                # horizontal strip, so niri's vertical workspaces map to
+                # left/right tags (same convention as SUPER+SHIFT+j → tagtoright)
+                gesturebind=none,up,3,viewtoleft_have_client
+                gesturebind=none,down,3,viewtoright_have_client
+                gesturebind=none,left,3,spawn,mango-focus left
+                gesturebind=none,right,3,spawn,mango-focus right
+                gesturebind=none,up,4,enteroverview
+                gesturebind=none,down,4,leaveoverview
+                # niri default keybind — "Some laptops have a key for toggling
+                # the touchpad"
+                bind=NONE,XF86TouchpadToggle,toggle_trackpad_enable
               '';
           };
         };

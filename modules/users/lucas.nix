@@ -165,7 +165,7 @@
           wtype
           wireguard-tools
           espflash
-          isd
+          systemctl-tui
           bluetui
           aichat
           # vdhcoapp
