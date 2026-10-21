@@ -139,7 +139,7 @@
           thunderbird
           vlc
           flatpak
-          libreoffice-qt6-fresh
+          libreoffice-qt
           brave
           blender
           inkscape

@@ -203,7 +203,7 @@
 
           notmuch = {
             enable = false;
-            new = {
+            settings.new = {
               ignore = [
                 ".uidvalidity"
                 ".mbsyncstate"
