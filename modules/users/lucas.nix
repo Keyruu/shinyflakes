@@ -17,6 +17,7 @@
         "obsidian"
         "slack"
         "chapterskip"
+        "bambu-studio"
       ])
 
       den.aspects.core.default
@@ -142,6 +143,7 @@
           brave
           blender
           inkscape
+          bambu-studio
 
           # cli apps
           glow # render markdown on the cli
@@ -216,7 +218,6 @@
           stylua
           bubblewrap
           socat
-          orca-slicer
           wireguard-tools
           tree-sitter
           zerotierone

@@ -8,7 +8,7 @@
       # idle
       kanshi
       # lock
-      niri
+      mango
       session
     ];
   };

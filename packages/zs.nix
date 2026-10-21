@@ -10,11 +10,8 @@ pkgs.writeShellApplication {
     gnused
     gnugrep
     coreutils
-    niri
-    nirius
     util-linux # setsid
   ];
-  # vicinae/footclient intentionally not in the closure — desktop apps,
-  # resolved from the user session PATH in --dmenu mode
+  # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
   text = builtins.readFile ./zs.sh;
 }

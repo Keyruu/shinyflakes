@@ -1,468 +1,409 @@
 # Worktree-attached agent review workflow
 
-Status: stage 1 and stage-2 review-state foundations manually verified by the
-user. Autonomous checkpoint slice implemented and automated checks pass; manual
-checkpoint smoke check remains. Full stage-2 review UI and stage 3 remain planned.
+Status: implemented and user-accepted for day-to-day use in autonomous and
+guided modes. Human smoke on 2026-10-16 confirmed the autonomous flow worked
+cleanly; after trying guided mode, the user accepted the overall workflow.
+Automated Git, Guardian, native Neovim and Pi RPC checks cover safety and
+recovery cases beyond the everyday smoke tests.
 
-## What we have now
+## Responsibilities
 
-| Area | Current implementation |
-| --- | --- |
-| Task launch | `pi-task` creates or opens worktrees; shell command and Alt-t picker share one path. |
-| Isolation | Task-specific editor, terminal, and Pi tab; committed starting point; recursive submodule initialization. |
-| Attachment | Existing workspace is focused rather than duplicated; requests are saved but never replayed on reopen. |
-| Review routing | Guardian selects Neovim from the live task tab and task identity, including editor cwd changes/restarts. |
-| Concurrent Pi | Runtime-owned IPC files prevent one instance from deleting another's pending review. |
-| Existing review | Guided per-edit review remains; literal agent-authored annotation-marker text is preserved. |
-| Review state | Saved policy, starting/accepted Git snapshots, dirty-worktree adoption, and durable pending checkpoints. |
-| Checkpoints | Manual `/review`, agent `request_review`, and final-settlement fallback; cooperating task writers pause across restart. |
-| Batch review | Complete unified checkpoint patch in task Neovim; accept, request changes, or pause, always keeping files. |
-| Zellij | Home Manager and launcher use the same fork required by the configured bindings. |
-| Validation | 197 Guardian tests, real Git/submodule/lease checks, native Neovim batch and Pi RPC smoke, launcher checks, package builds, Biome and ShellCheck pass. |
+- **Git owns contents/history.** Each task has one fixed committed base.
+  Whole-task review compares that base with current files, including changes
+  committed midway. Review never creates commits or moves an accepted baseline.
+- **Diffview Plus owns presentation.** Native file panel, editable source,
+  read-only historical buffers, layouts and Git operations replace custom batch
+  rendering. Ordinary saves do not submit notes or finish review.
+  `packages/nvim/package.nix` pins tested v0.39 source, rather than relying on
+  whichever plugin version the nixpkgs input currently packages.
+- **Neovim glue owns feedback.** Select source, compose remarks, save Markdown
+  draft, submit bundled feedback for revision. No source markers, thread IDs,
+  resolved/outdated lifecycle, reanchoring, live snapshot synchronization or
+  per-save human-edit journal.
+- **Pi owns pause/routing.** Review pauses cooperating task writers. Questions
+  can reach coordinating Pi without unpausing; finish releases pause without
+  committing, deploying or starting a model turn.
 
-**Not implemented yet:** changed-file navigation/side-by-side batch UI,
-diff-scope toggle, hunk/file revert, pending-review picker routing, dedicated
-annotations/drafts, coordinator feedback routing, or delegation skill. Durable
-review state remains separate from attachment metadata and runtime IPC.
+Task isolation and independent safety gates remain. Autonomous policy changes
+review frequency, not access to sensitive files or approval for destructive and
+external actions. Guided per-edit review is preserved separately; its existing
+write-then-review behavior is not a pre-write security boundary.
 
-Commit, merge, and cleanup remain manual Git operations. No automatic deployment
-or worktree deletion was added.
+## Launch and attach
 
-The sections below describe the **target workflow**, except where implementation
-status explicitly says otherwise.
+One repository Zellij session contains one tab per task/worktree. Each tab owns
+its editor, terminal and agent panes. Reopening focuses an existing workspace
+or recreates it with the saved request and model. Main checkout remains usable.
 
-## Next steps, in order
+`pi-task --repo /path/to/repo new ...` handles session setup even when called
+from another repository or outside Zellij. It opens a footclient window with
+Zellij's `project` layout at the main checkout when the repository session is
+missing, or attaches a window when the session has no client. New sessions use
+the repository basename (unsupported characters become hyphens). The launcher
+waits up to ten seconds for an attached client before creating a separate task
+tab. It never creates a headless session or passes its launch lock to the
+terminal/server. `footclient` and the configured `project` layout must be
+available in the desktop session.
 
-Stage-1 and state/baseline smoke checks passed. Checkpoint slice was approved
-and implemented below. Confirm another slice before coding it.
+Request and model are saved before terminal/tab startup. After a launch failure,
+use `pi-task state <worktree>` and `pi-task open <worktree>` rather than another
+`new`; the fixed base and original request remain intact. `--model` overrides
+the saved model for the next recreated tab, not an already-running Pi. Existing
+workspace records without a model keep Pi's default until one is supplied.
 
-1. **Manually verify checkpoint slice.** Activate updated helper/plugin and
-   reload Pi. Check tool/shell/committed changes, close/reopen and Pi restart
-   while pending, same-task writer pause, acceptance, and independent safety
-   approvals. Background requests mark pending without switching tasks.
-2. **Complete stage-2 review UI and navigation.** Add changed-file list,
-   side-by-side diff, request/rationale/checks, whole-task/checkpoint toggle,
-   hunk/file revert, and pending-review picker routing without cross-task focus
-   stealing. Validate committed, shell-produced, added/deleted, renamed, and
-   binary changes, plus recovery while review is pending.
-3. **Implement stage 3: feedback and revision.** Add dedicated inline/task
-   comments and questions, persistent drafts, direct-edit feedback, outdated
-   comment handling, and submission to coordinating Pi. Add a delegation skill,
-   not a child-agent scheduler. Verify the full review → revise → review loop.
-4. **Only then explore follow-ups.** Small-model risk/understanding highlights,
-   Claude integration, and optional true pre-write protection remain separate.
-
-## Goal
-
-Run independent agent tasks in isolated Git worktrees, switch into the correct
-editor and terminals effortlessly, understand each change set, and send precise
-review feedback without approving every file edit.
-
-Task isolation is the primary improvement. Summaries and annotation support it;
-they are not a replacement for reading the diff.
-
-## Workspace model
-
-- One Zellij session per repository/project.
-- One Zellij tab per task/worktree.
-- Each task tab owns its Neovim process, bottom terminal area, and agent stack.
-- Keep the familiar editor/terminal/agent layout. Switching tasks switches the
-  entire workspace, rather than changing the directory of a shared editor.
-- Independent tasks use separate worktrees. Opening an already attached
-  worktree focuses its existing workspace instead of creating a duplicate.
-- The ordinary main-checkout workspace remains usable and is visibly distinct
-  from isolated task workspaces.
-- Pi gets integrated review first. Worktree/workspace attachment should not
-  depend on the agent being Pi; Claude integration comes later.
-
-## Launch and attachment
-
-Provide a shell entry point and a hotkey/picker using the same launch path:
-
-1. Select repository.
-2. Create a task or open an existing worktree.
-3. For a new task, supply a name and optionally a request.
-4. Open the task workspace. Start Pi on the request only when one was supplied;
-   otherwise open idle for prompting.
-
-New tasks start from a chosen commit. Do not silently copy uncommitted changes
-from the main checkout.
-
-When adopting an existing dirty worktree, explicitly choose whether to include
-existing edits in the first review or trust the current state as the starting
-baseline. Preserve their provenance; do not attribute pre-existing edits to the
-agent. Trusted current state can differ from HEAD.
-
-## Review policy
-
-Policy is per task and survives reopening:
-
-| Mode | Behavior |
-| --- | --- |
-| Autonomous, default | Agent works until a review checkpoint; review a coherent batch. |
-| Guided | Preserve existing guardian per-edit review behavior. |
-
-Existing guided review writes the proposed file before review and restores it
-on rejection. It is not a pre-write protection boundary. A true pre-write gate
-is a separate follow-up, not part of this rework.
-
-Autonomous mode must not be implemented as a blanket alias for current `yolo`
-mode. Destructive actions, sensitive access, and external effects retain
-explicit safety gates independently of how often code is reviewed. Ordinary
-review acceptance does not authorize deployment or other external actions.
-
-Autonomous checkpoints:
-
-- Agent explicitly requests review at a meaningful point.
-- End of a user-request run requests review if unreviewed changes remain.
-- Human can request review manually.
-- No arbitrary timer or diff-size interruptions.
-
-Opening review pauses task writing until feedback is submitted or review is
-accepted. Independent tasks continue. Finish or account for in-flight writes
-before presenting a stable diff; submitting a review must not race a write.
-
-## Child agents: skill, not orchestration framework
-
-The coordinating agent may start visible child agents in the task's agent
-stack and worktree, including writers. Parent coordinates editing responsibilities
-and pause/resume through an agent skill/convention.
-
-- No enforced single-writer lock, scheduler, or agent-tree framework.
-- Concurrent writers inside a task can conflict; parent owns coordination.
-- Same-task children cooperate with the task-wide review pause.
-- Review feedback returns to the coordinating Pi, which delegates fixes.
-- Children do not independently resume writing while review is pending.
-- Independent delegated tasks can use their own worktrees/tabs through the
-  normal launch path.
-
-This is cooperative coordination, not a hard cross-process guarantee. Unrelated
-processes and agents ignoring the convention can still mutate files.
-
-## Review experience
-
-Review opens in the task's existing Neovim, in a review tab containing:
-
-- Changed-file list and selected file's side-by-side diff.
-- Original request, brief behavior/rationale summary, and checks run/not run.
-- Inline comments/questions and a task-wide feedback view.
-- Ordinary editable code buffers for direct human changes.
-
-Show both diff scopes with a toggle:
-
-1. **Since last accepted checkpoint**, the default.
-2. **Whole task**, against the task starting baseline.
-
-Baselines are independent of subsequent Git commits. Committing midway must
-not hide unreviewed changes. Include worktree changes regardless of whether
-`edit`, `write`, shell commands, or another tool produced them: additions,
-deletions, renames, and committed changes all matter. Binary changes must be
-identified rather than silently omitted from review.
-
-Baseline advancement happens on acceptance, not when merely opening or closing
-review. Incorporate accepted human edits into the checkpoint. Whole-task
-starting baseline remains available.
-
-### Feedback and revision
-
-- Attach dedicated comments/questions to a selected line or hunk; support
-  multiline comments and a task-wide note.
-- Do not insert annotations into source files or rely on stripping `ai:` lines.
-- Accumulate feedback and submit it in one action.
-- Send comments/questions and the human's direct-edit diff to coordinating Pi.
-- Preserve unresolved comments across revisions. If their context disappeared,
-  show them as outdated; never silently attach them to unrelated lines.
-- Diff remains the source of truth; summary does not replace scrutiny.
-
-Review actions:
-
-| Action | Result |
-| --- | --- |
-| Accept and continue | Advance accepted checkpoint; permit task to continue. |
-| Submit feedback / request changes | Keep files and human edits; resume coordinator to answer questions or revise. |
-| Stop task | Keep files and review state; remain paused. |
-| Close review without submitting | Preserve draft comments and pending review; remain paused. |
-
-Requesting changes does not automatically roll back the batch. Revisions are
-reviewed again through the same checkpoint loop.
-
-### Revert
-
-Provide easy current-hunk and current-file revert against the **displayed**
-baseline. Toggling diff scope therefore changes the revert target; make that
-scope visible when reverting.
-
-- Update the diff immediately after revert.
-- Revert does not accept review or resume agents.
-- Make affected human edits visible before discarding them; never imply revert
-  preserves edits inside the selected hunk/file.
-- Human can annotate after reverting and submit explanatory feedback.
-- Whole-batch revert is intentionally omitted.
-
-## Attention and navigation
-
-A review request from another task must not steal focus:
-
-- Pause that task and mark it pending.
-- Show pending-review status/notification.
-- Picker selection jumps into that task's review, not merely its agent pane.
-- Explicit review in the current task opens immediately.
-
-Extend existing navigation rather than build a separate dashboard. Existing
-`pi-herd` already lists running Pi instances and jumps to their panes; task
-attachment and pending-review navigation can build on it.
-
-## Persistence and Git lifecycle
-
-Persist task request, review mode, starting/accepted baselines, draft comments,
-and pending-review state per task. Reopening a workspace or restarting Pi opens
-idle/paused; never silently resume agents.
-
-Use existing editor/Zellij behavior for exact cursor and layout restoration
-rather than adding a custom restoration system.
-
-Review acceptance is separate from commit, merge, deployment, and cleanup:
-
-- First version leaves commit/merge to explicit existing Git tools/lazygit.
-- Closing a tab does not delete its worktree.
-- Worktree cleanup is explicit and refuses dirty or unmerged work unless
-  deliberately overridden.
-
-## Implementation sequence
-
-Each slice must work independently before adding the next. Stage 1 and state
-foundations were manually verified; checkpoint slice now awaits manual smoke.
-Confirm the next UI/navigation slice before proceeding.
-
-### 1. Worktree-attached workspaces
-
-Implemented `pi-task` with repository/worktree picker on **Alt-t** after Home
-Manager activation. Ordinary project layout and existing guided review remain
-unchanged; autonomous default arrives in stage 2.
+After changing the launcher source, use the rebuilt package before relying on
+this behavior, without activating a whole system configuration:
 
 ```bash
-# Available immediately without activating Home Manager:
-nix run '.?submodules=1#pi-task' -- new auth-cleanup --request 'Refactor auth validation'
-nix run '.?submodules=1#pi-task' -- open ../shinyflakes.worktrees/auth-cleanup
-
-# After activation:
-pi-task
-pi-task --repo ~/shinyflakes new auth-cleanup --base HEAD
-pi-task open ../shinyflakes.worktrees/auth-cleanup
+nix run '/home/lucas/shinyflakes?submodules=1#pi-task' -- --repo /path/to/repo new task-name \
+  --base HEAD --request 'Implement the change' --model openai-codex/gpt-6.1-sol
 ```
 
-New tasks use `task/<name>` branches and sibling `<main-checkout>.worktrees/<name>`
-directories. Committed submodules initialize recursively. Existing dirty edits
-are not copied into new tasks. Request/session/tab attachment metadata lives in
-Git's common directory under `pi-task/`, not in tracked source. Reopening focuses
-an existing tab or starts an idle agent; it never replays the original request.
-
-Task panes share immutable `PI_TASK_ROOT`. Guardian resolves editor membership
-from the live task tab on each review, handles changed editor cwd and restart,
-and never falls back to another task's editor. Missing task editor uses existing
-standalone review fallback. New agents load updated extension code; existing Pi
-sessions need `/reload`.
-
-Guardian IPC directories are runtime-owned, so startup/shutdown cannot erase
-another instance's pending review. Guided review also preserves agent-authored
-literal annotation-marker text instead of stripping it as human feedback.
-
-Home Manager explicitly uses the existing Zellij fork input, matching launcher
-runtime and fork-only bindings. Use that fork for live validation, not upstream
-Zellij, which rejects the generated configuration.
-
-Validated:
-
-- `python3 packages/tests/pi-task.py`: real Git isolation, quoting, safe failure,
-  reopening without prompt replay, persistence, recursive submodule initialization.
-- `python3 packages/tests/pi-task.py --live` with fork on PATH: disposable actual
-  Zellij session/client, two task tabs, generated layouts, request arguments,
-  deduplicated attachment, actual Neovim sockets and task-bound routing. Pi is
-  replaced by a recorder; no model requests are made.
-- Guardian tests: 195 passing, including editor restart/movement, task root
-  selection, cross-instance IPC cleanup, and literal marker preservation.
-- Biome checks from guardian directory, ShellCheck, and Nix formatting checks.
-- Package build with `nix build --offline --builders '' --no-link
-  '.?submodules=1#pi-task'`; local/offline build avoids stalled normal scheduling.
-- Evaluated carryall Home Manager hotkey configuration; validated it with the
-  fork's `setup --check` and verified Home Manager selects the fork package.
-
-### 2. Autonomous checkpoint review
-
-#### Implemented: review-state foundations
-
-`packages/pi-task-state.sh` uses existing Bash, Git, jq, and flock dependencies;
-no new runtime is required. New tasks initialize state before Pi starts. Existing
-worktrees, including stage-1 tasks, adopt a baseline on their first reopen with
-the updated launcher; historical task beginnings are not inferred retroactively.
+For an fzf Linear ticket picker, see [Linear task setup](pi-task-linear.md).
 
 ```bash
-# Existing edits: choose one, explicitly, on first adoption.
-pi-task open ../shinyflakes.worktrees/auth-cleanup --adopt include
-# Alternative: trust existing edits instead of including them in first review.
-pi-task open ../shinyflakes.worktrees/auth-cleanup --adopt trust
-
-# Save policy without resetting either baseline; reopen without flag preserves it.
+pi-task                                      # repository/worktree picker; Alt-t also opens it
+pi-task new auth-cleanup --base HEAD --request 'Refactor auth validation'
+pi-task new guided-cleanup --review-mode guided --request 'Refactor auth validation'
+pi-task open ../shinyflakes.worktrees/auth-cleanup
 pi-task open ../shinyflakes.worktrees/auth-cleanup --review-mode guided
 pi-task state ../shinyflakes.worktrees/auth-cleanup
+pi-task review                               # pending tasks in this repository
+pi-herd --reviews                             # pending reviews in running Pi instances
+pi-task --repo ../shinyflakes.worktrees/auth-cleanup title 'Auth validation'
+
+# First adoption of an existing dirty worktree:
+pi-task open ../existing-task --base COMMITTED_REF --adopt include
 ```
 
-Interactive dirty adoption asks include/trust; non-interactive calls require
-`--adopt`. Include uses HEAD as starting/accepted baseline. Trust uses current
-contents, which may differ from HEAD. Both retain original HEAD, status, and
-pre-existing content snapshot as provenance. Re-adoption cannot reset baselines.
+New tasks use `task/<name>` branches and sibling
+`<main-checkout>.worktrees/<name>` directories. Starting point is committed;
+main-checkout dirty edits are not copied. Committed submodules initialize
+recursively. Dirty adoption includes existing edits in review, without claiming
+agent authorship. `--adopt trust` is retired. Reopening/policy changes cannot
+reset an existing task base.
 
-Review JSON lives in Git's common directory at `pi-task/reviews/<task-id>.json`.
-Task panes receive its path as `PI_TASK_REVIEW_STATE`, alongside `PI_TASK_ROOT`.
-Guardian consumes saved policy on each gate; `autonomous` skips per-edit review
-but does not bypass safety approvals. Existing panes without the state-path
-variable resolve it from immutable `PI_TASK_ROOT`; no pane restart or re-adoption
-is required solely to inject that variable.
+`PI_TASK_ROOT` is immutable task identity; `PI_TASK_REVIEW_STATE` locates durable
+state. Already-attached panes can derive state path from task root. Editor
+routing checks live task/tab identity, handles cwd changes/restarts, and never
+falls back to another task's editor. Standalone editor fallback is TUI-only;
+RPC cannot launch an interactive editor on its stdout.
 
-Snapshots use temporary indexes, preserving real staging/index contents, and
-private `refs/pi-task/<task-id>/...` refs keep their trees alive through Git GC.
-Each snapshot stores a root tree plus recursive initialized-submodule snapshots;
-uninitialized submodules are explicit `null` entries, with gitlinks retained in
-the parent tree. Normal untracked files, additions/deletions/renames, binaries,
-symlinks, and explicitly staged ignored files are included. Ignored untracked
-files are excluded. Unmerged or sparse/skip-worktree indexes fail closed.
-Snapshots are local Git objects, not encrypted archives. Keep sensitive untracked
-files ignored before adoption. Do not push `refs/pi-task/` (including via mirror
-pushes); changing ignore rules later does not erase previously stored contents.
+### Display titles and review navigation
 
-The internal acceptance primitive requires the reviewed snapshot to match
-current contents, including nested submodules. It advances only accepted state,
-never the starting baseline or provenance. Accepted human edits are included in
-that snapshot. Commits, policy changes, and reopening do not advance checkpoints.
-Guided per-edit acceptance does not invoke this primitive. Checkpoint gates
-below pause cooperating writers before snapshot/review/acceptance; metadata
-locks alone do not protect against unrelated processes.
+Tab titles are human-facing, not task identity. They start with the task name
+without a hash. Once intent is clear, coordinating Pi uses `set_task_title` with
+a short description; children cannot rename the shared task. Naming updates
+workspace metadata and any matching live tab, never branch/worktree paths,
+review state, pause, focus or agent activity. Offline naming does not launch a
+workspace. No extra model call generates titles.
 
-Validated with `bash packages/tests/pi-task-state.sh`: clean/include/trust
-adoption, policy persistence, staging preservation (including split indexes),
-commit-independent baselines, accepted human edits, stale-snapshot rejection,
-isolated worktrees, nested dirty submodules, GC retention, unusual paths,
-binaries/symlinks, concurrent initialization, conflict refusal, failed lock/write
-preservation, corrupt-state refusal, and read-only launcher inspection. Existing
-launcher checks (including native Zellij/Neovim smoke), 195 Guardian tests,
-ShellCheck, Nix formatting, and package build remain passing.
+Reopening matches the original pane launch command's immutable task root and
+review-state path, not current cwd, tab title or an unvalidated saved tab ID.
+Zellij retains that command after cwd/title changes. Existing version-2 layouts
+already carry those bindings. Live manual titles are preserved on reopening;
+review attention adds/removes only `! ` without restoring an old name.
 
-#### Implemented: checkpoint gates and minimal batch review
+The existing task picker lists pending reviews first with `REVIEW`, title,
+summary and worktree path. `pi-task review` filters that repository to pending
+tasks, including tasks whose Pi is closed. A live Pi receives no new prompt;
+a recreated Pi receives the saved original request, never saved feedback.
+Review pauses remain in force. `pi-herd` puts whole-task reviews ahead of tool
+approvals and shows their summaries; `--reviews` filters running instances
+(and combines with `--dmenu`). It revalidates durable state rather than trusting
+cached pending status. Navigation focuses the workspace/instance only: open
+`/review` there to inspect Diffview. Neither picker submits feedback or releases
+a writing pause.
 
-- `/review` creates or reopens a checkpoint in task Neovim. Agent tool
-  `request_review({ summary, checks })` requests a checkpoint and ends its run.
-  `agent_before_settle` supplies the end-of-run fallback when autonomous tasks
-  still have unreviewed changes. No changes means no pending checkpoint.
-- Agent/end-of-run requests mark pending and notify without switching focus;
-  human explicitly opens `/review`. Saved pending state survives reopening,
-  policy changes, `/reload`, and Pi restart. Startup never resumes model work.
-- Pending is persisted **before** snapshotting. Shared `flock` leases cover
-  cooperating writer tools, including bash and nested codemode calls. Existing
-  writes finish before snapshot; new writers are blocked task-wide. Writers
-  remain concurrent outside review; no scheduler or single-writer lock exists.
-  Same-task children must inherit `PI_TASK_ROOT` and load Guardian. Unrelated
-  processes, direct filesystem access in custom orchestrators, and detached
-  background writers are not protected; do not launch background writers.
-- Reviewer lease prevents two cooperating Pi instances opening competing UIs.
-  Failures keep pending state. Runtime IPC remains instance-owned. Missing or
-  outdated Neovim plugin cannot silently grant acceptance; editor must
-  acknowledge opening the patch before acceptance is offered.
-- Batch tab shows the complete unified diff since accepted baseline, including
-  shell/committed changes, recursive dirty submodules, additions/deletions,
-  renames, symlinks, and binary identification. It does not reuse guided file
-  rollback or annotation stripping. Summary/check report comes from agent;
-  manual/fallback checkpoints explicitly refer to conversation when absent.
-- `ga` accepts; `gx` requests changes without rollback; `gq` or closing tab
-  preserves pending and pause. TUI offers equivalent actions. Acceptance
-  advances only accepted baseline and unpauses writers; already-idle agents
-  remain idle until prompted. Request changes sends a generic revision message
-  to the reviewing Pi; dedicated feedback/coordinator routing remains stage 3.
-- Save human source edits, then reopen `/review` so updated contents appear in
-  patch. Changes made after opening fail acceptance rather than silently enter
-  accepted baseline. Batch scratch buffer never overwrites source buffers.
-- Task `/guardian` reports saved policy instead of enabling `yolo`. Destructive
-  commands keep independent approvals; headless calls requiring approval fail
-  closed. Sensitive-path checks apply to direct paths and existing bash checks.
+## Review
 
-Activate rebuilt `pi-task` and `pi-guardian-nvim` (Home Manager), restart editor
-or add updated plugin to runtimepath, then `/reload` Pi before manual smoke.
-Existing running children must also reload before relying on cooperative pause.
+Agent `request_review({ summary, checks })` marks pending, notifies without
+stealing focus, waits for in-flight cooperating writers, then ends its run.
+Human `/review` opens or reopens native Diffview. Rationale/checks stay in Pi,
+not an automatically focused editor popup.
 
-Validated:
+Autonomous edit-run completion also requests review when writer generations
+remain unreviewed. A completed unchanged tool does not cause another request
+merely because whole-task diff remains nonempty. Writer leases reserve a
+generation before granting writes, refund unchanged completions, and retain
+interrupted generations after hard crashes. Their content hashes are transient;
+no accepted-content hash or accepted-baseline history is persisted. The separate
+review-session baseline below exists only to communicate edits during review.
+
+Pending is saved before waiting for writers. Shared writer leases allow
+concurrent tools outside review; reviewer lease prevents competing review UIs.
+Same-task children must inherit task root, load Guardian and obey parent
+coordination. Unrelated processes, custom direct filesystem writers and detached
+background writes are outside this cooperative boundary. No scheduler or
+single-writer framework was added.
+
+### Four everyday actions
+
+Normal Diffview bindings stay unchanged:
+
+| Action | Command | Binding |
+| --- | --- | --- |
+| Comment at cursor / visual selection | `:PiReviewNote` / `:'<,'>PiReviewNote` | `<leader>rn` |
+| Inspect/edit accumulated feedback | `:PiReviewDraft` | `<leader>rd` |
+| Request changes: submit comments + review-session edits and resume revision | `:PiReviewSubmit` | `<leader>rc` |
+| Finish: release pause without sending or starting model turn | `:PiReviewFinish` | `<leader>rf` |
+
+`:PiReview` opens secondary tools: Feedback, Delivery history, Repositories /
+coverage, and Recovery help. Closing review tab keeps task pending/paused; no
+separate Pause command is needed. Ask questions directly in coordinating Pi,
+not through a second editor Send path. Cooperating writers remain blocked while
+review is pending.
+
+Finish, Request changes and repository navigation require an open `/review`.
+Comments and feedback also work in task source buffers outside review. Editors
+must be task-bound (or explicitly opened by Pi for review); arbitrary-editor
+routing and target picker are removed. Pi's dialog offers equivalent review
+decisions and asks editor to validate them first. Source saves remain ordinary
+saves. Modified task source and unadded comments must be saved/added or
+explicitly discarded before finishing.
+
+Comment dialog accepts multiline text. File, cursor line/selected range,
+displayed excerpt and working-tree/historical revision identity attach
+automatically. Ctrl-T toggles source/task-wide scope without changing comment
+text; non-source buffers start task-wide. Title shows current scope. References
+remain recorded context, not live anchors after edits.
+
+Inside dialog: Ctrl-S (or `:w`) adds comment to durable feedback and closes;
+Ctrl-Q discards only that comment. Nothing reaches Pi until Request changes
+submits the bundle. Unadded comments block decisions and do not survive editor
+restart. Feedback saves never send it. Finish warns when saved feedback remains;
+confirming keeps it unsent for later and releases pause without a model turn.
+Saved feedback survives review close and process restart. Concurrent draft
+overwrites fail rather than silently losing another editor's notes; preserve
+local text, discard stale buffer and reopen/merge feedback.
+
+### Review-session source edits
+
+First `/review` opening captures one private baseline for that pending review.
+Pause, close/reopen and process restart keep it; reopening never resets it.
+Request changes attaches a Git diff from that baseline to current saved files,
+alongside comments. Source edits alone are sufficient; empty comments plus no
+session changes refuse submission and keep writers paused. Feedback view edits
+comments; source diffs attach automatically at submission.
+
+Capture covers available repositories recursively, Git-tracked and non-ignored
+untracked files, raw source bytes, symlinks and executable modes. Files already
+captured stay in scope if later ignored. Added/deleted files and submodule
+changes are included; binaries get change notices, not inline payloads.
+Unavailable submodule contents are explicitly incomplete. Existing sensitive
+path guards exclude contents; changed protected paths get notices only.
+Ignored files outside the baseline are not automatically captured.
+
+Baseline lives beside task JSON at `<task-id>.json.session/`, mode `0700`, using
+isolated commit-less Git object stores. Source index, refs and object database
+are untouched; no commits or accepted-content history are created. Successful
+Request changes first persists the complete submission, then removes baseline;
+Finish removes it without sending or starting a model turn. Unconfirmed queued
+submissions retain complete diff text for explicit recovery. Treat active
+baseline as private source data, not disposable runtime IPC.
+
+Source files already contain edits. Feedback explicitly tells model to reread
+and preserve them, **not apply the supplied patch again**. Session changes are
+context, not proof of human authorship: unrelated writers remain outside the
+cooperative boundary. No reconstruction or automatic rollback occurs. Use
+ordinary Git/Diffview restore/hunk operations only with awareness of affected
+human edits. Closing review never restores files.
+
+### Coverage: new files and submodules
+
+Diffview Plus v0.39 hides untracked files in commit-to-worktree comparisons and
+uses `--ignore-submodules`. Parent view alone is **not recursive coverage**.
+Bridge discovers these independently and exposes a coverage report/picker.
+
+- Register new files explicitly with `git add -N -- <path>` (or ordinary
+  staging), then refresh Diffview. Review itself never runs `git add`.
+  Untracked files in available repositories block finish in Pi; task remains
+  paused until registered or intentionally ignored through normal Git policy.
+- Each initialized submodule gets its own view against gitlink at task base.
+  Nested submodules are discovered recursively. Newly added modules compare
+  against native empty tree, so their contents are additions, not silently
+  treated as an already-reviewed repository.
+- Coverage report records base/index/worktree gitlinks. Removed, renamed and
+  uninitialized modules, or missing base objects, remain visible as unavailable
+  entries when no view can be opened. Finishing requires explicit Pi confirmation
+  that their removal/gitlink changes were reviewed separately; unavailable
+  contents are never represented as reviewed recursively.
+- After changing submodule/index topology, close/reopen `/review` to regenerate
+  manifest. Ordinary file saves refresh native diff in place.
+- Conflicts, assume-unchanged/skip-worktree flags, unsafe repository roots and
+  non-UTF-8 Git paths fail closed instead of silently narrowing review.
+
+No immutable-tree attestation is claimed: unrelated processes can change files.
+Finish is a human workflow signal, not proof every byte or hunk was inspected.
+
+## Feedback delivery and recovery
+
+First task Pi session binds coordinator identity. Reviewing child cannot steal
+it. Task-bound editor routes to saved coordinator, never whichever pane is
+focused. Unbound editors cannot pick arbitrary tasks.
+
+- Questions go directly to coordinating Pi; any pending writing pause stays in
+  effect. Legacy queued question submissions remain readable/retryable.
+- `:PiReviewSubmit` durably queues saved draft plus review-session source diff,
+  then releases pause for revision. Source is kept. No commit or merge is implied.
+- `:PiReviewFinish` releases pause only. Idle agent remains idle until prompted.
+- Failed/queued-only submissions remain unconfirmed in menu's Delivery history.
+  Submitted draft is retained until transcript receipt is confirmed; newer draft edits are never
+  cleared by an older receipt.
+- Restart holds saved unconfirmed submissions; `/review-feedback` explicitly
+  retries. `/review-coordinator` confirms transfer to current Pi session without
+  starting work. Explicit retries may duplicate already-queued delivery; unique
+  submission IDs distinguish them.
+
+Delivery requires complete submission in coordinator user message: persisted
+transcript for saved sessions, session entries for ephemeral ones. Merely calling
+Pi's send API or observing `message_end` is not a durable acknowledgement.
+
+Durable version-2 JSON lives at
+`<git-common-dir>/pi-task/reviews/<task-id>.json`: fixed base, policy,
+generations, pending review, coordinator, Markdown draft/version and immutable
+submission texts/receipts. Draft opens as a Markdown `acwrite` buffer; it is not
+source or an annotation database. Runtime IPC stays instance-owned and separate
+from durable state and workspace attachment metadata.
+
+### State contract and polling
+
+Bash remains the sole state-mutation authority. Shared valid/invalid fixtures at
+`modules/aspects/agents/pi/extensions/tool-guardian/tests/fixtures/task-review-state.json`
+exercise both Bash and TypeScript validators. State is one JSON document;
+counters are nonnegative safe integers, reviewed generation cannot exceed
+current generation, and pending review IDs must be nonempty. Missing/null
+optional fields remain supported. Lua checks version/root and delegates
+mutations to Bash; it does not duplicate the full validator. Storage stays
+version 2, with no new schema runtime or migration.
+
+The mailbox keeps its 500 ms poll to discover cross-process submissions and
+confirm durable transcript receipts. State reads reuse validated, frozen
+records while file metadata is unchanged. Transcript text is cached only for
+saved sessions and checked only with unconfirmed submissions. Cache keys include
+device, inode, size, and nanosecond modification/change times, so atomic
+replacement, truncation and same-size rewrites invalidate them. Missing or
+invalid state never falls back to cached contents. These keys are local change
+detection, not content attestation.
+
+Startup refreshes caches without resuming saved work. Explicit feedback retries
+bypass caches; ephemeral sessions inspect current in-memory entries each time.
+Complete coordinator user-message text is still required for acknowledgement.
+The same mailbox poll refreshes tab/herd attention after another cooperating Pi
+finishes review, even when the coordinator is idle. No watcher, event bus or
+additional background service is introduced.
+
+Submission history still grows indefinitely. Measure representative long-task
+state size and delivery cost before adding archival or incremental transcript
+parsing; no automatic pruning is performed.
+
+## Activate and migrate legacy tasks
+
+Build/activate updated `pi-task` and Neovim configuration through usual Home
+Manager flow. Restart Neovim and `/reload` Pi, including cooperating children.
+Old running plugin/launcher combinations are not compatible with version 2.
+
+Legacy task migration is explicit because private dirty/trusted baselines cannot
+be reinterpreted as committed task bases safely:
 
 ```bash
-bash packages/tests/pi-task-state.sh
-python3 packages/tests/pi-task.py
-node --experimental-strip-types --test modules/aspects/agents/pi/extensions/tool-guardian/tests/*.test.ts
-nvim --headless -u NONE -l packages/tests/pi-guardian-batch.lua
-nix build --offline --builders '' --no-link '.?submodules=1#pi-task' '.?submodules=1#pi-guardian-nvim'
+pi-task migrate ../shinyflakes.worktrees/old-task --base CHOSEN_COMMIT
+pi-task open ../shinyflakes.worktrees/old-task
 ```
 
-197 Guardian tests pass, including actual TypeScript-to-Neovim IPC and real-Git
-Guardian hook integration with concurrent instances/restart recovery. Native Pi
-RPC startup checked with clean and pending state, without model requests. Biome
-from Guardian directory and ShellCheck also pass. Manual checkpoint smoke is
-still required; native stage-1 workspace smoke was verified earlier.
+Migration retains pending review, coordinator and submission history; converts
+legacy task/line annotations into plain Markdown with recorded context; copies
+entire original JSON to adjacent `.v1.json`. Source contents, user index and old
+Git retention refs are untouched. Backup collision, corrupt state or invalid
+commit refuses migration. Migration does not launch or resume Pi. Historical
+human-save patches/private snapshot metadata remain in backup rather than being
+replayed. No automatic legacy-state/ref deletion is performed.
 
-#### Remaining
+Old private snapshots may contain sensitive previously untracked files. Keep
+`refs/pi-task/` local; do not mirror-push them. Cleanup of archives/refs remains
+an explicit separate Git/data-retention operation.
 
-Changed-file list/side-by-side navigation, original request presentation,
-whole-task/checkpoint scope toggle, hunk/file revert, and pending-review picker
-routing. Then dedicated feedback/drafts/coordinator routing and delegation skill.
+## Validation
 
-### 3. Annotation and revision loop
+```bash
+export DIFFVIEW_TEST_RTP="$HOME/.btca/agent/sandbox/dlyongemallo-diffview-plus.nvim"
+PI_TASK_TEST_RPC=1 bash packages/tests/pi-task-state.sh
+python3 packages/tests/pi-task.py --live
+python3 packages/tests/pi-herd.py
+node --experimental-strip-types --test modules/aspects/agents/pi/extensions/tool-guardian/tests/*.test.ts
+nvim --headless -u NONE -l packages/tests/pi-diffview.lua "$DIFFVIEW_TEST_RTP"
+nvim --headless -u NONE -l packages/tests/pi-guardian-batch.lua "$DIFFVIEW_TEST_RTP"
+nix build --offline --builders '' --no-link \
+  '.?submodules=1#pi-task' '.?submodules=1#pi-herd' '.?submodules=1#pi-guardian-nvim' '.?submodules=1#nvim'
+nix run --offline '.?submodules=1#nvim' -- --headless \
+  '+lua if vim.fn.exists(":PiReviewNote") ~= 2 then vim.cmd("cquit 1") end' '+qa'
+```
 
-Add dedicated inline/task comments, questions, persisted drafts, direct-edit
-feedback, and coordinator submission. Add a delegation skill describing child
-agent conventions instead of a child-agent orchestration subsystem.
+Tests cover real Git/index preservation, concurrent leases/crashes, migration,
+native source/LSP, binary/rename/delete/addition display, submodule discovery,
+empty-tree views, unsaved-buffer preservation, source/historical selection,
+draft conflicts, coordinator/restart delivery, no-repeat review requests,
+TypeScript-to-Neovim acknowledgement, guided and independent safety gates.
+Shared contract checks compare both full validators against the same fixture
+states. Read-count checks cover 1,000 unchanged polls, forced refresh,
+same-size/atomic replacements, truncation, corrupt/missing state, restart holds
+and live ephemeral receipts. Launcher checks cover fresh project sessions with
+a real PTY client, detached-session attachment, client readiness, failed-launch
+recovery, model/request persistence and launch-lock release. Navigation checks
+cover live Zellij rename/cwd reopening, misleading reused tab IDs, title persistence/validation, overlapping
+attention cues, coordinator-only naming, pending queue sorting/filtering, stale
+cache refresh and preservation of writing pauses.
+Review-session checks cover edits-only delivery, paused/restarted baselines,
+large payloads, sensitive exclusions, symlink containment, binary notices and
+nested/new/removed/unavailable submodules without source Git mutations.
+Opt-in native Pi RPC startup checks load actual extension and stay idle with
+clean or pending state; they make no model requests. Full manual revision smoke
+and live deployment remain distinct from these automated checks.
 
-Check: submit comments plus direct edits, revise again, retain unresolved or
-outdated comments, revert hunk/file without resuming, and recover pending review
-following Pi restart.
+### Human smoke results
 
-### Integration points for the next slice
+- **2026-10-15:** edit → feedback → model revision confirmed with human edits
+  preserved.
+- **2026-10-16, autonomous:** fresh task launched with one registered Markdown
+  file and the review → human edit → request changes → revision → finish smoke
+  procedure. User reported that the flow worked cleanly.
+- **2026-10-16, guided:** fresh task launched with guided file creation and edit,
+  followed by whole-task review. User accepted the overall workflow afterward.
 
-- `packages/pi-task.sh` and `packages/pi-task.nix`: task launch, attachment,
-  metadata, and task layout; `packages/tests/pi-task.py` contains launcher checks.
-- `packages/pi-task-state.sh`: saved policy, adoption provenance, Git snapshots,
-  and acceptance primitive; `packages/tests/pi-task-state.sh` contains real-Git
-  regression checks. Consume `PI_TASK_REVIEW_STATE` with a task-root-based lookup
-  fallback for already attached panes that predate the variable.
-- `modules/aspects/shell/zellij.nix`: package selection and navigation bindings.
-- `packages/pi-herd.sh` and `packages/pi-herd.nix`: existing instance picker.
-- `modules/aspects/agents/pi/extensions/tool-guardian/`: policy, review hooks,
-  editor routing, notifications, and status publication.
-- `packages/pi-guardian-nvim/`: current Neovim review UI and response handling.
-- Existing packaging and agent skills; reuse rather than add parallel systems.
+These are human workflow acceptance results, not an exhaustive manual check of
+all recovery/submodule cases or proof of pre-write isolation. Guided mode still
+uses the write-then-review behavior described above.
 
-Stage 1 addressed IPC ownership and live editor routing. Checkpoint slice adds
-a separate no-rollback batch boundary and explicit sensitive-path/command gate
-coverage, independent of `yolo`. Keep these regressions passing while expanding
-UI/navigation, and keep runtime IPC separate from durable review state.
+Implementation: `packages/pi-task{,-state}.sh`, Guardian task/batch modules and
+`modules/aspects/agents/pi/extensions/tool-guardian/review-session.ts`,
+`packages/pi-guardian-nvim/lua/pi-guardian/{batch,batch-notes}.lua`, and
+`packages/nvim/lua/cfg/diffview.lua` (loaded by `packages/nvim/init.lua`).
+Packaged startup checks guard that wiring; `cfg.diffview` previously was not
+loaded at all. Existing workspace launcher/Zellij routing
+and guided-review plugin remain shared, not duplicated.
 
-## Explicit follow-ups
+### BTCA source verification
 
-### Small-model review guidance
+- Diffview Plus v0.39, commit
+  [`2a2d89a`](https://github.com/dlyongemallo/diffview-plus.nvim/tree/2a2d89a07f5d5d3cef7f542b99c3e28050ca205c):
+  [editable source/LSP](https://github.com/dlyongemallo/diffview-plus.nvim/blob/v0.39/USAGE.md#comparing-all-the-changes),
+  [untracked/submodule behavior](https://github.com/dlyongemallo/diffview-plus.nvim/blob/2a2d89a07f5d5d3cef7f542b99c3e28050ca205c/lua/diffview/vcs/adapters/git/init.lua#L2532-L2592),
+  [historical buffer protection](https://github.com/dlyongemallo/diffview-plus.nvim/blob/2a2d89a07f5d5d3cef7f542b99c3e28050ca205c/lua/diffview/vcs/file.lua#L63-L69).
+- Pi commit
+  [`6a1f799`](https://github.com/earendil-works/pi/tree/6a1f799b675c8cb98320b71ff7ee44f160fe8d66):
+  [fire-and-forget extension dispatch](https://github.com/earendil-works/pi/blob/6a1f799b675c8cb98320b71ff7ee44f160fe8d66/packages/coding-agent/src/core/agent-session.ts#L3427-L3435),
+  [extension events precede persistence](https://github.com/earendil-works/pi/blob/6a1f799b675c8cb98320b71ff7ee44f160fe8d66/packages/coding-agent/src/core/agent-session.ts#L1143-L1166).
 
-After isolation and the review loop work, explore advisory prioritization:
+No agent-companion plugin is needed for durable Pi/Zellij delivery.
 
-- **Risk hotspots:** correctness and security-sensitive changes.
-- **Understanding hotspots:** unfamiliar behavior and architectural decisions
-  worth learning.
+## Boundaries and follow-ups
 
-Keep these separate rankings. A small model may suggest an earlier review
-checkpoint, but must not silently change review policy, grant permissions, hide
-unhighlighted changes, or replace explicit safety gates. First version uses the
-implementing agent's concise rationale and check report without this dependency.
+Commit, merge, deployment, restore and worktree deletion remain explicit human
+Git/system operations. Closing tab never deletes worktree. No accepted-tree
+snapshots, custom diff renderer, annotation-thread lifecycle, automatic rollback,
+agent scheduler/dashboard or custom cursor/layout restoration was added.
 
-### Other follow-ups
-
-- Claude integration with the same worktree/workspace and feedback model.
-- True pre-write guided gate if preventing disk mutation before approval is
-  required.
-
-## Intentionally not built
-
-No shared-editor retargeting, separate dashboard, enforced child-agent writer
-scheduler, automatic merge/deploy, automatic worktree deletion, whole-batch
-revert, or custom cursor/layout restoration.
+Optional follow-ups, not blockers for the accepted workflow: delegation skill;
+Claude integration; true pre-write guided protection. Advisory small-model
+risk/understanding ranking must never grant permissions, hide unhighlighted
+changes or replace reading diff.

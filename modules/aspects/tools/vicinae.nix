@@ -10,7 +10,6 @@
     homeManager =
       {
         lib,
-        config,
         user,
         inputs',
         self',
@@ -159,7 +158,8 @@
               pulseaudio
               process-manager
               port-killer
-              niri
+              firefox
+              tab-reaper
             ])
             ++ (with self'.packages; [
               raycast-karakeep
@@ -175,7 +175,7 @@
             };
             pop_to_root_on_close = false;
             search_files_in_root = false;
-            close_on_focus_loss = true;
+            close_on_focus_loss = false;
             theme = {
               dark = {
                 name = "shinyflakes";

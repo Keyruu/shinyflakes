@@ -65,8 +65,7 @@ The public-facing server that makes everything accessible:
 
 My work and private laptop:
 
-- **Desktop**: NNN is the goat, that stands for NixOS, Noctalia-Shell and Niri.
-  This definitely is my favorite way to use a DE now.
+- **Desktop**: NixOS with Mango and DankMaterialShell.
 - **Development**: All the tools, all the compilers, all the debuggers
 - **Security**: Lanzaboote for secure boot with TPM because we're fancy now
 - **Boot**: Plymouth for those sick boot animations
@@ -213,7 +212,7 @@ info look into the `flake.nix`.
 - **nix-gaming** - Gaming optimizations and fixes
 - **vicinae** - Launcher - Raycast alternative for Linux (shoutout to the
   Vicinae project)
-- **niri** - Scrollable tiling Wayland compositor
+- **mango** - Scrollable tiling Wayland compositor
 - **spicetify-nix** - Spotify theming because aesthetics matter
 - **nvf** - Neovim configuration framework
 - **iio-sway** - Auto-rotation for convertible laptops

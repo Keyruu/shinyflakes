@@ -40,7 +40,7 @@
 
             " vomnibar equivalents
             " needs native messenger; exclaim_quiet (!s) = silent, unlike !
-            bind o exclaim_quiet vicinae vicinae://launch/@knoopx/firefox/omni
+            bind o exclaim_quiet vicinae vicinae://launch/@knoopx/vicinae-extension-firefox-0/omni
             bind O fillcmdline tabopen
             bind ge current_url open
             bind gE current_url tabopen
@@ -75,7 +75,7 @@
             set searchengine https://kagi.com/search?q=
 
             " external editor (Ctrl-i in insert mode); dedicated app-id so
-            " niri can size/float the window (see window-rules.kdl)
+            " Mango can size/float the window independently of other terminals.
             set editorcmd footclient --app-id tridactyl-editor nvim
           '';
 

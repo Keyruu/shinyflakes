@@ -2,26 +2,8 @@
 {
   den.aspects.tools.screenshot = {
     homeManager =
-      { pkgs, lib, ... }:
+      { pkgs, lib, inputs', ... }:
       let
-        watcher = pkgs.writeShellApplication {
-          name = "niri-screenshot-watcher";
-          runtimeInputs = with pkgs; [
-            niri
-            jq
-            satty
-          ];
-          text = # bash
-            ''
-              exec niri msg --json event-stream \
-                | jq --unbuffered -rn 'inputs | .ScreenshotCaptured?.path // empty' \
-                | while IFS= read -r path; do
-                    [ -n "$path" ] || continue
-                    setsid -f satty --filename "$path" >/dev/null 2>&1 || true
-                  done
-            '';
-        };
-
         screenshot = pkgs.writeShellApplication {
           name = "screenshot";
           runtimeInputs = with pkgs; [
@@ -29,9 +11,11 @@
             slurp
             wl-clipboard
             libnotify
-            niri
+            jq
+            satty
             coreutils
             llama-cpp
+            inputs'.mango.packages.mango
           ];
           text = # bash
             ''
@@ -39,13 +23,19 @@
 
               case "$mode" in
                 region)
-                  niri msg action screenshot
+                  geom=$(slurp -d) || exit 0
+                  capture=(-g "$geom")
                   ;;
                 screen)
-                  niri msg action screenshot-screen
+                  monitor=$(mmsg get focusing-client | jq -r '.monitor // empty')
+                  if [ -z "$monitor" ]; then
+                    monitor=$(mmsg get cursorpos | jq -er '.monitor')
+                  fi
+                  capture=(-o "$monitor")
                   ;;
                 window)
-                  niri msg action screenshot-window
+                  id=$(mmsg get focusing-client | jq -er '.foreign_toplevel_id // empty')
+                  capture=(-T "$id")
                   ;;
                 ocr)
                   geom=$(slurp -d) || exit 0
@@ -68,6 +58,15 @@
                   exit 2
                   ;;
               esac
+
+              dir="$HOME/Pictures/Screenshots"
+              mkdir -p "$dir"
+              img=$(mktemp --tmpdir="$dir" "Screenshot from $(date '+%Y-%m-%d %H-%M-%S').XXXXXX.png")
+              if ! grim "''${capture[@]}" "$img"; then
+                rm -f "$img"
+                exit 1
+              fi
+              satty --filename "$img"
             '';
         };
 
@@ -82,30 +81,13 @@
         };
       in
       {
-        home.packages = [
-          screenshot
-          watcher
-        ];
+        home.packages = [ screenshot ];
 
         xdg.desktopEntries = {
           screenshot-region = mkEntry "region" "Region";
           screenshot-screen = mkEntry "screen" "Focused Screen";
           screenshot-window = mkEntry "window" "Focused Window";
           screenshot-ocr = mkEntry "ocr" "OCR Region";
-        };
-
-        systemd.user.services.niri-screenshot-watcher = {
-          Unit = {
-            Description = "Pipe niri built-in screenshots to satty";
-            PartOf = [ "graphical-session.target" ];
-            After = [ "graphical-session.target" ];
-          };
-          Service = {
-            ExecStart = "${lib.getExe watcher}";
-            Restart = "on-failure";
-            RestartSec = 2;
-          };
-          Install.WantedBy = [ "graphical-session.target" ];
         };
       };
   };

@@ -2,7 +2,7 @@
 # directory → attach/switch/create a zellij session named after it.
 #
 # --dmenu: pick via `vicinae dmenu` instead of fzf, for use outside
-# zellij (vicinae script command). Focuses the niri window attached to
+# zellij (vicinae script command). Focuses the Mango window attached to
 # the session, or spawns a footclient attaching/creating it.
 
 mode=fzf
@@ -15,7 +15,7 @@ export ICON_SESSION ICON_DIR
 
 # toggle: hotkey while the picker is already open → close the old pane
 # (matched by its "zs" title, set by the keybind in
-# modules/home/shell/zellij.nix, excluding ourselves) and hide the
+# modules/aspects/shell/zellij.nix, excluding ourselves) and hide the
 # layer instead of stacking a second picker.
 if [ "$mode" = fzf ] && [ -n "${ZELLIJ:-}" ]; then
   old=$(zellij action list-panes -j 2>/dev/null \
@@ -70,9 +70,10 @@ if [ "$mode" = dmenu ]; then
   done < <(zellij ls -n 2>/dev/null | grep -v EXITED | cut -d' ' -f1)
 
   if [ -n "$attached" ]; then
-    # ponytail: cycles if several footclient windows exist; only one holds a
-    # zellij client, match on that window's app_id if it ever matters.
-    nirius focus -a footclient || true
+    # ponytail: first footclient may hold another session; match titles if multiple clients matter.
+    win=$(mmsg get all-clients \
+      | jq -r '[.clients[] | select(.appid == "footclient")][0].id // empty') || win=""
+    [ -z "$win" ] || mmsg dispatch focusid,"$win" || true
     [ "$name" = "$attached" ] && exit 0
     if zellij ls -ns 2>/dev/null | grep -qxF "$name"; then
       zellij --session "$attached" action switch-session "$name"

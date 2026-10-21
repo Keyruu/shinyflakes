@@ -29,7 +29,6 @@
       den.aspects.workstation.laptop
       den.aspects.workstation.secure-boot
       den.aspects.workstation.fprintd
-      den.aspects.workstation.wm.mango
     ];
 
     nixos =

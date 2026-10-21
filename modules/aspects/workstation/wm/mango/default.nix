@@ -1,7 +1,6 @@
 { inputs, lib, ... }:
 let
-  # monitor_rule per entry of the registry + `displays` layout, mirroring the
-  # niri aspect. Mango only matches `name` against the connector (e.g. eDP-1,
+  # Mango only matches `name` against the connector (e.g. eDP-1,
   # DP-2), so description-based criteria (make/model) are skipped here —
   # kanshi owns the real layout anyway, this is just the startup default.
   # NOTE: mango warns against negative monitor coordinates with XWayland
@@ -49,10 +48,18 @@ in
             package = inputs'.mango.packages.mango;
           };
 
-          # any host pulling this aspect boots mango instead of niri
           services.greetd.settings = {
             default_session.command = lib.mkForce "${inputs'.mango.packages.mango}/bin/mango";
             initial_session.command = lib.mkForce "${inputs'.mango.packages.mango}/bin/mango";
+          };
+
+          # portal-wlr has no built-in output picker: without a chooser
+          # every screencast request dies with "no output found". Vicinae's
+          # dmenu mode fills in; store path because the portal service PATH
+          # lacks the home profile.
+          xdg.portal.wlr.settings.screencast = {
+            chooser_type = "dmenu";
+            chooser_cmd = "${inputs'.vicinae.packages.default}/bin/vicinae dmenu --format data";
           };
         };
 
@@ -106,23 +113,25 @@ in
               ''
                 ${lib.optionalString (host.displays != null) (mkMonitorRules host.displays config.monitors)}
 
-                # input — mirrors niri input.kdl
                 repeat_rate=50
                 repeat_delay=300
+                sloppy_focus=1
                 xkb_rules_layout=eu
                 xkb_rules_options=caps:escape
                 trackpad_click_method=2
-                # adaptive (=niri default profile): flat would multiply speed by
+                # Flat acceleration would multiply speed by
                 # (1 + mouse_accel_speed) = 0 at -1.0, i.e. a dead cursor
                 mouse_accel_profile=2
                 mouse_accel_speed=-1.0
 
-                # visuals — mirrors niri layout.kdl
                 border_px=3
                 border_radius=7
                 focus_color=${toArgb t.accent}
                 # focused scratchpads use this instead of focus_color
                 scratchpad_color=${toArgb t.accent}
+                # move scratchpad to selected monitor on toggle and rescale
+                # its size proportionally, keeping the 0.88 ratio per screen
+                scratchpad_cross_monitor=1
                 border_color=${toArgb t.border}
                 shadows=1
                 gap_inner_horizontal=4
@@ -151,14 +160,20 @@ in
                 tab_bar_decorate_padding_y=4
                 tab_bar_decorate_font_desc=${t.font} 11
 
-                # niri column flow: scroller everywhere, center on overflow
                 tag_rule=id:*,layout_name:scroller
                 scroller_default_proportion=1.0
                 scroller_proportion_preset=0.333,0.5,0.666,1.0
                 scroller_prefer_overspread=0
                 scroller_prefer_center=1
+                # partially off-screen scroller windows get pointer focus
+                # (mango default; explicit for documentation)
+                edge_scroller_pointer_focus=1
+                # edge windows only take pointer focus when pointer moves
+                # faster than this (px per motion event, ~125Hz mouse);
+                # slow drift over edge windows no longer focuses them
+                edge_scroller_focus_allow_speed=1.5
 
-                # animations — niri is snappier than mango's 350-800ms defaults
+                # Short durations keep interactions snappier than 350-800ms defaults.
                 animation_type_open=zoom
                 animation_type_close=zoom
                 tag_animation_direction=0
@@ -166,25 +181,19 @@ in
                 animation_duration_open=200
                 animation_duration_tag=150
                 animation_duration_close=150
-                # niri uses springs (critically damped) for move/tag and
-                # ease-out-expo/ease-out-quad for open/close; these beziers
-                # approximate them
                 animation_curve_move=0.19,1,0.22,1
                 animation_curve_tag=0.19,1,0.22,1
                 animation_curve_open=0.19,1,0.22,1
                 animation_curve_close=0.25,0.46,0.45,0.94
 
-                # autostart — niriusd/iio-niri are niri-specific, dbus env
-                # import is done by mango itself (set_activation_env)
                 exec_once=clipse -listen
-                exec_once=1password --ozone-platform-hint=wayland --silent
+                exec_once=1password --silent
                 exec_once=handy
 
-                # window rules — mirrors niri window-rules.kdl
-                # (niri's per-window blur/layer blur has no mango equivalent)
                 # let apps steal focus on activation instead of just going
                 # urgent (red border) — skips the xdg-activation token check
                 window_rule=activation_bypass:1,app_id:^.*$
+                window_rule=is_named_scratchpad:1,width:0.88,height:0.88,app_id:^com\.onepassword\.OnePassword$,title:^(?!Quick Access)
                 window_rule=is_named_scratchpad:1,width:0.88,height:0.88,app_id:^scratchpad$
                 window_rule=is_floating:1,width:0.88,height:0.88,app_id:^vicinae-script$
                 window_rule=is_floating:1,width:0.88,height:0.88,app_id:^vicinae-script-lg$
@@ -216,13 +225,15 @@ in
                 window_rule=tags:3,scroller_proportion:0.666,app_id:^fluffychat$
                 window_rule=tags:3,scroller_proportion:0.666,app_id:^Element$
                 window_rule=tags:3,scroller_proportion:0.666,app_id:^cinny$
-                window_rule=shield_when_capture:1,app_id:^1password$
+                window_rule=shield_when_capture:1,app_id:^com\.onepassword\.OnePassword$
                 window_rule=shield_when_capture:1,app_id:^signal$
                 window_rule=shield_when_capture:1,app_id:^vesktop$
                 window_rule=shield_when_capture:1,app_id:^fluffychat$
 
-                # binds — mirrors niri binds.kdl (Mod = Super)
-                bind=SUPER,Return,spawn,foot
+                layer_rule=shield_when_capture:1,layer_name:^dms:dankisland$
+                layer_rule=no_animation:1,no_blur:1,layer_name:selection
+
+                bind=SUPER,Return,spawn,footclient
                 bind=NONE,XF86AudioRaiseVolume,spawn,pamixer -i 5
                 bind=NONE,XF86AudioLowerVolume,spawn,pamixer -d 5
                 bind=NONE,XF86AudioMute,spawn,pamixer -t
@@ -240,8 +251,6 @@ in
                 bind=SUPER,k,focus_window_or_workspace,up
                 bind=SUPER,l,spawn,mango-focus right
                 bind=SUPER+SHIFT,h,move_client,left
-                # shift+j/k move to the workspace below/above, mirroring
-                # niri's move-window-down-or-to-workspace-down
                 bind=SUPER+SHIFT,j,tagtoright
                 bind=SUPER+SHIFT,k,tagtoleft
                 bind=SUPER+SHIFT,l,move_client,right
@@ -259,11 +268,11 @@ in
                 bind=SUPER,bracketright,focusstack,next
                 bind=SUPER,bracketleft,focusstack,prev
 
-                # bindr on release: mango passes the space key *release* to
-                # the focused client otherwise (mangowm/mango#348)
-                bindr=SUPER,space,spawn,vicinae toggle
-                bindr=ALT,space,toggle_named_scratchpad,scratchpad,none,footclient --app-id scratchpad
-                bindr=SUPER+SHIFT,space,spawn,1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations
+                # plain bind since mango 6a73450: press and release both
+                # swallowed — bindr would leak the press into the client
+                bind=SUPER,space,spawn,vicinae toggle
+                bind=ALT,space,toggle_named_scratchpad,scratchpad,none,footclient --app-id scratchpad
+                bind=SUPER+SHIFT,space,spawn,1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations
                 bind=SUPER+SHIFT,q,spawn,loginctl lock-session
                 bind=SUPER+SHIFT,v,spawn,vicinae vicinae://launch/clipboard/history
                 bind=SUPER,x,spawn_shell,wl-kbptr -c $HOME/.config/wl-kbptr/floating
@@ -279,26 +288,20 @@ in
                 bind=SUPER,g,spawn,wlr-which-key --initial-keys m
                 bind=SUPER,w,spawn,wlr-which-key --initial-keys m w
 
-                # alt-tab switcher — mirrors niri alt-tab.kdl
-                # all_* = all monitors + tags, mirroring niri recent-windows
+                # Include all monitors and tags, not only the visible workspace.
                 bind=ALT,Tab,switcher,all_next
                 bind=ALT+SHIFT,Tab,switcher,all_prev
                 bind=SUPER,Tab,switcher,all_next
                 bind=SUPER+SHIFT,Tab,switcher,all_prev
 
-                # touchpad gestures — niri's are hardcoded, not config: 3-finger
-                # vertical switches workspaces, 3-finger horizontal pans the
-                # view, 4-finger vertical toggles overview. Mango tags are a
-                # horizontal strip, so niri's vertical workspaces map to
-                # left/right tags (same convention as SUPER+SHIFT+j → tagtoright)
+                # Vertical swipes follow j/k workspace navigation despite tags
+                # being a horizontal strip; horizontal swipes stay within columns.
                 gesturebind=none,up,3,viewtoleft_have_client
                 gesturebind=none,down,3,viewtoright_have_client
                 gesturebind=none,left,3,spawn,mango-focus left
                 gesturebind=none,right,3,spawn,mango-focus right
                 gesturebind=none,up,4,enteroverview
                 gesturebind=none,down,4,leaveoverview
-                # niri default keybind — "Some laptops have a key for toggling
-                # the touchpad"
                 bind=NONE,XF86TouchpadToggle,toggle_trackpad_enable
               '';
           };

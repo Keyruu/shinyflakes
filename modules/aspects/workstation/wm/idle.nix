@@ -5,18 +5,16 @@
       {
         lib,
         pkgs,
-        inputs',
         ...
       }:
       {
         services.swayidle =
           let
-            lockTimeout = 5 * 60; # 300 seconds
-            suspendTimeout = 15 * 60; # 900 seconds
+            lockTimeout = 5 * 60;
+            suspendTimeout = 15 * 60;
 
-            niri = inputs'.niri.packages.niri-unstable;
-            screenOn = "${lib.getExe' niri "niri"} msg action power-on-monitors";
-            screenOff = "${lib.getExe' niri "niri"} msg action power-off-monitors";
+            screenOn = "${lib.getExe pkgs.wlopm} --on '*'";
+            screenOff = "${lib.getExe pkgs.wlopm} --off '*'";
           in
           {
             enable = true;
@@ -27,7 +25,7 @@
                 command = "${lib.getExe pkgs.libnotify} 'swayidle' 'Locking soon!' --icon='lock' -t 5000";
               }
               {
-                timeout = lockTimeout; # 300 seconds (5 minutes)
+                timeout = lockTimeout;
                 command = "${lib.getExe' pkgs.systemd "loginctl"} lock-session";
               }
               {
@@ -36,7 +34,7 @@
                 resumeCommand = screenOn;
               }
               {
-                timeout = suspendTimeout; # 900 seconds (15 minutes)
+                timeout = suspendTimeout;
                 command = "${lib.getExe' pkgs.systemd "systemctl"} suspend";
                 resumeCommand = screenOn;
               }

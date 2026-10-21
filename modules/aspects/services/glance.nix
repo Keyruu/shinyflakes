@@ -15,7 +15,6 @@
           ];
           linux = [
             "linux"
-            "niri"
             "unixporn"
             "commandline"
           ];

@@ -20,7 +20,6 @@
       screenshot
       sofka
       syncthing
-      system
       television
       vicinae
       which-key

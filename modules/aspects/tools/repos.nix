@@ -65,8 +65,6 @@
           "homepage"
           "iac"
           "nexcalimat"
-          "niri-flake"
-          "nirius"
           "oblivion"
           "sirberus"
           "tabula"

@@ -88,7 +88,16 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         quicker.data = quicker-nvim;
         lint.data = nvim-lint;
         orgmode.data = orgmode;
-        diffview.data = diffview-plus-nvim;
+        diffview.data = diffview-plus-nvim.overrideAttrs {
+          name = "vimplugin-diffview-plus.nvim-0.39";
+          version = "0.39";
+          src = pkgs.fetchFromGitHub {
+            owner = "dlyongemallo";
+            repo = "diffview-plus.nvim";
+            rev = "2a2d89a07f5d5d3cef7f542b99c3e28050ca205c";
+            hash = "sha256-0Zu2HPU9rzsyIOVLPWB9ABmfu5UffYkJtkIQUtBLVOs=";
+          };
+        };
         # perSystem custom plugins
         jira.data = jira-nvim;
         piguard.data = pi-guardian-nvim;

@@ -3,16 +3,21 @@ pkgs.writeShellApplication {
   name = "pi-herd";
   runtimeInputs = with pkgs; [
     fzf
+    git
     jq
     coreutils
     gnugrep
     gnused
     gawk
-    niri
     zellij
     util-linux # setsid
   ];
-  # vicinae/footclient intentionally not in the closure — desktop apps,
-  # resolved from the user session PATH in --dmenu mode
-  text = builtins.readFile ./pi-herd.sh;
+  # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
+  extraShellCheckFlags = [ "--external-sources" ];
+  text =
+    builtins.replaceStrings [ "source=packages/pi-task-state.sh" ] [ "source=${./pi-task-state.sh}" ]
+      ''
+        PI_TASK_STATE_LIBRARY=${./pi-task-state.sh}
+        ${builtins.readFile ./pi-herd.sh}
+      '';
 }

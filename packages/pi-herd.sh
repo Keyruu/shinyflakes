@@ -4,13 +4,23 @@
 #
 # --dmenu: pick via `vicinae dmenu` instead of fzf, for use outside
 # zellij (vicinae script command). Jumps by focusing the pane inside the
-# target session and then the niri window showing that session.
+# target session and then the Mango window showing that session.
+
+# shellcheck source=packages/pi-task-state.sh
+source "${PI_TASK_STATE_LIBRARY:-$(dirname "${BASH_SOURCE[0]}")/pi-task-state.sh}"
 
 dir="${XDG_CACHE_HOME:-$HOME/.cache}/pi-herd"
 mode=fzf
-[ "${1:-}" = "--dmenu" ] && mode=dmenu
+reviews=false
+for arg in "$@"; do
+  case "$arg" in
+    --dmenu) mode=dmenu ;;
+    --reviews) reviews=true ;;
+    -h|--help) printf '%s\n' 'pi-herd [--dmenu] [--reviews] — navigate to running Pi; /review opens diff'; exit 0 ;;
+    *) printf 'pi-herd: unknown option: %s\n' "$arg" >&2; exit 1 ;;
+  esac
+done
 
-# meta columns of $lines (display columns 5.. follow, see printf below)
 F_SESSION=2
 F_PANE=3
 F_PID=4
@@ -56,12 +66,25 @@ for f in "$dir"/*.json; do
     rm -f "$f"
     continue
   fi
+  status=$(jq -r '.status' "$f")
+  summary=""
+  review_file=$(jq -r '.taskReviewState // empty' "$f")
+  if [ -n "$review_file" ]; then
+    root=$(jq -r '.taskRoot // empty' "$f")
+    task_review_validate "$root" "$review_file" || exit 1
+    if jq -e '.pending != null' "$review_file" >/dev/null; then
+      status=review
+      summary=$(jq -r '.pending.summary // "" | gsub("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]"; " ") | .[0:160]' "$review_file")
+    elif [ "$status" = review ]; then status=idle; fi
+  fi
+  if "$reviews" && [ "$status" != review ]; then continue; fi
+  row=$(jq -r --arg status "$status" --arg summary "$summary" '[.pid, $status, .taskRoot // .cwd, .zellijSession // "-", .zellijPaneId // "-", .zellijTab // "-", (.updatedAt | tostring), (if $summary == "" then "-" else $summary end)] | @tsv' "$f")
   rows+="$row"$'\n'
 done
 
 if [ -z "$rows" ]; then
-  echo "no running pi instances"
-  if [ "$mode" = "fzf" ]; then
+  if "$reviews"; then echo "no pending reviews in running pi instances"; else echo "no running pi instances"; fi
+  if [ "$mode" = "fzf" ] && ! "$reviews"; then
     read -rsn1
     hide_panes
   fi
@@ -85,27 +108,45 @@ server_of() { # pid -> ancestor zellij server pid
 }
 
 now=$(date +%s)
-# line: sortkey \t session \t paneid \t pid \t <display...>  (fzf shows 5..)
-lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts; do
+lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts summary; do
   [ -n "$pid" ] || continue
   age=$((now - ts))
   if [ "$age" -lt 60 ]; then age="${age}s"
   elif [ "$age" -lt 3600 ]; then age="$((age / 60))m"
   else age="$((age / 3600))h"; fi
   case "$status" in
-    waiting)  sort=0; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
-    question) sort=0; icon=$'\e[36m●\e[0m'; emoji=❓ ;;
-    working) sort=1; icon=$'\e[33m●\e[0m'; emoji=🟡 ;;
-    *)       sort=2; icon=$'\e[2m○\e[0m'; emoji=⚪ ;;
+    review)   sort=0; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
+    waiting)  sort=1; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
+    question) sort=1; icon=$'\e[36m●\e[0m'; emoji=❓ ;;
+    working) sort=2; icon=$'\e[33m●\e[0m'; emoji=🟡 ;;
+    *)       sort=3; icon=$'\e[2m○\e[0m'; emoji=⚪ ;;
   esac
-  # vicinae dmenu doesn't render ANSI colors
-  [ "$mode" = "dmenu" ] && icon=$emoji
-  loc=$tab
-  [ "$pane" != "-" ] && loc="$tab · p$pane"
-  printf '%s\t%s\t%s\t%s\t%s %-7s\t%s\t%s\t%s\t%s\n' \
-    "$sort" "$session" "$pane" "$pid" \
-    "$icon" "$status" "${cwd/#"$HOME"/\~}" "$session" "$loc" "$age"
-done <<<"$rows" | sort -t$'\t' -k1,1 -k7,7)
+  if [ "$mode" = dmenu ]; then
+    loc=$tab
+    [ "$pane" != "-" ] && loc="$tab · p$pane"
+    printf '%s\t%s\t%s\t%s\t%s %-7s\t%s\t%s\t%s\t%s\t%s\n' \
+      "$sort" "$session" "$pane" "$pid" \
+      "$emoji" "$status" "${cwd/#"$HOME"/\~}" "$session" "$loc" "$age" "$summary"
+  else
+    repo=$cwd
+    # Git's first worktree is the main checkout, even for adopted worktrees elsewhere.
+    if IFS= read -r -d '' main < <(git -C "$cwd" worktree list --porcelain -z 2>/dev/null); then
+      repo=${main#worktree }
+    fi
+    project=$(basename "$repo")
+    title=$tab
+    [ "$title" != "-" ] || title=$(basename "$cwd")
+    loc=$session
+    [ "$pane" != "-" ] && loc="$session · p$pane"
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t  %s %-7s  %s\t%s\t%s\t%s\t%s\n' \
+      "$sort" "$session" "$pane" "$pid" "$repo" "$project" \
+      "$icon" "$status" "$title" "${cwd/#"$HOME"/\~}" "$loc" "$age" "$summary"
+  fi
+done <<<"$rows" | if [ "$mode" = dmenu ]; then
+  sort -t$'\t' -k1,1 -k7,7
+else
+  sort -t$'\t' -k5,5 -k1,1n -k7,7
+fi)
 
 if [ "$mode" = "dmenu" ]; then
   disp=$(cut -f5- <<<"$lines" | tr '\t' ' ')
@@ -130,11 +171,11 @@ if [ "$mode" = "dmenu" ]; then
     ZELLIJ_SESSION_NAME=$session zellij action focus-pane-id "$pane"
   fi
   # focus the window attached to the session (title: "<session> | ...")
-  win=$(niri msg -j windows \
+  win=$(mmsg get all-clients \
     | jq -r --arg p "$session | " \
-      '[.[] | select(.title | startswith($p))][0].id // empty')
+      '[.clients[] | select(.title | startswith($p))][0].id // empty') || win=""
   if [ -n "$win" ]; then
-    niri msg action focus-window --id "$win"
+    mmsg dispatch focusid,"$win"
   else
     # session not attached in any window — open one
     setsid -f footclient zellij attach "$session" >/dev/null 2>&1 || true
@@ -142,8 +183,21 @@ if [ "$mode" = "dmenu" ]; then
   exit 0
 fi
 
-sel=$(fzf --ansi --no-sort --delimiter=$'\t' --with-nth=5.. \
-  --header='pi herd — enter: jump to instance' <<<"$lines") || sel=""
+lines=$(awk -F '\t' -v home="$HOME" '
+  $5 != previous {
+    path = $5
+    if (index(path, home "/") == 1) path = "~" substr(path, length(home) + 1)
+    printf "group\t-\t-\t-\t%s\t%s\t\033[1;36m── %s · %s ──\033[0m\n", $5, $6, $6, path
+    previous = $5
+  }
+  { print }
+' <<<"$lines")
+
+# ponytail: divider rows filter normally; use reload-based grouping if search must retain them.
+sel=$(fzf --ansi --layout=reverse --no-sort --no-multi --delimiter=$'\t' --with-nth=7.. \
+  --bind='load:transform:test {1} = group && echo down' \
+  --bind='enter,double-click:transform:test {1} != group && echo accept' \
+  --header='pi herd — enter: jump to task; /review opens task diff' <<<"$lines") || sel=""
 
 if [ -z "$sel" ]; then
   hide_panes

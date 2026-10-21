@@ -20,6 +20,7 @@
           self'.packages.nvim-scrollback
           self'.packages.pi-herd
           self'.packages.pi-task
+          self'.packages.pi-task-linear
         ];
 
         # Zellij live-reloads config via an mtime-polling watcher that follows

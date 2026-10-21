@@ -11,27 +11,32 @@ fi
 
 usage() {
   printf '%s\n' \
-    'pi-task [--repo DIR] new NAME [--base REF] [--request TEXT]' \
-    'pi-task [--repo DIR] open [WORKTREE] [--adopt include|trust]' \
+    'pi-task [--repo DIR] new NAME [--base REF] [--request TEXT] [--model PATTERN]' \
+    'pi-task [--repo DIR] open [WORKTREE] [--adopt include] [--base COMMIT] [--model PATTERN]' \
+    'pi-task [--repo DIR] migrate WORKTREE --base COMMIT  # preserves legacy backup'  \
     'pi-task [--repo DIR] state [WORKTREE]  # saved review state, no launch' \
+    'pi-task [--repo DIR] review  # pending reviews; navigate without resuming' \
+    'pi-task [--repo DIR] title TEXT  # display title only; no launch/focus' \
     'new/open: --review-mode autonomous|guided (saved task review policy)' \
+    'new/open: --model PATTERN  # passed to pi as --model, e.g. qwen-token-plan/kimi-k2.7-code' \
     'pi-task                         # repository/worktree picker'
 }
 fail() { printf 'pi-task: %s\n' "$*" >&2; exit 1; }
 quote() { jq -cn --arg text "$1" '$text'; }
 
-repo="" base=HEAD request="" review_mode="" adopt=""
+repo="" base=HEAD explicit_base=false request="" review_mode="" adopt="" model=""
 args=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --repo|--base|--request|--review-mode|--adopt)
+    --repo|--base|--request|--review-mode|--adopt|--model)
       [ "$#" -ge 2 ] || fail "$1 needs a value"
       case "$1" in
         --repo) repo=$2 ;;
-        --base) base=$2 ;;
+        --base) base=$2; explicit_base=true ;;
         --request) request=$2 ;;
         --review-mode) review_mode=$2 ;;
         --adopt) adopt=$2 ;;
+        --model) model=$2 ;;
       esac
       shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -42,15 +47,30 @@ while [ "$#" -gt 0 ]; do
 done
 [ "${#args[@]}" -le 2 ] || fail 'too many arguments'
 action=${args[0]:-pick}
-case "$action" in pick|new|open|state) ;; *) fail "unknown action: $action" ;; esac
+case "$action" in pick|new|open|state|migrate|review|title) ;; *) fail "unknown action: $action" ;; esac
+if [ "$action" = title ]; then
+  if [ -n "$request$review_mode$adopt$model" ] || "$explicit_base"; then fail 'title only accepts display text'; fi
+  title=$(jq -nr --arg text "${args[1]:-}" '$text | gsub("^\\s+|\\s+$"; "")')
+  jq -en --arg title "$title" '$title | length > 0 and length <= 80
+    and (test("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]") | not)
+    and (startswith("! ") | not)' >/dev/null || fail 'title must be 1–80 printable characters, without reserved ! prefix'
+fi
+if [ "$action" = review ]; then
+  if [ "${#args[@]}" -ne 1 ] || [ -n "$request$review_mode$adopt$model" ] || "$explicit_base"; then fail 'review only selects pending tasks'; fi
+fi
 case "$review_mode" in ''|autonomous|guided) ;; *) fail 'review mode must be autonomous or guided' ;; esac
-case "$adopt" in ''|include|trust) ;; *) fail 'adoption must be include or trust' ;; esac
+case "$adopt" in ''|include) ;; *) fail 'use --adopt include with a committed --base; dirty trust baselines are retired' ;; esac
+if [ "$action" = migrate ]; then
+  "$explicit_base" || fail 'migration requires explicit --base COMMIT'
+  [ -z "$request$review_mode$adopt$model" ] || fail 'migration only accepts --base'
+fi
 if [ "$action" = state ]; then
-  [ -z "$request$review_mode$adopt" ] || fail 'state only reads existing review state'
+  [ -z "$request$review_mode$adopt$model" ] || fail 'state only reads existing review state'
 elif [ "$action" = new ]; then
   [ -z "$adopt" ] || fail '--adopt is only for existing worktrees'
 fi
 
+if [ -z "$repo" ] && [ "$action" = title ] && [ -n "${PI_TASK_ROOT:-}" ]; then repo=$PI_TASK_ROOT; fi
 if [ -z "$repo" ]; then
   if [ "$action" = pick ] || ! git rev-parse --show-toplevel >/dev/null 2>&1; then
     repo=$({ pwd; zoxide query -l; } | while IFS= read -r directory; do
@@ -68,8 +88,28 @@ while IFS= read -r -d '' entry; do
   case "$entry" in worktree\ *) worktrees+=("${entry#worktree }") ;; esac
 done < <(git -C "$repo" worktree list --porcelain -z)
 main=${worktrees[0]}
-if [ "$action" = pick ] || { [ "$action" = open ] && [ "${#args[@]}" -eq 1 ]; }; then
-  selected=$(printf '%s\n' '[new task]' "${worktrees[@]}" | fzf --prompt='Task > ') || exit 0
+if [ "$action" = pick ] || [ "$action" = review ] || { [ "$action" = open ] && [ "${#args[@]}" -eq 1 ]; }; then
+  rows=""
+  for path in "${worktrees[@]}"; do
+    key=$(printf '%s' "$path" | sha256sum); key=${key:0:12}
+    record="$common/pi-task/$key.json"
+    review="$common/pi-task/reviews/$key.json"
+    pending=false summary="" display=$(basename "$path")
+    if [ -f "$record" ]; then display=$(jq -r --arg fallback "$display" '.title // $fallback' "$record"); fi
+    if [ -f "$review" ]; then
+      task_review_validate "$path" "$review"
+      pending=$(jq -r '.pending != null' "$review")
+      summary=$(jq -r '.pending.summary // "" | gsub("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]"; " ") | .[0:160]' "$review")
+    fi
+    if [ "$action" = review ] && ! "$pending"; then continue; fi
+    priority=1 badge=""
+    if "$pending"; then priority=0; badge='REVIEW · '; fi
+    rows+=$(printf '%s\t%s\t%s%s\t%s\t%s' "$priority" "$(quote "$path")" "$badge" "$display" "$summary" "$path")$'\n'
+  done
+  if [ "$action" != review ]; then rows+=$(printf '2\t%s\t[new task]' "$(quote '[new task]')")$'\n'; fi
+  if [ -z "$rows" ]; then printf '%s\n' 'No pending task reviews.'; exit 0; fi
+  selected=$(printf '%s' "$rows" | sort -t$'\t' -k1,1n -k3,3 | fzf --delimiter=$'\t' --with-nth=3.. --prompt='Task > ') || exit 0
+  selected=$(cut -f2 <<<"$selected" | jq -r .)
   if [ "$selected" = '[new task]' ]; then
     action=new
     read -r -p 'Task name: ' name </dev/tty || exit 0
@@ -90,6 +130,12 @@ mkdir -p "$state"
 exec {launch_lock}>"$state/launch.lock"
 flock "$launch_lock"
 
+# A spawned server or terminal must not keep the repository's launch lock alive.
+without_launch_lock() (
+  exec {launch_lock}>&-
+  "$@"
+)
+
 if [ "$action" = new ]; then
   [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || fail 'use letters, digits, dots, underscores or hyphens for task names'
   git check-ref-format --branch "task/$name" >/dev/null || fail 'invalid task branch name'
@@ -100,7 +146,8 @@ if [ "$action" = new ]; then
     git -C "$worktree" submodule update --init --recursive || fail "submodule initialization failed; worktree preserved at $worktree"
   fi
 else
-  [ -z "$request" ] || fail '--request is only valid for new tasks; reopening never replays prompts'
+  [ -z "$request" ] || fail '--request is only valid for new tasks; reopening replays the saved request'
+  if [ "$action" = title ]; then name=$repo; fi
   worktree=$(git -C "$name" rev-parse --show-toplevel) || fail 'worktree does not exist'
   worktree=$(realpath "$worktree")
   found=false
@@ -120,36 +167,61 @@ if [ "$action" = state ]; then
   jq . "$review_file"
   exit 0
 fi
+if [ "$action" = migrate ]; then
+  task_review_migrate "$worktree" "$review_file" "$base"
+  exit 0
+fi
+if [ "$action" = title ]; then
+  [ -f "$metadata" ] || fail 'worktree has no workspace attachment; open it first'
+  task_review_validate "$worktree" "$review_file"
+fi
+if [ -f "$review_file" ] && "$explicit_base"; then
+  fail 'task base is immutable; --base only applies to adoption or explicit legacy migration'
+fi
 if [ ! -f "$review_file" ] && [ -z "$adopt" ] && [ -t 0 ] &&
   [ -n "$(GIT_OPTIONAL_LOCKS=0 git -C "$worktree" status --porcelain=v1 --untracked-files=all --ignore-submodules=none)" ]; then
-  printf 'Existing edits: include in first review (i), or trust current state (t)? ' >&2
+  printf 'Include existing edits in review against committed base (i), or cancel? ' >&2
   read -r choice </dev/tty || exit 0
   case "$choice" in
     i|include) adopt=include ;;
-    t|trust) adopt=trust ;;
     *) fail 'no adoption choice; worktree preserved without launching' ;;
   esac
 fi
-task_review_init "$worktree" "$review_file" "$review_mode" "$adopt"
+if [ "$action" != title ]; then task_review_init "$worktree" "$review_file" "$review_mode" "$adopt" "$base"; fi
 
 session=""
 if [ -f "$state/session" ]; then IFS= read -r session <"$state/session" || true; fi
 live_sessions=$(zellij list-sessions --no-formatting --short 2>/dev/null || true)
 if [ -z "$session" ] || ! grep -qxF -- "$session" <<<"$live_sessions"; then
   current_common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
-  if [ -n "${ZELLIJ_SESSION_NAME:-}" ] && [ "$current_common" = "$common" ]; then
+  if [ -n "${ZELLIJ_SESSION_NAME:-}" ] && [ "$current_common" = "$common" ] &&
+    grep -qxF -- "$ZELLIJ_SESSION_NAME" <<<"$live_sessions"; then
     session=$ZELLIJ_SESSION_NAME
   else
-    repo_hash=$(printf '%s' "$common" | sha256sum)
-    session="$(basename "$main" | tr -c 'a-zA-Z0-9_-' '-')-${repo_hash:0:8}"
+    session=$(printf '%s' "$(basename "$main")" | tr -c 'a-zA-Z0-9_-' '-')
   fi
 fi
-printf '%s\n' "$session" >"$state/session"
+if [ "$action" != title ]; then printf '%s\n' "$session" >"$state/session"; fi
 
-if [ "$worktree" = "$main" ]; then label=main; else label="task:$(basename "$worktree")"; fi
-label="$label:$hash"
+if [ "$worktree" = "$main" ]; then label=main; else label=$(basename "$worktree"); fi
+saved='{}'
+if [ -f "$metadata" ]; then
+  saved=$(jq -ce --arg root "$worktree" 'select(.root == $root)' "$metadata") || fail 'workspace attachment root mismatch'
+  label=$(jq -r --arg fallback "$label" '.title // $fallback' <<<"$saved")
+  [ -n "$request" ] || request=$(jq -r '.request // empty' <<<"$saved")
+  [ -n "$model" ] || model=$(jq -r '.model // empty' <<<"$saved")
+fi
+if [ "$action" != title ]; then
+  # Preserve launch intent even if the terminal or task tab fails to start.
+  updated=$(mktemp "$state/.workspace.XXXXXX")
+  jq -n --argjson saved "$saved" --arg root "$worktree" --arg request "$request" \
+    --arg model "$model" --arg title "$label" --arg session "$session" \
+    '$saved + {root: $root, request: $request, model: $model, title: $title, session: $session}' >"$updated"
+  mv "$updated" "$metadata"
+fi
 root_arg="$(quote "PI_TASK_ROOT=$worktree") $(quote "PI_TASK_REVIEW_STATE=$review_file")"
 pi_args="\"pi\""
+if [ -n "$model" ]; then pi_args="$pi_args \"--model\" $(quote "$model")"; fi
 if [ -n "$request" ]; then pi_args="$pi_args \"--\" $(quote "$request")"; fi
 shell_arg=$(quote "${SHELL:-bash}")
 layout="layout {
@@ -178,34 +250,61 @@ if grep -qxF -- "$session" <<<"$live_sessions"; then
 fi
 saved_tab=null
 if [ -f "$metadata" ]; then saved_tab=$(jq -r '.tabId // "null"' "$metadata"); fi
-tab=$(jq -r --arg root "$worktree" --arg label "$label" --argjson saved "$saved_tab" '
-  [.[] | select(.is_plugin | not) | select(.pane_cwd == $root or .tab_name == $label or .tab_name == ("! " + $label))]
+# Zellij retains the original launch command even after cwd/title changes.
+# Validate the task binding there; tab IDs alone can belong to a new server.
+launch_command="env PI_TASK_ROOT=$worktree PI_TASK_REVIEW_STATE=$review_file "
+tab=$(jq -r --arg command "$launch_command" --argjson saved "$saved_tab" '
+  [.[] | select(.is_plugin | not) | select((.terminal_command // "") | startswith($command))]
   | sort_by(if .tab_id == $saved then 0 else 1 end) | .[0].tab_id // empty
 ' <<<"$panes")
 
-if [ -z "$tab" ]; then
-  if grep -qxF -- "$session" <<<"$live_sessions"; then
-    tab=$(zellij --session "$session" action new-tab --layout-string "$layout" --cwd "$worktree" --name "$label")
-  else
-    # --layout-string with a session name dispatches NewTab, not session creation.
-    layout_file=$(mktemp "$state/.layout.XXXXXX.kdl")
-    printf '%s\n' "$layout" >"$layout_file"
-    trap 'rm -f "$layout_file"' EXIT
-    env -u ZELLIJ -u ZELLIJ_SESSION_NAME zellij --new-session-with-layout "$layout_file" attach --create-background "$session"
-    rm "$layout_file"
-    trap - EXIT
-    tab=$(zellij --session "$session" action list-panes --json --tab | jq -r '[.[] | select(.is_plugin | not)][0].tab_id')
+if [ "$action" = title ]; then
+  if [ -n "$tab" ]; then
+    label=$title
+    if jq -e --argjson tab "$tab" 'any(.[]; .tab_id == $tab and (.tab_name | startswith("! ")))' <<<"$panes" >/dev/null; then label="! $title"; fi
+    zellij --session "$session" action rename-tab --tab-id "$tab" -- "$label"
   fi
+  updated=$(mktemp "$state/.workspace.XXXXXX")
+  jq --arg title "$title" '.title = $title' "$metadata" >"$updated"
+  mv "$updated" "$metadata"
+  printf '%s\n' "$title"
+  exit 0
+fi
+
+# Headless sessions can lose new panes. Attach a real client before adding tabs.
+client_attached() {
+  timeout 1s zellij --session "$session" action list-clients 2>/dev/null |
+    awk 'NR == 1 { header=($1 == "CLIENT_ID") } NR > 1 && header && $1 ~ /^[0-9]+$/ { found=1 } END { exit !found }'
+}
+if ! client_attached; then
+  command -v footclient >/dev/null || fail "footclient required; reopen with: pi-task --repo $(printf '%q' "$main") open $(printf '%q' "$worktree")"
+  client_args=(attach "$session")
+  if ! grep -qxF -- "$session" <<<"$live_sessions"; then
+    client_args=(--session "$session" --new-session-with-layout project)
+  fi
+  without_launch_lock setsid -f env -u ZELLIJ -u ZELLIJ_SESSION_NAME -u ZELLIJ_PANE_ID \
+    -u PI_TASK_ROOT -u PI_TASK_REVIEW_STATE footclient -D "$main" zellij "${client_args[@]}" \
+    >/dev/null 2>&1 || fail "could not open terminal; reopen with: pi-task --repo $(printf '%q' "$main") open $(printf '%q' "$worktree")"
+  deadline=$((SECONDS + 10))
+  until client_attached; do
+    ((SECONDS < deadline)) || fail "no client attached to $session; reopen with: pi-task --repo $(printf '%q' "$main") open $(printf '%q' "$worktree")"
+    sleep 0.1
+  done
+fi
+
+if [ -z "$tab" ]; then
+  tab=$(without_launch_lock zellij --session "$session" action new-tab --layout-string "$layout" --cwd "$worktree" --name="$label")
+else
+  label=$(jq -r --argjson tab "$tab" '[.[] | select((.is_plugin | not) and .tab_id == $tab)][0].tab_name | sub("^! "; "")' <<<"$panes")
 fi
 [[ "$tab" =~ ^[0-9]+$ ]] || fail 'Zellij did not return a task tab ID'
-if [ ! -f "$metadata" ]; then
-  jq -n --arg root "$worktree" --arg request "$request" '{root: $root, request: $request}' >"$metadata"
-fi
 updated=$(mktemp "$state/.workspace.XXXXXX")
-jq --arg session "$session" --argjson tab "$tab" '. + {session: $session, tabId: $tab}' "$metadata" >"$updated"
+jq --arg session "$session" --argjson tab "$tab" --arg title "$label" '. + {session: $session, tabId: $tab, title: $title}' "$metadata" >"$updated"
 mv "$updated" "$metadata"
 flock -u "$launch_lock"
+exec {launch_lock}>&-
 
+printf 'Task: %s\nSession: %s\n' "$worktree" "$session"
 zellij --session "$session" action go-to-tab-by-id "$tab"
 if [ -n "${ZELLIJ:-}" ]; then
   if [ -n "${ZELLIJ_PANE_ID:-}" ]; then
@@ -220,6 +319,4 @@ if [ -n "${ZELLIJ:-}" ]; then
   if [ "$session" != "${ZELLIJ_SESSION_NAME:-}" ]; then
     zellij action switch-session "$session"
   fi
-else
-  exec zellij attach "$session"
 fi

@@ -16,6 +16,7 @@
         hassKey = { };
         zaiKey = { };
         minimaxKey = { };
+        linearApiKey = { };
       };
 
       sops.templates."shell.env".content = ''
@@ -27,6 +28,7 @@
         HASS_KEY=${config.sops.placeholder.hassKey}
         ZAI_API_KEY=${config.sops.placeholder.zaiKey}
         MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
+        LINEAR_API_KEY=${config.sops.placeholder.minimaxKey}
       '';
 
       home.sessionVariables = {
