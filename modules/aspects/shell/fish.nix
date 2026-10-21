@@ -29,7 +29,12 @@
                 if set -q _flag_offline
                   set flags --offline
                 end
-                nh os switch ~/shinyflakes\?submodules=1#$config_name $flags
+                nh --elevation-strategy ${pkgs.writeShellScript "nh-sudo-notify" ''
+                  if ! sudo -n -v 2>/dev/null; then
+                    ${pkgs.libnotify}/bin/notify-send -i system-lock-screen "nh rebuild" "sudo authentication required" >/dev/null 2>&1 || :
+                  fi
+                  exec sudo "$@"
+                ''} os switch ~/shinyflakes\?submodules=1#$config_name $flags
               '';
           };
 

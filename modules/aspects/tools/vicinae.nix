@@ -204,24 +204,13 @@
               };
               applications = {
                 entrypoints = {
-                  clear-notification = {
-                    alias = "cn";
-                  };
-                  notification-center = {
-                    alias = "nc";
-                  };
-                  foot = {
-                    alias = "t";
-                  };
-                  slack = {
-                    alias = "s";
-                  };
-                  spotify = {
-                    alias = "m";
-                  };
-                  zen-beta = {
-                    alias = "b";
-                  };
+                  clear-notification.alias = "cn";
+                  notification-center.alias = "nc";
+                  footclient.alias = "t";
+                  slack.alias = "s";
+                  spotify.alias = "m";
+                  firefox.alias = "b";
+                  "1password".alias = "pass";
                 };
               };
               "@knoopx/vicinae-extension-nix-0" = {
@@ -234,6 +223,13 @@
                   };
                   packages = {
                     alias = "np";
+                  };
+                };
+              };
+              "@knoopx/vicinae-extension-agenda-0" = {
+                entrypoints = {
+                  upcoming-events = {
+                    alias = "agenda";
                   };
                 };
               };

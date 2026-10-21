@@ -8,7 +8,7 @@ pkgs.writeShellApplication {
   text = ''
     if [ $# -ne 1 ]; then
       echo "Usage: authelia-user-hash <user>" >&2
-      echo "Prompts for a password and stores its argon2 digest as <user>PasswordHash in nix/secrets.yaml." >&2
+      echo "Prompts for a password and stores its argon2 digest as <user>PasswordHash in secrets.yaml." >&2
       exit 1
     fi
 

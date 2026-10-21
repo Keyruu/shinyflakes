@@ -34,7 +34,6 @@
       den.aspects.services.gotify
       den.aspects.services.liwan
       den.aspects.services.multi-scrobbler
-      den.aspects.services.chatto
       den.aspects.services.koito
       den.aspects.services.matrix
       den.aspects.services.livekit

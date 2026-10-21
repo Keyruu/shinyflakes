@@ -91,11 +91,23 @@ in
               mmsg dispatch focusdir,"$1"
             fi
           '';
+          mango-close = pkgs.writeShellScriptBin "mango-close" ''
+            set -o pipefail
+            dispatch=$(mmsg get focusing-client | ${pkgs.jq}/bin/jq -er '
+              select(.id | type == "number") | select(.id > 0) |
+              "\(if .is_scratchpad == true or .is_namedscratchpad == true
+                then "minimized" else "killclient" end),client,\(.id)"
+            ') || exit 0
+            exec mmsg dispatch "$dispatch"
+          '';
         in
         {
           imports = [ inputs.mango.hmModules.mango ];
 
-          home.packages = [ mango-focus ];
+          home.packages = [
+            mango-focus
+            mango-close
+          ];
 
           # home.pointerCursor = {
           #   enable = true;
@@ -259,7 +271,7 @@ in
                 bind=CTRL+ALT,q,focusmon,next
                 bind=CTRL+ALT+SHIFT,q,tagmon,next
 
-                bind=SUPER,q,killclient
+                bind=SUPER,q,spawn,mango-close
                 bind=SUPER,t,togglefloating
                 bind=SUPER,f,togglemaximizescreen
                 bind=SUPER+SHIFT,f,togglefullscreen
