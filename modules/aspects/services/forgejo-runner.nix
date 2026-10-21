@@ -3,18 +3,10 @@
   den.aspects.services.forgejo-runner = {
     nixos =
       { pkgs, config, ... }:
-      let
-        runnerDir = "/var/lib/gitea-runner";
-      in
       {
-        sops.secrets = {
-          forgejoRunnerToken = {
-            owner = "gitea-runner";
-            group = "gitea-runner";
-          };
-        };
+        sops.secrets.forgejoRunnerToken = { };
 
-        services.gitea-actions-runner = {
+        services.forgejo-runner = {
           package = pkgs.forgejo-runner;
           instances.nix = {
             settings = {
@@ -41,21 +33,15 @@
               trivy
             ];
             enable = true;
-            name = config.networking.hostName;
             url = "https://git.keyruu.de";
-            tokenFile = config.sops.secrets.forgejoRunnerToken.path;
+            settings.server.connections.default.uuid = "500c43fe-394f-4b10-aac2-6f6b1595e4d2";
+            secrets.server.connections.default.token_url = config.sops.secrets.forgejoRunnerToken.path;
             labels = [
               "nixos-${pkgs.stdenv.hostPlatform.system}:host"
             ];
           };
         };
 
-        users.groups.gitea-runner = { };
-        users.users.gitea-runner = {
-          isSystemUser = true;
-          group = "gitea-runner";
-          home = runnerDir;
-        };
       };
   };
 }
