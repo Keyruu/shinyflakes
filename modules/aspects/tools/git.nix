@@ -24,13 +24,8 @@
             };
 
             url."git@github.com:".insteadOf = "https://github.com/";
-          };
 
-          # Both identities live in includes, and none in a plain [user] section:
-          # git is last-wins, and home-manager renders sections alphabetically, so
-          # a [user] here would sort after [includeIf] and win in every repository.
-          # [include] sorts before [includeIf], so dash0 overrides the default.
-          extraConfig = {
+            # Git uses last matching identity; include must precede includeIf.
             include.path = "personal.inc";
             includeIf."gitdir:~/git/dash0/".path = "dash0.inc";
           };
