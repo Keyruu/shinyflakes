@@ -23,6 +23,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs-multiverse.url = "github:fzakaria/nixpkgs-multiverse";
     # FIXME: remove once cockpit-zfs builds again on nixos-unstable
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
     nixpkgs-cockpit-zfs.url = "github:NixOS/nixpkgs/15de5069c4519a4fda6642462cae6a3f36795476";

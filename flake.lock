@@ -972,6 +972,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-multiverse": {
+      "locked": {
+        "lastModified": 1792535154,
+        "narHash": "sha256-QgDLdz8f3MTBTRlw2uitW4FaqkF3Unwkh2LqdF4Fvog=",
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "rev": "87a1fa4d6fc08f86c39839ed7944e045f80e04f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "type": "github"
+      }
+    },
     "nixpkgs-small": {
       "locked": {
         "lastModified": 1792502884,
@@ -1284,6 +1299,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_8",
         "nixpkgs-cockpit-zfs": "nixpkgs-cockpit-zfs",
+        "nixpkgs-multiverse": "nixpkgs-multiverse",
         "nixpkgs-small": "nixpkgs-small",
         "nixpkgs-stable": "nixpkgs-stable",
         "noctalia": "noctalia",
