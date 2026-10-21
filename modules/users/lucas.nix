@@ -231,7 +231,6 @@
           tea
           handy
           plezy
-          sone
 
           # self'.packages.numr
           self'.packages.wg-peer

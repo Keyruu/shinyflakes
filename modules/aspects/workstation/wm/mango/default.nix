@@ -206,6 +206,7 @@ in
                 # urgent (red border) — skips the xdg-activation token check
                 window_rule=activation_bypass:1,app_id:^.*$
                 window_rule=is_named_scratchpad:1,width:0.88,height:0.88,app_id:^com\.onepassword\.OnePassword$,title:^(?!Quick Access)
+                window_rule=is_named_scratchpad:1,width:0.88,height:0.88,app_id:^sone$
                 window_rule=is_named_scratchpad:1,width:0.88,height:0.88,app_id:^scratchpad$
                 window_rule=is_floating:1,width:0.88,height:0.88,app_id:^vicinae-script$
                 window_rule=is_floating:1,width:0.88,height:0.88,app_id:^vicinae-script-lg$

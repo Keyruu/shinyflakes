@@ -19,6 +19,7 @@
       satty
       screenshot
       sofka
+      sone
       syncthing
       television
       vicinae
