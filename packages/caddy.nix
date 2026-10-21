@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
-  corazaCaddyVersion = "v2.6.1";
+  corazaCaddyVersion = "v2.6.2";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
   caddySecurityVersion = "v1.4.1";
   # renovate: datasource=go depName=github.com/porech/caddy-maxmind-geolocation
