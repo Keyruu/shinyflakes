@@ -23,7 +23,7 @@
         kernelParams = [ "net.ifnames=0" ];
       };
 
-      boot.kernelPackages = pkgs.linuxPackages_6_18;
+      boot.kernelPackages = pkgs.linuxPackages_7_2;
 
       networking.nftables.enable = true;
 
