@@ -81,6 +81,26 @@ inputs.nix-wrapper-modules.lib.evalPackage [
         outline.data = outline-nvim;
         numbertoggle.data = nvim-numbertoggle;
         smart-splits.data = smart-splits-nvim;
+        smart-splits-backend-zellij.data = pkgs.vimUtils.buildVimPlugin {
+          pname = "smart-splits-backend-zellij-lua";
+          version = "1.0.0";
+          src = pkgs.fetchFromGitHub {
+            owner = "smart-splits-nvim";
+            repo = "backend-zellij-lua";
+            rev = "4e3e588795efb95548dd2ebeaf385a7823821ceb";
+            hash = "sha256-QAKX3jHYd2xHjhs8uf44OB04Q+Gl+wXVZOqS09IcRSk=";
+          };
+        };
+        smart-splits-backend-tmux.data = pkgs.vimUtils.buildVimPlugin {
+          pname = "smart-splits-backend-tmux";
+          version = "unstable-2026-10-02";
+          src = pkgs.fetchFromGitHub {
+            owner = "smart-splits-nvim";
+            repo = "backend-tmux";
+            rev = "9e9e6aa9b3eb7a8d3896a993611622ac97abff52";
+            hash = "sha256-RcJdM6wFHZOEOK+cXVIT10anktqGgIilPmojFpdY+4g=";
+          };
+        };
         direnv.data = direnv-vim;
         spider.data = nvim-spider;
         various-textobjs.data = nvim-various-textobjs;
