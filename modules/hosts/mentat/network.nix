@@ -1,6 +1,6 @@
 { ... }:
 {
-  den.aspects.mentat.nixos = { pkgs, ... }: {
+  den.aspects.mentat.nixos = { ... }: {
     networking = {
       firewall = {
         enable = true;
@@ -30,16 +30,6 @@
             prefixLength = 24;
           }
         ];
-      };
-    };
-
-    services.networkd-dispatcher = {
-      enable = true;
-      rules."50-tailscale" = {
-        onState = [ "routable" ];
-        script = ''
-          ${pkgs.ethtool}/bin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
-        '';
       };
     };
   };

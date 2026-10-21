@@ -10,9 +10,14 @@
           package = pkgs.forgejo-runner;
           instances.nix = {
             settings = {
-              cache = {
-                enabled = true;
+              cache.enabled = true;
+              server.connections.default = {
+                url = "https://git.keyruu.de";
+                uuid = "500c43fe-394f-4b10-aac2-6f6b1595e4d2";
               };
+              runner.labels = [
+                "nixos-${pkgs.stdenv.hostPlatform.system}:host"
+              ];
             };
             hostPackages = with pkgs; [
               bash
@@ -33,12 +38,7 @@
               trivy
             ];
             enable = true;
-            url = "https://git.keyruu.de";
-            settings.server.connections.default.uuid = "500c43fe-394f-4b10-aac2-6f6b1595e4d2";
             secrets.server.connections.default.token_url = config.sops.secrets.forgejoRunnerToken.path;
-            labels = [
-              "nixos-${pkgs.stdenv.hostPlatform.system}:host"
-            ];
           };
         };
 
