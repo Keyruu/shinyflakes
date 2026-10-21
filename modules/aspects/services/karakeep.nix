@@ -7,7 +7,7 @@
       in
       {
         sops.secrets = {
-          openaiKey = { };
+          minimaxKey = { };
           karakeepNextauthSecret = { };
           karakeepMeiliMasterKey = { };
           karakeepClientSecret = { };
@@ -24,7 +24,15 @@
               MEILI_MASTER_KEY=${config.sops.placeholder.karakeepMeiliMasterKey}
               NEXTAUTH_URL=https://karakeep.lab.keyruu.de
               DISABLE_SIGNUPS=true
-              OPENAI_API_KEY=${config.sops.placeholder.openaiKey}
+              OPENAI_API_KEY=${config.sops.placeholder.minimaxKey}
+              OPENAI_BASE_URL=https://api.minimax.io/v1
+              INFERENCE_TEXT_MODEL=MiniMax-M3.1-Flash
+              INFERENCE_IMAGE_MODEL=MiniMax-M3.1-Flash
+              OPENAI_REASONING_EFFORT=low
+              INFERENCE_MAX_OUTPUT_TOKENS=8192
+              INFERENCE_OUTPUT_SCHEMA=plain
+              EMBEDDING_ENABLE_AUTO_INDEXING=false
+              SEMANTIC_SEARCH_ENABLED=false
               OAUTH_WELLKNOWN_URL=https://auth.peeraten.net/.well-known/openid-configuration
               OAUTH_CLIENT_ID=karakeep
               OAUTH_CLIENT_SECRET=${config.sops.placeholder.karakeepClientSecret}
