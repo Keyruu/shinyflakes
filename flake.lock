@@ -86,11 +86,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1791003621,
-        "narHash": "sha256-LbEmwJUUYRzXd/LZN/OumbYhgUQEHT/f9TGw2KPO78M=",
+        "lastModified": 1792582168,
+        "narHash": "sha256-j0GvJvqXQHL1aY7T0g/xisOksDb6FbtmKLfEap3TgSA=",
         "ref": "refs/heads/main",
-        "rev": "a03818b6079d563f708f691e6422b2284032fe09",
-        "revCount": 64,
+        "rev": "cc08b0903eee8782d911798701a0f25dc78a7d3f",
+        "revCount": 65,
         "type": "git",
         "url": "https://git.keyruu.de/lucas/buymeaspezi"
       },
