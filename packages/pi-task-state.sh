@@ -87,94 +87,35 @@ task_review_migrate() (
   printf 'Migrated workflow only; legacy state and Git retention refs preserved. Backup: %s\n' "$archive"
 )
 
-# Transient hashes detect whether a cooperating tool changed anything. They are
-# never persisted as accepted contents or written to Git's object database.
-task_review_contents() (
-  set -euo pipefail
-  local root=$1 entry path flags
-  export GIT_OPTIONAL_LOCKS=0
-  [ "$(git -C "$root" rev-parse --show-toplevel)" = "$root" ] || { task_review_fail "repository root mismatch: $root"; exit 1; }
-  flags=$(git -C "$root" ls-files -v) || exit 1
-  if grep -Eq '^[a-zS] ' <<<"$flags"; then
-    task_review_fail 'assume-unchanged/skip-worktree entries can hide tool writes; clear those flags first'
-    exit 1
-  fi
-  git -C "$root" rev-parse HEAD || exit 1
-  git -C "$root" diff --no-ext-diff --no-textconv --binary --submodule=short --ignore-submodules=none HEAD -- || exit 1
-  git -C "$root" diff --no-ext-diff --no-textconv --cached --raw HEAD -- || exit 1
-  git -C "$root" ls-files --others --exclude-standard -z | while IFS= read -r -d '' path; do
-    path=${path%/}
-    printf '%s\0' "$path" || exit 1
-    if [ -L "$root/$path" ]; then readlink -- "$root/$path" || exit 1
-    elif [ -f "$root/$path" ]; then git -C "$root" hash-object --no-filters -- "$path" || exit 1
-    elif [ -d "$root/$path" ] && [ -e "$root/$path/.git" ]; then
-      task_review_contents "$root/$path" || exit 1
-    else printf 'unavailable\n' || exit 1; fi
-  done || exit 1
-  git -C "$root" ls-files --stage -z | while IFS= read -r -d '' entry; do
-    [[ "$entry" = 160000\ * ]] || continue
-    path=${entry#*$'\t'}
-    if [ -e "$root/$path/.git" ]; then
-      [ "$(realpath "$root/$path")" = "$root/$path" ] || { task_review_fail 'symlinked submodule'; exit 1; }
-      task_review_contents "$root/$path" || exit 1
-    fi
-  done || exit 1
-)
-
-task_review_fingerprint() (
-  set -euo pipefail
-  task_review_contents "$1" | sha256sum
-)
-
-# Shared leases allow concurrent writers. Pending is persisted before waiting
-# for them; their final generation updates finish before prepare returns.
+# Only competing review UIs exclude each other; writers never acquire this lock.
 task_review_lease() (
   set -euo pipefail
-  local root=$1 file=$2 kind=$3 lock metadata before after json
-  case "$kind" in
-    writer)
-      exec {lock}>"$file.writers"; flock -s "$lock"
-      exec {metadata}>"$file.lock"; flock "$metadata"
-      task_review_validate "$root" "$file"
-      jq -e '.pending == null' "$file" >/dev/null || { task_review_fail 'review pending; task writers paused'; exit 1; }
-      before=$(task_review_fingerprint "$root")
-      # Reserve before granting writes so a hard crash cannot hide an edit run.
-      json=$(jq '.generation += 1' "$file")
-      task_review_save "$file" "$json"
-      flock -u "$metadata"
-      printf 'ready\n'
-      IFS= read -r _ || true
-      after=$(task_review_fingerprint "$root") || after=unknown
-      if [ "$before" = "$after" ]; then
-        flock "$metadata"
-        task_review_validate "$root" "$file"
-        json=$(jq '.generation -= 1' "$file")
-        task_review_save "$file" "$json"
-      fi ;;
-    reviewer)
-      exec {lock}>"$file.reviewer"
-      flock -n "$lock" || { task_review_fail 'review already open in another Pi'; exit 1; }
-      printf 'ready\n'
-      IFS= read -r _ || true ;;
-    *) task_review_fail 'unknown lease kind'; exit 1 ;;
-  esac
+  local root=$1 file=$2 kind=$3 lock
+  [ "$kind" = reviewer ] || { task_review_fail 'only reviewer leases are supported'; exit 1; }
+  task_review_validate "$root" "$file"
+  exec {lock}>"$file.reviewer"
+  flock -n "$lock" || { task_review_fail 'review already open in another Pi'; exit 1; }
+  printf 'ready\n'
+  IFS= read -r _ || true
 )
 
 task_review_begin() (
   set -euo pipefail
-  local root=$1 file=$2 summary=$3 checks=$4 lock json
+  local root=$1 file=$2 summary=$3 checks=$4 base=${5:-} lock json
   exec {lock}>"$file.lock"; flock "$lock"
   task_review_validate "$root" "$file"
   if jq -e '.pending != null' "$file" >/dev/null; then exit; fi
-  json=$(jq --arg id "$(date +%s%N)-$BASHPID" --arg summary "$summary" --arg checks "$checks" \
-    '.pending = {id: $id, summary: $summary, checks: $checks}' "$file")
+  if [ -n "$base" ]; then base=$(git -C "$root" rev-parse --verify --end-of-options "${base}^{commit}"); fi
+  json=$(jq --arg id "$(date +%s%N)-$BASHPID" --arg summary "$summary" --arg checks "$checks" --arg base "$base" \
+    '.pending = {id: $id, summary: $summary, checks: $checks}
+    | if $base != "" then .base = $base else . end' "$file")
   task_review_save "$file" "$json"
 )
 
 task_review_prepare() (
   set -euo pipefail
-  local root=$1 file=$2 writers
-  exec {writers}>"$file.writers"; flock "$writers"
+  local root=$1 file=$2 lock
+  exec {lock}>"$file.lock"; flock "$lock"
   task_review_validate "$root" "$file"
   jq -e '.pending != null' "$file" >/dev/null || { task_review_fail 'no pending review'; exit 1; }
   jq . "$file"
@@ -182,11 +123,8 @@ task_review_prepare() (
 
 task_review_update() (
   set -euo pipefail
-  local operation=$1 root=$2 file=$3 lock writers json value text context id kind version
+  local operation=$1 root=$2 file=$3 lock json value text context id kind version
   shift 3
-  case "$operation:${1:-}" in
-    resolve:*|submit:changes) exec {writers}>"$file.writers"; flock "$writers" ;;
-  esac
   exec {lock}>"$file.lock"; flock "$lock"
   task_review_validate "$root" "$file"
   case "$operation" in
@@ -212,8 +150,8 @@ task_review_update() (
         | if ($text | test("\\S")) then . else error("feedback is empty") end
         | .submissions += [{id: $id, coordinator: .coordinator, kind: $kind, draftVersion: $version, delivered: false,
           text: ("Review submission " + $id + " (" + $kind + "). Files and human edits kept.\n"
-          + (if $kind == "question" then "Answer without writing; this send does not finish review or release any pending writing pause."
-             else "Re-read files and preserve human edits before revising. Answer questions, then request review again." end)
+          + (if $kind == "question" then "Answer the question; review is optional and never pauses writers."
+             else "Re-read files and preserve existing edits before revising; writers may have continued during review. When finished, summarize checks and use ask_user for follow-up. Do not request review approval." end)
           + "\n\n" + $text)}]
         | if $kind == "changes" then .reviewedGeneration = .generation | del(.pending) else . end
       ' "$file") ;;
@@ -242,10 +180,16 @@ task_review_command() (
   local operation=${1:?} root=${2:?} file=${3:?}
   shift 3
   if [ "$operation" = migrate ]; then task_review_migrate "$root" "$file" "$@"; exit; fi
+  if [ "$operation" = init ]; then
+    if [ -f "$file" ]; then task_review_validate "$root" "$file"
+    else task_review_init "$root" "$file" "" include HEAD; fi
+    exit
+  fi
   task_review_validate "$root" "$file"
   case "$operation" in
     lease) task_review_lease "$root" "$file" "$@" ;;
     begin) task_review_begin "$root" "$file" "$@" ;;
+    begin-local) task_review_begin "$root" "$file" "$@" HEAD ;;
     prepare) task_review_prepare "$root" "$file" ;;
     *) task_review_update "$operation" "$root" "$file" "$@" ;;
   esac

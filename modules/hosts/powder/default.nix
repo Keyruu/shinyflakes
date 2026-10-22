@@ -84,7 +84,7 @@
           distrobox
           nautilus
         ];
-  
+
         # Host-level extras on top of den.batteries.define-user (which provisions
         # the OS user + home dir). wheel/networkmanager added by primary-user.
         users.users.lucas.extraGroups = [
@@ -102,11 +102,13 @@
           nixos.enable = false;
         };
       };
-    homeManager = { pkgs, inputs', ... }: {
+    homeManager = { pkgs, inputs', self', ... }: {
       home.packages = with pkgs; [
         proton-vpn
         (google-cloud-sdk.withExtraComponents [ google-cloud-sdk.components.gke-gcloud-auth-plugin ])
         inputs'.dash0-cli.packages.default
+        inputs'.llm-agents.packages.orca
+        self'.packages.orca-diff
       ];
       services.tailscale-systray.enable = true;
     };

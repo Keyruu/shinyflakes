@@ -17,7 +17,7 @@ usage() {
     'pi-task [--repo DIR] state [WORKTREE]  # saved review state, no launch' \
     'pi-task [--repo DIR] review  # pending reviews; navigate without resuming' \
     'pi-task [--repo DIR] title TEXT  # display title only; no launch/focus' \
-    'new/open: --review-mode autonomous|guided (saved task review policy)' \
+    'new/open: --review-mode autonomous|guided (legacy metadata only; review is manual)' \
     'new/open: --model PATTERN  # passed to pi as --model, e.g. qwen-token-plan/kimi-k2.7-code' \
     'pi-task                         # repository/worktree picker'
 }

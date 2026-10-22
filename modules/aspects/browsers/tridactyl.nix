@@ -20,8 +20,8 @@
           ''
             " vimium-c default keymaps, mapped to tridactyl
             " scroll: vimium-c scrollStepSize 100
-            bind j scrollpx 100
-            bind k scrollpx -100
+            bind j scrollpx 0 100
+            bind k scrollpx 0 -100
             bind h scrollpx -100
             bind l scrollpx 100
 

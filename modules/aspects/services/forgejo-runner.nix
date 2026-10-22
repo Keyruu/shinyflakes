@@ -12,7 +12,7 @@
             settings = {
               cache.enabled = true;
               server.connections.default = {
-                url = "https://git.keyruu.de";
+                url = "https://git.lab.keyruu.de";
                 uuid = "500c43fe-394f-4b10-aac2-6f6b1595e4d2";
               };
               runner.labels = [
