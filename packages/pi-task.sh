@@ -13,6 +13,7 @@ usage() {
   printf '%s\n' \
     'pi-task [--repo DIR] new NAME [--base REF] [--request TEXT] [--model PATTERN]' \
     'pi-task [--repo DIR] open [WORKTREE] [--adopt include] [--base COMMIT] [--model PATTERN]' \
+    'pi-task [--repo DIR] resume NAME|WORKTREE  # focus coordinator or restore exact session' \
     'pi-task [--repo DIR] migrate WORKTREE --base COMMIT  # preserves legacy backup'  \
     'pi-task [--repo DIR] state [WORKTREE]  # saved review state, no launch' \
     'pi-task [--repo DIR] review  # pending reviews; navigate without resuming' \
@@ -47,7 +48,10 @@ while [ "$#" -gt 0 ]; do
 done
 [ "${#args[@]}" -le 2 ] || fail 'too many arguments'
 action=${args[0]:-pick}
-case "$action" in pick|new|open|state|migrate|review|title) ;; *) fail "unknown action: $action" ;; esac
+case "$action" in pick|new|open|resume|state|migrate|review|title) ;; *) fail "unknown action: $action" ;; esac
+if [ "$action" = resume ] && { [ "${#args[@]}" -ne 2 ] || [ -n "$request$review_mode$adopt$model" ] || "$explicit_base"; }; then
+  fail 'resume only accepts an existing task name or worktree path'
+fi
 if [ "$action" = title ]; then
   if [ -n "$request$review_mode$adopt$model" ] || "$explicit_base"; then fail 'title only accepts display text'; fi
   title=$(jq -nr --arg text "${args[1]:-}" '$text | gsub("^\\s+|\\s+$"; "")')
@@ -146,8 +150,11 @@ if [ "$action" = new ]; then
     git -C "$worktree" submodule update --init --recursive || fail "submodule initialization failed; worktree preserved at $worktree"
   fi
 else
-  [ -z "$request" ] || fail '--request is only valid for new tasks; reopening replays the saved request'
+  [ -z "$request" ] || fail '--request is only valid for new tasks; recovery never replays it'
   if [ "$action" = title ]; then name=$repo; fi
+  if [ "$action" = resume ]; then
+    case "$name" in */*|.|..) ;; *) name="${main}.worktrees/$name" ;; esac
+  fi
   worktree=$(git -C "$name" rev-parse --show-toplevel) || fail 'worktree does not exist'
   worktree=$(realpath "$worktree")
   found=false
@@ -171,8 +178,8 @@ if [ "$action" = migrate ]; then
   task_review_migrate "$worktree" "$review_file" "$base"
   exit 0
 fi
-if [ "$action" = title ]; then
-  [ -f "$metadata" ] || fail 'worktree has no workspace attachment; open it first'
+if [ "$action" = title ] || [ "$action" = resume ]; then
+  [ -f "$metadata" ] && [ -f "$review_file" ] || fail 'task has no saved workspace and review state'
   task_review_validate "$worktree" "$review_file"
 fi
 if [ -f "$review_file" ] && "$explicit_base"; then
@@ -187,7 +194,7 @@ if [ ! -f "$review_file" ] && [ -z "$adopt" ] && [ -t 0 ] &&
     *) fail 'no adoption choice; worktree preserved without launching' ;;
   esac
 fi
-if [ "$action" != title ]; then task_review_init "$worktree" "$review_file" "$review_mode" "$adopt" "$base"; fi
+if [ "$action" != title ] && [ "$action" != resume ]; then task_review_init "$worktree" "$review_file" "$review_mode" "$adopt" "$base"; fi
 
 session=""
 if [ -f "$state/session" ]; then IFS= read -r session <"$state/session" || true; fi
@@ -205,14 +212,16 @@ if [ "$action" != title ]; then printf '%s\n' "$session" >"$state/session"; fi
 
 if [ "$worktree" = "$main" ]; then label=main; else label=$(basename "$worktree"); fi
 saved='{}'
+had_metadata=false
 if [ -f "$metadata" ]; then
+  had_metadata=true
   saved=$(jq -ce --arg root "$worktree" 'select(.root == $root)' "$metadata") || fail 'workspace attachment root mismatch'
   label=$(jq -r --arg fallback "$label" '.title // $fallback' <<<"$saved")
   [ -n "$request" ] || request=$(jq -r '.request // empty' <<<"$saved")
   [ -n "$model" ] || model=$(jq -r '.model // empty' <<<"$saved")
 fi
 if [ "$action" != title ]; then
-  # Preserve launch intent even if the terminal or task tab fails to start.
+  # Record launch intent before pane creation: uncertain first delivery must not be replayed.
   updated=$(mktemp "$state/.workspace.XXXXXX")
   jq -n --argjson saved "$saved" --arg root "$worktree" --arg request "$request" \
     --arg model "$model" --arg title "$label" --arg session "$session" \
@@ -220,11 +229,109 @@ if [ "$action" != title ]; then
   mv "$updated" "$metadata"
 fi
 root_arg="$(quote "PI_TASK_ROOT=$worktree") $(quote "PI_TASK_REVIEW_STATE=$review_file")"
-pi_args="\"pi\""
-if [ -n "$model" ]; then pi_args="$pi_args \"--model\" $(quote "$model")"; fi
-if [ -n "$request" ]; then pi_args="$pi_args \"--\" $(quote "$request")"; fi
-shell_arg=$(quote "${SHELL:-bash}")
-layout="layout {
+pi_command="env PI_TASK_ROOT=$worktree PI_TASK_REVIEW_STATE=$review_file pi"
+recovery="cd $(printf '%q' "$worktree") && PI_TASK_ROOT=$(printf '%q' "$worktree") PI_TASK_REVIEW_STATE=$(printf '%q' "$review_file") pi --resume"
+panes="[]"
+if grep -qxF -- "$session" <<<"$live_sessions"; then
+  panes=$(zellij --session "$session" action list-panes --json --all)
+fi
+saved_tab=null
+if [ -f "$metadata" ]; then saved_tab=$(jq -r '.tabId // "null"' "$metadata"); fi
+# Zellij retains the original launch command even after cwd/title changes.
+# Validate the task binding there; tab IDs alone can belong to a new server.
+launch_command="env PI_TASK_ROOT=$worktree PI_TASK_REVIEW_STATE=$review_file "
+tab=$(jq -r --arg command "$launch_command" --argjson saved "$saved_tab" '
+  [.[] | select(.is_plugin == false) | select((.terminal_command // "") | startswith($command))]
+  | map(.tab_id) | unique | if length == 1 then .[0] else empty end
+' <<<"$panes")
+# A stale saved tab ID is never enough to identify a task. Multiple matching tabs are unsafe.
+if jq -e --arg command "$launch_command" '[.[] | select(.is_plugin == false and ((.terminal_command // "") | startswith($command))) | .tab_id] | unique | length > 1' <<<"$panes" >/dev/null; then
+  fail 'multiple live task tabs; cannot identify coordinator safely'
+fi
+
+if [ "$action" = title ]; then
+  if [ -n "$tab" ]; then
+    label=$title
+    if jq -e --argjson tab "$tab" 'any(.[]; .tab_id == $tab and (.tab_name | startswith("! ")))' <<<"$panes" >/dev/null; then label="! $title"; fi
+    zellij --session "$session" action rename-tab --tab-id "$tab" -- "$label"
+  fi
+  updated=$(mktemp "$state/.workspace.XXXXXX")
+  jq --arg title "$title" '.title = $title' "$metadata" >"$updated"
+  mv "$updated" "$metadata"
+  printf '%s\n' "$title"
+  exit 0
+fi
+
+# The review record owns the exact Pi locator; the original request is metadata only.
+coordinator=$(jq -r '.coordinator // empty' "$review_file")
+transcript=$(jq -r '.coordinatorSession // empty' "$review_file")
+pi_panes='[]'
+if [ -n "$tab" ]; then
+  pi_panes=$(jq -c --argjson tab "$tab" --arg command "$pi_command" '
+    [.[] | select(.is_plugin == false and .tab_id == $tab and .exited == false)
+      | select((.terminal_command // "") as $c | ($c == $command or ($c | startswith($command + " "))))]
+  ' <<<"$panes")
+fi
+if [ "$(jq length <<<"$pi_panes")" -gt 1 ]; then fail 'multiple live Pi panes in task tab; choose coordinator explicitly'; fi
+pi_pane=$(jq -r '.[0].id // empty' <<<"$pi_panes")
+if [ -n "$pi_pane" ]; then
+  expected_id=${coordinator:-$(jq -r '.initialSessionId // empty' <<<"$saved")}
+  matches=0
+  for marker in "${XDG_CACHE_HOME:-$HOME/.cache}/pi-herd/"*.json; do
+    [ -f "$marker" ] || continue
+    pid=${marker##*/}; pid=${pid%.json}
+    [[ "$pid" =~ ^[0-9]+$ ]] || continue
+    kill -0 "$pid" 2>/dev/null || continue
+    if jq -e --argjson pid "$pid" --arg root "$worktree" --arg state "$review_file" \
+      --arg session "$session" --arg pane "$pi_pane" '
+      .pid == $pid and .taskRoot == $root and .taskReviewState == $state
+      and .zellijSession == $session and .zellijPaneId == $pane' "$marker" >/dev/null 2>&1; then
+      matches=$((matches + 1))
+      if [ -n "$expected_id" ] && jq -e --arg id "$expected_id" --arg file "$transcript" '
+        .sessionId == $id and ($file == "" or .sessionFile == $file)' "$marker" >/dev/null 2>&1; then
+        live_identity=true
+      else
+        live_identity=false
+      fi
+    fi
+  done
+  [ "$matches" -eq 1 ] && [ "${live_identity:-false}" = true ] ||
+    fail 'live Pi active session unknown or differs from saved coordinator; inspect its pane or explicitly transfer with /review-coordinator (no replacement launched)'
+fi
+if [ -z "$pi_pane" ]; then
+  if [ "$action" = open ] && [ -n "$tab" ]; then
+    printf 'Workspace open without Pi. Use pi-task --repo %q resume %q to restore coordinator.\n' "$main" "$worktree"
+  else
+    if [ -n "$transcript" ]; then
+      if ! task_review_session_cwd "$worktree" "$transcript" "$coordinator" >/dev/null; then
+        fail "coordinator transcript unavailable or mismatched: $transcript; run: $recovery; select session or start fresh explicitly, then /review-coordinator to transfer ownership"
+      fi
+    fi
+    if [ "$action" = open ] && "$had_metadata"; then
+      fail 'workspace closed; use resume to restore conversation (open only navigates)'
+    fi
+    if [ "$(jq -r '.piLaunch // false' <<<"$saved")" = true ]; then
+      fail "previous Pi launch uncertain; inspect workspace, then run: $recovery; request will not be resent"
+    fi
+    if [ -z "$transcript" ] && { [ "$action" = resume ] || [ -n "$coordinator" ]; }; then
+      fail "no exact coordinator transcript recorded; initial delivery may be uncertain. Run: $recovery; select session or start fresh explicitly, then /review-coordinator to transfer ownership"
+    fi
+    pi_args='"pi"'
+    if [ -n "$transcript" ]; then
+      pi_args="$pi_args \"--session\" $(quote "$transcript")"
+      expected_command="$pi_command --session $transcript"
+    else
+      initial_id=$(uuidgen)
+      pi_args="$pi_args \"--session-id\" $(quote "$initial_id")"
+      expected_command="$pi_command --session-id $initial_id"
+      if [ -n "$model" ]; then pi_args="$pi_args \"--model\" $(quote "$model")"; fi
+      if [ "$action" = new ] && [ -n "$request" ]; then pi_args="$pi_args \"--\" $(quote "$request")"; fi
+    fi
+    updated=$(mktemp "$state/.workspace.XXXXXX")
+    jq --arg id "${initial_id:-}" '.piLaunch = true | if $id == "" then . else .initialSessionId = $id end' "$metadata" >"$updated"
+    mv "$updated" "$metadata"
+    shell_arg=$(quote "${SHELL:-bash}")
+    layout="layout {
   default_tab_template {
     pane size=1 borderless=true { plugin location=\"zellij:tab-bar\"; }
     children
@@ -243,32 +350,7 @@ layout="layout {
     floating_panes { pane { width \"80%\"; height \"80%\"; x \"10%\"; y \"10%\"; }; }
   }
 }"
-
-panes="[]"
-if grep -qxF -- "$session" <<<"$live_sessions"; then
-  panes=$(zellij --session "$session" action list-panes --json --all)
-fi
-saved_tab=null
-if [ -f "$metadata" ]; then saved_tab=$(jq -r '.tabId // "null"' "$metadata"); fi
-# Zellij retains the original launch command even after cwd/title changes.
-# Validate the task binding there; tab IDs alone can belong to a new server.
-launch_command="env PI_TASK_ROOT=$worktree PI_TASK_REVIEW_STATE=$review_file "
-tab=$(jq -r --arg command "$launch_command" --argjson saved "$saved_tab" '
-  [.[] | select(.is_plugin | not) | select((.terminal_command // "") | startswith($command))]
-  | sort_by(if .tab_id == $saved then 0 else 1 end) | .[0].tab_id // empty
-' <<<"$panes")
-
-if [ "$action" = title ]; then
-  if [ -n "$tab" ]; then
-    label=$title
-    if jq -e --argjson tab "$tab" 'any(.[]; .tab_id == $tab and (.tab_name | startswith("! ")))' <<<"$panes" >/dev/null; then label="! $title"; fi
-    zellij --session "$session" action rename-tab --tab-id "$tab" -- "$label"
   fi
-  updated=$(mktemp "$state/.workspace.XXXXXX")
-  jq --arg title "$title" '.title = $title' "$metadata" >"$updated"
-  mv "$updated" "$metadata"
-  printf '%s\n' "$title"
-  exit 0
 fi
 
 # Headless sessions can lose new panes. Attach a real client before adding tabs.
@@ -293,9 +375,43 @@ if ! client_attached; then
 fi
 
 if [ -z "$tab" ]; then
+  [ -n "${layout:-}" ] || fail 'workspace missing; use resume to restore it'
   tab=$(without_launch_lock zellij --session "$session" action new-tab --layout-string "$layout" --cwd "$worktree" --name="$label")
 else
   label=$(jq -r --argjson tab "$tab" '[.[] | select((.is_plugin | not) and .tab_id == $tab)][0].tab_name | sub("^! "; "")' <<<"$panes")
+  if [ -n "${layout:-}" ]; then
+    pi_command_args=(env "PI_TASK_ROOT=$worktree" "PI_TASK_REVIEW_STATE=$review_file" pi)
+    if [ -n "$transcript" ]; then pi_command_args+=(--session "$transcript")
+    else
+      pi_command_args+=(--session-id "$initial_id")
+      if [ -n "$model" ]; then pi_command_args+=(--model "$model"); fi
+    fi
+    pi_pane=$(without_launch_lock zellij --session "$session" action new-pane --tab-id "$tab" --no-focus --cwd "$worktree" --name="pi: $label" -- "${pi_command_args[@]}")
+    [[ "$pi_pane" =~ ^terminal_[0-9]+$ ]] || fail 'Zellij did not return a Pi pane ID'
+  fi
+fi
+if [ -n "${layout:-}" ]; then
+  # Do not release launch lock until Zellij exposes the new coordinator pane.
+  visible=false
+  for attempt in {1..20}; do
+    panes=$(zellij --session "$session" action list-panes --json --all)
+    if jq -e --argjson tab "$tab" --arg command "$expected_command" '
+      any(.[]; .is_plugin == false and .exited == false and .tab_id == $tab and
+        ((.terminal_command // "") | startswith($command)))' <<<"$panes" >/dev/null; then
+      visible=true
+      break
+    fi
+    if [ "$attempt" -lt 20 ]; then sleep 0.1; fi
+  done
+  "$visible" || fail 'Pi launch not visible; delivery uncertain. Inspect workspace before retrying'
+  updated=$(mktemp "$state/.workspace.XXXXXX")
+  jq '.piLaunch = false' "$metadata" >"$updated"; mv "$updated" "$metadata"
+  pi_pane=$(jq -r --argjson tab "$tab" --arg command "$expected_command" '
+    [.[] | select(.is_plugin == false and .exited == false and .tab_id == $tab)
+      | select((.terminal_command // "") | startswith($command))]
+    | if length == 1 then "terminal_" + (.[0].id | tostring) else empty end
+  ' <<<"$panes")
+  [ -n "$pi_pane" ] || fail 'Pi coordinator pane ambiguous after launch'
 fi
 [[ "$tab" =~ ^[0-9]+$ ]] || fail 'Zellij did not return a task tab ID'
 updated=$(mktemp "$state/.workspace.XXXXXX")
@@ -306,6 +422,7 @@ exec {launch_lock}>&-
 
 printf 'Task: %s\nSession: %s\n' "$worktree" "$session"
 zellij --session "$session" action go-to-tab-by-id "$tab"
+if [ -n "$pi_pane" ]; then zellij --session "$session" action focus-pane-id "$pi_pane"; fi
 if [ -n "${ZELLIJ:-}" ]; then
   if [ -n "${ZELLIJ_PANE_ID:-}" ]; then
     origin_tab=$(zellij action list-panes --json --tab | jq -r --argjson own "$ZELLIJ_PANE_ID" '[.[] | select((.is_plugin | not) and .id == $own)][0].tab_id // empty')

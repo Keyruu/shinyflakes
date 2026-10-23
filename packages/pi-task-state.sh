@@ -15,12 +15,27 @@ task_review_validate() {
       and (.id | type == "string" and length > 0)
       and (.summary | type == "string") and (.checks | type == "string")))
     and (.coordinator == null or (.coordinator | type == "string" and length > 0))
+    and (.coordinatorSession == null or (.coordinator != null
+      and (.coordinatorSession | type == "string" and startswith("/") and endswith(".jsonl"))))
     and (.submissions | type == "array" and all(.[];
       (.id | type == "string" and length > 0) and (.text | type == "string" and length > 0)
       and (.coordinator | type == "string" and length > 0)
       and (.kind == "question" or .kind == "changes") and (.delivered | type == "boolean")
       and (.draftVersion == null or (.draftVersion | counter)))))
   ' "$2" >/dev/null || task_review_fail "invalid/legacy review state: $2; legacy tasks require explicit migration with a committed --base"
+}
+
+# Pi may have started below the worktree root; still reject a different checkout.
+task_review_session_cwd() {
+  local root=$1 file=$2 id=$3 cwd
+  [ -f "$file" ] || { task_review_fail 'session transcript unavailable'; return 1; }
+  cwd=$(jq -er --arg id "$id" 'select(.type == "session" and .id == $id) | .cwd | strings' \
+    <(head -n 1 -- "$file")) || { task_review_fail 'session transcript ID mismatch'; return 1; }
+  if [ "$cwd" != "$root" ] &&
+    [ "$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || true)" != "$root" ]; then
+    task_review_fail 'session transcript checkout mismatch'; return 1
+  fi
+  printf '%s\n' "$cwd"
 }
 
 task_review_save() (
@@ -160,8 +175,21 @@ task_review_update() (
       [ "$value" = accept ] || { task_review_fail 'finish requires accept; use submit for changes'; exit 1; }
       [ "$(jq -r '.pending.id' "$file")" = "$id" ] || { task_review_fail 'stale review'; exit 1; }
       json=$(jq '.reviewedGeneration = .generation | del(.pending)' "$file") ;;
-    bind) json=$(jq --arg session "$1" '.coordinator //= $session' "$file") ;;
-    coordinate) json=$(jq --arg session "$1" '.coordinator = $session | (.submissions[] | select(.delivered == false)).coordinator = $session' "$file") ;;
+    bind|coordinate)
+      id=$1; value=${2:-}
+      if [ -n "$value" ]; then
+        value=$(realpath -e -- "$value") || { task_review_fail 'session transcript unavailable'; exit 1; }
+        task_review_session_cwd "$root" "$value" "$id" >/dev/null || exit 1
+      fi
+      if [ "$operation" = bind ]; then
+        json=$(jq --arg id "$id" --arg path "$value" '
+          .coordinator //= $id
+          | if .coordinator == $id and $path != "" then .coordinatorSession = $path else . end' "$file")
+      else
+        json=$(jq --arg id "$id" --arg path "$value" '
+          .coordinator = $id | .coordinatorSession = (if $path == "" then null else $path end)
+          | (.submissions[] | select(.delivered == false)).coordinator = $id' "$file")
+      fi ;;
     delivered)
       id=$1
       jq -e --arg id "$id" '.submissions | any(.id == $id)' "$file" >/dev/null || { task_review_fail 'unknown submission'; exit 1; }

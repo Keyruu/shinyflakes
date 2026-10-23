@@ -180,61 +180,55 @@
                 "uBlock0@raymondhill.net" = {
                   install_url = moz "ublock-origin";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "tridactyl.vim@cmcaine.co.uk" = {
                   install_url = moz "tridactyl-vim";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "{d634138d-c276-4fc8-924b-40a0ea21d284}" = {
                   install_url = moz "1password-x-password-manager";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "sponsorBlocker@ajay.app" = {
                   install_url = moz "sponsorblock";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "addon@darkreader.org" = {
                   install_url = moz "darkreader";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "{762f9885-5a13-4abd-9c77-433dcd38b8fd}" = {
                   install_url = moz "return-youtube-dislikes";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "firefox@vicinae.com" = {
                   install_url = moz "vicinae";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "admin@2fas.com" = {
                   install_url = moz "2fas-two-factor-authentication";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
 
                 "enhancerforyoutube@maximerf.addons.mozilla.org" = {
                   install_url = moz "enhancer-for-youtube";
                   installation_mode = "force_installed";
-                  updates_disabled = true;
-                };
-
-                "{81b74d53-9416-4fb3-afa2-ab46684b253b}" = {
-                  install_url = moz "tabwrangler";
-                  installation_mode = "force_installed";
-                  updates_disabled = true;
+                  updates_disabled = false;
                 };
               };
           };
