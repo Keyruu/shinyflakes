@@ -73,6 +73,11 @@
               };
               branches.main.name = "main";
             }
+            {
+              name = "origin";
+              url = "https://github.com/Keyruu/shinyflakes.git";
+              branches.main.name = "main";
+            }
           ];
 
           postBuildCommand = "${comin-notify}/bin/comin-notify";
