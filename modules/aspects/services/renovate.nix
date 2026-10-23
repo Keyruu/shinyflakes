@@ -43,7 +43,7 @@
         };
         schedule = "hourly";
         settings = {
-          endpoint = "https://git.keyruu.de";
+          endpoint = "https://git.lab.keyruu.de";
           gitAuthor = "Renovate <renovate@keyruu.de>";
           platform = "forgejo";
           platformAutomerge = false;
