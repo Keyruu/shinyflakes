@@ -53,7 +53,7 @@
 
           hostRules = [ ];
 
-          allowedPostUpgradeCommands = [
+          allowedCommands = [
             "^bash -c 'nix run \\.#update-hash -- .+'$"
             "^bash -c 'if \\[ -f flake\\.nix \\]; then nix-update --flake --version=skip default; fi'$"
           ];
@@ -65,6 +65,11 @@
           nix.enabled = true;
           pinDigests = true;
           packageRules = [
+            {
+              description = "flake.lock already pins revisions; inline Nix digest pinning fails confirmation";
+              matchManagers = [ "nix" ];
+              pinDigests = false;
+            }
             {
               description = "refresh nix FOD hashes (npmDepsHash/cargoHash) after JS/Rust dep updates; repos must expose packages.default";
               matchManagers = [
@@ -98,7 +103,7 @@
             enabled = true;
             automerge = true;
             automergeType = "branch";
-            schedule = [ "after 4am and before 5am every day" ];
+            schedule = [ "after 4am and before 5am" ];
           };
           osvVulnerabilityAlerts = true;
           prConcurrentLimit = 0;

@@ -22,6 +22,14 @@ let
     };
 
     nativeBuildInputs = with pkgs; [
+      # 0.19.2 corrupts this Go UI's ELF segments, crashing the loader before main.
+      (patchelf.overrideAttrs {
+        version = "0.15.2";
+        src = fetchurl {
+          url = "https://github.com/NixOS/patchelf/releases/download/0.15.2/patchelf-0.15.2.tar.bz2";
+          hash = "sha256-F3RfVkFZyOIo/EEtplogSLhGxLa0Igt3y/IkFuAvLXw=";
+        };
+      })
       dpkg
       autoPatchelfHook
       wrapGAppsHook3
@@ -50,6 +58,13 @@ let
     # The daemon launches the UI by its absolute /opt path, so wrap it in place.
     postFixup = ''
       wrapGApp $out/opt/aikidosecurity/endpoint-protection/bin/endpoint-protection-ui
+    '';
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      $out/opt/aikidosecurity/endpoint-protection/bin/endpoint-protection-ui --help
+      runHook postInstallCheck
     '';
   };
 
