@@ -66,7 +66,7 @@
           remotes = [
             {
               name = "origin";
-              url = "https://git.lab.keyruu.de/lucas/shinyflakes.git";
+              url = "https://git.keyruu.de/lucas/shinyflakes.git";
               auth = {
                 username = "x-access-token";
                 access_token_path = config.sops.secrets.cominForgejoToken.path;

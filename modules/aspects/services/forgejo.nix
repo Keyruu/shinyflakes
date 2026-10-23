@@ -1,11 +1,22 @@
 { ... }:
 {
   den.aspects.services.forgejo = {
-    nixos = { config, ... }:
+    nixos = { config, pkgs, ... }:
       let
         my = config.services.my.forgejo;
         domain = "git.keyruu.de";
         meshIp = config.services.mesh.ip;
+        anubisPolicy = pkgs.writeText "forgejo-anubis-policy.yaml" ''
+          bots:
+            # Machine clients cannot solve challenges; Forgejo still enforces access controls.
+            - name: forgejo-api
+              path_regex: '^/api/'
+              action: ALLOW
+            - name: forgejo-git-http
+              path_regex: '^/[^/]+/[^/]+/(info/(refs|lfs(/.*)?)|git-(upload|receive)-pack)$'
+              action: ALLOW
+            - import: (data)/meta/default-config.yaml
+        '';
       in
       {
         sops.secrets = {
@@ -197,7 +208,9 @@
                     BIND = ":3000";
                     TARGET = "http://forgejo:3000";
                     JWT_RESTRICTION_HEADER = "CF-Connecting-IP";
+                    POLICY_FNAME = "/etc/anubis/policy.yaml";
                   };
+                  volumes = [ "${anubisPolicy}:/etc/anubis/policy.yaml:ro" ];
                   networkAliases = [ "anubis" ];
                 };
               };
