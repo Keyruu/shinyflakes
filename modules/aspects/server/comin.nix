@@ -30,7 +30,7 @@
                 errorMsg="''${COMIN_ERROR_MSG:-}"
 
                 title="[$phase] $hostname: $status"
-                if [ "$status" = "done" ] || [ "$status" = "built" ]; then
+                if [ "$status" = "done" ] || [ "$status" = "built" ] || [ "$status" = "already built" ]; then
                   priority=4
                   message="Host: $hostname
                 Phase: $phase
