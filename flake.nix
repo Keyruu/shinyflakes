@@ -33,6 +33,7 @@
     den.url = "github:denful/den";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
+    crane.url = "github:ipetkov/crane/v0.24.0";
 
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
@@ -131,10 +132,7 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    zellij = {
-      url = "github:Keyruu/zellij";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    herdr.url = "github:herdrdev/herdr";
 
     # web
     homepage.url = "git+https://git.keyruu.de/lucas/homepage";

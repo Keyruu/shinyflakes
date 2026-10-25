@@ -2,6 +2,7 @@
   den.aspects.shell.default = {
     includes = with den.aspects.shell; [
       fish
+      herdr
       ssh
       tmux
       zellij
@@ -28,7 +29,7 @@
         HASS_KEY=${config.sops.placeholder.hassKey}
         ZAI_API_KEY=${config.sops.placeholder.zaiKey}
         MINIMAX_API_KEY=${config.sops.placeholder.minimaxKey}
-        LINEAR_API_KEY=${config.sops.placeholder.minimaxKey}
+        LINEAR_API_KEY=${config.sops.placeholder.linearApiKey}
       '';
 
       home.sessionVariables = {

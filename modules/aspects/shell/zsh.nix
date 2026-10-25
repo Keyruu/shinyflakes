@@ -69,10 +69,7 @@
             export PATH="$HOME/.cargo/bin:$PATH"
             export PATH="$HOME/Library/Application Support/JetBrains/Toolbox/scripts/:$PATH"
 
-            export KUBECONFIG=$HOME/.kube/config
-            export KUBECONFIG=$KUBECONFIG:$HOME/.kube/galaxy.yaml
-            export KUBECONFIG=$KUBECONFIG:$HOME/.kube/traversetown.yaml
-            export KUBECONFIG=$KUBECONFIG:$HOME/.kube/pdarobe.yaml
+            export KUBECONFIG=$HOME/.kube/active
           '';
 
           antidote = {

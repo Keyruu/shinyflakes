@@ -1,8 +1,38 @@
-# Worktree-attached agent review workflow
+# Task-attached agent review workflow
 
-For remaining redesign steps, see [Pi task workflow redesign](pi-task-workflow-redesign.md).
-Step 1 (reliable resume) exists in source; same-window startup and shared-checkout
-task identities remain proposals. Installed packages still require rebuild/activation.
+For implementation status and package paths, see [Pi task workflow redesign](pi-task-workflow-redesign.md).
+Steps 1–3 and the TypeScript/shared-core migration exist in source. Step 3 adds
+independent task IDs, shared-checkout tasks and navigation without adoption.
+Disposable native smoke passed shared Pi stacking, external-worktree navigation
+and `/new` → `/reload` → ordinary HEAD-based review after fixing Guardian's fresh-
+runtime lifecycle handling. Nothing activated. Use rebuilt `rc1dfkh…` launcher
+and updated Guardian source; do not reload other Pis implicitly.
+
+Historical Steps 1–2 validation: rebuilt packages and the shared-library link
+were installed through a separate workflow. Historical current-terminal and
+explicit-window tests passed; native routing fix passed cold focus/switch smoke.
+October 23's early-CLI startup race blocked packaged integration. On October 24,
+new installed Zellij `261h2bi…` passed shell-only and real project-layout startup
+with immediate client polling; packaged `pi-task` `n4xd889…` then passed
+`new --window` with an empty request, correct model/task bindings, Guardian
+coordinator and focused Pi. User confirmed responsive input and working bars.
+Existing frozen sessions still used the older binary and were left untouched.
+Follow-up packaged smoke passed same-window cross-repository creation, `open`
+return and `resume` into a detached session, with unchanged panes/Pi identities
+and no extra window. Attached-target `--window` refusal also passed. Both repos
+had the same basename and distinct session hashes. Recovery preparation exposed
+Guardian's socket-ID/name confusion; `herd.ts` now uses native session-name
+discovery with regression coverage. After reloading only disposable Pi, live
+`resume` and missing-Pi recovery passed: same conversation UUID/model, byte-identical
+transcript, unchanged review state, surviving editor/shell and no prompt replay.
+User then found incorrect pane geometry; rebuilt launcher `7rcic2i…` fixes this
+with native standard-layout reuse. Repeated native recovery passed exact pane
+rectangle and survivor-PID checks as well as transcript/review checks. This
+launcher fix is built, not activated; installed `n4xd889…` lacks it.
+Full-workspace recovery remains untested. Other running Pis need their own
+explicit reload for Guardian's identity fix; no system activation was performed.
+See the redesign document for package paths, evidence and preserved fixtures;
+do not retry `new` for existing tasks.
 
 Review is manual and nonblocking. Agents edit and check their work, then use
 `ask_user` for completion/follow-up. Human can open `/review` at any time;
@@ -32,26 +62,76 @@ accepted as metadata only; neither enables approval gates.
 
 ## Launch and attach
 
-One repository Zellij session contains one tab per task/worktree. Each tab owns
-its editor, terminal and agent panes. `open` navigates to an existing workspace
-without sending prompts (first-time worktree adoption retains legacy behavior);
-`resume` focuses its live coordinator or restores only
-missing Pi (or the whole layout) with native `pi --session` and no prompt.
-Main checkout remains usable.
+Isolated tasks default to a full editor/shell/Pi tab in a repository Zellij
+session. `new NAME --here` uses the current checkout and branch unchanged:
+inside Zellij it stacks Pi in the existing visible Pi area without changing
+editor/shell geometry or replacing processes. It requires one verified live Pi
+for this checkout; missing/ambiguous Pi areas refuse rather than split an editor.
+In a plain terminal it runs Pi directly, without Zellij or footclient.
+`--here --tab` instead requests a separate full workspace tab. Existing Pi
+conversations are never rebound or sent a prompt by starting another task.
 
-`pi-task --repo /path/to/repo new ...` handles session setup even when called
-from another repository or outside Zellij. It opens a footclient window with
-Zellij's `project` layout at the main checkout when the repository session is
-missing, or attaches a window when the session has no client. New sessions use
-the repository basename (unsupported characters become hyphens). The launcher
-waits up to ten seconds for an attached client before creating a separate task
-tab. It never creates a headless session or passes its launch lock to the
-terminal/server. `footclient` and the configured `project` layout must be
-available in the desktop session.
+`open PATH` navigates without adoption or prompts. Unregistered checkouts get
+an editor/shell workspace, not a task or Pi. Closed registered tasks require
+`resume TASK_ID` to restore their conversation. Explicit paths select their
+repository independently of cwd; a conflicting `--repo` fails.
+`resume` focuses a verified live coordinator or restores missing Pi/the whole
+layout with native `pi --session`, never the original request.
+For missing Pi beside the standard bound editor/shell, rebuilt launcher reapplies
+the normal editor-upper-left, shell-lower-left, full-height-Pi-right layout using
+native command matching and pane retention. It preserves survivor processes and
+tab titles/review cues, then verifies geometry. Extra, exited, floating or
+suppressed terminals and missing editor/shell require explicit inspection rather
+than automatic rearrangement. Arbitrary custom-layout restoration is not supported.
+Shared-tab recovery stacks only Pi after validating the original Zellij server's
+PID/start time, surviving editor/shell launch bindings and a visible live Pi area.
+Moved/stale/partial anchors or missing/ambiguous Pi areas refuse recovery rather
+than targeting another workspace or splitting an editor. If the workspace
+is entirely gone, recovery creates a standard dedicated tab. Shared tabs use
+per-Pi status and herd review indicators, not competing tab-wide `! ` cues or
+task-title renames. Plain-terminal live Pi refuses duplicate launch; return to
+its existing terminal rather than trying to focus it through Zellij.
+
+`pi-task --repo /path/to/repo new ...` reuses the caller's window. Inside Zellij,
+it switches the current client to a detached repository session or creates one
+with the `project` layout at the main checkout. In a plain interactive terminal,
+it runs/attaches Zellij in that terminal and returns when the client exits.
+Neither path requires footclient. `--window` explicitly opens footclient with
+`--client-environment` so sanitized task bindings and caller Pi settings reach
+the new terminal. Automation/desktop invocations without a terminal must opt in
+and supply an explicit command/target, not rely on a picker.
+
+Navigation is deliberately **single-client only**. The pinned Zellij fork routes
+CLI actions to its last-active client, so the launcher refuses an ambiguous
+current session, unknown client state, or adding another client to an already
+attached destination (including `--window`). Run from that session's sole
+attached terminal, or detach it manually before attaching elsewhere. No automatic
+detach or client termination occurs. Checks repeat before launching/focusing;
+they are observations, not an atomic client-targeting guarantee.
+
+New session names use sanitized repository basename plus a hash of the canonical
+Git common directory; identical basenames remain distinct. Saved legacy names
+are preserved, including when recreating a missing session. The launcher waits
+up to ten seconds for exactly one attached client before creating task panes.
+It never creates a headless session or passes its launch lock to the
+terminal/server; plain-terminal attachment releases that lock before waiting
+for client exit. `project` must be configured; footclient is only required for
+`--window`.
+
+Alt-T retains `close_on_exit true`. Source inspection of pinned Zellij
+`0ad1fa042c5284d880ac22c12b9136e174e4f9e0` (`zellij-server/src/pty.rs`)
+shows its exit callback closes the picker pane by ID, not task panes created by
+the server. A user-operated native scratchpad smoke using the rebuilt picker
+confirmed it exits while the new task's editor/Pi/shell survive. This tested
+Alt-T's lifecycle flags, not replacement of the installed keybinding command.
+Do not generalize it to nested clients or other launchers; agent command panes
+still retain their output. Reopen skips redundant Pi focus when changing tabs
+already restored it, since native Zellij reports “already focused” as an error.
 
 Request and model are saved before terminal/tab startup. Only `new` delivers
-its request, once per launch attempt. After failure, inspect `pi-task state
-<worktree>` and use `pi-task resume <worktree>` if an exact coordinator transcript
+its request, once per launch attempt. The uncertain-delivery marker is set
+immediately before pane launch, not before client startup. After failure, inspect `pi-task state
+<task-id>` and use `pi-task resume <task-id>` if an exact coordinator transcript
 was recorded. Session headers with cwd inside the same Git worktree are valid;
 other checkouts are rejected. Existing tasks with no locator, deleted transcripts,
 or uncertain launches need explicit recovery: use task-bound shell or run
@@ -75,28 +155,37 @@ For an fzf Linear ticket picker, see [Linear task setup](pi-task-linear.md).
 ```bash
 pi-task                                      # repository/worktree picker; Alt-t also opens it
 pi-task new auth-cleanup --base HEAD --request 'Refactor auth validation'
+pi-task new fix-config --here --request 'Fix configuration'
+pi-task new another-fix --here --tab --request 'Use a separate tab'
 pi-task open ../shinyflakes.worktrees/auth-cleanup    # navigation only
 pi-task resume auth-cleanup                       # live Pi or exact transcript
+pi-task resume auth-cleanup --window              # explicit window; destination must be detached
 pi-task state ../shinyflakes.worktrees/auth-cleanup
 pi-task review                               # pending tasks in this repository
 pi-herd --reviews                             # pending reviews in running Pi instances
 pi-task --repo ../shinyflakes.worktrees/auth-cleanup title 'Auth validation'
 
-# First adoption of an existing dirty worktree:
-pi-task open ../existing-task --base COMMITTED_REF --adopt include
+# Explicitly include existing edits in a new task's review:
+pi-task --repo ../existing-task new fix-existing --here --base COMMITTED_REF --adopt include
 ```
 
-New tasks use `task/<name>` branches and sibling
+Without `--here`, new tasks use `task/<name>` branches and sibling
 `<main-checkout>.worktrees/<name>` directories. Starting point is committed;
 main-checkout dirty edits are not copied. Committed submodules initialize
-recursively. Dirty adoption includes existing edits in review, without claiming
-agent authorship. `--adopt trust` is retired. Reopening/policy changes cannot
-reset an existing task base.
+recursively. `--here` discloses existing edits and requires explicit inclusion
+(`--adopt include`, or an interactive confirmation). It warns about known live
+agents and offers isolation instead; this is advisory, not a writer lock or proof
+that no other writer exists. Reviews include shared changes, not agent authorship.
+`--adopt trust` is retired. Starting a new task never resets an earlier task's base,
+notes, pending feedback or coordinator.
 
-`PI_TASK_ROOT` is immutable task identity; `PI_TASK_REVIEW_STATE` locates durable
-state. Already-attached panes can derive state path from task root. Editor
-routing checks live task/tab identity, handles cwd changes/restarts, and never
-falls back to another task's editor. Standalone editor fallback is TUI-only;
+New tasks use UUIDs independent of checkout paths. Names resolve within the
+selected repository; ambiguous names or checkout paths require a picker, never
+an arbitrary latest task. `PI_TASK_ROOT` is an immutable checkout binding;
+`PI_TASK_REVIEW_STATE` is the exact task review identity. Only legacy path-keyed
+tasks can derive state from root. Editor routing checks live tab and review
+identity, handles cwd changes/restarts, and never falls back to another task's
+bound editor. Shared tabs may reuse an unbound same-checkout editor. Standalone editor fallback is TUI-only;
 RPC cannot launch an interactive editor on its stdout.
 
 ### Display titles and review navigation
@@ -106,7 +195,9 @@ without a hash. Once intent is clear, coordinating Pi uses `set_task_title` with
 a short description; children cannot rename the shared task. Naming updates
 workspace metadata and any matching live tab, never branch/worktree paths,
 review state, focus or agent activity. Offline naming does not launch a
-workspace. No extra model call generates titles.
+workspace. New task title calls pass `--task-id` explicitly, so an older CLI
+refuses rather than renaming a path-keyed legacy task. No extra model call
+generates titles.
 
 Reopening matches the original pane launch command's immutable task root and
 review-state path, not current cwd, tab title or an unvalidated saved tab ID.
@@ -120,8 +211,11 @@ until reloaded after activation. Existing version-2 layouts
 already carry task bindings. Live manual titles are preserved on reopening;
 review attention adds/removes only `! ` without restoring an old name.
 
-The existing task picker lists pending reviews first with `REVIEW`, title,
-summary and worktree path. `pi-task review` filters that repository to pending
+The picker separates Start here, New isolated task and Open checkout. Task rows
+show title, ID, checkout kind/path, review attention, agent status and workspace
+state separately, with live activity timestamps when available. Selecting a task
+offers Open workspace, Resume exact conversation or New conversation (a separate
+named task in that checkout). `pi-task review` filters that repository to pending
 tasks, including tasks whose Pi is closed. A live Pi receives no new prompt;
 `open` only navigates. Use `resume` to restore a recorded session; it never
 replays request or saved feedback.
@@ -143,6 +237,18 @@ Ordinary review state is isolated by repository and Pi session under
 `<git-common-dir>/pi-task/session-reviews/<hash>.json`; it never adopts a
 worktree or changes a task's fixed base. Outside a Git repository, `/review`
 fails without affecting editing. A repository must have a committed `HEAD`.
+
+Pi replaces extension runtimes during `/new`, resume and fork. Guardian uses
+native `session_start.reason`, not closure-local history, to recognize detachment.
+October 24's corrected native `/new` → `/reload` → `/review` smoke passed without
+changing the old named task's review or coordinator. Promptless-session disk
+restart was not exercised; native reload persistence was.
+
+Native `/new` or switching away from a tracked conversation detaches its review
+context; `/review` then uses ordinary session HEAD without stealing the former
+coordinator. Detachment survives `/reload` through native session metadata.
+Returning to the saved coordinator restores its task context. Explicit
+`/review-coordinator` can transfer ownership; it never replays saved feedback.
 
 A reviewer lease excludes competing UIs for the same review state, not writers.
 There are no writer leases, generation tracking or content fingerprints on tool
@@ -279,7 +385,10 @@ Pi's send API or observing `message_end` is not a durable acknowledgement.
 Durable version-2 JSON lives at
 `<git-common-dir>/pi-task/reviews/<task-id>.json`: fixed base, pending review,
 coordinator, its exact native Pi transcript path (when available), Markdown
-draft/version and immutable submission texts/receipts.
+draft/version and immutable submission texts/receipts. New reviews also carry
+`taskId`; old path-derived IDs and their files remain unchanged. Workspace metadata
+stays at `pi-task/<task-id>.json`; unregistered checkout presentation uses
+`pi-task/checkouts/<checkout-hash>.json` without creating review state.
 Policy and generation fields are retained for version-2 compatibility only;
 they no longer control tools. Ordinary reviews use the session-scoped path above. Draft opens as a Markdown `acwrite` buffer; it is not
 source or an annotation database. Runtime IPC stays instance-owned and separate
@@ -287,14 +396,20 @@ from durable state and workspace attachment metadata.
 
 ### State contract and polling
 
-Bash remains the sole state-mutation authority. Shared valid/invalid fixtures at
+The TypeScript CLI remains the sole state-mutation authority. Guardian imports
+`modules/aspects/agents/pi/lib/task-state.ts` for state paths, reading and runtime
+validation; transitions live there too but only the CLI persists changes.
+Shared valid/invalid fixtures at
 `modules/aspects/agents/pi/extensions/tool-guardian/tests/fixtures/task-review-state.json`
-exercise both Bash and TypeScript validators. State is one JSON document;
+exercise CLI and Guardian against the same executable validator. State is one JSON document;
 counters are nonnegative safe integers, reviewed generation cannot exceed
 current generation, and pending review IDs must be nonempty. Missing/null
 optional fields remain supported. Lua checks version/root and delegates
-mutations to Bash; it does not duplicate the full validator. Storage stays
-version 2, with no new schema runtime or migration.
+mutations to `pi-task`; it does not duplicate the full validator. `pi-herd` also
+asks the CLI to validate state. Existing `flock` files protect read-modify-write
+operations; private atomic replacement alone is not treated as a lock. Child
+terminal/server commands do not inherit lock descriptors. Storage stays
+version 2, with no new schema runtime or automatic migration.
 
 The mailbox keeps its 500 ms poll to discover cross-process submissions and
 confirm durable transcript receipts. State reads reuse validated, frozen
@@ -319,8 +434,12 @@ parsing; no automatic pruning is performed.
 ## Activate and migrate legacy tasks
 
 Build/activate updated `pi-task` and Neovim configuration through usual Home
-Manager flow. Activate updated `pi-task` before `/reload` in every Pi, including
-children; the installed helper must support ordinary-session `init`/`begin-local`.
+Manager flow. Activate updated `pi-task` and the new `~/.pi/agent/lib` symlink
+before `/reload` in every Pi, including children. Pi resolves shared imports
+relative to the installed Guardian extension symlink; source changes alone do
+not install this link. The helper must support ordinary-session `init`/`begin-local`.
+`pi-task` bundles only its CLI/shared TypeScript sources and ESM manifest, runs
+with Nix-pinned Node native type stripping, and needs no global Node or compiler.
 Reload does not migrate or discard saved version-2 drafts. Old running Guardians
 still enforce their old gates until reloaded. Restart Neovim after plugin changes.
 
@@ -348,9 +467,11 @@ an explicit separate Git/data-retention operation.
 
 ```bash
 export DIFFVIEW_TEST_RTP="$HOME/.btca/agent/sandbox/dlyongemallo-diffview-plus.nvim"
-bash -n packages/pi-task.sh packages/pi-task-state.sh
+bash -n packages/pi-task.sh packages/pi-task-state.sh packages/pi-herd.sh packages/tests/pi-task-*.sh
 bash packages/tests/pi-task-resume.sh
-node --experimental-strip-types --test modules/aspects/agents/pi/extensions/tool-guardian/tests/*.test.ts
+bash packages/tests/pi-task-loader.sh
+node --experimental-strip-types --test modules/aspects/agents/pi/cli/tests/*.test.ts \
+  modules/aspects/agents/pi/extensions/tool-guardian/tests/*.test.ts
 nix build --offline --builders '' --no-link \
   '.?submodules=1#pi-task' '.?submodules=1#pi-herd' '.?submodules=1#pi-guardian-nvim' '.?submodules=1#nvim'
 nix run --offline '.?submodules=1#nvim' -- --headless \
@@ -362,7 +483,28 @@ legacy guided metadata, HEAD refresh versus fixed task bases, coordinator and
 restart delivery, sensitive paths and destructive-command approvals. Native
 Neovim coverage requires `DIFFVIEW_TEST_RTP`; without it that test is skipped.
 
-Shared contract fixtures exercise both state validators. Cache tests cover
+`pi-task-resume.sh` also checks presentation with stub Zellij/footclient and a
+real PTY: same-client creation/attach, plain-terminal lifetime and lock release,
+explicit windows, legacy names, basename collisions, unknown/multiple/racing
+clients, readiness failures and picker exit. No real user sessions are touched.
+These automated checks do not replace live client/focus/lifecycle verification.
+
+Shared contract fixtures exercise the single validator through both consumers.
+The loader fixture uses isolated offline Pi with Home Manager-style symlinks,
+no model prompt and no persisted session. State tests cover explicit legacy
+migration, dirty adoption, mixed Bash/Node lock contention, concurrent writes,
+reviewer independence and lock release on process death. To repeat focused
+state/Guardian checks against the packaged CLI (including empty-PATH state
+operations outside the source checkout):
+
+```bash
+package=$(nix build --offline --builders '' --no-link --print-out-paths '.?submodules=1#pi-task')
+PI_TASK_TEST_CLI="$package/bin/pi-task" node --experimental-strip-types --test \
+  modules/aspects/agents/pi/cli/tests/task-state.test.ts \
+  modules/aspects/agents/pi/extensions/tool-guardian/tests/task-review.test.ts
+```
+
+Cache tests cover
 unchanged polls, explicit refresh, atomic replacements and corrupt/missing
 state. Review-session checks cover edits-only delivery, saved/restarted
 baselines, large payloads, sensitive exclusions and submodule coverage without
@@ -381,7 +523,8 @@ source Git mutations. Human smoke remains separate from automated checks.
 These historical results describe the retired approval-gated workflow, not
 validation of the current manual/nonblocking behavior.
 
-Implementation: `packages/pi-task{,-state}.sh`, Guardian task/batch modules and
+Implementation: `modules/aspects/agents/pi/cli/{pi-task,review,runtime}.ts`,
+`modules/aspects/agents/pi/lib/task-state.ts`, Guardian task/batch modules and
 `modules/aspects/agents/pi/extensions/tool-guardian/review-session.ts`,
 `packages/pi-guardian-nvim/lua/pi-guardian/{batch,batch-notes}.lua`, and
 `packages/nvim/lua/cfg/diffview.lua` (loaded by `packages/nvim/init.lua`).

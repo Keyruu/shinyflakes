@@ -2,6 +2,7 @@
 pkgs.writeShellApplication {
   name = "pi-herd";
   runtimeInputs = with pkgs; [
+    (import ./pi-task.nix { inherit pkgs; })
     fzf
     git
     jq
@@ -13,11 +14,5 @@ pkgs.writeShellApplication {
     util-linux # setsid
   ];
   # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
-  extraShellCheckFlags = [ "--external-sources" ];
-  text =
-    builtins.replaceStrings [ "source=packages/pi-task-state.sh" ] [ "source=${./pi-task-state.sh}" ]
-      ''
-        PI_TASK_STATE_LIBRARY=${./pi-task-state.sh}
-        ${builtins.readFile ./pi-herd.sh}
-      '';
+  text = builtins.readFile ./pi-herd.sh;
 }

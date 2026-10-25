@@ -6,9 +6,6 @@
 # zellij (vicinae script command). Jumps by focusing the pane inside the
 # target session and then the Mango window showing that session.
 
-# shellcheck source=packages/pi-task-state.sh
-source "${PI_TASK_STATE_LIBRARY:-$(dirname "${BASH_SOURCE[0]}")/pi-task-state.sh}"
-
 dir="${XDG_CACHE_HOME:-$HOME/.cache}/pi-herd"
 mode=fzf
 reviews=false
@@ -71,7 +68,7 @@ for f in "$dir"/*.json; do
   review_file=$(jq -r '.taskReviewState // empty' "$f")
   if [ -n "$review_file" ]; then
     root=$(jq -r '.taskRoot // empty' "$f")
-    task_review_validate "$root" "$review_file" || exit 1
+    pi-task review-internal validate "$root" "$review_file" || exit 1
     if jq -e '.pending != null' "$review_file" >/dev/null; then
       status=review
       summary=$(jq -r '.pending.summary // "" | gsub("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]"; " ") | .[0:160]' "$review_file")

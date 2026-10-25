@@ -20,6 +20,19 @@
               dp = "deployments";
             };
 
+            views."autoscaling/v2/horizontalpodautoscalers".refs = [
+              {
+                path = "/spec/scaleTargetRef/name";
+                kind_path = "/spec/scaleTargetRef/kind";
+                kinds = [
+                  "deployments.apps"
+                  "statefulsets.apps"
+                ];
+                relation = "scales";
+                reverse = "namespace";
+              }
+            ];
+
             plugins = [
               {
                 key = "ctrl-l";

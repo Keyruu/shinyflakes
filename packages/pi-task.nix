@@ -1,23 +1,30 @@
 { pkgs }:
+let
+  source = pkgs.lib.fileset.toSource {
+    root = ../modules/aspects/agents/pi;
+    fileset = pkgs.lib.fileset.unions [
+      ../modules/aspects/agents/pi/package.json
+      ../modules/aspects/agents/pi/cli/pi-task.ts
+      ../modules/aspects/agents/pi/cli/review.ts
+      ../modules/aspects/agents/pi/cli/runtime.ts
+      ../modules/aspects/agents/pi/lib/task-state.ts
+    ];
+  };
+in
 pkgs.writeShellApplication {
   name = "pi-task";
   runtimeInputs = with pkgs; [
+    nodejs
+    bash
     git
     zellij
-    jq
     fzf
     zoxide
     coreutils
-    gawk
-    gnugrep
     util-linux
   ];
-  # Use the configured editor, agent, and login shell from the user session.
-  extraShellCheckFlags = [ "--external-sources" ];
-  text =
-    builtins.replaceStrings [ "source=packages/pi-task-state.sh" ] [ "source=${./pi-task-state.sh}" ]
-      ''
-        PI_TASK_STATE_LIBRARY=${./pi-task-state.sh}
-        ${builtins.readFile ./pi-task.sh}
-      '';
+  # Editor, agent, and desktop terminal still come from the configured user session.
+  text = ''
+    exec node --experimental-strip-types "${source}/cli/pi-task.ts" "$@"
+  '';
 }

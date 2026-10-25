@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ ... }:
 {
   den.aspects.shell.zellij = {
     homeManager =
@@ -41,7 +41,7 @@
 
         programs.zellij = {
           enable = true;
-          package = inputs.zellij.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          package = self'.packages.zellij;
           extraConfig = # kdl
             ''
               theme "shiny"
