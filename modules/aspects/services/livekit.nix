@@ -41,7 +41,7 @@
           security.enable = true;
           containers.livekit = {
             containerConfig = {
-              image = "docker.io/livekit/livekit-server:v1.13.10";
+              image = "docker.io/livekit/livekit-server:v1.13.11";
               exec = "--config /etc/livekit.yaml";
               publishPorts = [
                 "50000-50200:50000-50200/udp"
