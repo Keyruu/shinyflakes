@@ -23,8 +23,7 @@
 
               case "$mode" in
                 region)
-                  geom=$(slurp -d) || exit 0
-                  capture=(-g "$geom")
+                  capture=()
                   ;;
                 screen)
                   monitor=$(mmsg get focusing-client | jq -r '.monitor // empty')
@@ -66,7 +65,11 @@
                 rm -f "$img"
                 exit 1
               fi
-              satty --filename "$img"
+              if [ "$mode" = region ]; then
+                satty --filename "$img" --initial-tool crop --output-filename "$img" --save-after-copy
+              else
+                satty --filename "$img"
+              fi
             '';
         };
 
