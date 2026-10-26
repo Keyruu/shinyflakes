@@ -20,7 +20,7 @@
             containers = {
               lidarr = {
                 containerConfig = {
-                  image = "ghcr.io/hotio/lidarr:release-3.1.0.4875";
+                  image = "ghcr.io/hotio/lidarr:release-3.1.6.5079";
                   environments = {
                     PUID = "0";
                     PGID = "0";
