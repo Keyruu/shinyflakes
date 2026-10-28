@@ -19,7 +19,7 @@
       positions = {
         laptop = "0,0";
         home = "-320,-1440";
-        work = "-411,-1543";
+        work = "-411,-1544";
       };
     };
   };
@@ -80,10 +80,7 @@
 
         # Workstation packages migrated from blueprint's workstation.nix + wayland.nix
         # (those nixos modules aren't migrated to den yet — see phase 3 cleanup).
-        environment.systemPackages = with pkgs; [
-          distrobox
-          nautilus
-        ];
+        environment.systemPackages = [ pkgs.distrobox ];
 
         # Host-level extras on top of den.batteries.define-user (which provisions
         # the OS user + home dir). wheel/networkmanager added by primary-user.

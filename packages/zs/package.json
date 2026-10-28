@@ -1,0 +1,8 @@
+{
+  "name": "zs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test main.test.ts"
+  }
+}

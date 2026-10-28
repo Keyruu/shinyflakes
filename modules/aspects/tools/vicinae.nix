@@ -21,6 +21,13 @@
           inputs.vicinae.homeManagerModules.default
         ];
 
+        home.activation.refreshVicinaeApps = lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
+          export XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+          if ${pkgs.systemd}/bin/systemctl --user is-active --quiet vicinae.service; then
+            run ${lib.getExe inputs'.vicinae.packages.default} vicinae://launch/core/refresh-apps
+          fi
+        '';
+
         xdg.desktopEntries.vicinae-deeplink = {
           name = "Vicinae Deeplink Handler";
           exec = "vicinae %u";

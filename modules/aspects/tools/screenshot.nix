@@ -22,10 +22,7 @@
               mode=''${1:-region}
 
               case "$mode" in
-                region)
-                  capture=()
-                  ;;
-                screen)
+                region|screen)
                   monitor=$(mmsg get focusing-client | jq -r '.monitor // empty')
                   if [ -z "$monitor" ]; then
                     monitor=$(mmsg get cursorpos | jq -er '.monitor')

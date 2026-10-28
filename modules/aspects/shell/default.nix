@@ -9,7 +9,7 @@
       zsh
     ];
 
-    homeManager = { config, ... }: {
+    homeManager = { inputs', config, ... }: {
       sops.secrets = {
         scalewayKey = { };
         hcloudToken = { };
@@ -69,6 +69,8 @@
         deploy-prime = "nixos-rebuild --flake ~/shinyflakes?submodules=1#prime switch --target-host root@prime --build-host root@prime --no-reexec";
         select-k9s = ''KUBECONFIG="$(find ~/.kube -maxdepth 1 -type f -name "*.yml" -o -name "*.yaml" -o -name "config" | fzf --prompt="Select kubeconfig: ")" k9s'';
       };
+
+      home.packages = [ inputs'.llm-agents.packages.terminal-browser ];
 
       programs = {
         starship = {

@@ -5,17 +5,30 @@
       pkgs,
       lib,
       inputs',
+      self',
       user,
       ...
     }:
     let
       t = user.theme;
       fish = lib.getExe pkgs.fish;
+      herdr = lib.getExe inputs'.herdr.packages.default;
+      plugins = {
+        "persiyanov.reviewr" = self'.packages.herdr-reviewr;
+        "fullerzz.sesh" = self'.packages.herdr-sesh;
+      };
     in
     {
-      home.packages = [
-        inputs'.herdr.packages.default
-      ];
+      home.packages = [ inputs'.herdr.packages.default ] ++ builtins.attrValues plugins;
+
+      # Linking replaces registrations in place, preserving running panes and plugin state.
+      home.activation.herdrPlugins = lib.hm.dag.entryAfter [ "linkGeneration" ] (
+        lib.concatStringsSep "\n" (
+          lib.mapAttrsToList (id: package: ''
+            run ${herdr} plugin link ${lib.escapeShellArg "${package}/share/herdr/plugins/${id}"} --enabled
+          '') plugins
+        )
+      );
 
       xdg.configFile."herdr/config.toml".source = (pkgs.formats.toml { }).generate "herdr-config.toml" {
         onboarding = false;
@@ -98,6 +111,18 @@
               description = "lazygit";
               width = "80%";
               height = "80%";
+            }
+            {
+              key = "alt+s";
+              type = "plugin_action";
+              command = "fullerzz.sesh.open-picker";
+              description = "Sesh workspace picker";
+            }
+            {
+              key = "prefix+shift+v";
+              type = "plugin_action";
+              command = "persiyanov.reviewr.toggle";
+              description = "Toggle reviewr diff pane";
             }
           ];
         };

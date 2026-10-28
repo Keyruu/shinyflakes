@@ -19,6 +19,9 @@
   };
 
   inputs = {
+    # Enable after flake-self-attrs is active on all machines evaluating this flake.
+    # self.submodules = true;
+
     # nixpkgs
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";

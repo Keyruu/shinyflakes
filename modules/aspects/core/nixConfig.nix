@@ -31,6 +31,7 @@
           experimental-features = [
             "nix-command"
             "flakes"
+            "flake-self-attrs"
           ];
 
           accept-flake-config = true;

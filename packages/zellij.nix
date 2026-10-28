@@ -4,15 +4,15 @@ let
   src = pkgs.fetchFromGitHub {
     owner = "Keyruu";
     repo = "zellij";
-    rev = "f27dfa22fe26910fb896df5895dd2ce0989e83c9";
-    hash = "sha256-xkXwyclzA3Y+GnMD2H9UvhnIxe9Z7c6BzDhueHBuSa4=";
+    rev = "1be5c7c088125866d72c8acf59fe270da7f797c2";
+    hash = "sha256-TdRUZ3MXhWHDQHc5xIURF7/VjBdJzvmvtuovRtc6fvY=";
   };
 in
 craneLib.buildPackage {
   pname = "zellij";
   version = "0.46.0-fork";
   inherit src;
-  cargoExtraArgs = "--locked --no-default-features --features plugins_from_target,web_server_capability,window";
+  cargoExtraArgs = "--locked --no-default-features --features plugins_from_target,web_server_capability,terminal";
   env.OPENSSL_NO_VENDOR = 1;
 
   nativeBuildInputs = [

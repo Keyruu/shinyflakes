@@ -1,17 +1,28 @@
 { pkgs }:
+let
+  source = pkgs.lib.fileset.toSource {
+    root = ./zs;
+    fileset = pkgs.lib.fileset.unions [
+      ./zs/main.ts
+      ./zs/package.json
+    ];
+  };
+in
 pkgs.writeShellApplication {
   name = "zs";
   runtimeInputs = with pkgs; [
     zellij
     zoxide
     fzf
-    jq
-    gawk
-    gnused
-    gnugrep
-    coreutils
-    util-linux # setsid
+    bash
+    git
+    gh
+    nodejs
+    glibc.bin # getconf supplies the kernel clock tick rate for PID reuse checks.
   ];
   # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
-  text = builtins.readFile ./zs.sh;
+  text = ''
+    export ZS_HELPER=${source}/main.ts
+    ${builtins.readFile ./zs.sh}
+  '';
 }

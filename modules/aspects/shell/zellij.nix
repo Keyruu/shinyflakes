@@ -395,6 +395,10 @@
                       scratchpad true
                       close_on_exit true
                       name "pi tasks"
+                      width "80%"
+                      height "80%"
+                      x "10%"
+                      y "10%"
                     }
                   }
                   bind "Alt p" {
@@ -402,6 +406,10 @@
                       scratchpad true
                       close_on_exit true
                       name "pi herd"
+                      width "80%"
+                      height "80%"
+                      x "10%"
+                      y "10%"
                     }
                   }
                   bind "Alt s" {
@@ -409,6 +417,10 @@
                       scratchpad true
                       close_on_exit true
                       name "zs"
+                      width "80%"
+                      height "80%"
+                      x "10%"
+                      y "10%"
                     }
                   }
                   bind "Alt g" {
@@ -416,6 +428,10 @@
                       scratchpad true
                       close_on_exit true
                       name "lazygit"
+                      width "80%"
+                      height "80%"
+                      x "10%"
+                      y "10%"
                     }
                   }
                   bind "Alt i" { MoveTab "Left"; }
@@ -480,11 +496,15 @@
 
                   tab hide_floating_panes=true {
                     pane split_direction="vertical" {
-                      pane split_direction="horizontal" {
+                      pane {
                         pane command="nvim"
-                        pane size="30%"
+                        pane stacked=true stack_direction="horizontal" size="30%" {
+                          pane
+                        }
                       }
-                      pane command="pi" size="40%"
+                      pane stacked=true stack_direction="vertical" size="40%" {
+                        pane command="pi"
+                      }
                     }
                   }
 

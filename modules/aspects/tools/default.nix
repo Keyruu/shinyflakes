@@ -5,6 +5,7 @@
       clipse
       colorpicker
       element
+      file-explorer
       git
       k9s
       kbptr
