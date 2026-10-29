@@ -65,7 +65,7 @@
           submodules = true;
           remotes = [
             {
-              name = "origin";
+              name = "forgejo";
               url = "https://git.keyruu.de/lucas/shinyflakes.git";
               auth = {
                 username = "x-access-token";
@@ -74,7 +74,7 @@
               branches.main.name = "main";
             }
             {
-              name = "origin";
+              name = "github";
               url = "https://github.com/Keyruu/shinyflakes.git";
               branches.main.name = "main";
             }
