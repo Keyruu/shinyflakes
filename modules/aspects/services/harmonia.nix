@@ -9,8 +9,6 @@
       {
         sops.secrets.nixServeKey = { };
 
-        security.acme.certs.${domain}.dnsResolver = "1.1.1.1:53";
-
         networking = {
           hosts."127.0.0.1" = [ domain ];
           firewall.interfaces.${config.services.mesh.interface}.allowedTCPPorts = [ port ];
