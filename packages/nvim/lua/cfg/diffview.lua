@@ -2,7 +2,8 @@ require("diffview").setup({ clean_up_buffers = false, auto_close_on_empty = fals
 require("pi-guardian.batch-notes").setup()
 for key, action in pairs({
   n = { "PiReviewNote", "Comment at cursor" },
-  d = { "PiReviewDraft", "Review feedback" },
+  l = { "PiReviewComments", "List pending comments" },
+  d = { "PiReviewDraft", "Saved feedback draft" },
   c = { "PiReviewSubmit", "Request changes" },
   f = { "PiReviewFinish", "Finish review (no model turn)" },
 }) do

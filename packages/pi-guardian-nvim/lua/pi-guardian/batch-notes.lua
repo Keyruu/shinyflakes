@@ -1,4 +1,5 @@
-local M = { actions = {} }
+local Comments = require("pi-review.comments")
+local M = { actions = {}, contexts = {} }
 local target
 
 local function read_state(ctx)
@@ -59,6 +60,10 @@ function M.configure(ctx)
 end
 
 local function task_context()
+  local current = M.contexts[vim.api.nvim_get_current_tabpage()]
+  if current then
+    return current
+  end
   if target then
     return target
   end
@@ -143,60 +148,23 @@ local function close_composer(buf)
   vim.api.nvim_buf_delete(buf, { force = true })
 end
 
-function M.compose(ctx, first, last, source)
-  local task_header = "## Task-wide feedback\n\n"
-  local header = task_header
-  if first then
-    local path = vim.api.nvim_buf_get_name(source)
-    local revision = vim.bo[source].modified and "unsaved working buffer" or "working tree"
-    local ok, lib = pcall(require, "diffview.lib")
-    local view = ok and lib.get_current_view()
-    if view and view.cur_layout then
-      for _, win in ipairs(view.cur_layout.windows) do
-        local file = win.file
-        if file and file.bufnr == source then
-          path = file.absolute_path
-          revision = file.rev.commit or revision
-          break
-        end
-      end
-    end
-    if path:sub(1, #ctx.root + 1) == ctx.root .. "/" then
-      local excerpt = table.concat(vim.api.nvim_buf_get_lines(source, first - 1, last, false), "\n")
-      local fence = 3
-      for ticks in excerpt:gmatch("`+") do
-        fence = math.max(fence, #ticks + 1)
-      end
-      fence = string.rep("`", fence)
-      header = "## "
-        .. vim.json.encode(path:sub(#ctx.root + 2))
-        .. ":"
-        .. first
-        .. "-"
-        .. last
-        .. " ("
-        .. revision
-        .. ")\n\n"
-        .. fence
-        .. "\n"
-        .. excerpt
-        .. "\n"
-        .. fence
-        .. "\n\n"
-    else
-      assert(path == "" or vim.bo[source].buftype ~= "", "Selection is outside coordinating task")
-    end
-  end
-  local buf = new_buffer(ctx, "compose", "")
-  vim.b[buf].pi_review_header = header
+function M.compose(ctx, first, last, source, note, on_done)
+  local location = note and note.location or Comments.context(ctx, first, last, source)
+  local buf = new_buffer(ctx, "compose", note and note.text or "")
   vim.bo[buf].modified = true
   vim.api.nvim_create_autocmd("BufWriteCmd", {
     buffer = buf,
     callback = function()
-      assert(content(buf):find("%S"), "Add a comment before saving")
-      M.text_command(ctx, "append", {}, header .. content(buf))
+      if note then
+        Comments.edit(note, content(buf))
+      else
+        Comments.add(ctx, location, content(buf))
+      end
       close_composer(buf)
-      vim.notify("Added to task Markdown draft; nothing sent")
+      if on_done then
+        on_done()
+      end
+      vim.notify("Comment kept in Neovim memory; Submit sends it, quitting loses it")
     end,
   })
   local width = math.min(80, math.max(1, vim.o.columns - 4))
@@ -209,17 +177,16 @@ function M.compose(ctx, first, last, source)
     height = height,
     row = math.max(0, math.floor((vim.o.lines - height - 2) / 2)),
     col = math.max(0, math.floor((vim.o.columns - width - 2) / 2)),
-    title = " Comment: " .. header:match("## ([^\n]+)") .. " ",
-    footer = header == task_header and " Ctrl-S: add · Ctrl-Q: discard "
-      or " Ctrl-S: add · Ctrl-Q: discard · Ctrl-T: scope ",
+    title = " Comment: " .. Comments.label({ location = location }) .. " ",
+    footer = " Ctrl-S: keep in memory · Ctrl-Q: discard "
+      .. (location.path and not note and "· Ctrl-T: scope " or ""),
   })
   vim.wo.wrap = true
-  if header ~= task_header then
-    local source_header = header
+  if location.path and not note then
+    local selected = location
     vim.keymap.set({ "n", "i" }, "<C-t>", function()
-      header = header == task_header and source_header or task_header
-      vim.b[buf].pi_review_header = header
-      vim.api.nvim_win_set_config(win, { title = " Comment: " .. header:match("## ([^\n]+)") .. " " })
+      location = location.path and {} or selected
+      vim.api.nvim_win_set_config(win, { title = " Comment: " .. Comments.label({ location = location }) .. " " })
     end, { buffer = buf, desc = "Toggle source / task-wide comment" })
   end
   vim.keymap.set({ "n", "i" }, "<C-s>", "<Cmd>write<CR>", { buffer = buf, desc = "Add comment to feedback" })
@@ -228,6 +195,28 @@ function M.compose(ctx, first, last, source)
   end, { buffer = buf, desc = "Discard comment" })
   vim.cmd("startinsert")
   return buf
+end
+
+function M.pending(ctx)
+  return #Comments.list(ctx)
+end
+
+function M.stage(ctx)
+  local items = Comments.list(ctx)
+  if #items == 0 then
+    return
+  end
+  -- Only Submit crosses the durability boundary. Failed submissions remain in the saved draft.
+  M.text_command(ctx, "append", {}, Comments.format(items))
+  for _, note in ipairs(items) do
+    Comments.delete(note)
+  end
+end
+
+function M.comments(ctx)
+  return Comments.open_list(ctx, function(note, refresh)
+    M.compose(ctx, nil, nil, nil, note, refresh)
+  end)
 end
 
 function M.flush(ctx)
@@ -268,6 +257,7 @@ local function review_action(ctx, action)
 end
 
 function M.setup()
+  Comments.setup()
   local function command(name, callback, opts)
     opts = opts or {}
     opts.force = true
@@ -281,6 +271,7 @@ function M.setup()
   command("PiReviewNote", function(ctx, args, source)
     M.compose(ctx, args.line1, args.line2, source)
   end, { range = true })
+  command("PiReviewComments", M.comments)
   command("PiReviewDraft", M.draft)
   command("PiReviewFinish", function(ctx)
     review_action(ctx, "accept")
@@ -289,22 +280,28 @@ function M.setup()
     review_action(ctx, "changes")
   end)
   command("PiReview", function(ctx)
-    vim.ui.select({ "Feedback", "Delivery history", "Repositories / coverage", "Recovery help" }, {
-      prompt = "Review tools:",
-    }, function(choice)
-      if choice == "Feedback" then
-        M.draft(ctx)
-      elseif choice == "Delivery history" then
-        M.history(ctx)
-      elseif choice == "Repositories / coverage" then
-        review_action(ctx, "repositories")
-      elseif choice == "Recovery help" then
-        vim.notify(
-          "In task Pi: /review-feedback retries unconfirmed delivery (may duplicate).\n"
-            .. "/review-coordinator explicitly transfers coordination to that session; does not resume work."
-        )
+    vim.ui.select(
+      { "Comments (memory only)", "Saved draft", "Delivery history", "Repositories / coverage", "Recovery help" },
+      {
+        prompt = "Review tools:",
+      },
+      function(choice)
+        if choice == "Comments (memory only)" then
+          M.comments(ctx)
+        elseif choice == "Saved draft" then
+          M.draft(ctx)
+        elseif choice == "Delivery history" then
+          M.history(ctx)
+        elseif choice == "Repositories / coverage" then
+          review_action(ctx, "repositories")
+        elseif choice == "Recovery help" then
+          vim.notify(
+            "In task Pi: /review-feedback retries unconfirmed delivery (may duplicate).\n"
+              .. "/review-coordinator explicitly transfers coordination to that session; does not resume work."
+          )
+        end
       end
-    end)
+    )
   end)
 end
 return M

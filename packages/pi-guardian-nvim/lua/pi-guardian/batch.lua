@@ -35,6 +35,8 @@ function M.open(payload)
     diffview.open({ "--adapter=git", "-C=" .. repo.root, repo.base })
     local view = assert(lib.get_current_view(), "Diffview did not open")
     s.views[view.tabpage] = view
+    Notes.contexts[view.tabpage] = s.ctx
+    view.pi_review_state = s.ctx.file
     s.root_tab = s.root_tab or view.tabpage
   end
   local function report()
@@ -121,6 +123,9 @@ function M.open(payload)
             "Wait for Diffview to finish loading"
           )
         end
+        if decision == "changes" then
+          Notes.stage(s.ctx)
+        end
       end)
       if not ok then
         vim.notify(tostring(err), vim.log.levels.WARN)
@@ -128,9 +133,9 @@ function M.open(payload)
       end
       if
         decision == "accept"
-        and Notes.state(s.ctx).draft:find("%S")
+        and (Notes.state(s.ctx).draft:find("%S") or Notes.pending(s.ctx) > 0)
         and vim.fn.confirm(
-            "Saved feedback will NOT be sent. Use Request changes to send it; Finish keeps it for later.",
+            "Feedback will NOT be sent. Finish keeps comments only in Neovim memory; saved drafts stay on disk.",
             "&Finish without sending\n&Cancel",
             2
           )
@@ -150,6 +155,7 @@ function M.open(payload)
       vim.api.nvim_del_augroup_by_id(s.group)
     end
     for tab, view in pairs(s.views) do
+      Notes.contexts[tab] = nil
       if vim.api.nvim_tabpage_is_valid(tab) then
         view:close()
       end
