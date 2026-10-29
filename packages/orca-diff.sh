@@ -1,6 +1,6 @@
-# Open the current worktree's changes in a foot window: Neovim + Diffview
+# Open the current worktree's changes in a Kitty window: Neovim + Diffview
 # against the merge-base with origin/HEAD (or the ref given as $1).
-# foot instead of an Orca tab: Orca's renderer can't keep up with full-screen nvim redraws.
+# A terminal instead of an Orca tab: Orca's renderer can't keep up with full-screen nvim redraws.
 
 if [[ ${1:-} == -h || ${1:-} == --help ]]; then
   echo "usage: orca-diff [base-ref]   (default: merge-base of HEAD and origin/HEAD)"
@@ -29,6 +29,4 @@ else
 fi
 
 title="diff: $(basename "$root")"
-# footclient needs a running foot server; fall back to a standalone foot.
-footclient -N -T "$title" -D "$root" "${cmd[@]}" 2>/dev/null ||
-  setsid -f foot -T "$title" -D "$root" "${cmd[@]}" >/dev/null 2>&1
+setsid -f kitty --title "$title" --directory "$root" "${cmd[@]}" >/dev/null 2>&1

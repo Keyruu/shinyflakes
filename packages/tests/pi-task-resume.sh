@@ -28,8 +28,8 @@ printf '[]\n' >"$tmp/panes.json"
 # Stub Zellij: no live user session touched. Persist pane membership across invocations.
 cp "$(dirname "$0")/fixtures/pi-task-zellij.py" "$tmp/bin/zellij"
 chmod +x "$tmp/bin/zellij"
-printf '#!/usr/bin/env bash\nexit 99\n' >"$tmp/bin/footclient"
-chmod +x "$tmp/bin/footclient"
+printf '#!/usr/bin/env bash\nexit 99\n' >"$tmp/bin/kitty"
+chmod +x "$tmp/bin/kitty"
 # script must not run fish startup and replace the stub-only command precedence.
 export MOCK_ZELLIJ="$tmp" MOCK_PI_PID=$$ XDG_CACHE_HOME="$tmp/cache" PATH="$tmp/bin:$PATH" SHELL=/bin/sh
 unset ENV BASH_ENV PI_TASK_ROOT PI_TASK_REVIEW_STATE PI_TASK_SHARED
@@ -263,7 +263,7 @@ if (cd "$tmp" && bash "$launcher" resume "$root" --window </dev/null) >"$tmp/out
 grep -q 'already attached or client state unknown' "$tmp/err"
 [ ! -s "$tmp/calls" ]
 
-# The failing footclient stub must remain unused by terminal paths.
+# The failing Kitty stub must remain unused by plain-terminal paths.
 export MOCK_EXPECT_TTY=1 MOCK_LOCK="$state/launch.lock"
 reset_presentation
 script -q -e -c "bash '$launcher' --repo '$root' resume '$root'" /dev/null >"$tmp/out"
@@ -288,12 +288,11 @@ grep -q 'Zellij exited before attaching.*7' "$tmp/out"
 unset MOCK_TERMINAL_FAIL MOCK_EXPECT_TTY
 
 # Explicit --window creates/attaches a sole client, never an ambiguous second one.
-tee "$tmp/bin/footclient" >/dev/null <<'SH'
+tee "$tmp/bin/kitty" >/dev/null <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
 printf 'window\n' >>"$MOCK_ZELLIJ/calls"
-[ "$1" = --client-environment ]; shift
-[ "$1" = -D ]; cd "$2"; shift 2
+[ "$1" = --directory ]; cd "$2"; shift 2
 exec "$@"
 SH
 for sessions in '{"mock":0}' '{}'; do

@@ -93,7 +93,7 @@
                       # Launch deeplinks reuse running apps instead of opening duplicates.
                       - key: "t"
                         desc: Terminal
-                        cmd: vicinae vicinae://launch/applications/footclient
+                        cmd: vicinae vicinae://launch/applications/kitty
                       - key: "b"
                         desc: Browser
                         cmd: vicinae vicinae://launch/applications/zen

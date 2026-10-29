@@ -67,7 +67,7 @@ session. `new NAME --here` uses the current checkout and branch unchanged:
 inside Zellij it stacks Pi in the existing visible Pi area without changing
 editor/shell geometry or replacing processes. It requires one verified live Pi
 for this checkout; missing/ambiguous Pi areas refuse rather than split an editor.
-In a plain terminal it runs Pi directly, without Zellij or footclient.
+In a plain terminal it runs Pi directly, without Zellij or Kitty.
 `--here --tab` instead requests a separate full workspace tab. Existing Pi
 conversations are never rebound or sent a prompt by starting another task.
 
@@ -96,8 +96,8 @@ its existing terminal rather than trying to focus it through Zellij.
 it switches the current client to a detached repository session or creates one
 with the `project` layout at the main checkout. In a plain interactive terminal,
 it runs/attaches Zellij in that terminal and returns when the client exits.
-Neither path requires footclient. `--window` explicitly opens footclient with
-`--client-environment` so sanitized task bindings and caller Pi settings reach
+Neither path requires Kitty. `--window` explicitly opens Kitty with
+`--directory` so sanitized task bindings and caller Pi settings reach
 the new terminal. Automation/desktop invocations without a terminal must opt in
 and supply an explicit command/target, not rely on a picker.
 
@@ -115,7 +115,7 @@ are preserved, including when recreating a missing session. The launcher waits
 up to ten seconds for exactly one attached client before creating task panes.
 It never creates a headless session or passes its launch lock to the
 terminal/server; plain-terminal attachment releases that lock before waiting
-for client exit. `project` must be configured; footclient is only required for
+for client exit. `project` must be configured; Kitty is only required for
 `--window`.
 
 Alt-T retains `close_on_exit true`. Source inspection of pinned Zellij
@@ -483,7 +483,7 @@ legacy guided metadata, HEAD refresh versus fixed task bases, coordinator and
 restart delivery, sensitive paths and destructive-command approvals. Native
 Neovim coverage requires `DIFFVIEW_TEST_RTP`; without it that test is skipped.
 
-`pi-task-resume.sh` also checks presentation with stub Zellij/footclient and a
+`pi-task-resume.sh` also checks presentation with stub Zellij/Kitty and a
 real PTY: same-client creation/attach, plain-terminal lifetime and lock release,
 explicit windows, legacy names, basename collisions, unknown/multiple/racing
 clients, readiness failures and picker exit. No real user sessions are touched.

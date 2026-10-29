@@ -76,7 +76,7 @@
 
             " external editor (Ctrl-i in insert mode); dedicated app-id so
             " Mango can size/float the window independently of other terminals.
-            set editorcmd footclient --app-id tridactyl-editor nvim
+            set editorcmd kitty --class tridactyl-editor nvim
           '';
 
         programs.firefox.nativeMessagingHosts = [ pkgs.tridactyl-native ];

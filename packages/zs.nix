@@ -20,7 +20,7 @@ pkgs.writeShellApplication {
     nodejs
     glibc.bin # getconf supplies the kernel clock tick rate for PID reuse checks.
   ];
-  # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
+  # mmsg/vicinae/kitty come from the session PATH to match the running desktop.
   text = ''
     export ZS_HELPER=${source}/main.ts
     ${builtins.readFile ./zs.sh}

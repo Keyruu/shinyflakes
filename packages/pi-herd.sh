@@ -175,7 +175,7 @@ if [ "$mode" = "dmenu" ]; then
     mmsg dispatch focusid,"$win"
   else
     # session not attached in any window — open one
-    setsid -f footclient zellij attach "$session" >/dev/null 2>&1 || true
+    setsid -f kitty zellij attach "$session" >/dev/null 2>&1 || true
   fi
   exit 0
 fi

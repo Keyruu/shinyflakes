@@ -39,8 +39,17 @@ class FakeCLI {
       stdout = this.sessions.size ? [...this.sessions.keys()].map((name) => args.includes("--short") ? name :
         `${name} [Created 1m ago] ${this.sessions.get(name) === null && this.resurrectable.has(name) ? "(EXITED - attach to resurrect)" : ""}`).join("\n") + "\n" : "";
       if (!this.sessions.size) { code = 1; stderr = "No active zellij sessions found.\n"; }
+    } else if (args[0] === "zellij" && args[1] === "kill-session") {
+      const name = args.at(-1)!;
+      assert.notEqual(this.sessions.get(name), null);
+      this.sessions.set(name, null);
+      this.resurrectable.add(name);
+      this.clients.set(name, 0);
     } else if (args[0] === "zellij" && args[1] === "delete-session") {
-      this.sessions.delete(args.at(-1)!);
+      const name = args.at(-1)!;
+      assert.ok(!args.includes("--force"));
+      if (this.sessions.get(name) !== null) { code = 1; stderr = "Session is running"; }
+      else { this.sessions.delete(name); this.resurrectable.delete(name); }
     } else if (args[0] === "zellij") {
       const session = args[1].replace(/^--session=/, ""), action = args[3];
       if (action === "list-panes") {
@@ -77,7 +86,7 @@ class FakeCLI {
     return { code, stdout, stderr };
   }
   mutations(): string[][] {
-    return this.calls.filter((c) => (c[0] === "zellij" && (c[1] === "delete-session" ||
+    return this.calls.filter((c) => (c[0] === "zellij" && (["delete-session", "kill-session"].includes(c[1]) ||
       (c[2] === "action" && !["list-panes", "list-clients"].includes(c[3])))) || (c[0] === "mmsg" && c[1] === "dispatch"));
   }
 }
@@ -463,7 +472,7 @@ for (const dmenu of [false, true]) {
     fake.sessions.set(name, null);
     fake.resurrectable.add(name);
     fake.launchHandler = (args, options) => {
-      const prefix = dmenu ? ["footclient", "--client-environment", "-D", root] : [];
+      const prefix = dmenu ? ["kitty", "--directory", root] : [];
       assert.deepEqual(args, [...prefix, "zellij", "attach", name]);
       assert.equal(options.env.ZELLIJ_SESSION_NAME, undefined);
       fake.sessions.set(name, []);
@@ -479,7 +488,7 @@ for (const dmenu of [false, true]) {
 test("resurrection reuses only a verified desktop window", async () => {
   target("attached");
   fake.clients.set("attached", 1);
-  fake.windows = [{ appid: "footclient", id: 4, title: "attached | shell" }];
+  fake.windows = [{ appid: "kitty", id: 4, title: "attached | shell" }];
   fake.sessions.set("saved", null);
   fake.resurrectable.add("saved");
   await navigation({ id: "saved", label: "saved", kind: "session", session: "saved" }, null, true);
@@ -569,7 +578,7 @@ for (const dmenu of [false, true]) {
     fake.sessions.set(name, null);
     fake.resurrectable.add(name);
     fake.launchHandler = (args, options) => {
-      const prefix = dmenu ? ["footclient", "--client-environment", "-D", linked] : [];
+      const prefix = dmenu ? ["kitty", "--directory", linked] : [];
       assert.deepEqual(args, [...prefix, "zellij", "attach", name]);
       assert.equal(options.cwd, linked);
       fake.sessions.set(name, []);
@@ -678,7 +687,7 @@ for (const dmenu of [false, true]) {
     const path = await repo("app"), linked = join(root, "linked");
     await git(path, "worktree", "add", "-b", "task/ui", linked);
     fake.launchHandler = (args, options) => {
-      const prefix = dmenu ? ["footclient", "--client-environment", "-D", linked] : [];
+      const prefix = dmenu ? ["kitty", "--directory", linked] : [];
       assert.deepEqual(args, [...prefix, "zellij", "--session=app--task-ui", "--new-session-with-layout", "project"]);
       assert.equal(options.cwd, linked);
       fake.sessions.set("app--task-ui", [pane(1, linked)]);
@@ -700,7 +709,7 @@ test("reusing an existing hashed session does not rename it or reapply project",
 test("desktop never chooses arbitrary window", async () => {
   target("attached");
   fake.clients.set("attached", 1);
-  fake.windows = [{ appid: "footclient", id: 4, title: "unrelated" }];
+  fake.windows = [{ appid: "kitty", id: 4, title: "unrelated" }];
   await assert.rejects(desktopSource(), /identify/);
   fake.windows[0].title = "attached | shell";
   assert.deepEqual(await desktopSource(), ["attached", "4"]);
@@ -713,7 +722,7 @@ test("dmenu reuses single verified window", async () => {
   target("attached");
   fake.clients.set("attached", 1);
   const row = target();
-  fake.windows = [{ appid: "footclient", id: 4, title: "attached | shell" }];
+  fake.windows = [{ appid: "kitty", id: 4, title: "attached | shell" }];
   await navigation(row, null, true);
   assert.ok(fake.mutations()[0].includes("switch-session"));
   assert.deepEqual(fake.mutations().at(-1), ["mmsg", "dispatch", "focusid,4"]);
@@ -972,7 +981,7 @@ test("dmenu worktree entry also restores the workspace without requiring agent s
   await workspaceWithAgents();
   delete process.env.ZELLIJ_SESSION_NAME;
   delete process.env.ZELLIJ_PANE_ID;
-  fake.windows = [{ appid: "footclient", id: 7, title: "source" }];
+  fake.windows = [{ appid: "kitty", id: 7, title: "source" }];
   fake.picks = [["", "├─ main"]];
   await main(["--dmenu"]);
   assert.equal(fake.calls.filter((c) => c[0] === "vicinae").length, 1);
@@ -1143,31 +1152,83 @@ test("Ctrl-X removes a worktree then refreshes without deleting its Zellij sessi
   assert.equal(fake.calls.filter((c) => c[0] === "zoxide").length, 3);
 });
 
-test("delete requires Enter confirmation", async () => {
-  target();
-  const catalog = await new Catalog().discover(), row = catalog.rows.find((r) => r.session)!;
-  for (const choice of [["ctrl-d", "DELETE "], ["", "Cancel"]] as [string, string][]) {
-    fake.picks = [choice];
-    await deleteSession(catalog, row);
-    assert.deepEqual(fake.mutations(), []);
-  }
-  fake.picks = [["", "DELETE "]];
-  await deleteSession(catalog, row);
-  assert.deepEqual(fake.mutations().at(-1), ["zellij", "delete-session", "--force", "--", row.session]);
+test("Ctrl-D kills live sessions then deletes saved state without confirmation", async () => {
+  const row = target();
+  await deleteSession(await new Catalog().discover(), row);
+  assert.deepEqual(fake.mutations(), [["zellij", "kill-session", "--", row.session]]);
+  assert.ok(fake.resurrectable.has(row.session!));
+  const catalog = await new Catalog().discover();
+  const saved = catalog.rows.find((r) => r.session === row.session)!;
+  assert.match(renderRow(saved, false), /♻ resurrectable/);
+  await deleteSession(catalog, saved);
+  assert.deepEqual(fake.mutations().at(-1), ["zellij", "delete-session", "--", row.session]);
+  assert.ok(!fake.sessions.has(row.session!));
+  assert.ok(!fake.resurrectable.has(row.session!));
+  assert.ok(!fake.calls.some((c) => c[0] === "fzf"));
 });
 
-test("unavailable-session deletion cannot skip client validation", async () => {
+test("worktree Ctrl-D twice refreshes into a fresh session without confirmation", async () => {
+  await source();
+  const path = await repo("app");
+  fake.dirs = [path];
+  fake.sessions.set("app", [pane(1, path)]);
+  fake.picks = [["ctrl-d", "⎇ main"], ["ctrl-d", "⎇ main"], ["", "⎇ main"]];
+  await main([]);
+  assert.deepEqual(fake.mutations().slice(0, 2), [
+    ["zellij", "kill-session", "--", "app"],
+    ["zellij", "delete-session", "--", "app"],
+  ]);
+  assert.deepEqual(fake.mutations().at(-1), ["zellij", "--session=source", "action", "switch-session", "--cwd", path, "--layout", "project", "--", "app"]);
+  assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 3);
+  assert.ok(existsSync(path));
+});
+
+test("multiple sessions still require choosing a target, not confirmation", async () => {
+  target("one"); target("two");
+  const catalog = await new Catalog().discover(), row = catalog.rows.find((r) => r.kind === "directory")!;
+  fake.picks = [null];
+  await deleteSession(catalog, row);
+  assert.deepEqual(fake.mutations(), []);
+  fake.picks = [["", "two — kill"]];
+  await deleteSession(catalog, row);
+  assert.deepEqual(fake.mutations(), [["zellij", "kill-session", "--", "two"]]);
+});
+
+test("kill refuses sessions with multiple clients", async () => {
+  const row = target(), catalog = await new Catalog().discover();
+  fake.clients.set(row.session!, 2);
+  await assert.rejects(deleteSession(catalog, row), /multiple clients/);
+  assert.deepEqual(fake.mutations(), []);
+});
+
+for (const change of ["live", "unavailable", "missing", "racing"] as const) {
+  test(`saved-session deletion refuses a session that becomes ${change}`, async () => {
+    fake.sessions.set("saved", null);
+    fake.resurrectable.add("saved");
+    const catalog = await new Catalog().discover(), row = catalog.rows.find((r) => r.session === "saved")!;
+    if (change === "live") fake.sessions.set("saved", []);
+    if (change === "unavailable") fake.resurrectable.delete("saved");
+    if (change === "missing") fake.sessions.delete("saved");
+    if (change === "racing") mock.method(commands, "capture", (args: string[], options?: CommandOptions) => {
+      if (args[1] === "delete-session") fake.sessions.set("saved", []);
+      return fake.capture(args, options);
+    });
+    await assert.rejects(deleteSession(catalog, row), /changed since|not confirmed|disappeared|running/);
+    if (change === "racing") assert.deepEqual(fake.mutations(), [["zellij", "delete-session", "--", "saved"]]);
+    else assert.deepEqual(fake.mutations(), []);
+  });
+}
+
+test("unavailable-session deletion requires verified saved state", async () => {
   fake.sessions.set("saved", null);
   const catalog = await new Catalog().discover(), row = catalog.rows.find((r) => r.session === "saved")!;
-  fake.picks = [["", "DELETE "]];
-  await assert.rejects(deleteSession(catalog, row), /Cannot inspect/);
+  await assert.rejects(deleteSession(catalog, row), /not confirmed as resurrectable/);
   assert.deepEqual(fake.mutations(), []);
 });
 
 test("delete refuses changed session", async () => {
   const row = target(), catalog = await new Catalog().discover();
   fake.sessions.get(row.session!)!.push(pane(3));
-  fake.picks = [["", "DELETE "]];
   await assert.rejects(deleteSession(catalog, row), /changed since/);
   assert.deepEqual(fake.mutations(), []);
 });
@@ -1303,7 +1364,57 @@ test("saved sessions are visibly resurrectable rather than unavailable", async (
   assert.equal(row.open, false);
   assert.match(renderRow(row), /resurrectable/);
   assert.doesNotMatch(renderRow(row), /unavailable/);
-  assert.match(row.preview!, /status: resurrectable/);
+  assert.match(row.preview!, /status: ♻ resurrectable/);
+  assert.match(row.label, /♻ resurrectable/);
+  assert.match(renderRow(row, false), /♻ resurrectable/);
+});
+
+test("saved main and linked worktrees show recycle badges without duplicate session rows", async () => {
+  const path = await repo("app"), linked = join(root, "linked");
+  await git(path, "checkout", "-b", "integration");
+  await git(path, "worktree", "add", "-b", "task/saved", linked);
+  fake.dirs = [path];
+  for (const name of ["app", "app--task-saved"]) {
+    fake.sessions.set(name, null);
+    fake.resurrectable.add(name);
+  }
+  fake.sessions.set("didactic-zebra", null);
+  fake.resurrectable.add("didactic-zebra");
+  const catalog = await new Catalog().discover();
+  assert.deepEqual(catalog.rows.filter((r) => r.kind === "session").map((r) => r.session), ["didactic-zebra"]);
+  const primary = catalog.rows.find((r) => r.kind === "worktree" && r.path === path)!;
+  assert.equal(primary.branch, "integration");
+  assert.equal(primary.savedSession, "app");
+  for (const row of catalog.rows.filter((r) => r.kind === "worktree")) {
+    assert.equal(row.savedSession, await newSessionName(row.path!));
+    assert.equal(row.session, undefined, "Enter must retain checkout validation");
+    assert.match(row.label, /♻ resurrectable/);
+    assert.match(renderRow(row), /♻ resurrectable/);
+    assert.match(renderRow(row, false), /♻ resurrectable/);
+    assert.ok(row.preview!.includes(`sessions: ${row.savedSession}`));
+  }
+  fake.picks = [["", "app--task-saved — ♻ delete saved session"]];
+  await deleteSession(catalog, catalog.rows.find((r) => r.kind === "repo")!);
+  assert.deepEqual(fake.mutations(), [["zellij", "delete-session", "--", "app--task-saved"]]);
+  assert.ok(fake.resurrectable.has("app"));
+  assert.ok(existsSync(linked));
+});
+
+test("ambiguous saved names stay selectable only as sessions, not inferred worktrees", async () => {
+  const path = await repo("app"), first = join(root, "first"), second = join(root, "second");
+  await git(path, "worktree", "add", "-b", "task/fix", first);
+  await git(path, "worktree", "add", "-b", "task-fix", second);
+  fake.dirs = [path];
+  fake.sessions.set("app--task-fix", null);
+  fake.resurrectable.add("app--task-fix");
+  const catalog = await new Catalog().discover();
+  for (const row of catalog.rows.filter((r) => r.kind === "worktree" && r.path !== path)) {
+    assert.equal(row.savedSession, undefined);
+    assert.doesNotMatch(renderRow(row), /♻/);
+    await assert.rejects(deleteSession(catalog, row), /No existing session/);
+  }
+  assert.match(renderRow(catalog.rows.find((r) => r.kind === "session")!), /♻ resurrectable/);
+  assert.deepEqual(fake.mutations(), []);
 });
 
 test("rendered metadata cannot inject terminal controls or row delimiters", () => {
@@ -1791,7 +1902,7 @@ test("dmenu child is released without waiting for its window to close", async ()
   const row = target();
   let released = false;
   fake.launchHandler = (args, options) => {
-    assert.equal(args[0], "footclient");
+    assert.equal(args[0], "kitty");
     assert.equal(options.detached, true);
     fake.clients.set(row.session!, 1);
     return { poll: () => undefined, wait: async () => { assert.fail("must not wait for desktop window exit"); },

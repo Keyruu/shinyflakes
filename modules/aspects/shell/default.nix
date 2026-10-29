@@ -41,7 +41,7 @@
         # set default applications
         EDITOR = "nvim";
         BROWSER = "browser-picker";
-        TERMINAL = "footclient";
+        TERMINAL = "kitty";
 
         # enable scrolling in git diff
         DELTA_PAGER = "less -R";

@@ -13,6 +13,6 @@ pkgs.writeShellApplication {
     zellij
     util-linux # setsid
   ];
-  # mmsg/vicinae/footclient come from the session PATH to match the running desktop.
+  # mmsg/vicinae/kitty come from the session PATH to match the running desktop.
   text = builtins.readFile ./pi-herd.sh;
 }

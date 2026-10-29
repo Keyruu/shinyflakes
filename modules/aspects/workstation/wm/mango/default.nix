@@ -225,8 +225,6 @@ in
                 window_rule=tags:2,app_id:^dev\.zed\.Zed$
                 window_rule=tags:2,app_id:^org\.wezfurlong\.wezterm$
                 window_rule=tags:2,app_id:^Alacritty$
-                window_rule=tags:2,app_id:^foot$
-                window_rule=tags:2,app_id:^footclient$
                 window_rule=tags:2,app_id:^kitty$
                 window_rule=tags:4,width:0.5,app_id:^spotify_player$
                 window_rule=tags:4,width:0.5,app_id:^feishin$
@@ -246,7 +244,7 @@ in
                 layer_rule=shield_when_capture:1,layer_name:^dms:dankisland$
                 layer_rule=no_animation:1,no_blur:1,layer_name:selection
 
-                bind=SUPER,Return,spawn,footclient
+                bind=SUPER,Return,spawn,kitty
                 bind=NONE,XF86AudioRaiseVolume,spawn,pamixer -i 5
                 bind=NONE,XF86AudioLowerVolume,spawn,pamixer -d 5
                 bind=NONE,XF86AudioMute,spawn,pamixer -t
@@ -284,7 +282,7 @@ in
                 # plain bind since mango 6a73450: press and release both
                 # swallowed — bindr would leak the press into the client
                 bind=SUPER,space,spawn,vicinae toggle
-                bind=ALT,space,toggle_named_scratchpad,scratchpad,none,footclient --app-id scratchpad
+                bind=ALT,space,toggle_named_scratchpad,scratchpad,none,kitty --class scratchpad
                 bind=SUPER+SHIFT,space,spawn,1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations
                 bind=SUPER+SHIFT,q,spawn,loginctl lock-session
                 bind=SUPER+SHIFT,v,spawn,vicinae vicinae://launch/clipboard/history

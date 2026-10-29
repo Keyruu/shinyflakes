@@ -384,8 +384,8 @@
                 // is the default state.
                 shared {
                   // Secondary modifier is Super instead of zellij's default Alt
-                  // (Alt is the WM mod). Needs kitty keyboard protocol — foot,
-                  // ghostty and kitty all support it.
+                  // (Alt is the WM mod). Needs kitty keyboard protocol —
+                  // ghostty and kitty both support it.
                   bind "Alt h" { GoToPreviousTab; }
                   bind "Alt l" { GoToNextTab; }
                   bind "Alt n" { NewPane; }

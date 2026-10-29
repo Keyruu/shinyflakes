@@ -9,6 +9,10 @@
         ...
       }:
       {
+        xdg.configFile."xdg-terminals.list".text = ''
+          kitty.desktop
+        '';
+
         programs.kitty = {
           enable = true;
 
@@ -29,6 +33,9 @@
             enable_audio_bell = "false";
             visual_bell_duration = "0.2";
             visual_bell_color = "#003753";
+            cursor_trail = 3;
+            cursor_trail_decay = "0.1 0.4";
+            cursor_trail_start_threshold = 10;
             font_family = user.theme.font;
             font_size = "13";
             scrollback_lines = "10000";
@@ -37,6 +44,7 @@
 
           keybindings = {
             "super+n" = "new_os_window_with_cwd";
+            "ctrl+shift+space" = "show_scrollback";
           };
 
           # After theme so it overrides Dracula's #282a36 background

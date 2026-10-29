@@ -213,7 +213,7 @@
                 entrypoints = {
                   clear-notification.alias = "cn";
                   notification-center.alias = "nc";
-                  footclient.alias = "t";
+                  kitty.alias = "t";
                   slack.alias = "s";
                   spotify.alias = "m";
                   firefox.alias = "b";

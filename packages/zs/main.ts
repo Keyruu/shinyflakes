@@ -119,7 +119,7 @@ export interface PullRequest { repository: string; number: number; title: string
 export interface Row {
   id: string; label: string; kind?: "repo" | "worktree" | "directory" | "session" | Target["kind"];
   preview?: string; path?: string | null; repo?: string | null; branch?: string;
-  session?: string; tab?: number; pane?: number; status?: string; rank?: number; open?: boolean;
+  session?: string; savedSession?: string; tab?: number; pane?: number; status?: string; rank?: number; open?: boolean;
   identity?: PaneIdentity; marker?: MarkerIdentity; title?: string;
   display?: { prefix: string; name: string; detail: string };
   pullRequests?: PullRequest[];
@@ -529,7 +529,7 @@ export class Catalog {
 
   addRow(kind: Row["kind"], label: string, data: Partial<Row> = {}): Row {
     const row: Row = { ...data, kind, id: key(kind, data.path, data.session, data.pane), label: clean(label) };
-    row.preview = (["kind", "path", "branch", "session", "tab", "pane", "open", "status"] as const)
+    row.preview = (["kind", "path", "branch", "session", "savedSession", "tab", "pane", "open", "status"] as const)
       .filter((field) => row[field] != null).map((field) => clean(`${field}: ${row[field]}`)).join("\n");
     this.rows.push(row);
     return row;
@@ -543,11 +543,17 @@ export class Catalog {
     const locationRows = (root: string, prefix: string, context: string) => {
       const loc = this.locations.get(root)!;
       const targets = this.targets.filter((t) => t.path === root);
-      const { status, rank, open } = summary(targets);
+      const summaryState = summary(targets);
+      const name = sessionNameForLocation(this, root);
+      // Only associate names that identify one known checkout, never ambiguous branch slugs.
+      const savedSession = loc.repo && this.sessions.get(name) === null && this.resurrectable.has(name) &&
+        [...this.locations.keys()].filter((path) => sessionNameForLocation(this, path) === name).length === 1 ? name : undefined;
+      const { rank, open } = summaryState;
+      const status = savedSession ? (open ? `${summaryState.status} · ♻ resurrectable` : "♻ resurrectable") : summaryState.status;
       const search = loc.repo ? `${context} ${loc.branch}` : root;
       const row = this.addRow(loc.repo ? "worktree" : "directory", `${prefix}${loc.repo ? loc.branch : root}  ${status}  · ${context} · ${root}`,
-        { ...loc, status, rank, open, search, display: { prefix, name: loc.repo ? loc.branch : root, detail: `${context} · ${root}` } });
-      row.preview += `\nsessions: ${[...new Set(targets.map((t) => clean(t.session)))].join(", ") || "none"}`;
+        { ...loc, savedSession, status, rank, open, search, display: { prefix, name: loc.repo ? loc.branch : root, detail: `${context} · ${root}` } });
+      row.preview += `\nsessions: ${[...new Set([...targets.map((t) => t.session), ...(savedSession ? [savedSession] : [])].map(clean))].join(", ") || "none"}`;
       for (const target of targets.sort((a, b) => compare(a.session, b.session) || a.tab - b.tab || a.pane - b.pane)) {
         const detail = `${context} / ${loc.branch} · ${target.session} / p${target.pane}`;
         this.addRow(target.kind, `    └─ ${target.title}  ${target.status}  · ${detail}`,
@@ -564,11 +570,12 @@ export class Catalog {
       if (loc.repo === null) locationRows(root, "▸ ", "Directories");
     }
     const mapped = new Set(this.targets.filter((t) => t.path).map((t) => t.session));
+    for (const row of this.rows) if (row.savedSession) mapped.add(row.savedSession);
     const unmapped = new Set(this.targets.filter((t) => !t.path).map((t) => t.session));
     for (const [session, entries] of [...this.sessions].sort((a, b) => compare(a[0], b[0]))) {
       if (mapped.has(session) && !unmapped.has(session)) continue;
       const saved = entries === null && this.resurrectable.has(session);
-      const status = entries !== null ? "live" : saved ? "resurrectable" : "unavailable";
+      const status = entries !== null ? "live" : saved ? "♻ resurrectable" : "unavailable";
       this.addRow("session", `▸ ${session} · Other sessions · ${status}`,
         { session, status, open: entries !== null ? true : saved ? false : undefined, display: { prefix: "▸ ", name: session, detail: "Other sessions" } });
       for (const target of this.targets.filter((t) => t.session === session && !t.path)) {
@@ -699,7 +706,7 @@ export async function choose(rows: Row[], dmenu = false, prompt = "Repo / worktr
       ...(agents ? ["--bind", `tab:transform:${toggle}`] : []),
       "--bind", `start:reload-sync:${filterCommand(inputFile)}`,
       "--bind", `change:reload-sync:${filterCommand(inputFile)}`,
-      "--expect=ctrl-r,ctrl-d,ctrl-x", `--header=Enter open${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh · Ctrl-D delete session · Ctrl-X remove worktree · Esc back`, "--preview", preview],
+      "--expect=ctrl-r,ctrl-d,ctrl-x", `--header=Enter open${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh · Ctrl-D kill / delete saved session · Ctrl-X remove worktree · Esc back`, "--preview", preview],
     { input: input(), cancel: true, timeout: 0 });
   } finally {
     controller.abort();
@@ -757,10 +764,10 @@ export async function desktopSource(): Promise<[string, string] | null> {
   const session = attached[0];
   const windows = json(await run(["mmsg", "get", "all-clients"], { optional: true }));
   const entries = object(windows) && Array.isArray(windows.clients) ? windows.clients : [];
-  const matches = entries.filter((w) => object(w) && w.appid === "footclient" &&
+  const matches = entries.filter((w) => object(w) && w.appid === "kitty" &&
     (w.title === session || String(w.title ?? "").startsWith(session + " | ")));
   if (matches.length !== 1 || !/^\d+$/.test(String(matches[0].id))) {
-    throw new PickerError("Cannot identify the attached Foot window safely; open zs in that terminal");
+    throw new PickerError("Cannot identify the attached Kitty window safely; open zs in that terminal");
   }
   return [session, String(matches[0].id)];
 }
@@ -841,7 +848,7 @@ export async function navigation(row: Row, source: Source | null, dmenu = false)
   const env = { ...process.env };
   for (const name of ["ZELLIJ", "ZELLIJ_SESSION_NAME", "ZELLIJ_PANE_ID", "PI_TASK_ROOT", "PI_TASK_REVIEW_STATE", "PI_TASK_SHARED"]) delete env[name];
   let command = creating ? ["zellij", `--session=${destination}`, "--new-session-with-layout", "project"] : ["zellij", "attach", destination!];
-  if (dmenu) command = ["footclient", "--client-environment", "-D", row.path || process.cwd(), ...command];
+  if (dmenu) command = ["kitty", "--directory", row.path || process.cwd(), ...command];
   const child = commands.launch(command, { cwd: row.path || undefined, env, detached: dmenu });
   try {
     // Record arrival after attachment/focus, not when a long-lived terminal eventually exits.
@@ -921,24 +928,27 @@ export async function removeWorktree(catalog: Catalog, row: Row, dmenu = false):
 }
 
 export async function deleteSession(catalog: Catalog, row: Row, dmenu = false): Promise<void> {
-  const names = [...new Set(catalog.rows.filter((r) => r.session && (row.session ? r.session === row.session :
-    row.kind === "repo" ? r.repo === row.repo : r.path === row.path)).map((r) => r.session!))].sort(compare);
+  const names = [...new Set(catalog.rows.filter((r) => row.session ? r.session === row.session :
+    row.kind === "repo" ? r.repo === row.repo : r.path === row.path)
+    .flatMap((r) => [r.session, r.savedSession].filter((name): name is string => !!name)))].sort(compare);
   if (!names.length) throw new PickerError("No existing session belongs to this row");
-  const choices = names.map((name) => ({ id: key(name), label: clean(name), session: name }));
-  const [pressed, chosen] = choices.length > 1 ? await choose(choices, dmenu, "Delete which session? > ") : ["enter", choices[0]];
+  const choices = names.map((name) => ({ id: key(name),
+    label: clean(`${name} — ${catalog.sessions.get(name) !== null ? "kill" : catalog.resurrectable.has(name) ? "♻ delete saved session" : "unavailable"}`), session: name }));
+  const [pressed, chosen] = choices.length > 1 ? await choose(choices, dmenu, "Kill / delete which session? > ") : ["enter", choices[0]];
   if (pressed !== "enter" || !chosen) return;
   const name = chosen.session!;
-  const [confirmationKey, confirmation] = await choose([{ id: "cancel", label: "Cancel" },
-    { id: "delete", label: clean(`DELETE ${name} — kill ALL panes and remove saved session (not Git worktrees)`) }], dmenu, "Confirm session deletion > ");
-  if (confirmationKey !== "enter" || confirmation?.id !== "delete") return;
   if (!(await sessionNames()).includes(name)) throw new PickerError("Session disappeared; nothing deleted");
   const before = catalog.sessions.get(name) ?? null, current = await panes(name);
   const identities = (entries: Pane[] | null) => entries?.map(paneIdentity).sort((a, b) => Number(a.is_plugin) - Number(b.is_plugin) || a.id - b.id);
   if (!isDeepStrictEqual(identities(before), identities(current))) throw new PickerError("Session changed since listing; refresh before deleting");
-  if (current === null) throw new PickerError("Cannot inspect session clients; use Zellij session manager for saved sessions");
-  if ((await clients(name)).length > 1) throw new PickerError("Session has multiple clients; refusing deletion");
+  if (current === null) {
+    if (!catalog.resurrectable.has(name) || !(await resurrectableSessions()).has(name)) {
+      throw new PickerError("Session is unavailable and not confirmed as resurrectable; nothing deleted");
+    }
+  } else if ((await clients(name)).length > 1) throw new PickerError("Session has multiple clients; refusing kill");
   checkInterrupt();
-  await run(["zellij", "delete-session", "--force", "--", name]);
+  // Never force deletion: if a saved session becomes live, Zellij must refuse to kill it.
+  await run(["zellij", current === null ? "delete-session" : "kill-session", "--", name]);
 }
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
