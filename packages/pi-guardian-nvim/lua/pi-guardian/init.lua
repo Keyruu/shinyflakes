@@ -5,7 +5,7 @@
 ---   Right pane: the ACTUAL file with PROPOSED changes (full LSP, gitsigns)
 ---
 --- On accept: file already has correct content, close diff tab.
---- On reject: restore original content to the file buffer.
+--- On reject: keep disk contents and unsaved source buffers; stop for feedback.
 ---
 --- Communication with the extension is via JSON files in /tmp:
 ---   payload.json  → extension writes (original, proposed, path, reason)
@@ -17,7 +17,7 @@ local Highlights = require("pi-guardian.highlights")
 local Modal = require("pi-guardian.modal")
 local Review = require("pi-guardian.review")
 
-local M = {}
+local M = { guided_review_version = 2 }
 
 local DIFF_SETTLE_MS = 200
 
@@ -46,21 +46,31 @@ function M.review(payload)
   Highlights.ensure()
 
   local original_lines, original_eol = Buffers.split_content(payload.original)
-  local proposed_lines, proposed_eol = Buffers.split_content(payload.proposed)
+  if Buffers.read_file(payload.path) ~= payload.proposed then
+    Buffers.write_file(payload.response_file, vim.json.encode({ decision = "block" }))
+    vim.notify("[pi-guardian] File changed before review; kept for feedback", vim.log.levels.WARN)
+    return
+  end
   local rel_path = vim.fn.fnamemodify(payload.path, ":~:.")
 
   local prev_diffopt = vim.go.diffopt
-  Diffopt.set_context(Diffopt.DEFAULT_CONTEXT)
 
   -- Track whether the file buffer existed before we open it
   local file_buf_existed = false
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_name(b) == payload.path then
+      if vim.bo[b].modified then
+        Buffers.write_file(payload.response_file, vim.json.encode({ decision = "block" }))
+        vim.notify("[pi-guardian] Unsaved buffer kept; save it before retrying review", vim.log.levels.WARN)
+        return
+      end
+      vim.api.nvim_buf_call(b, function() vim.cmd("edit") end)
       file_buf_existed = true
       break
     end
   end
 
+  Diffopt.set_context(Diffopt.DEFAULT_CONTEXT)
   local prev_tab = vim.api.nvim_get_current_tabpage()
 
   -- Open the file directly in a new tab — no throwaway buffer created
@@ -72,12 +82,8 @@ function M.review(payload)
   -- Left: open scratch buffer in a split without creating any throwaway buffer
   local orig_buf = Buffers.create_original_buf(payload.path, original_lines, original_eol)
   local left_win = vim.api.nvim_open_win(orig_buf, false, { split = "left" })
-  local file_was_modified = vim.bo[file_buf].modified
-
-  vim.bo[file_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(file_buf, 0, -1, false, proposed_lines)
-  vim.bo[file_buf].eol = proposed_eol
-  vim.bo[file_buf].modified = true
+  -- Keep unsaved review edits alive when the review tab closes.
+  vim.bo[file_buf].bufhidden = ""
 
   -- Configure windows
   Buffers.reset_win_options(left_win)
@@ -209,18 +215,18 @@ function M.review(payload)
     review_tab = review_tab,
     prev_tab = prev_tab,
     prev_diffopt = prev_diffopt,
-    original_lines = original_lines,
-    original_eol = original_eol,
-    file_was_modified = file_was_modified,
+    disk_content = payload.proposed,
     file_buf_existed = file_buf_existed,
     on_cleanup = function()
       M._active_reject = nil
+      M._active_review_response = nil
     end,
   }
 
   Review.setup_keybinds(state)
   Review.setup_autocmds(state)
 
+  M._active_review_response = payload.response_file
   M._active_reject = function()
     Review.reject(state)
   end

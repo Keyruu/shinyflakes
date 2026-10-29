@@ -16,9 +16,8 @@ local M = {}
 ---@field review_tab integer
 ---@field prev_tab integer
 ---@field prev_diffopt string
----@field original_lines string[]
----@field original_eol boolean
----@field file_was_modified boolean
+---@field disk_content string
+---@field save_autocmd integer|nil
 ---@field file_buf_existed boolean
 ---@field on_cleanup fun()|nil
 
@@ -40,6 +39,14 @@ end
 
 ---@param state PiGuardianReviewState
 local function close_review_tab(state)
+  if state.save_autocmd then
+    pcall(vim.api.nvim_del_autocmd, state.save_autocmd)
+  end
+  for _, buf in ipairs({ state.orig_buf, state.file_buf }) do
+    for _, key in ipairs({ "ga", "gx", "g+", "g-", "q", "<Esc>" }) do
+      pcall(vim.keymap.del, "n", key, { buffer = buf })
+    end
+  end
   for _, w in ipairs({ state.left_win, state.right_win }) do
     if vim.api.nvim_win_is_valid(w) then
       vim.wo[w].winbar = ""
@@ -97,7 +104,8 @@ local function close_review_tab(state)
     end
 
     safe_delete(state.orig_buf)
-    if not state.file_buf_existed then
+    if not state.file_buf_existed and vim.api.nvim_buf_is_valid(state.file_buf)
+      and not vim.bo[state.file_buf].modified and #vim.fn.win_findbuf(state.file_buf) == 0 then
       safe_delete(state.file_buf)
     end
   end, 200)
@@ -115,11 +123,17 @@ function M.accept(state)
     return
   end
 
-  local final_content = Buffers.read_buf_content(state.file_buf)
-  Buffers.write_file(state.abs_path, final_content)
-  respond(state, "allow", final_content)
+  if Buffers.read_file(state.abs_path) ~= state.disk_content then
+    vim.notify("[pi-guardian] File changed on disk; stop review and reconcile edits first", vim.log.levels.WARN)
+    return
+  end
+  local ok, err = pcall(vim.api.nvim_buf_call, state.file_buf, function() vim.cmd("write") end)
+  if not ok then
+    vim.notify(tostring(err), vim.log.levels.ERROR)
+    return
+  end
+  respond(state, "allow", Buffers.read_buf_content(state.file_buf))
   close_review_tab(state)
-  Buffers.reload_buf(vim.fn.fnamemodify(state.abs_path, ":p"))
 end
 
 ---@param state PiGuardianReviewState
@@ -129,13 +143,6 @@ function M.reject(state)
   end
 
   respond(state, "block")
-
-  if vim.api.nvim_buf_is_valid(state.file_buf) then
-    vim.bo[state.file_buf].modifiable = true
-    vim.api.nvim_buf_set_lines(state.file_buf, 0, -1, false, state.original_lines)
-    vim.bo[state.file_buf].eol = state.original_eol
-    vim.bo[state.file_buf].modified = state.file_was_modified
-  end
 
   close_review_tab(state)
 end
@@ -162,7 +169,7 @@ function M.setup_keybinds(state)
 
     vim.keymap.set("n", "gx", function()
       M.reject(state)
-    end, { buffer = buf, desc = "Guardian: Reject" })
+    end, { buffer = buf, desc = "Guardian: Stop (keep files)" })
 
     vim.keymap.set("n", "g+", function()
       Diffopt.expand()
@@ -180,12 +187,11 @@ end
 
 ---@param state PiGuardianReviewState
 function M.setup_autocmds(state)
-  -- :w on the file buffer triggers accept
-  vim.api.nvim_create_autocmd("BufWriteCmd", {
+  -- Saving is not acceptance; remember explicit human saves for the conflict check.
+  state.save_autocmd = vim.api.nvim_create_autocmd("BufWritePost", {
     buffer = state.file_buf,
-    once = true,
     callback = function()
-      M.accept(state)
+      state.disk_content = Buffers.read_file(state.abs_path)
     end,
   })
 

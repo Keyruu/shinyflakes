@@ -29,7 +29,7 @@ end
 function M.build_winbars(rel_path)
   local left = "%#PiGuardianWinbar# %#PiGuardianWinbarLabel#ORIGINAL: " .. rel_path .. "%#PiGuardianWinbar#"
 
-  local right = "%#PiGuardianWinbar# %#PiGuardianWinbarLabel#PROPOSED: " .. rel_path .. " %#PiGuardianWinbar# %#PiGuardianWinbarHint#[ga=accept  gx=reject  g+/g-=context]%#PiGuardianWinbar#"
+  local right = "%#PiGuardianWinbar# %#PiGuardianWinbarLabel#PROPOSED: " .. rel_path .. " %#PiGuardianWinbar# %#PiGuardianWinbarHint#[ga=accept  gx=stop/keep files  g+/g-=context]%#PiGuardianWinbar#"
 
   return left, right
 end

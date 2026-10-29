@@ -9,10 +9,15 @@ def log(text):
     with (root / 'calls').open('a') as out: out.write(text + '\n')
 def attach(name):
     if os.environ.get('MOCK_NO_CLIENT'): return
-    sessions[name] = sessions.get(name, 0) + (2 if os.environ.get('MOCK_EXTRA_CLIENT') else 1)
+    if sessions.get(name) == -1:
+        log('native-resurrection ' + name)
+        (root / 'panes.json').write_text((root / 'resurrect-panes.json').read_text())
+    sessions[name] = max(sessions.get(name, 0), 0) + (2 if os.environ.get('MOCK_EXTRA_CLIENT') else 1)
     sessions_file.write_text(json.dumps(sessions))
 if args[:2] == ['list-sessions', '--no-formatting']:
-    print('\n'.join(sessions)); sys.exit()
+    print('\n'.join(name if '--short' in args else
+        name + ' [Created 1s ago] ' + ('(EXITED - attach to resurrect)' if count == -1 else '')
+        for name, count in sessions.items())); sys.exit()
 if args[0] == 'attach' or (args[0] == '--session' and args[2] != 'action'):
     name = args[1]
     log('terminal ' + repr(args))
@@ -22,11 +27,13 @@ if args[0] == 'attach' or (args[0] == '--session' and args[2] != 'action'):
     if os.environ.get('MOCK_TERMINAL_FAIL'): sys.exit(7)
     attach(name)
     deadline = time.monotonic() + 15
-    while 'focus-pane-id ' not in (root / 'calls').read_text():
-        assert time.monotonic() < deadline, 'launcher never focused task'
+    while True:
+        calls = (root / 'calls').read_text()
+        navigated = 'focus-pane-id ' in calls or 'native-resurrection ' in calls
+        unlocked = not os.environ.get('MOCK_LOCK') or subprocess.run(['flock', '-n', os.environ['MOCK_LOCK'], 'true']).returncode == 0
+        if navigated and unlocked: break
+        assert time.monotonic() < deadline, 'launcher never finished navigation or released lock'
         time.sleep(.05)
-    if os.environ.get('MOCK_LOCK'):
-        assert subprocess.run(['flock', '-n', os.environ['MOCK_LOCK'], 'true']).returncode == 0
     log('terminal-exit'); sys.exit()
 name = os.environ.get('ZELLIJ_SESSION_NAME', 'mock')
 if args[0] == '--session':
@@ -34,6 +41,8 @@ if args[0] == '--session':
     args = args[2:]
 assert args[0] == 'action', args
 act = args[1]
+if sessions.get(name) == -1:
+    raise AssertionError('launcher must not query panes/clients of an exited session')
 panes = json.loads((root / 'panes.json').read_text()) if name != 'caller' else []
 def save(): (root / 'panes.json').write_text(json.dumps(panes))
 def identity(pane):
@@ -64,7 +73,7 @@ if act == 'list-panes':
         count = int(counter.read_text()) + 1 if counter.exists() else 1
         counter.write_text(str(count))
         if count < after:
-            panes = [p for p in panes if ' pi --session ' not in p['terminal_command']]
+            panes = [p for p in panes if ' pi --session' not in p['terminal_command']]
     origin = [dict(id=900, tab_id=90, tab_name='origin', is_plugin=False, exited=False, terminal_command='pi-task')] if name == os.environ.get('ZELLIJ_SESSION_NAME') else []
     print(json.dumps(panes + origin)); sys.exit()
 log(act + ' ' + repr(args[2:]))
@@ -77,7 +86,8 @@ elif act == 'go-to-tab-by-id':
 elif act == 'new-pane':
     assert '--no-focus' in args and '--stacked' in args and '--tab-id' not in args
     anchor = next(p for p in panes if p['id'] == int(os.environ['ZELLIJ_PANE_ID']) and not p['is_plugin'])
-    assert not anchor['exited'] and not anchor.get('is_suppressed') and 'pi' in shlex.split(anchor['terminal_command'])
+    assert not anchor['exited'] and not anchor.get('is_suppressed')
+    assert any(Path(word).name in ('pi', 'pi-resurrect.ts') for word in shlex.split(anchor['terminal_command']))
     pane = dict(id=max([p['id'] for p in panes], default=0)+1, is_plugin=False, exited=False,
         tab_id=anchor['tab_id'], tab_name=anchor['tab_name'], terminal_command=' '.join(args[args.index('--')+1:]),
         **{key: anchor[key] for key in ['pane_x', 'pane_y', 'pane_rows', 'pane_columns']})
@@ -85,30 +95,23 @@ elif act == 'new-pane':
     if os.environ.get('MOCK_BAD_STACK'): pane['pane_x'] += 1
     panes.append(pane)
     identity(pane); save(); print('terminal_' + str(pane['id']))
-elif act in ('new-tab', 'override-layout'):
+elif act == 'override-layout':
+    raise AssertionError('automatic layout repair is retired')
+elif act == 'new-tab':
     assert sessions.get(name, 0) > 0, 'headless task creation'
-    if act == 'new-tab':
-        assert '--no-focus' in args
-        tab = max([p['tab_id'] for p in panes], default=0) + 1
-    else:
-        assert '--apply-only-to-active-tab' in args
-        assert '--retain-existing-terminal-panes' in args
-        assert '--retain-existing-plugin-panes' in args
-        tab = int((root / 'active-tab').read_text())
+    assert '--no-focus' in args
+    tab = max([p['tab_id'] for p in panes], default=0) + 1
     layout = args[args.index('--layout-string') + 1]
-    if act == 'override-layout': assert 'tab name=' not in layout
     title = next((p['tab_name'] for p in panes if p['tab_id'] == tab), 'fixture')
     editor_args = re.search(r'pane command="env" \{ args (.*?); \}', layout)
-    shell_args = re.search(r'pane size="30%" command="env" \{ args (.*?); \}', layout)
-    pi_args = re.search(r'pane size="40%" command="env" \{ args (.*?); \}', layout)
+    shell_args = re.search(r'pane stacked=true stack_direction="horizontal" size="30%" \{\s*pane command="env" \{ args (.*?); \}', layout)
+    pi_args = re.search(r'pane stacked=true stack_direction="vertical" size="40%" \{\s*pane command="env" \{ args (.*?); \}', layout)
     assert editor_args and shell_args, layout
     assert 'pane split_direction="vertical" {\n      pane split_direction="horizontal" {' in layout
     commands = ['env ' + ' '.join(shlex.split(editor_args.group(1))),
         'env ' + ' '.join(shlex.split(shell_args.group(1)))]
     if pi_args: commands.append('env ' + ' '.join(shlex.split(pi_args.group(1))))
     geometry = [(0, 1, 70, 60), (0, 71, 30, 60), (60, 1, 100, 40)]
-    if os.environ.get('MOCK_BAD_LAYOUT'):
-        geometry = [(0, 1, 70, 50), (0, 71, 30, 100), (50, 1, 70, 50)]
     for cmd, (x, y, rows, columns) in zip(commands, geometry):
         pane = next((p for p in panes if p['tab_id'] == tab and p['terminal_command'] == cmd), None)
         if pane is None:
@@ -118,7 +121,7 @@ elif act in ('new-tab', 'override-layout'):
         pane.update(pane_x=x, pane_y=y, pane_rows=rows, pane_columns=columns,
             is_floating=False, is_suppressed=False)
     identity(pane); save()
-    if act == 'new-tab': print(tab)
+    print(tab)
     if os.environ.get('MOCK_CLIENT_AFTER_TAB'):
         sessions[name] = 2
         sessions_file.write_text(json.dumps(sessions))

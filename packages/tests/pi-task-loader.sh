@@ -9,8 +9,9 @@ ln -s "$source_root/extensions/tool-guardian" "$tmp/agent/extensions/tool-guardi
 ln -s "$source_root/lib" "$tmp/agent/lib"
 tee "$tmp/agent/probe.ts" >/dev/null <<'TS'
 import { TaskReview } from "./extensions/tool-guardian/task-review.ts";
+import guardian from "./extensions/tool-guardian/index.ts";
 export default function (pi: any) {
-  if (typeof TaskReview !== "function") throw new Error("TaskReview import failed");
+  if (typeof TaskReview !== "function" || typeof guardian !== "function") throw new Error("Guardian import failed");
   console.error("SHARED_TASK_STATE_IMPORT_OK");
   pi.on("session_start", (_event: unknown, ctx: any) => ctx.shutdown());
 }
