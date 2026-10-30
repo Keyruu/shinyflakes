@@ -1,5 +1,124 @@
 # Pi task workflow redesign
 
+## Follow-up: task workspace in the initial tab
+
+Fresh sessions now start directly with the task's editor/shell/Pi layout instead
+of starting `project` and adding a second tab. Unregistered checkout sessions
+likewise start with only their editor/shell workspace. The initial KDL is stored
+beside workspace metadata with mode `0600`; launch uncertainty is recorded before
+starting the client. Existing sessions, native resurrection, shared stacking and
+`--here --tab` retain their previous behavior. No existing tabs are removed.
+
+Validation: resume/presentation fixture passed, including switched, plain-terminal
+and Kitty cold starts, one-time request delivery and uncertain-launch refusal.
+All **8 CLI/shared-checkout/resurrection tests passed**. Bash/Python/TypeScript
+syntax and both repository diff checks passed. Nix build and packaged `--help`
+passed; packaged launcher source matches the checkout.
+
+Built package: `/nix/store/5i8rgy25hicdjn81y2ks85d91hvsfyfr-pi-task`.
+**Not activated; native end-to-end startup was not tested.** No human-owned
+sessions were changed. Older build paths below describe earlier revisions.
+
+## Implemented: annotations-only review with Zellij paste
+
+New `/review` opens Diffview without source snapshots, private object stores,
+payload/response files or durable pending-review state. `<leader>rc` /
+`:PiReviewSend` pastes in-memory annotations into the originating Pi pane and
+focuses it, **without pressing Enter**. Source saves are not automatically sent.
+Closing keeps comments while Neovim lives; quitting loses unsent comments.
+Existing saved feedback/task metadata is retained for legacy recovery.
+
+Requires distinct Pi/Neovim panes in Zellij. The old standalone/same-pane fallback
+is removed because it cannot safely paste into Pi. Existing herd status validates
+the target conversation/process plus live pane membership. Paste is not an
+atomic Pi-message receipt; the human checks the input before submitting.
+
+Read-only preparation timing on shinyflakes (three repositories): **107–133 ms**
+for base resolution and coverage scan, excluding editor discovery/rendering.
+The previous code launched one Git hash process per file; a separate 100-file
+hash microbenchmark took 373–394 ms. These are not end-to-end UI timings.
+
+Offline builds passed (not activated):
+- `/nix/store/qnfkk1kgaa3i5494qj8iyifscg4yschz-vimplugin-pi-guardian-nvim`
+- `/nix/store/248g2xd7ni3w1fsqbdw4wl6cf1x8d4w7-neovim-unwrapped-0.12.6`
+
+Final CLI/Guardian/resurrection tests: **254 passed, none skipped**, including
+native headless Diffview with both revisions and paste-only dispatch fixtures.
+The isolated Pi extension-loader fixture, StyLua and both repositories' diff
+checks passed. Built Neovim exposes `:PiReviewSend` and no `:PiReviewDraft`.
+Live Zellij-to-Pi paste and activation remain unverified. Activate/restart the
+updated Neovim before `/reload` in Pi; old plugins reject the new opening payload.
+See [current workflow](worktree-review-workflow.md#review) for bindings and limits.
+
+## Implemented: guided per-edit review restored
+
+[Workflow simplification](pi-workflow-simplification.md), issue 2, now restores
+rather than deletes per-edit review. Guided tasks and ordinary guarded sessions
+wait after in-scope edit/write calls. Autonomous tasks and ordinary yolo sessions
+skip it; whole-task `/review` remains nonblocking. Reject stops for feedback and
+keeps files and unsaved embedded-Neovim source buffers. No rollback or task-wide
+writer lock is restored.
+
+Validation: full CLI/Guardian/resurrection suite **253 passed, 1 optional Diffview
+acknowledgement test skipped**; headless native Neovim preserve-on-reject and
+stale-buffer checks passed. Actual Pi extension-loader fixture, Bash syntax,
+both repository diff checks and offline builds passed.
+
+Built packages (not activated):
+- `/nix/store/s67n91yr9f9fpfa7rww1f1nfr25fapwz-pi-task`
+- `/nix/store/46bl1vjb16zyl5jkvpr8yi8cwwf4nsyd-vimplugin-pi-guardian-nvim`
+- `/nix/store/9sz7idp9hjh1j3vvjd2ak50r9pslhhdp-neovim-unwrapped-0.12.6`
+
+Activate updated Neovim and restart it **before** reloading Guardian. Older
+running plugins are refused rather than used with their rollback behavior.
+Saved guided policies become active again; no state migration is needed.
+Live TUI/multiplexer smoke is unverified. No activation or human-owned terminal
+changes were performed.
+
+## Implemented: native session recovery simplification
+
+See [Pi workflow simplification](pi-workflow-simplification.md), issue 1.
+The current source delegates exited-session restoration to Zellij and no longer
+repairs missing Pi panes or reconstructs task layouts. Initial launches and
+verified live navigation remain. Older missing-pane recovery results below are
+historical and do not describe this source revision.
+
+Validation: full CLI/Guardian/resurrection suite **251 passed, 1 optional Neovim
+test skipped**; updated resume/presentation and extension-loader fixtures passed.
+Bash/Python syntax, both repository diff checks and offline Nix build passed.
+Built package: `/nix/store/s69zv9p8kw4401ziaa40f78sz204m0ih-pi-task` (not activated).
+Two isolated PTY smoke attempts failed before initial Zellij panes became
+available; neither exercised resurrection. The user chose to leave native
+end-to-end validation unverified and stop further smoke investigation for this
+slice. Implementation is complete; this is not a native smoke pass.
+No activation or human-owned session changes were performed.
+
+## Follow-up: sessions per task/worktree
+
+New isolated tasks and first-time unregistered checkout workspaces now get
+separate Zellij sessions. Session names combine repository/task or checkout
+labels with an identity hash; cold startup uses the selected checkout.
+`--here` still stacks Pi, and `--here --tab` still requests a full tab in the
+current session. Saved task/checkout attachments stay unchanged. Legacy
+repository session pointers are read-only, not rewritten by new navigation.
+
+Shared stacking also cross-checks the pane's Pi launch command against its live
+herd identity, refusing stale editor/shell panes before launch. Direct Pi,
+task-bound Pi and native resurrection commands are covered. The existing Zellij
+fixture was updated to recognize the current stacked layout.
+
+Validation: resume/presentation and extension-loader fixtures passed; full
+CLI/Guardian suite **249 passed, 1 optional editor-acknowledgement test skipped**;
+**6 packaged compatibility tests passed**. Bash syntax, both repository diff
+checks and offline Nix build passed.
+
+Built package: `/nix/store/qk2qqvxg5n8n29dz61g1lzhrnga2jsnf-pi-task`.
+It is **not activated**; the historical installed package below lacks this update.
+No live sessions were moved or closed, and no native smoke was performed for
+this follow-up.
+
+## Previous rollout
+
 Status: **Steps 1–2 accepted. Bounded Step 3 native smoke passed after Pi-stack and Guardian lifecycle fixes. User activated; installed runtime verified October 25.**
 October 24's approved disposable smoke verified Pi stacking, independent task
 identities/bases, dirty-file inclusion, external-worktree navigation and native

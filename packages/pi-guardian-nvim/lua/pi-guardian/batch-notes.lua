@@ -2,60 +2,10 @@ local Comments = require("pi-review.comments")
 local M = { actions = {}, contexts = {} }
 local target
 
-local function read_state(ctx)
-  local file = assert(io.open(ctx.file, "rb"))
-  local state = vim.json.decode(file:read("*a"))
-  file:close()
-  assert(state.version == 2 and state.root == ctx.root, "Invalid/legacy task state; migrate with pi-task first")
-  return state
-end
-M.state = read_state
-
-local function safe_env()
-  local env = {}
-  for key, value in pairs(vim.fn.environ()) do
-    if
-      key == "PATH"
-      or key == "HOME"
-      or key == "USER"
-      or key == "LANG"
-      or key == "TMPDIR"
-      or key:match("^LC_")
-      or key:match("^XDG_")
-    then
-      env[key] = value
-    end
-  end
-  return env
-end
-
-function M.command(ctx, operation, ...)
-  local args = { "pi-task", "review-internal", operation, ctx.root, ctx.file }
-  vim.list_extend(args, { ... })
-  local result = vim.system(args, { text = true, env = ctx.env or safe_env(), clear_env = true }):wait()
-  assert(result.code == 0, vim.trim(result.stderr or "Task state update failed"))
-  return result.stdout ~= "" and vim.json.decode(result.stdout) or read_state(ctx)
-end
-
-function M.text_command(ctx, operation, args, text)
-  local path = vim.fn.tempname()
-  local file = assert(io.open(path, "wb"))
-  assert(vim.fn.setfperm(path, "rw-------") == 1, "Cannot protect feedback temporary file")
-  assert(file:write(text))
-  assert(file:close())
-  local call = vim.list_extend(vim.deepcopy(args), { path })
-  local ok, result = pcall(M.command, ctx, operation, unpack(call))
-  os.remove(path)
-  if not ok then
-    error(result)
-  end
-  return result
-end
-
 function M.configure(ctx)
   local immutable = vim.env.PI_TASK_ROOT and assert(vim.uv.fs_realpath(vim.env.PI_TASK_ROOT), "Task root unavailable")
   assert(not immutable or immutable == ctx.root, "Cannot route feedback to another task's Pi")
-  read_state(ctx)
+  assert(type(ctx.id) == "string" and type(ctx.agent) == "table", "Open /review from Pi first")
   target = ctx
 end
 
@@ -67,72 +17,26 @@ local function task_context()
   if target then
     return target
   end
-  if not vim.env.PI_TASK_ROOT then
-    vim.notify("Use the task editor, or open /review from its Pi session", vim.log.levels.WARN)
-    return
-  end
-  local root = assert(vim.uv.fs_realpath(vim.env.PI_TASK_ROOT), "Task root unavailable")
-  local common = vim
-    .system({ "git", "-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir" }, { text = true })
-    :wait()
-  assert(common.code == 0, common.stderr)
-  M.configure({
-    root = root,
-    file = vim.env.PI_TASK_REVIEW_STATE
-      or vim.trim(common.stdout) .. "/pi-task/reviews/" .. vim.fn.sha256(root):sub(1, 12) .. ".json",
-  })
-  return target
+  vim.notify("Open /review from the Pi session you want to annotate for", vim.log.levels.WARN)
 end
 
 local function content(buf)
   return table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
 end
-local function show(buf)
-  vim.cmd("belowright split")
-  vim.api.nvim_win_set_buf(0, buf)
-end
+
 local function new_buffer(ctx, kind, text)
   local buf = vim.api.nvim_create_buf(true, false)
   vim.api.nvim_buf_set_name(
     buf,
-    "pi-review://" .. vim.fn.sha256(ctx.file):sub(1, 12) .. "/" .. kind .. "/" .. buf .. ".md"
+    "pi-review://" .. vim.fn.sha256(ctx.id):sub(1, 12) .. "/" .. kind .. "/" .. buf .. ".md"
   )
   vim.bo[buf].buftype = "acwrite"
   vim.bo[buf].bufhidden = "hide"
   vim.bo[buf].swapfile = false
   vim.bo[buf].filetype = "markdown"
-  vim.b[buf].pi_review = { file = ctx.file, kind = kind }
+  vim.b[buf].pi_review = { id = ctx.id, kind = kind }
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(text, "\n", { plain = true }))
   vim.bo[buf].modified = false
-  return buf
-end
-
-function M.draft(ctx)
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    local meta = vim.b[buf].pi_review
-    if meta and meta.file == ctx.file and meta.kind == "draft" then
-      if not vim.bo[buf].modified then
-        local state = read_state(ctx)
-        vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(state.draft, "\n", { plain = true }))
-        vim.b[buf].pi_review_version = state.draftVersion
-        vim.bo[buf].modified = false
-      end
-      show(buf)
-      return buf
-    end
-  end
-  local state = read_state(ctx)
-  local buf = new_buffer(ctx, "draft", state.draft)
-  vim.b[buf].pi_review_version = state.draftVersion
-  vim.api.nvim_create_autocmd("BufWriteCmd", {
-    buffer = buf,
-    callback = function()
-      local saved = M.text_command(ctx, "draft", { tostring(vim.b[buf].pi_review_version) }, content(buf))
-      vim.b[buf].pi_review_version = saved.draftVersion
-      vim.bo[buf].modified = false
-    end,
-  })
-  show(buf)
   return buf
 end
 
@@ -164,7 +68,7 @@ function M.compose(ctx, first, last, source, note, on_done)
       if on_done then
         on_done()
       end
-      vim.notify("Comment kept in Neovim memory; Submit sends it, quitting loses it")
+      vim.notify("Comment kept in Neovim memory; Send pastes it into Pi; quitting loses it")
     end,
   })
   local width = math.min(80, math.max(1, vim.o.columns - 4))
@@ -201,16 +105,64 @@ function M.pending(ctx)
   return #Comments.list(ctx)
 end
 
-function M.stage(ctx)
-  local items = Comments.list(ctx)
-  if #items == 0 then
-    return
+function M.command(ctx, ...)
+  local args = { "zellij", "--session", ctx.agent.session, "action" }
+  vim.list_extend(args, { ... })
+  local result = vim.system(args, { text = true, env = ctx.env, clear_env = true }):wait(3000)
+  assert(result.code == 0, "Zellij failed: " .. (result.stderr or tostring(result.code)))
+  return result.stdout
+end
+
+local function validate_target(ctx)
+  local agent = ctx.agent
+  local file = assert(io.open(agent.statusFile, "rb"), "Pi is no longer available; reopen /review")
+  local raw = file:read("*a")
+  file:close()
+  local state = vim.json.decode(raw)
+  assert(
+    state.pid == agent.pid
+      and state.sessionId == agent.sessionId
+      and state.zellijSession == agent.session
+      and state.zellijPaneId == agent.pane,
+    "Pi session changed; reopen /review from the intended conversation"
+  )
+  assert(vim.uv.kill(agent.pid, 0) == 0, "Pi process exited; comments kept")
+  assert(state.status ~= "waiting", "Pi has an open tool dialog; finish it before sending")
+  local panes = vim.json.decode(M.command(ctx, "list-panes", "--json", "--all"))
+  for _, pane in ipairs(panes) do
+    if not pane.is_plugin and tostring(pane.id) == agent.pane and pane.exited == false and not pane.is_held then
+      return
+    end
   end
-  -- Only Submit crosses the durability boundary. Failed submissions remain in the saved draft.
-  M.text_command(ctx, "append", {}, Comments.format(items))
+  error("Original Pi pane is unavailable; comments kept")
+end
+
+function M.send(ctx)
+  M.flush(ctx)
+  local items = Comments.list(ctx)
+  assert(#items > 0, "No annotations to send")
+  local text = "Code review comments for "
+    .. ctx.root
+    .. ":\n\n"
+    .. Comments.format(items)
+    .. "\n\nPlease address these comments. Re-read source files and preserve existing edits.\n"
+  -- Pasted source must not be able to terminate bracketed paste and inject keys.
+  assert(
+    not text:find("[%z\1-\8\11-\31\127]"),
+    "Comments contain terminal control characters; edit them before sending"
+  )
+  validate_target(ctx)
+  M.command(ctx, "paste", "--pane-id", ctx.agent.pane, "--", text)
   for _, note in ipairs(items) do
     Comments.delete(note)
   end
+  -- A focus failure must not report paste failure or invite a duplicate send.
+  local focused, err = pcall(M.command, ctx, "focus-pane-id", ctx.agent.pane)
+  vim.notify(
+    focused and "Annotations pasted into Pi. Check the input and press Enter when ready."
+      or ("Annotations pasted, but focus failed: " .. tostring(err) .. ". Switch to Pi manually."),
+    focused and vim.log.levels.INFO or vim.log.levels.WARN
+  )
 end
 
 function M.comments(ctx)
@@ -222,38 +174,19 @@ end
 function M.flush(ctx)
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     local meta = vim.b[buf].pi_review
-    if meta and meta.file == ctx.file and vim.bo[buf].modified then
-      assert(meta.kind == "draft", "Save/add or explicitly discard open composer before finishing")
-      vim.api.nvim_buf_call(buf, function()
-        vim.cmd("write")
-      end)
-    end
+    assert(
+      not (meta and meta.id == ctx.id and vim.bo[buf].modified),
+      "Save/add or explicitly discard open composer before sending"
+    )
   end
-end
-
-function M.history(ctx)
-  local lines = { "# Review submission history", "" }
-  for _, item in ipairs(read_state(ctx).submissions) do
-    vim.list_extend(lines, {
-      "## " .. item.id .. " — " .. (item.delivered and "delivered" or "unconfirmed; /review-feedback retries"),
-      "",
-      item.text,
-      "",
-    })
-  end
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(table.concat(lines, "\n"), "\n", { plain = true }))
-  vim.bo[buf].filetype = "markdown"
-  vim.bo[buf].modifiable = false
-  show(buf)
 end
 
 local function review_action(ctx, action)
-  if not M.actions[ctx.file] then
-    vim.notify("Open /review in coordinating Pi first", vim.log.levels.WARN)
+  if not M.actions[ctx.id] then
+    vim.notify("Open /review in Pi first", vim.log.levels.WARN)
     return
   end
-  return M.actions[ctx.file](action)
+  return M.actions[ctx.id](action)
 end
 
 function M.setup()
@@ -264,7 +197,10 @@ function M.setup()
     vim.api.nvim_create_user_command(name, function(args)
       local ctx = task_context()
       if ctx then
-        callback(ctx, args, vim.api.nvim_get_current_buf())
+        local ok, err = pcall(callback, ctx, args, vim.api.nvim_get_current_buf())
+        if not ok then
+          vim.notify(tostring(err), vim.log.levels.WARN)
+        end
       end
     end, opts)
   end
@@ -272,36 +208,26 @@ function M.setup()
     M.compose(ctx, args.line1, args.line2, source)
   end, { range = true })
   command("PiReviewComments", M.comments)
-  command("PiReviewDraft", M.draft)
   command("PiReviewFinish", function(ctx)
-    review_action(ctx, "accept")
+    review_action(ctx, "close")
   end)
-  command("PiReviewSubmit", function(ctx)
-    review_action(ctx, "changes")
-  end)
+  command("PiReviewSend", M.send)
+  -- Existing bindings must never retain the old auto-submit behavior.
+  command("PiReviewSubmit", M.send)
   command("PiReview", function(ctx)
-    vim.ui.select(
-      { "Comments (memory only)", "Saved draft", "Delivery history", "Repositories / coverage", "Recovery help" },
-      {
-        prompt = "Review tools:",
-      },
-      function(choice)
-        if choice == "Comments (memory only)" then
-          M.comments(ctx)
-        elseif choice == "Saved draft" then
-          M.draft(ctx)
-        elseif choice == "Delivery history" then
-          M.history(ctx)
-        elseif choice == "Repositories / coverage" then
-          review_action(ctx, "repositories")
-        elseif choice == "Recovery help" then
-          vim.notify(
-            "In task Pi: /review-feedback retries unconfirmed delivery (may duplicate).\n"
-              .. "/review-coordinator explicitly transfers coordination to that session; does not resume work."
-          )
-        end
+    vim.ui.select({ "Comments (memory only)", "Send to Pi (paste only)", "Repositories / coverage", "Close review" }, {
+      prompt = "Review tools:",
+    }, function(choice)
+      if choice == "Comments (memory only)" then
+        M.comments(ctx)
+      elseif choice == "Send to Pi (paste only)" then
+        vim.cmd("PiReviewSend")
+      elseif choice == "Repositories / coverage" then
+        review_action(ctx, "repositories")
+      elseif choice == "Close review" then
+        review_action(ctx, "close")
       end
-    )
+    end)
   end)
 end
 return M

@@ -33,7 +33,7 @@
             enable_audio_bell = "false";
             visual_bell_duration = "0.2";
             visual_bell_color = "#003753";
-            cursor_trail = 3;
+            cursor_trail = 30;
             cursor_trail_decay = "0.1 0.4";
             cursor_trail_start_threshold = 10;
             font_family = user.theme.font;

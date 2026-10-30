@@ -2,7 +2,6 @@
 pkgs.writeShellApplication {
   name = "pi-herd";
   runtimeInputs = with pkgs; [
-    (import ./pi-task.nix { inherit pkgs; })
     fzf
     git
     jq

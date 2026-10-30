@@ -77,7 +77,7 @@ end
 function M.list(ctx)
   local result = {}
   for _, note in pairs(notes) do
-    if not ctx or note.key == ctx.file then
+    if not ctx or note.key == ctx.id then
       table.insert(result, note)
     end
   end
@@ -128,7 +128,7 @@ end
 function M.add(ctx, location, text)
   assert(text:find("%S"), "Add a comment before saving")
   next_id = next_id + 1
-  local note = { id = next_id, key = ctx.file, location = location, text = text }
+  local note = { id = next_id, key = ctx.id, location = location, text = text }
   notes[note.id] = note
   M.decorate(note)
   return note

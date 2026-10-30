@@ -8,12 +8,10 @@
 
 dir="${XDG_CACHE_HOME:-$HOME/.cache}/pi-herd"
 mode=fzf
-reviews=false
 for arg in "$@"; do
   case "$arg" in
     --dmenu) mode=dmenu ;;
-    --reviews) reviews=true ;;
-    -h|--help) printf '%s\n' 'pi-herd [--dmenu] [--reviews] — navigate to running Pi; /review opens diff'; exit 0 ;;
+    -h|--help) printf '%s\n' 'pi-herd [--dmenu] — navigate to running Pi; /review opens diff'; exit 0 ;;
     *) printf 'pi-herd: unknown option: %s\n' "$arg" >&2; exit 1 ;;
   esac
 done
@@ -63,25 +61,13 @@ for f in "$dir"/*.json; do
     rm -f "$f"
     continue
   fi
-  status=$(jq -r '.status' "$f")
-  summary=""
-  review_file=$(jq -r '.taskReviewState // empty' "$f")
-  if [ -n "$review_file" ]; then
-    root=$(jq -r '.taskRoot // empty' "$f")
-    pi-task review-internal validate "$root" "$review_file" || exit 1
-    if jq -e '.pending != null' "$review_file" >/dev/null; then
-      status=review
-      summary=$(jq -r '.pending.summary // "" | gsub("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]"; " ") | .[0:160]' "$review_file")
-    elif [ "$status" = review ]; then status=idle; fi
-  fi
-  if "$reviews" && [ "$status" != review ]; then continue; fi
-  row=$(jq -r --arg status "$status" --arg summary "$summary" '[.pid, $status, .taskRoot // .cwd, .zellijSession // "-", .zellijPaneId // "-", .zellijTab // "-", (.updatedAt | tostring), (if $summary == "" then "-" else $summary end)] | @tsv' "$f")
+  row=$(jq -r '[.pid, .status, .taskRoot // .cwd, .zellijSession // "-", .zellijPaneId // "-", .zellijTab // "-", (.updatedAt | tostring)] | @tsv' "$f")
   rows+="$row"$'\n'
 done
 
 if [ -z "$rows" ]; then
-  if "$reviews"; then echo "no pending reviews in running pi instances"; else echo "no running pi instances"; fi
-  if [ "$mode" = "fzf" ] && ! "$reviews"; then
+  echo "no running pi instances"
+  if [ "$mode" = "fzf" ]; then
     read -rsn1
     hide_panes
   fi
@@ -105,14 +91,13 @@ server_of() { # pid -> ancestor zellij server pid
 }
 
 now=$(date +%s)
-lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts summary; do
+lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts; do
   [ -n "$pid" ] || continue
   age=$((now - ts))
   if [ "$age" -lt 60 ]; then age="${age}s"
   elif [ "$age" -lt 3600 ]; then age="$((age / 60))m"
   else age="$((age / 3600))h"; fi
   case "$status" in
-    review)   sort=0; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
     waiting)  sort=1; icon=$'\e[31m●\e[0m'; emoji=🔴 ;;
     question) sort=1; icon=$'\e[36m●\e[0m'; emoji=❓ ;;
     working) sort=2; icon=$'\e[33m●\e[0m'; emoji=🟡 ;;
@@ -121,9 +106,9 @@ lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts summary; do
   if [ "$mode" = dmenu ]; then
     loc=$tab
     [ "$pane" != "-" ] && loc="$tab · p$pane"
-    printf '%s\t%s\t%s\t%s\t%s %-7s\t%s\t%s\t%s\t%s\t%s\n' \
+    printf '%s\t%s\t%s\t%s\t%s %-7s\t%s\t%s\t%s\t%s\n' \
       "$sort" "$session" "$pane" "$pid" \
-      "$emoji" "$status" "${cwd/#"$HOME"/\~}" "$session" "$loc" "$age" "$summary"
+      "$emoji" "$status" "${cwd/#"$HOME"/\~}" "$session" "$loc" "$age"
   else
     repo=$cwd
     # Git's first worktree is the main checkout, even for adopted worktrees elsewhere.
@@ -135,9 +120,9 @@ lines=$(while IFS=$'\t' read -r pid status cwd session pane tab ts summary; do
     [ "$title" != "-" ] || title=$(basename "$cwd")
     loc=$session
     [ "$pane" != "-" ] && loc="$session · p$pane"
-    printf '%s\t%s\t%s\t%s\t%s\t%s\t  %s %-7s  %s\t%s\t%s\t%s\t%s\n' \
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t  %s %-7s  %s\t%s\t%s\t%s\n' \
       "$sort" "$session" "$pane" "$pid" "$repo" "$project" \
-      "$icon" "$status" "$title" "${cwd/#"$HOME"/\~}" "$loc" "$age" "$summary"
+      "$icon" "$status" "$title" "${cwd/#"$HOME"/\~}" "$loc" "$age"
   fi
 done <<<"$rows" | if [ "$mode" = dmenu ]; then
   sort -t$'\t' -k1,1 -k7,7

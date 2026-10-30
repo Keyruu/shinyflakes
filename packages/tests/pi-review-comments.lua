@@ -3,9 +3,28 @@ local Comments = require("pi-review.comments")
 local Notes = require("pi-guardian.batch-notes")
 local dir = vim.fn.tempname()
 vim.fn.mkdir(dir, "p")
-local ctx = { root = dir, file = dir .. "/review.json" }
+vim.env.PI_TASK_ROOT = nil
+local ctx = {
+  root = dir,
+  id = "pi-session",
+  env = {},
+  agent = {
+    pid = vim.fn.getpid(),
+    sessionId = "pi-session",
+    session = "test",
+    pane = "7",
+    statusFile = dir .. "/herd.json",
+  },
+}
+local legacy_file = dir .. "/review.json"
+local identity =
+  { pid = ctx.agent.pid, sessionId = "pi-session", zellijSession = "test", zellijPaneId = "7", status = "idle" }
+local function status(value)
+  vim.fn.writefile({ vim.json.encode(value or identity) }, ctx.agent.statusFile)
+end
+status()
 local state = { version = 2, root = dir, draft = "legacy draft", draftVersion = 3, submissions = {} }
-vim.fn.writefile({ vim.json.encode(state) }, ctx.file)
+vim.fn.writefile({ vim.json.encode(state) }, legacy_file)
 Notes.configure(ctx)
 Notes.setup()
 local count, sequence = 0, 0
@@ -40,14 +59,14 @@ end
 local ok, err = pcall(function()
   test("composer keeps multiline comments in memory without changing state or source", function()
     local buf = source()
-    local before = table.concat(vim.fn.readfile(ctx.file), "\n")
+    local before = table.concat(vim.fn.readfile(legacy_file), "\n")
     local composer = Notes.compose(ctx, 2, 2, buf)
     vim.api.nvim_buf_set_lines(composer, 0, -1, false, { "fix this", "keep the context" })
     vim.cmd("write")
     assert(not vim.api.nvim_buf_is_valid(composer))
     assert(Notes.pending(ctx) == 1)
     assert(Comments.list(ctx)[1].text == "fix this\nkeep the context")
-    assert(table.concat(vim.fn.readfile(ctx.file), "\n") == before)
+    assert(table.concat(vim.fn.readfile(legacy_file), "\n") == before)
     assert(vim.api.nvim_buf_get_lines(buf, 1, 2, false)[1] == "selected")
     assert(not vim.bo[buf].modified)
   end)
@@ -122,7 +141,7 @@ local ok, err = pcall(function()
   test("original excerpts safely quote Markdown and stay isolated per review", function()
     local buf = source({ "````", "original" })
     local note = Comments.add(ctx, Comments.context(ctx, 1, 2, buf), "remark")
-    local other = { root = dir, file = dir .. "/other.json" }
+    local other = { root = dir, id = "other-session" }
     Comments.add(other, {}, "other review")
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "replacement" })
     local text = Comments.format(Comments.list(ctx))
@@ -132,28 +151,99 @@ local ok, err = pcall(function()
     assert(Comments.list(ctx)[1] == note)
   end)
 
-  test("submit failure preserves memory; successful handoff appends once to existing draft", function()
-    local note = Comments.add(ctx, {}, "ready to send")
-    local other = { file = "other-review" }
-    Comments.add(other, {}, "not this review")
+  test("paste is targeted, multiline and never presses Enter or changes existing drafts", function()
+    local original = vim.system
+    local calls = {}
+    vim.system = function(args, opts)
+      assert(args[1] == "zellij" and args[2] == "--session" and args[3] == "test" and args[4] == "action")
+      assert(opts.clear_env and opts.env == ctx.env)
+      table.insert(calls, args)
+      return {
+        wait = function()
+          return { code = 0, stdout = args[5] == "list-panes" and '[{"id":7,"is_plugin":false,"exited":false}]' or "" }
+        end,
+      }
+    end
+    Comments.add(ctx, {}, "--literal\nquote ' \" and $shell")
+    Comments.add({ id = "other" }, {}, "not this review")
+    local before = table.concat(vim.fn.readfile(legacy_file), "\n")
+    Notes.send(ctx)
+    vim.system = original
+    assert(#calls == 3 and calls[1][5] == "list-panes" and calls[2][5] == "paste" and calls[3][5] == "focus-pane-id")
+    assert(calls[2][6] == "--pane-id" and calls[2][7] == "7" and calls[2][8] == "--")
+    assert(calls[2][9]:find("--literal\nquote ' \" and $shell", 1, true))
+    assert(#Comments.list(ctx) == 0 and #Comments.list({ id = "other" }) == 1)
+    assert(table.concat(vim.fn.readfile(legacy_file), "\n") == before)
+    assert(not pcall(Notes.send, ctx), "empty sends refuse")
+  end)
+
+  test("failed paste keeps comments; focus failure after paste does not duplicate them", function()
+    local note = Comments.add(ctx, {}, "keep on failure")
     local original = Notes.command
-    local durable = state.draft
-    Notes.command = function()
-      error("CLI unavailable")
+    Notes.command = function(_, action)
+      if action == "list-panes" then
+        return '[{"id":7,"is_plugin":false,"exited":false}]'
+      end
+      error("paste failed")
     end
-    assert(not pcall(Notes.stage, ctx))
+    assert(not pcall(Notes.send, ctx))
     assert(Comments.list(ctx)[1] == note)
-    Notes.command = function(target, operation, path)
-      assert(target == ctx and operation == "append")
-      durable = durable .. "\n\n" .. table.concat(vim.fn.readfile(path), "\n")
-      return state
+    local pastes = 0
+    Notes.command = function(_, action)
+      if action == "list-panes" then
+        return '[{"id":7,"is_plugin":false,"exited":false}]'
+      end
+      if action == "paste" then
+        pastes = pastes + 1
+        return ""
+      end
+      error("focus failed")
     end
-    Notes.stage(ctx)
-    assert(#Comments.list(ctx) == 0 and #Comments.list(other) == 1)
-    assert(durable:find("legacy draft", 1, true) and durable:find("ready to send", 1, true))
-    local submitted = durable
-    Notes.stage(ctx)
-    assert(durable == submitted)
+    Notes.send(ctx)
+    assert(#Comments.list(ctx) == 0 and pastes == 1)
+    assert(not pcall(Notes.send, ctx))
+    assert(pastes == 1)
+    Notes.command = original
+  end)
+
+  test("changed identities, unavailable panes and terminal control characters fail closed", function()
+    Comments.add(ctx, {}, "keep me")
+    local original = Notes.command
+    local panes = '[{"id":7,"is_plugin":false,"exited":false}]'
+    Notes.command = function(_, action)
+      assert(action == "list-panes", "must never paste to an invalid target")
+      return panes
+    end
+    for _, change in ipairs({
+      { sessionId = "other-conversation" },
+      { zellijSession = "other-session" },
+      { zellijPaneId = "8" },
+      { pid = 2147483647 },
+      { status = "waiting" },
+    }) do
+      status(vim.tbl_extend("force", identity, change))
+      assert(not pcall(Notes.send, ctx))
+      assert(#Comments.list(ctx) == 1)
+    end
+    status()
+    for _, invalid in ipairs({
+      "[]",
+      '[{"id":7,"is_plugin":true,"exited":false}]',
+      '[{"id":7,"is_plugin":false,"exited":true}]',
+      '[{"id":7,"is_plugin":false,"exited":false,"is_held":true}]',
+    }) do
+      panes = invalid
+      assert(not pcall(Notes.send, ctx))
+    end
+    local pid = ctx.agent.pid
+    ctx.agent.pid = 2147483647
+    status(vim.tbl_extend("force", identity, { pid = ctx.agent.pid }))
+    assert(not pcall(Notes.send, ctx), "dead process refuses")
+    ctx.agent.pid = pid
+    status()
+    Comments.edit(Comments.list(ctx)[1], "escape" .. string.char(27) .. "[201~")
+    assert(not pcall(Notes.send, ctx))
+    assert(#Comments.list(ctx) == 1)
     Notes.command = original
   end)
 

@@ -3,9 +3,8 @@ require("pi-guardian.batch-notes").setup()
 for key, action in pairs({
   n = { "PiReviewNote", "Comment at cursor" },
   l = { "PiReviewComments", "List pending comments" },
-  d = { "PiReviewDraft", "Saved feedback draft" },
-  c = { "PiReviewSubmit", "Request changes" },
-  f = { "PiReviewFinish", "Finish review (no model turn)" },
+  c = { "PiReviewSend", "Paste annotations into Pi (no Enter)" },
+  f = { "PiReviewFinish", "Close review (keep annotations)" },
 }) do
   vim.keymap.set("n", "<leader>r" .. key, "<Cmd>" .. action[1] .. "<CR>", { desc = action[2] })
 end

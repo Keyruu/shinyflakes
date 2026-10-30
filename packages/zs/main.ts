@@ -641,7 +641,14 @@ async function refreshPicker(socket: string, action: string, signal: AbortSignal
 export function filterCommand(input: string): string {
   // Match plain search text only: --ansi in filter mode strips colors from the returned display field.
   // Open first so an input-file error cannot masquerade as fzf's no-matches exit code.
-  return `unset FZF_DEFAULT_OPTS FZF_DEFAULT_OPTS_FILE; exec 3< ${quote(input)} || exit 2; fzf --no-sort --delimiter='\\t' --nth=3 --filter={q} <&3; result=$?; if [ "$result" -eq 1 ]; then exit 0; fi; exit "$result"`;
+  // Re-rank only rows whose repository name matches; the empty query keeps attention order.
+  return `unset FZF_DEFAULT_OPTS FZF_DEFAULT_OPTS_FILE; exec 3< ${quote(input)} || exit 2; query={q}; ` +
+    `matches=$(fzf --tiebreak=index --delimiter='\\t' --nth=3 --filter="$query" <&3); result=$?; ` +
+    `if [ "$result" -eq 1 ]; then exit 0; fi; [ "$result" -eq 0 ] || exit "$result"; ` +
+    `if [ -z "$query" ]; then printf '%s\\n' "$matches"; exit 0; fi; ` +
+    `preferred=$(printf '%s\\n' "$matches" | awk -F '\\t' 'NF == 4' | fzf --tiebreak=index --delimiter='\\t' --nth=4 --filter="$query"); result=$?; ` +
+    `if [ "$result" -gt 1 ]; then exit "$result"; fi; ` +
+    `{ [ -z "$preferred" ] || printf '%s\\n' "$preferred"; printf '%s\\n' "$matches"; } | awk -F '\\t' '!seen[$1]++'`;
 }
 
 export function toggleView(directory: string): string {
@@ -672,7 +679,7 @@ export async function choose(rows: Row[], dmenu = false, prompt = "Repo / worktr
     const input = (values = rows) => values.map((r) => {
       const label = renderRow(r);
       const search = clean(`${stripVTControlCharacters(label)} ${r.search ?? ""}`);
-      return `${r.id}\t${label}\t${search}\n`;
+      return `${r.id}\t${label}\t${search}${r.kind === "repo" && r.display ? `\t${clean(r.display.name)}` : ""}\n`;
     }).join("");
     const save = () => {
       const previews = JSON.stringify(Object.fromEntries(choices.map((r) => [r.id, {

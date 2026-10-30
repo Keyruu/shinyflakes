@@ -1489,6 +1489,36 @@ test("real fzf matches visible labels but not opaque selection IDs", async () =>
   assert.equal(absent.stdout, "");
 });
 
+test("short queries rank close names ahead of weaker fuzzy matches without changing the empty view", async () => {
+  const input = "other\tdash0\tdash0 working · /home/lucas/git/dash0\n" +
+    "shiny\tshinyflakes\tshinyflakes closed · /home/lucas/shinyflakes\n" +
+    "second\tshinyflakes task\tshinyflakes task · /home/lucas/shinyflakes\n";
+  assert.equal((await filterInput(input, "")).stdout, input);
+  const result = await filterInput(input, "sh");
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(result.stdout.trim().split("\n").map((line) => line.split("\t")[0]), ["shiny", "second", "other"]);
+});
+
+test("matching repository names outrank shorter path matches without changing empty order", async () => {
+  const rows: Row[] = [
+    { id: "path", label: "shell", kind: "directory", display: { prefix: "▸ ", name: "shell", detail: root } },
+    { id: "repo", label: "shinyflakes", kind: "repo", display: { prefix: "", name: "shinyflakes", detail: root } },
+    { id: "branch", label: "main · shinyflakes", kind: "worktree", search: "shinyflakes main",
+      display: { prefix: "  ├─ ", name: "main", detail: root } },
+  ];
+  let input = "";
+  mock.method(commands, "capture", async (args: string[], options?: CommandOptions) => {
+    input = options?.input ?? "";
+    return fake.capture(args, options);
+  });
+  await choose(rows);
+  assert.equal(input.split("\n")[1].split("\t")[3], "shinyflakes");
+  assert.equal((await filterInput(input, "")).stdout, input);
+  const result = await filterInput(input, "sh");
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(result.stdout.trim().split("\n").map((line) => line.split("\t")[0]), ["repo", "path", "branch"]);
+});
+
 test("repo searches include children and branch searches include agents in both views", async () => {
   const path = await workspaceWithAgents();
   const linked = join(root, "linked");
@@ -1504,7 +1534,7 @@ test("repo searches include children and branch searches include agents in both 
     assert.ok(args.includes("--disabled") && args.includes("--with-nth={2}"));
     assert.ok(args.includes("--with-shell=bash --noprofile --norc -c"));
     const action = args.find((arg) => arg.startsWith("change:reload-sync:"))!;
-    assert.ok(action.includes("--filter={q}"));
+    assert.ok(action.includes("query={q}"));
     assert.ok(args.includes(action.replace(/^change:/, "start:")));
     const directory = dirname(args.find((arg) => arg.startsWith("--listen="))!.slice(9));
     for (const view of [rows, agents]) {

@@ -18,7 +18,7 @@ source "$lib"
 task_review_init "$root" "$review" '' '' HEAD
 transcript="$tmp/session.jsonl"
 printf '{"type":"session","version":3,"id":"coordinator","cwd":"%s"}\n' "$root" >"$transcript"
-review_json=$(jq --arg file "$transcript" '.coordinator="coordinator" | .coordinatorSession=$file | .draft="keep notes" | .pending={id:"review",summary:"pending",checks:""}' "$review")
+review_json=$(jq --arg file "$transcript" '.coordinator="coordinator" | .coordinatorSession=$file' "$review")
 printf '%s\n' "$review_json" >"$review"
 jq -n --arg root "$root" '{root:$root,request:"DO NOT REPLAY",model:"example/model",title:"fixture",session:"mock",piLaunch:false}' >"$metadata"
 printf 'mock\n' >"$state/session"
@@ -128,12 +128,15 @@ jq -e '.request == "Initial task only" and .model == "example/model" and .piLaun
 [ "$(jq -r '.base' "$first_review")" = "$(git -C "$root" rev-parse HEAD)" ]
 first_session=$(jq -r '.session' "$first_metadata")
 [[ "$first_session" == repo-first-* ]]
-grep -F "switch-session ['$first_session', '--cwd', '$first', '--layout', 'project']" "$tmp/calls"
+grep -F "switch-session ['$first_session', '--cwd', '$first', '--layout', '${first_metadata%.json}.kdl']" "$tmp/calls"
+! grep -q '^new-tab ' "$tmp/calls"
+jq -e '.tabId == 0' "$first_metadata" >/dev/null
+jq -e 'length == 3 and all(.tab_id == 0)' "$tmp/panes.json" >/dev/null
 [ "$(<"$state/session")" = mock ]
 export ZELLIJ_SESSION_NAME="$first_session"
 run resume first >"$tmp/out"
 run open "$first" >"$tmp/out"
-[ "$(grep -c '^new-tab ' "$tmp/calls")" -eq 1 ]
+[ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq 1 ]
 [ "$(grep -c 'Initial task only' "$tmp/calls")" -eq 1 ]
 cp "$tmp/panes.json" "$tmp/first-panes.json"
 cp "$marker" "$tmp/first-marker.json"
@@ -144,7 +147,9 @@ run new second >"$tmp/out"
 second_metadata=$(jq -r --arg root "$root.worktrees/second" 'select(.root == $root) | .id' "$state"/*.json)
 second_session=$(jq -r '.session' "$state/$second_metadata.json")
 [[ "$second_session" == repo-second-* && "$second_session" != "$first_session" ]]
-grep -F "switch-session ['$second_session', '--cwd', '$root.worktrees/second', '--layout', 'project']" "$tmp/calls"
+grep -F "switch-session ['$second_session', '--cwd', '$root.worktrees/second', '--layout', '$state/$second_metadata.kdl']" "$tmp/calls"
+! grep -q '^new-tab ' "$tmp/calls"
+jq -e 'length == 3 and all(.tab_id == 0)' "$tmp/panes.json" >/dev/null
 [ "$(jq -r '.session' "$first_metadata")" = "$first_session" ]
 [ "$(<"$state/session")" = mock ]
 
@@ -158,7 +163,7 @@ run open "$first" >"$tmp/out"
 grep -F "switch-session ['$first_session']" "$tmp/calls"
 export ZELLIJ_SESSION_NAME="$first_session"
 run resume first >"$tmp/out"
-[ "$(grep -c '^new-tab ' "$tmp/calls")" -eq 2 ]
+[ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq 2 ]
 [ "$(grep -c 'Initial task only' "$tmp/calls")" -eq 1 ]
 [ "$(<"$state/session")" = mock ]
 printf '[]\n' >"$tmp/panes.json"
@@ -166,7 +171,7 @@ if run resume first >"$tmp/out" 2>"$tmp/err"; then echo 'unrecorded initial sess
 grep -q 'no exact coordinator transcript recorded' "$tmp/err"
 if run open "$first" >"$tmp/out" 2>"$tmp/err"; then echo 'open restored a closed conversation' >&2; exit 1; fi
 grep -q 'workspace closed; use resume' "$tmp/err"
-[ "$(grep -c '^new-tab ' "$tmp/calls")" -eq 2 ]
+[ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq 2 ]
 printf 'pi-task resume fixture: OK\n'
 
 # Presentation tests stay inside the stub; exited sessions restore through native attach/switch.
@@ -297,6 +302,27 @@ for mode in live closed; do
   grep -q '^terminal-exit' "$tmp/calls"
   if [ "$mode" = closed ]; then assert_native_restore; fi
 done
+
+# Cold plain-terminal and Kitty starts use the task as the only initial tab.
+for mode in plain window; do
+  reset_presentation
+  if [ "$mode" = plain ]; then
+    MOCK_EXPECT_TTY=1 script -q -e -c "bash '$launcher' --repo '$root' new cold-$mode --request ONCE-$mode --model example/model" /dev/null >"$tmp/out"
+  else
+    run new "cold-$mode" --request "ONCE-$mode" --model example/model --window >"$tmp/out"
+  fi
+  [ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq 1 ]
+  [ "$(grep -c "ONCE-$mode" "$tmp/calls")" -eq 1 ]
+  ! grep -q '^new-tab ' "$tmp/calls"
+  jq -e 'length == 3 and all(.tab_id == 0)' "$tmp/panes.json" >/dev/null
+  jq -se --arg name "cold-$mode" 'map(select(.name == $name)) | length == 1 and all(.tabId == 0 and .piLaunch == false and .model == "example/model")' "$state"/*.json >/dev/null
+  for attempt in {1..50}; do
+    grep -q '^terminal-exit' "$tmp/calls" && break
+    sleep .05
+  done
+  grep -q '^terminal-exit' "$tmp/calls"
+done
+
 reset_presentation
 printf '{"mock":1}\n' >"$tmp/sessions.json"
 if run resume "$root" --window >"$tmp/out" 2>"$tmp/err"; then exit 1; fi
@@ -323,29 +349,34 @@ invisible=$(jq -r 'select(.name=="invisible") | .id' "$state"/*.json)
 jq -e '.piLaunch == true' "$state/$invisible.json" >/dev/null
 rm -f "$marker"
 printf '[]\n' >"$tmp/panes.json"
-launched=$(grep -c '^new-tab ' "$tmp/calls")
+launched=$(grep -c '^initial-layout ' "$tmp/calls")
 if run resume "$invisible" >"$tmp/out" 2>"$tmp/err"; then exit 1; fi
 grep -q 'previous Pi launch uncertain' "$tmp/err"
-[ "$(grep -c '^new-tab ' "$tmp/calls")" -eq "$launched" ]
+[ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq "$launched" ]
 
 reset_presentation
 export ZELLIJ_SESSION_NAME=mock
 printf '{"mock":1}\n' >"$tmp/sessions.json"
 if MOCK_CLIENT_AFTER_TAB=1 run new ambiguous >"$tmp/out" 2>"$tmp/err"; then exit 1; fi
-grep -q 'exactly one client before focusing' "$tmp/err"
+grep -q 'exactly one client for safe navigation' "$tmp/err"
+ambiguous=$(jq -r 'select(.name=="ambiguous") | .id' "$state"/*.json)
+jq -e '.piLaunch == true' "$state/$ambiguous.json" >/dev/null
 ! grep -q '^go-to-tab-by-id\|^focus-pane-id' "$tmp/calls"
 
-# Picker navigation never submits feedback or mutates the workspace.
+# Normal picker navigation stays read-only; the pending-review picker is gone.
 reset_presentation
 printf '{"mock":1}\n' >"$tmp/sessions.json"
 tee "$tmp/bin/fzf" >/dev/null <<'PY'
 #!/usr/bin/env python3
-import sys
-print(sys.stdin.readline().rstrip())
+import os, sys
+rows = sys.stdin.read().splitlines()
+print(next((row for row in rows if row.startswith('"' + os.environ["MOCK_TASK_KEY"] + '"\t')), rows[0]))
 PY
 chmod +x "$tmp/bin/fzf"
 cp "$tmp/panes.json" "$tmp/before-picker.json"
-run review >"$tmp/out"
+if run review >"$tmp/out" 2>"$tmp/err"; then exit 1; fi
+grep -q 'unknown action: review' "$tmp/err"
+MOCK_TASK_KEY="$key" run open >"$tmp/out"
 cmp "$tmp/before-picker.json" "$tmp/panes.json"
 ! grep -q '^close-pane\|^kill-session\|^delete-session' "$tmp/calls"
 cmp "$tmp/saved-review.json" "$review"
