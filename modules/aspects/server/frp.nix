@@ -18,7 +18,7 @@
         enable = true;
         role = "server";
         settings = {
-          bindAddr = "100.67.0.1";
+          bindAddr = "10.67.0.1";
           bindPort = 7000;
           proxyBindAddr = "127.0.0.1";
           vhostHTTPPort = 8023;

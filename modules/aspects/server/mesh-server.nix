@@ -25,7 +25,7 @@
 
         networking.wg-quick.interfaces = {
           mesh0 = {
-            address = [ "100.67.0.1/24" ]; # VPN subnet
+            address = [ "10.67.0.1/24" ]; # VPN subnet
             listenPort = 51234;
             privateKeyFile = config.sops.secrets.meshServerKey.path;
             peers =

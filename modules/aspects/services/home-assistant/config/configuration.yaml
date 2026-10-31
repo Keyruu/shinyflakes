@@ -15,7 +15,7 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
-    - 100.67.0.1
+    - 10.67.0.1
     - 173.245.48.0/20
     - 103.21.244.0/22
     - 103.22.200.0/22
@@ -44,16 +44,16 @@ shell_command:
 
 template:
   - triggers:
-    - trigger: time_pattern
-      minutes: 5
-    - platform: homeassistant
-      event: start
+      - trigger: time_pattern
+        minutes: 5
+      - platform: homeassistant
+        event: start
     actions:
       - service: shell_command.get_entity_alias
         data: {}
         response_variable: result
     sensor:
       - name: "Entity IDs mit Alias"
-        state: '0'
+        state: "0"
         attributes:
           entities: "{{result.stdout}}"

@@ -31,8 +31,8 @@ pkgs.writeShellApplication {
     Options:
       -p, --peer-address IP/CIDR     peer tunnel address (default: next free mesh IP)
                                       auto selection requires the shinyflakes repo root
-      -a, --allowed-ips CIDRS        LIST   default: "100.67.0.0/24, 192.168.100.0/24"
-      -d, --dns DNS                  LIST   default: 100.67.0.2
+      -a, --allowed-ips CIDRS        LIST   default: "10.67.0.0/24, 192.168.100.0/24"
+      -d, --dns DNS                  LIST   default: 10.67.0.2
       -k, --keepalive SECONDS        STR    default: 25 (0 disables)
       -m, --mtu MTU                  STR
       -o, --output FILE              PATH
@@ -45,8 +45,8 @@ pkgs.writeShellApplication {
     [ "''${1:-}" = "-h" ] || [ "''${1:-}" = "--help" ] && { usage; exit 0; }
 
     endpoint=""; peer_address=""; mtu=""; output=""
-    allowed_ips="100.67.0.0/24, 192.168.100.0/24"
-    dns="100.67.0.2"
+    allowed_ips="10.67.0.0/24, 192.168.100.0/24"
+    dns="10.67.0.2"
     keepalive="25"
     qrcode=0
     serverconfig=0
@@ -85,10 +85,10 @@ pkgs.writeShellApplication {
         || die "Could not evaluate mesh device IPs"
       next_ip=$(printf '%s\n' "$used_ips" | jq -er '
         if type != "array" or any(.[]; type != "string") then error("expected mesh IP list") else
-          [.[] | select(test("^100[.]67[.]0[.][0-9]{1,3}$")) | split(".")[3] | tonumber] as $used
+          [.[] | select(test("^10[.]67[.]0[.][0-9]{1,3}$")) | split(".")[3] | tonumber] as $used
           | (([range(3; 255) | select(. as $candidate | $used | index($candidate) == null)] | first)
-             // error("no free mesh IPs in 100.67.0.3-254"))
-          | "100.67.0.\(.)"
+             // error("no free mesh IPs in 10.67.0.3-254"))
+          | "10.67.0.\(.)"
         end
       ') || die "Could not choose a free mesh IP"
       peer_address="$next_ip/32"

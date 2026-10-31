@@ -3,7 +3,7 @@
 # seen through caddy's JSON access log.
 #
 # Bans happen here, not on mentat: backends only ever see prime's mesh IP
-# (100.67.0.1), so banning on mentat would lock out the wrong clients.
+# (10.67.0.1), so banning on mentat would lock out the wrong clients.
 #
 # Replaces nix/hosts/prime/modules/edge-protection.nix.
 { ... }:

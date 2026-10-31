@@ -76,6 +76,10 @@
         networking.interfaces.wlp0s20f3.useDHCP = lib.mkForce false;
 
         services.libinput.enable = true;
+
+        # the mesh (10.67.0.0/24) deliberately lives outside tailscale's
+        # CGNAT range (100.64.0.0/10): tailscale's netfilter rules drop
+        # everything in that range that does not arrive on tailscale0
         services.tailscale.enable = true;
 
         # Workstation packages migrated from blueprint's workstation.nix + wayland.nix
@@ -99,15 +103,22 @@
           nixos.enable = false;
         };
       };
-    homeManager = { pkgs, inputs', self', ... }: {
-      home.packages = with pkgs; [
-        proton-vpn
-        (google-cloud-sdk.withExtraComponents [ google-cloud-sdk.components.gke-gcloud-auth-plugin ])
-        inputs'.dash0-cli.packages.default
-        inputs'.llm-agents.packages.orca
-        self'.packages.orca-diff
-      ];
-      services.tailscale-systray.enable = true;
-    };
+    homeManager =
+      {
+        pkgs,
+        inputs',
+        self',
+        ...
+      }:
+      {
+        home.packages = with pkgs; [
+          proton-vpn
+          (google-cloud-sdk.withExtraComponents [ google-cloud-sdk.components.gke-gcloud-auth-plugin ])
+          inputs'.dash0-cli.packages.default
+          inputs'.llm-agents.packages.orca
+          self'.packages.orca-diff
+        ];
+        services.tailscale-systray.enable = true;
+      };
   };
 }

@@ -7,7 +7,7 @@
 
   den.aspects.prime = {
     nixos = { ... }: {
-      services.mesh.ip = "100.67.0.1";
+      services.mesh.ip = "10.67.0.1";
     };
 
     includes = [

@@ -50,9 +50,9 @@
           p = config.services.my.copyparty.port;
           shr = "/shared";
           shr-adm = "root";
-          ipr = "192.168.100.0/24,100.67.0.0/16=root";
+          ipr = "192.168.100.0/24,10.67.0.0/24=root";
           rproxy = -1;
-          xff-src = "lan,100.67.0.0/16";
+          xff-src = "lan,10.67.0.0/24";
           hist = "/etc/stacks/copyparty";
         };
 

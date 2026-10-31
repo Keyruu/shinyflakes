@@ -8,7 +8,7 @@ let
     options = {
       ip = lib.mkOption {
         type = lib.types.str;
-        example = "100.67.0.2";
+        example = "10.67.0.2";
       };
       publicKey = lib.mkOption {
         type = lib.types.str;

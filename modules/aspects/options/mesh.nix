@@ -15,7 +15,7 @@ in
       };
       subnet = lib.mkOption {
         type = str;
-        default = "100.67.0.0/24";
+        default = "10.67.0.0/24";
       };
       networks = lib.mkOption {
         type = attrsOf str;

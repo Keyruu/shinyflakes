@@ -15,7 +15,7 @@
       networking = {
         nftables.enable = true;
 
-        hosts."100.67.0.2" = [
+        hosts."10.67.0.2" = [
           "cache.keyruu.de"
           "git.lab.keyruu.de"
         ];
@@ -40,7 +40,7 @@
           };
           logs = {
             enable = true;
-            instance = "100.67.0.1";
+            instance = "10.67.0.1";
             lokiAddress = "http://${den.people.lucas.devices.mentat.ip}:3030";
           };
         };

@@ -97,7 +97,7 @@
             "${mesh.interface}" = {
               address = [ "${mesh.ip}/24" ];
               privateKeyFile = config.sops.secrets."${mesh.client.keyName}".path;
-              dns = [ "100.67.0.2" ];
+              dns = [ "10.67.0.2" ];
               inherit (mesh.client) autostart;
               # routes are installed by addClientRoutes, not by wg-quick
               table = "off";
@@ -111,7 +111,7 @@
             "${mesh.interface}-ws" = {
               address = [ "${mesh.ip}/24" ];
               privateKeyFile = config.sops.secrets."${mesh.client.keyName}".path;
-              dns = [ "100.67.0.2" ];
+              dns = [ "10.67.0.2" ];
               autostart = false;
               # routes are installed by addClientRoutes, not by wg-quick
               table = "off";

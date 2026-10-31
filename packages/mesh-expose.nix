@@ -24,14 +24,14 @@ pkgs.writeShellApplication {
       -f, --token-file FILE          path to file containing frp auth token
 
     Options:
-          --server ADDR              frp server host     default: 100.67.0.1
+          --server ADDR              frp server host     default: 10.67.0.1
       -P, --server-port PORT         frp server port     default: 7000
       -h, --help
     EOF
     }
     [ "''${1:-}" = "-h" ] || [ "''${1:-}" = "--help" ] && { usage; exit 0; }
 
-    server="100.67.0.1"
+    server="10.67.0.1"
     server_port="7000"
     token=""
     token_file=""

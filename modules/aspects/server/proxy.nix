@@ -12,7 +12,7 @@
 # Replaces nix/hosts/prime/modules/proxy.nix.
 { lib, ... }:
 let
-  mentat = "100.67.0.2";
+  mentat = "10.67.0.2";
   karaokeDomain = "einfachnextlevel.karaoke.keyruu.de";
 in
 {

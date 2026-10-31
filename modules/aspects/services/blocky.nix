@@ -1,7 +1,8 @@
 { ... }:
 {
   den.aspects.services.blocky = {
-    nixos = { config, lib, ... }:
+    nixos =
+      { config, lib, ... }:
       let
         mentat = "192.168.100.7";
         desktop = "192.168.100.32";
@@ -50,7 +51,7 @@
               ];
               http = apiPort;
               # mesh0 is brought up by wg-quick, which blocky.service is not ordered
-              # after, so 100.67.0.2 may not exist yet at start (and disappears on a
+              # after, so 10.67.0.2 may not exist yet at start (and disappears on a
               # mesh0 restart). Without freeBind that bind fails and the unit dies.
               freeBind = true;
             };

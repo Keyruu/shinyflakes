@@ -86,7 +86,7 @@
       };
 
       networking.firewall.extraInputRules = ''
-        ip saddr 100.67.0.1 tcp dport ${config.services.restic.server.listenAddress} accept
+        ip saddr 10.67.0.1 tcp dport ${config.services.restic.server.listenAddress} accept
       '';
     };
   };
