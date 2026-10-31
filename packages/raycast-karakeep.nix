@@ -1,12 +1,12 @@
 { inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "7705eb923c4fc5e012ea5d3de55b3ea87bacd91c";
+  rev = "4a675ff62605e728d221a60208b9e88696f21dce";
 in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "karakeep";
   inherit rev;
-  hash = "sha256-boQR52q7RV9agCzs+c/K1rP5kcUzXRIev/pP+5hMgO8=";
+  hash = "sha256-H0/6rYCRKpNJ6KCGc/1y6Zp8JCvRKXzgCrSzCzHlSlY=";
   # karakeep's package.json overrides `ray build` with `-o dist`, so its
   # output ends up in ./dist instead of the default raycast extensions dir
   # that the upstream installPhase expects.
