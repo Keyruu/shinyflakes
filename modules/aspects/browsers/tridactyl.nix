@@ -75,7 +75,7 @@
             set searchengine https://kagi.com/search?q=
 
             " external editor (Ctrl-i in insert mode); dedicated app-id so
-            " Mango can size/float the window independently of other terminals.
+            " Umbriel can size/float the window independently of other terminals.
             set editorcmd kitty --class tridactyl-editor nvim
           '';
 

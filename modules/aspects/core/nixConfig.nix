@@ -59,6 +59,7 @@
             "https://cache.lix.systems"
             "https://vicinae.cachix.org"
             "https://noctalia.cachix.org"
+            "https://umbriel.cachix.org"
           ];
           trusted-public-keys = [
             "cache.keyruu.de:BifJnHe/XQhZmmFwLSZttthsXT4u2/L4aeo0k9zV+Kc="
@@ -67,6 +68,7 @@
             "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
             "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
             "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+            "umbriel.cachix.org-1:JfNq/2yg2S6D6z4Z2dVSZrZlDPQTKtexB6GAVLD98nw="
           ];
         };
         extraOptions = ''
