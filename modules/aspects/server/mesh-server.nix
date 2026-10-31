@@ -16,7 +16,16 @@
           "net.ipv6.conf.all.forwarding" = 1;
         };
 
-        networking.firewall.allowedUDPPorts = [ 51234 ];
+        networking.firewall = {
+          allowedUDPPorts = [ 51234 ];
+          # Mesh peers have to reach each other through the hub: the mesh
+          # resolver (100.67.0.2) and the LAN live behind mentat. Without this
+          # the NixOS forward chain (policy drop) eats every mesh0 -> mesh0
+          # packet, which is why DNS dies while the tunnel is up.
+          extraForwardRules = ''
+            iifname "mesh0" oifname "mesh0" accept comment "mesh peer-to-peer"
+          '';
+        };
         networking.nat = {
           enable = true;
           internalInterfaces = [ "mesh0" ];

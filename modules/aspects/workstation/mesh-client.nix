@@ -44,6 +44,28 @@
         delIPv6Routes = lib.concatMapStringsSep "\n" (
           cidr: "${ip} -6 route del ${cidr} via $GW6 dev ${defaultInterface} || true"
         ) ipv6;
+
+        # wg-quick installs a route for every AllowedIPs entry. That route has
+        # metric 0 and shadows our own LAN route (metric 100), so LAN traffic
+        # and the LAN resolver vanish while the tunnel is up. We route
+        # ourselves: a LAN range only goes through the tunnel when we are not
+        # directly attached to it.
+        addClientRoutes = lib.concatMapStringsSep "\n" (
+          cidr:
+          let
+            probe = lib.head (lib.splitString "/" cidr);
+          in
+          ''
+            # "via" only shows up when the network is not on-link, i.e. we are away.
+            if ${ip} route get ${probe} | ${pkgs.gnugrep}/bin/grep -q " via "; then
+              ${ip} route replace ${cidr} dev ${interface}
+            fi
+          ''
+        ) mesh.client.allowedIPs;
+
+        delClientRoutes = lib.concatMapStringsSep "\n" (
+          cidr: "${ip} route del ${cidr} dev ${interface} || true"
+        ) mesh.client.allowedIPs;
       in
       {
         options.services.mesh.client = with lib.types; {
@@ -77,6 +99,10 @@
               privateKeyFile = config.sops.secrets."${mesh.client.keyName}".path;
               dns = [ "100.67.0.2" ];
               inherit (mesh.client) autostart;
+              # routes are installed by addClientRoutes, not by wg-quick
+              table = "off";
+              postUp = addClientRoutes;
+              preDown = delClientRoutes;
 
               peers = [
                 (mkPeer "mesh.peeraten.net:51234")
@@ -87,6 +113,10 @@
               privateKeyFile = config.sops.secrets."${mesh.client.keyName}".path;
               dns = [ "100.67.0.2" ];
               autostart = false;
+              # routes are installed by addClientRoutes, not by wg-quick
+              table = "off";
+              postUp = addClientRoutes;
+              preDown = delClientRoutes;
 
               preUp = ''
                 echo "trigger" > /dev/udp/127.0.0.1/51234 || true
