@@ -44,49 +44,49 @@
 
             menu:
               - key: "m"
-                desc: Mango
+                desc: Umbriel
                 submenu:
                   - key: "r"
                     desc: Resize
                     submenu:
                       - key: "h"
                         desc: Shrink Width
-                        cmd: mmsg dispatch resizewin,-100,0
+                        cmd: umbriel msg window-modify-width-left -0.05
                         keep_open: true
                       - key: "j"
                         desc: Grow Height
-                        cmd: mmsg dispatch resizewin,+0,+100
+                        cmd: umbriel msg window-modify-height-down 0.05
                         keep_open: true
                       - key: "k"
                         desc: Shrink Height
-                        cmd: mmsg dispatch resizewin,+0,-100
+                        cmd: umbriel msg window-modify-height-up -0.05
                         keep_open: true
                       - key: "l"
                         desc: Grow Width
-                        cmd: mmsg dispatch resizewin,+100,0
+                        cmd: umbriel msg window-modify-width-right 0.05
                         keep_open: true
                       - key: "Left"
                         desc: Shrink Width
-                        cmd: mmsg dispatch resizewin,-100,0
+                        cmd: umbriel msg window-modify-width-left -0.05
                         keep_open: true
                       - key: "Down"
                         desc: Grow Height
-                        cmd: mmsg dispatch resizewin,+0,+100
+                        cmd: umbriel msg window-modify-height-down 0.05
                         keep_open: true
                       - key: "Up"
                         desc: Shrink Height
-                        cmd: mmsg dispatch resizewin,+0,-100
+                        cmd: umbriel msg window-modify-height-up -0.05
                         keep_open: true
                       - key: "Right"
                         desc: Grow Width
-                        cmd: mmsg dispatch resizewin,+100,0
+                        cmd: umbriel msg window-modify-width-right 0.05
                         keep_open: true
                       - key: "f"
                         desc: Maximize Column
-                        cmd: mmsg dispatch togglemaximizescreen
+                        cmd: umbriel msg window-toggle-maximize
                       - key: "w"
                         desc: Switch Preset Width
-                        cmd: mmsg dispatch switch_proportion_preset
+                        cmd: umbriel msg window-cycle-primary-extent
                   - key: "p"
                     desc: Programs
                     submenu:
@@ -117,95 +117,95 @@
                     submenu:
                       - key: "b"
                         desc: Focus Browse
-                        cmd: mmsg dispatch view,1
+                        cmd: umbriel msg workspace-switch 1
                       - key: "B"
                         desc: Move to Browse
-                        cmd: mmsg dispatch tag,1
+                        cmd: umbriel msg window-move-to-workspace 1
                       - key: "i"
                         desc: Focus IDE
-                        cmd: mmsg dispatch view,2
+                        cmd: umbriel msg workspace-switch 2
                       - key: "I"
                         desc: Move to IDE
-                        cmd: mmsg dispatch tag,2
-                      # mango merges terminals into the work tag (2)
+                        cmd: umbriel msg window-move-to-workspace 2
+                      # Terminals share the work workspace (2)
                       - key: "t"
                         desc: Focus Terminal
-                        cmd: mmsg dispatch view,2
+                        cmd: umbriel msg workspace-switch 2
                       - key: "T"
                         desc: Move to Terminal
-                        cmd: mmsg dispatch tag,2
+                        cmd: umbriel msg window-move-to-workspace 2
                       - key: "m"
                         desc: Focus Media
-                        cmd: mmsg dispatch view,4
+                        cmd: umbriel msg workspace-switch 4
                       - key: "M"
                         desc: Move to Media
-                        cmd: mmsg dispatch tag,4
+                        cmd: umbriel msg window-move-to-workspace 4
                       - key: "s"
                         desc: Focus Social
-                        cmd: mmsg dispatch view,3
+                        cmd: umbriel msg workspace-switch 3
                       - key: "S"
                         desc: Move to Social
-                        cmd: mmsg dispatch tag,3
+                        cmd: umbriel msg window-move-to-workspace 3
                   - key: "l"
                     desc: Layout
                     submenu:
                       - key: "f"
                         desc: Toggle Fullscreen
-                        cmd: mmsg dispatch togglefullscreen
+                        cmd: umbriel msg window-toggle-fullscreen
                       - key: "c"
                         desc: Consume Window
-                        cmd: mmsg dispatch scroller_stack,right
+                        cmd: umbriel msg window-consume-right
                       - key: "e"
                         desc: Expel Window
-                        cmd: mmsg dispatch scroller_stack,left
+                        cmd: umbriel msg window-consume-or-expel-right
                       - key: "m"
                         desc: Multi-Monitor
                         submenu:
                           - key: "h"
                             desc: Focus Monitor Left
-                            cmd: mmsg dispatch focusmon,left
+                            cmd: umbriel msg output-focus-left
                           - key: "j"
                             desc: Focus Monitor Down
-                            cmd: mmsg dispatch focusmon,down
+                            cmd: umbriel msg output-focus-down
                           - key: "k"
                             desc: Focus Monitor Up
-                            cmd: mmsg dispatch focusmon,up
+                            cmd: umbriel msg output-focus-up
                           - key: "l"
                             desc: Focus Monitor Right
-                            cmd: mmsg dispatch focusmon,right
+                            cmd: umbriel msg output-focus-right
                           - key: "Left"
                             desc: Focus Monitor Left
-                            cmd: mmsg dispatch focusmon,left
+                            cmd: umbriel msg output-focus-left
                           - key: "Down"
                             desc: Focus Monitor Down
-                            cmd: mmsg dispatch focusmon,down
+                            cmd: umbriel msg output-focus-down
                           - key: "Up"
                             desc: Focus Monitor Up
-                            cmd: mmsg dispatch focusmon,up
+                            cmd: umbriel msg output-focus-up
                           - key: "Right"
                             desc: Focus Monitor Right
-                            cmd: mmsg dispatch focusmon,right
+                            cmd: umbriel msg output-focus-right
                           - key: "H"
                             desc: Move to Monitor Left
-                            cmd: mmsg dispatch tagmon,left
+                            cmd: umbriel msg window-move-to-output-left
                           - key: "J"
                             desc: Move to Monitor Down
-                            cmd: mmsg dispatch tagmon,down
+                            cmd: umbriel msg window-move-to-output-down
                           - key: "K"
                             desc: Move to Monitor Up
-                            cmd: mmsg dispatch tagmon,up
+                            cmd: umbriel msg window-move-to-output-up
                           - key: "L"
                             desc: Move to Monitor Right
-                            cmd: mmsg dispatch tagmon,right
+                            cmd: umbriel msg window-move-to-output-right
                   - key: "f"
                     desc: Floating
                     submenu:
                       - key: "t"
                         desc: Toggle Floating
-                        cmd: mmsg dispatch togglefloating
+                        cmd: umbriel msg window-toggle-floating
                   - key: "o"
                     desc: Overview
-                    cmd: mmsg dispatch toggleoverview
+                    cmd: umbriel msg overview-toggle
               - key: "p"
                 desc: Power
                 submenu:

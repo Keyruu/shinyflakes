@@ -15,7 +15,7 @@
             satty
             coreutils
             llama-cpp
-            inputs'.mango.packages.mango
+            inputs'.umbriel.packages.default
           ];
           text = # bash
             ''
@@ -23,15 +23,12 @@
 
               case "$mode" in
                 region|screen)
-                  monitor=$(mmsg get focusing-client | jq -r '.monitor // empty')
-                  if [ -z "$monitor" ]; then
-                    monitor=$(mmsg get cursorpos | jq -er '.monitor')
-                  fi
+                  monitor=$(umbriel outputs --json | jq -er '.[] | select(.focused) | .name')
                   capture=(-o "$monitor")
                   ;;
                 window)
-                  id=$(mmsg get focusing-client | jq -er '.foreign_toplevel_id // empty')
-                  capture=(-T "$id")
+                  geom=$(umbriel focused-window --json | jq -er '. | "\(.x),\(.y) \(.w)x\(.h)"')
+                  capture=(-g "$geom")
                   ;;
                 ocr)
                   geom=$(slurp -d) || exit 0

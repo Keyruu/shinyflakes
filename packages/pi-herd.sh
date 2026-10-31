@@ -4,7 +4,7 @@
 #
 # --dmenu: pick via `vicinae dmenu` instead of fzf, for use outside
 # zellij (vicinae script command). Jumps by focusing the pane inside the
-# target session and then the Mango window showing that session.
+# target session and then the Umbriel window showing that session.
 
 dir="${XDG_CACHE_HOME:-$HOME/.cache}/pi-herd"
 mode=fzf
@@ -153,11 +153,11 @@ if [ "$mode" = "dmenu" ]; then
     ZELLIJ_SESSION_NAME=$session zellij action focus-pane-id "$pane"
   fi
   # focus the window attached to the session (title: "<session> | ...")
-  win=$(mmsg get all-clients \
+  win=$(umbriel windows --json \
     | jq -r --arg p "$session | " \
-      '[.clients[] | select(.title | startswith($p))][0].id // empty') || win=""
+      '[.[] | select(.title | startswith($p))][0].id // empty') || win=""
   if [ -n "$win" ]; then
-    mmsg dispatch focusid,"$win"
+    umbriel msg window-focus "$win"
   else
     # session not attached in any window — open one
     setsid -f kitty zellij attach "$session" >/dev/null 2>&1 || true

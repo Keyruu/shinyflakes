@@ -23,7 +23,7 @@
   den.aspects.muadib = {
     includes = [
       den.aspects.workstation.gaming
-      # den.aspects.workstation.wm.mango
+      # den.aspects.workstation.wm.umbriel
     ];
 
     nixos = { pkgs, host, ... }: {
