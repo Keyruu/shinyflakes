@@ -37,6 +37,12 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
     crane.url = "github:ipetkov/crane/v0.24.0";
+    # Fork branch with the submodule-aware flake roots (numtide/iets#303) and
+    # the classic-mode global flags (numtide/iets#304).
+    iets = {
+      url = "github:Keyruu/iets/feat/shinyflakes";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
@@ -85,6 +91,12 @@
     # 1.12.0 (published 2026-10-06). The registry refuses crates younger than a
     # day, so the sofka build fails. Bump once the newer crates age past 24h.
     sofka.url = "github:nklmilojevic/sofka/v0.30.0";
+
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
 
     # workstation
     home-manager = {

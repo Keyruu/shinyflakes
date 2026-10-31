@@ -2,7 +2,29 @@
 {
   den.aspects.workstation.gotify-desktop = {
     nixos = { user, config, pkgs, ... }: {
-      sops.secrets.gotifyDesktopToken.owner = user.userName;
+      sops.secrets = {
+        gotifyDesktopToken.owner = user.userName;
+        piGotifyToken.owner = user.userName;
+        claudeGotifyToken.owner = user.userName;
+      };
+
+      environment.systemPackages = [
+        (pkgs.writeShellApplication {
+          name = "agent-gotify";
+          runtimeInputs = with pkgs; [ gotify-cli coreutils ];
+          text = ''
+            case "$1" in
+              pi) GOTIFY_TOKEN=$(cat ${config.sops.secrets.piGotifyToken.path}) ;;
+              claude) GOTIFY_TOKEN=$(cat ${config.sops.secrets.claudeGotifyToken.path}) ;;
+              *) echo "Unknown Gotify application: $1" >&2; exit 2 ;;
+            esac
+            export GOTIFY_TOKEN
+            shift
+            timeout 5 gotify push --url "https://notify.keyruu.de" \
+              --priority "''${3:-4}" --title "$1" "$2" </dev/null
+          '';
+        })
+      ];
 
       systemd.user.services.gotify-desktop = let
         gotify-notify = pkgs.writeShellApplication {

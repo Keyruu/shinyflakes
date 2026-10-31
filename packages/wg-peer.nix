@@ -4,6 +4,8 @@ pkgs.writeShellApplication {
   runtimeInputs = with pkgs; [
     coreutils
     gnugrep
+    jq
+    nix
     qrencode
     wireguard-tools
   ];
@@ -18,16 +20,17 @@ pkgs.writeShellApplication {
 
     usage() {
       cat <<EOF
-    wg-peer — provision a WireGuard peer and emit config
+    wg-peer - provision a WireGuard peer and emit config
 
     Usage:
-      cat server_private.key | wg-peer -e HOST:PORT -p PEER_IP/CIDR [options]
+      cat server_private.key | wg-peer -e HOST:PORT [options]
 
     Required:
       -e, --endpoint HOST:PORT       server endpoint
-      -p, --peer-address IP/CIDR     peer tunnel address
 
     Options:
+      -p, --peer-address IP/CIDR     peer tunnel address (default: next free mesh IP)
+                                      auto selection requires the shinyflakes repo root
       -a, --allowed-ips CIDRS        LIST   default: "100.67.0.0/24, 192.168.100.0/24"
       -d, --dns DNS                  LIST   default: 100.67.0.2
       -k, --keepalive SECONDS        STR    default: 25 (0 disables)
@@ -69,12 +72,27 @@ pkgs.writeShellApplication {
 
     [ -t 0 ] && die "Server private key must be provided via stdin"
     [ -z "$endpoint" ] && die "--endpoint is required"
-    [ -z "$peer_address" ] && die "--peer-address is required"
 
     SERVER_PRIVATE_KEY=$(cat)
     [ -z "$SERVER_PRIVATE_KEY" ] && die "Server private key cannot be empty"
     printf '%s' "$SERVER_PRIVATE_KEY" | grep -qE '^[A-Za-z0-9+/]{43}=$' \
       || die "Invalid server private key format"
+
+    if [ -z "$peer_address" ] || [ "$peer_address" = "auto" ]; then
+      [ -f modules/entities/people.nix ] || die "Auto IP selection requires the shinyflakes repo root"
+      used_ips=$(nix eval '.?submodules=1#den.people' --json --apply \
+        'people: builtins.concatLists (builtins.map (person: builtins.map (device: device.ip) (builtins.attrValues person.devices)) (builtins.attrValues people))') \
+        || die "Could not evaluate mesh device IPs"
+      next_ip=$(printf '%s\n' "$used_ips" | jq -er '
+        if type != "array" or any(.[]; type != "string") then error("expected mesh IP list") else
+          [.[] | select(test("^100[.]67[.]0[.][0-9]{1,3}$")) | split(".")[3] | tonumber] as $used
+          | (([range(3; 255) | select(. as $candidate | $used | index($candidate) == null)] | first)
+             // error("no free mesh IPs in 100.67.0.3-254"))
+          | "100.67.0.\(.)"
+        end
+      ') || die "Could not choose a free mesh IP"
+      peer_address="$next_ip/32"
+    fi
 
     debug "Deriving server public key"
     SERVER_PUBLIC_KEY=$(printf '%s' "$SERVER_PRIVATE_KEY" | wg pubkey)

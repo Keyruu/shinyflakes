@@ -2,6 +2,14 @@
 {
   den.aspects.core.nixConfig = {
     nixos = { pkgs, lib, ... }: {
+      imports = [ inputs.iets.nixosModules.default ];
+      iets.classic = {
+        enable = true;
+        nix = pkgs.nixVersions.stable;
+      };
+      # Direnv and its iets hook are configured in Home Manager instead.
+      iets.direnv.enable = false;
+
       nixpkgs.config.allowUnfree = true;
       # build-time pnpm deps flagged insecure in nixpkgs (vue-language-server, vesktop, ...)
       # FIXME: drop once https://github.com/NixOS/nixpkgs/issues/536623 lands in our pin
@@ -21,8 +29,6 @@
         registry = lib.mapAttrs (_: fl: { flake = fl; }) inputs;
         nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") inputs;
 
-        package = pkgs.lixPackageSets.stable.lix;
-
         settings = {
           trusted-users = [
             "root"
@@ -31,7 +37,6 @@
           experimental-features = [
             "nix-command"
             "flakes"
-            "flake-self-attrs"
           ];
 
           accept-flake-config = true;

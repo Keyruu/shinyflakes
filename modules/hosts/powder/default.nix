@@ -50,21 +50,21 @@
 
         networking.hostName = lib.mkForce "lucas-rott-linux";
 
-        # services.mesh = {
-        #   ip = den.people.lucas.devices.powder.ip;
-        #   client = {
-        #     enable = true;
-        #     keyName = "powderMeshKey";
-        #     autostart = false;
-        #     allowedIPs = [
-        #       "192.168.100.0/24"
-        #     ];
-        #     ws = {
-        #       enable = true;
-        #       # defaultInterface = "wlp0s20f3";
-        #     };
-        #   };
-        # };
+        services.mesh = {
+          ip = den.people.lucas.devices.powder.ip;
+          client = {
+            enable = true;
+            keyName = "powderMeshKey";
+            autostart = true;
+            allowedIPs = [
+              "192.168.100.0/24"
+            ];
+            ws = {
+              enable = true;
+              defaultInterface = "wlp0s20f3";
+            };
+          };
+        };
 
         networking.nftables.enable = true;
 

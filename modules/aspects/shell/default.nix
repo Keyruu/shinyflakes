@@ -1,4 +1,4 @@
-{ den, ... }: {
+{ den, inputs, ... }: {
   den.aspects.shell.default = {
     includes = with den.aspects.shell; [
       fish
@@ -96,7 +96,11 @@
           enableFishIntegration = true;
         };
         bat.enable = true;
-        direnv.enable = true;
+        direnv = {
+          enable = true;
+          nix-direnv.enable = false;
+          stdlib = builtins.readFile "${inputs.iets.outPath}/nix/direnvrc";
+        };
         mise = {
           enable = true;
           enableFishIntegration = true;
