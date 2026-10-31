@@ -11,6 +11,5 @@
 
   # agents/ submodule only — lucas.nix references these directly
   den.aspects.agents.pi = { };
-  den.aspects.agents.opencode = { };
   den.aspects.agents.claude-code = { };
 }
