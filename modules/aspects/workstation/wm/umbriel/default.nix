@@ -37,13 +37,19 @@ in
     };
 
     homeManager =
-      { config, user, ... }:
+      { config, user, pkgs, inputs', ... }:
       let
         t = user.theme;
         rgba = c: "${c}FF";
+        umbriel-key = pkgs.writeShellApplication {
+          name = "umbriel-key";
+          runtimeInputs = [ inputs'.umbriel.packages.default pkgs.jq ];
+          text = builtins.readFile ./keys.sh;
+        };
       in
       {
         imports = [ inputs.umbriel.homeModules.default ];
+        home.packages = [ umbriel-key ];
         programs.umbriel = {
           enable = true;
           settings = {
@@ -69,7 +75,10 @@ in
                 repeat_delay = 300;
               };
               focus.follows_mouse = true;
-              touchpad.tap_button_map = "left_middle_right";
+              touchpad = {
+                click_method = "clickfinger";
+                tap_button_map = "left_right_middle";
+              };
               mouse = {
                 accel_profile = "adaptive";
                 sensitivity = -1.0;
@@ -121,14 +130,17 @@ in
               {
                 name = "scratchpad";
                 spawn_when_empty = "kitty --class scratchpad";
+                proportional_size = true;
               }
               {
                 name = "1password";
                 spawn_when_empty = "1password --silent";
+                proportional_size = true;
               }
               {
                 name = "sone";
                 spawn_when_empty = "sone";
+                proportional_size = true;
               }
             ];
             window_rule = [
@@ -197,10 +209,10 @@ in
               "XF86AudioPrev" = "spawn playerctl previous";
               "XF86MonBrightnessUp" = "spawn brightnessctl set +10%";
               "XF86MonBrightnessDown" = "spawn brightnessctl set 10%-";
-              "Mod+H" = "window-focus-left";
+              "Mod+H" = "spawn ${umbriel-key}/bin/umbriel-key left";
               "Mod+J" = "window-focus-or-workspace-down";
               "Mod+K" = "window-focus-or-workspace-up";
-              "Mod+L" = "window-focus-right";
+              "Mod+L" = "spawn ${umbriel-key}/bin/umbriel-key right";
               "Mod+Shift+H" = "window-move-left";
               "Mod+Shift+J" = "window-move-to-workspace-next";
               "Mod+Shift+K" = "window-move-to-workspace-previous";
@@ -209,7 +221,7 @@ in
               "Ctrl+Alt+K" = "output-focus-up";
               "Ctrl+Alt+Q" = "output-focus-next";
               "Ctrl+Alt+Shift+Q" = "window-move-to-output-next";
-              "Mod+Q" = "window-close";
+              "Mod+Q" = "spawn ${umbriel-key}/bin/umbriel-key close";
               "Mod+T" = "window-toggle-floating";
               "Mod+F" = "window-toggle-maximize";
               "Mod+Shift+F" = "window-toggle-fullscreen";
