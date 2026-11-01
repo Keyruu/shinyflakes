@@ -13,6 +13,7 @@
             font-family = user.theme.font;
             font-size = 13;
             background = "#100F0F";
+            background-opacity = 0.9;
             window-padding-x = 10;
             window-padding-y = 10;
             window-decoration = false;

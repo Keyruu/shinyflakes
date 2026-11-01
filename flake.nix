@@ -36,6 +36,10 @@
     # den — dendritic module system (aspects, hosts, entities)
     import-tree.url = "github:denful/import-tree";
     den.url = "github:denful/den";
+    nix-effects = {
+      url = "github:denful/nix-effects/den";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-parts.url = "github:hercules-ci/flake-parts";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
     crane.url = "github:ipetkov/crane/v0.24.0";

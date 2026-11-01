@@ -55,7 +55,7 @@
                         keep_open: true
                       - key: "j"
                         desc: Grow Height
-                        cmd: umbriel msg window-modify-height-down 0.05
+                        cmd: umbriel msg window-modify-height-up 0.05
                         keep_open: true
                       - key: "k"
                         desc: Shrink Height

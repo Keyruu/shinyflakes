@@ -45,6 +45,7 @@
         ];
 
         nixpkgs.hostPlatform = "x86_64-linux";
+        boot.kernelPackages = lib.mkForce pkgs.linuxPackages_7_3;
 
         hardware.facter.reportPath = ./facter.json;
 

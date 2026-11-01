@@ -37,19 +37,41 @@ in
     };
 
     homeManager =
-      { config, user, pkgs, inputs', ... }:
+      {
+        config,
+        user,
+        pkgs,
+        inputs',
+        ...
+      }:
       let
         t = user.theme;
         rgba = c: "${c}FF";
         umbriel-key = pkgs.writeShellApplication {
           name = "umbriel-key";
-          runtimeInputs = [ inputs'.umbriel.packages.default pkgs.jq ];
+          runtimeInputs = [
+            inputs'.umbriel.packages.default
+            pkgs.jq
+          ];
           text = builtins.readFile ./keys.sh;
+        };
+        umbriel-kbptr = pkgs.writeShellApplication {
+          name = "umbriel-kbptr";
+          runtimeInputs = [
+            inputs'.umbriel.packages.default
+            pkgs.jq
+            pkgs.wl-kbptr
+            pkgs.wlrctl
+          ];
+          text = builtins.readFile ./kbptr.sh;
         };
       in
       {
         imports = [ inputs.umbriel.homeModules.default ];
-        home.packages = [ umbriel-key ];
+        home.packages = [
+          umbriel-key
+          umbriel-kbptr
+        ];
         programs.umbriel = {
           enable = true;
           settings = {
@@ -115,6 +137,12 @@ in
             layout = {
               mode = "scrolling";
               gap = 4;
+              # Offset the uniform edge gap for 12px sides and a flush top.
+              struts = {
+                left = 8;
+                right = 8;
+                top = -4;
+              };
               extent_presets = [
                 0.333
                 0.5
@@ -132,33 +160,20 @@ in
                 spawn_when_empty = "kitty --class scratchpad";
                 proportional_size = true;
               }
-              {
-                name = "1password";
-                spawn_when_empty = "1password --silent";
-                proportional_size = true;
-              }
-              {
-                name = "sone";
-                spawn_when_empty = "sone";
-                proportional_size = true;
-              }
             ];
             window_rule = [
+              {
+                match.app_id = "^(kitty|scratchpad|foot|com[.]mitchellh[.]ghostty|Alacritty|org[.]wezfurlong[.]wezterm)$";
+                blur = true;
+              }
               (rule "^com[.]onepassword[.]OnePassword$" {
                 match.title = "^(?!Quick Access).+";
-                default_scratchpad = "1password";
+                default_floating = true;
                 default_floating_size = {
                   width = 0.88;
                   height = 0.88;
                 };
                 block_capture = true;
-              })
-              (rule "^sone$" {
-                default_scratchpad = "sone";
-                default_floating_size = {
-                  width = 0.88;
-                  height = 0.88;
-                };
               })
               (rule "^scratchpad$" {
                 default_scratchpad = "scratchpad";
@@ -171,6 +186,13 @@ in
               (sized "^vicinae-script-md$" 0.6 0.5)
               (sized "^vicinae-script-sm$" 0.4 0.3)
               (sized "^com[.]gabm[.]satty$" 0.88 0.88)
+              (rule "^dev[.]noctalia[.]UmbrielSharePicker$" {
+                default_floating = true;
+                default_floating_size_px = {
+                  width = 800;
+                  height = 600;
+                };
+              })
               (rule "^at[.]yrlf[.]wl_mirror$" { default_fullscreen = true; })
               ((sized "^obsidian$" 0.88 0.88) // { opacity = 0.96; })
               (rule "^glide-editor$" {
@@ -185,11 +207,6 @@ in
               (routed 2 "^Alacritty$")
               (routed 2 "^kitty$")
               ((routed 4 "^(spotify_player|feishin|spotify)$") // { default_scrolling_extent = 0.5; })
-              {
-                match.title = "^Picture-in-Picture$";
-                default_workspace = 4;
-                default_scrolling_extent = 0.5;
-              }
               (
                 (routed 3 "^(Slack|signal|vesktop|fluffychat|Element|cinny)$")
                 // {
@@ -197,6 +214,23 @@ in
                 }
               )
               (rule "^(signal|vesktop|fluffychat)$" { block_capture = true; })
+              {
+                match.is_cast_target = true;
+                border_color_focused = rgba t.colors.green;
+                border_color_unfocused = rgba t.colors.green;
+              }
+            ];
+            layer_rule = [
+              {
+                match.namespace = "^vicinae(-hud)?$";
+                blur = true;
+                blur_ignore_alpha = 0.5;
+              }
+              {
+                match.namespace = "^dms:";
+                blur = true;
+                blur_ignore_alpha = 0.5;
+              }
             ];
             keybinds = {
               "Mod+Return" = "spawn kitty";
@@ -209,10 +243,10 @@ in
               "XF86AudioPrev" = "spawn playerctl previous";
               "XF86MonBrightnessUp" = "spawn brightnessctl set +10%";
               "XF86MonBrightnessDown" = "spawn brightnessctl set 10%-";
-              "Mod+H" = "spawn ${umbriel-key}/bin/umbriel-key left";
+              "Mod+H" = "window-focus-left";
               "Mod+J" = "window-focus-or-workspace-down";
               "Mod+K" = "window-focus-or-workspace-up";
-              "Mod+L" = "spawn ${umbriel-key}/bin/umbriel-key right";
+              "Mod+L" = "window-focus-right";
               "Mod+Shift+H" = "window-move-left";
               "Mod+Shift+J" = "window-move-to-workspace-next";
               "Mod+Shift+K" = "window-move-to-workspace-previous";
@@ -221,7 +255,8 @@ in
               "Ctrl+Alt+K" = "output-focus-up";
               "Ctrl+Alt+Q" = "output-focus-next";
               "Ctrl+Alt+Shift+Q" = "window-move-to-output-next";
-              "Mod+Q" = "spawn ${umbriel-key}/bin/umbriel-key close";
+              "Mod+Q" = "window-close";
+              "Mod+W" = "window-minimize";
               "Mod+T" = "window-toggle-floating";
               "Mod+F" = "window-toggle-maximize";
               "Mod+Shift+F" = "window-toggle-fullscreen";
@@ -234,20 +269,17 @@ in
                 repeat = false;
               };
               "Alt+Space" = "scratchpad-toggle scratchpad";
-              "Mod+Shift+Space" =
-                "spawn 1password --ozone-platform-hint=wayland --quick-access --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations";
+              "Mod+Shift+Space" = "spawn 1password --quick-access";
               "Mod+Shift+Q" = "spawn loginctl lock-session";
               "Mod+Shift+V" = "spawn vicinae vicinae://launch/clipboard/history";
-              "Mod+X" = "spawn wl-kbptr -c $HOME/.config/wl-kbptr/floating";
+              "Mod+X" = "spawn umbriel-kbptr";
               "Mod+D" = "spawn handy --toggle-transcription";
               "Print" = "spawn screenshot region";
               "Shift+Print" = "spawn screenshot screen";
               "Ctrl+Print" = "spawn screenshot window";
               "Mod+Shift+4" = "spawn screenshot region";
               "Mod+R" = "window-cycle-primary-extent";
-              "Mod+M" = "spawn wlr-which-key --initial-keys m p";
               "Mod+G" = "spawn wlr-which-key --initial-keys m";
-              "Mod+W" = "spawn wlr-which-key --initial-keys m w";
               "Alt+Tab" = "window-focus-next";
               "Alt+Shift+Tab" = "window-focus-previous";
               "Mod+Tab" = "window-focus-next";
