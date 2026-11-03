@@ -24,6 +24,7 @@
       users.users.root.openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAST8ufT97SIVy9JI9AWNnO7Gx+/Q/+lCdaovcUhz8sR lucas@stern"
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO9dWkivgasUCTazyqJ6qiCNoYo0xR6nR4NPyz/DuG3A lucas@nixos"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN4mYPV0AzlB4nTQsbN0IBxOUDC/gF0hqkjXtY8SiyWi lucas@crystal"
       ];
     };
   };
