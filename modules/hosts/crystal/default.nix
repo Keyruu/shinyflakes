@@ -38,6 +38,7 @@
       }:
       {
         imports = [
+          inputs.nixos-hardware.nixosModules.framework-intel-core-ultra-series3
           ./_disk.nix
         ];
 
@@ -67,6 +68,17 @@
           dev.enable = false;
           info.enable = false;
           nixos.enable = false;
+        };
+      };
+    homeManager =
+      { options, ... }:
+      {
+        monitors = options.monitors.default // {
+          laptop = {
+            criteria = "eDP-1";
+            mode = "2880x1920@120Hz";
+            scale = 1.5;
+          };
         };
       };
   };

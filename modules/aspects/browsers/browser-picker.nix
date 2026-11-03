@@ -2,8 +2,19 @@
 {
   den.aspects.browsers.browser-picker = {
     homeManager =
-      { lib, pkgs, ... }:
+      {
+        lib,
+        pkgs,
+        config,
+        ...
+      }:
       let
+        # The home-manager-wrapped firefox is the only build that carries
+        # programs.firefox.policies (they land in its distribution/policies.json).
+        # Plain pkgs.firefox ships an empty policy file, so launching it
+        # silently drops every policy.
+        firefoxPkg = config.programs.firefox.finalPackage;
+
         # Hosts matched against the url host, per profile. Bash case patterns
         # need the literal dot, so *.foo.com does not cover the apex host.
         routes = {
@@ -16,13 +27,13 @@
             "docs.google.com"
             "console.cloud.google.com"
             "linear.app"
-            "github.com"
             "dash0.com"
             "*.dash0.com"
             "dash0-dev.com"
             "*.dash0-dev.com"
             "*.aws.amazon.com"
             "*.awsapps.com"
+            "*.amazonaws.com"
             "*.tailcdef0.ts.net"
             "*.toriihq.com"
             "*.fleet.co"
@@ -52,7 +63,7 @@
         # writeShellApplication prepends runtimeInputs instead of replacing PATH.
         browserPicker = pkgs.writeShellApplication {
           name = "browser-picker";
-          runtimeInputs = [ pkgs.firefox ];
+          runtimeInputs = [ firefoxPkg ];
           text = # bash
             ''
               profiles_ini="''${FIREFOX_PROFILES_INI:-$HOME/.mozilla/firefox/profiles.ini}"
@@ -121,7 +132,7 @@
               value = {
                 name = "Firefox (${profile})";
                 genericName = "Web Browser";
-                exec = "${lib.getExe pkgs.firefox} -P ${profile}";
+                exec = "${lib.getExe firefoxPkg} -P ${profile}";
                 icon = "firefox";
                 categories = [
                   "Network"

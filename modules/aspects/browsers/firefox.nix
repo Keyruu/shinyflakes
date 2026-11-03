@@ -25,9 +25,6 @@
           "intl.accept_languages" = "en-US,en";
           "browser.startup.page" = 3;
           "browser.ctrlTab.sortByRecentlyUsed" = true;
-          # Vertical tabs (needs revamped sidebar, else Firefox resets the pref)
-          "sidebar.revamp" = true;
-          "sidebar.verticalTabs" = true;
           # Bookmarks bar visible on every page, not just the new-tab page
           "browser.toolbars.bookmarks.visibility" = "always";
           "browser.bookmarks.addedImportButton" = true;

@@ -6,6 +6,10 @@
         inputs.nix-gaming.nixosModules.platformOptimizations
       ];
 
+      # FIXME: lutris still needs gtk2 (broken, nixpkgs#410814) until
+      # https://github.com/NixOS/nixpkgs/pull/582210 is in our pin.
+      nixpkgs.config.problems.handlers."gtk+".broken = "warn";
+
       programs = {
         steam = {
           enable = true;
@@ -84,6 +88,10 @@
     homeManager =
       { pkgs, ... }:
       {
+        # FIXME: Home Manager uses its own nixpkgs, so it needs the gtk2
+        # workaround too (nixpkgs#410814, PR 582210).
+        nixpkgs.config.problems.handlers."gtk+".broken = "warn";
+
         home.packages = with pkgs; [
           prismlauncher # Minecraft launcher
           # kdePackages.kdenlive # for editing obs clips
