@@ -25,9 +25,9 @@
     # self.submodules = true;
 
     # nixpkgs
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
+    nixpkgs-small.url = "https://channels.nixos.org/nixos-unstable-small/nixexprs.tar.zst";
+    nixpkgs-stable.url = "https://channels.nixos.org/nixos-26.05/nixexprs.tar.zst";
     nixpkgs-multiverse.url = "github:fzakaria/nixpkgs-multiverse";
     # FIXME: remove once cockpit-zfs builds again on nixos-unstable
     # last Hydra-green rev for cockpit-zfs-1.2.27-3
