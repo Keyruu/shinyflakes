@@ -111,7 +111,7 @@
                         cmd: vicinae vicinae://launch/applications/md.obsidian.Obsidian
                       - key: "n"
                         desc: Notepad
-                        cmd: dms ipc call notepad toggle
+                        cmd: noctalia msg panel-toggle noctalia/notes:panel
                   - key: "w"
                     desc: Workspaces
                     submenu:

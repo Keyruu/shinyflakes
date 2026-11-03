@@ -141,7 +141,7 @@ in
               struts = {
                 left = 8;
                 right = 8;
-                top = -4;
+                top = -8;
               };
               extent_presets = [
                 0.333
@@ -231,6 +231,12 @@ in
                 blur = true;
                 blur_ignore_alpha = 0.5;
               }
+              {
+                match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$";
+                blur = true;
+                blur_ignore_alpha = 0.6;
+                blur_optimized = false;
+              }
             ];
             keybinds = {
               "Mod+Return" = "spawn kitty";
@@ -270,7 +276,7 @@ in
               };
               "Alt+Space" = "scratchpad-toggle scratchpad";
               "Mod+Shift+Space" = "spawn 1password --quick-access";
-              "Mod+Shift+Q" = "spawn loginctl lock-session";
+              "Mod+Shift+Q" = "spawn noctalia msg session lock";
               "Mod+Shift+V" = "spawn vicinae vicinae://launch/clipboard/history";
               "Mod+X" = "spawn umbriel-kbptr";
               "Mod+D" = "spawn handy --toggle-transcription";

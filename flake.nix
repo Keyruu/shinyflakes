@@ -140,10 +140,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    noctalia = {
-      url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
     dms = {
       url = "github:AvengeMedia/DankMaterialShell";

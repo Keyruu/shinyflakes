@@ -2,7 +2,7 @@
 {
   den.aspects.tools.noctalia = {
     homeManager =
-      { user, ... }:
+      { pkgs, user, ... }:
       let
         t = user.theme;
       in
@@ -10,6 +10,9 @@
         imports = [
           inputs.noctalia.homeModules.default
         ];
+
+        home.packages = [ pkgs.rubik ];
+        fonts.fontconfig.enable = true;
 
         xdg.dataFile."noctalia/plugins/calendar-event".source = ./noctalia-plugins/calendar-event;
         xdg.dataFile."noctalia/plugins/pi-herd".source = ./noctalia-plugins/pi-herd;
@@ -69,9 +72,12 @@
 
           settings = {
             shell = {
-              font_family = user.theme.font;
+              font_family = "Rubik";
               setup_wizard_enabled = false;
               telemetry_enabled = false;
+              time_format = "{:%H:%M}";
+              clipboard_auto_paste = "auto";
+              launch_apps_as_systemd_services = true;
               panel = {
                 launcher_placement = "attached";
                 clipboard_placement = "attached";
@@ -94,35 +100,72 @@
 
             bar.main = {
               position = "top";
-              background_opacity = 0.0;
+              background_opacity = 0.7;
+              compositor_blur = true;
+              shadow = false;
               capsule = true;
+              capsule_opacity = 1.0;
+              margin_edge = 4;
+              margin_ends = 24;
+              padding = 5;
+              widget_spacing = 5;
+              font_scale = 0.9;
               monitor.laptop = {
                 match = "eDP-1";
-                scale = 0.8;
+                scale = 0.85;
+                font_scale = 1.0;
+                margin_ends = 18;
               };
-              margin_edge = 4;
-              margin_ends = 18;
               start = [
                 "control-center"
                 "workspaces"
                 "taskbar"
                 "active_window"
               ];
-              center = [ "media" ];
+              center = [ "group:g2" ];
               end = [
                 "tray"
                 "pi-herd"
                 "calendar-widget"
-                "network"
-                "bluetooth"
-                "sysmon"
-                "ram"
-                "battery"
-                "volume"
-                "input_volume"
-                "clock"
+                "group:g1"
                 "caffeine"
                 "notifications"
+              ];
+              capsule_group = [
+                {
+                  id = "g1";
+                  members = [
+                    "sysmon"
+                    "ram"
+                    "network"
+                    "bluetooth"
+                    "input_volume"
+                    "volume"
+                    "battery"
+                  ];
+                  enabled = true;
+                  fill = "surface_container";
+                  opacity = 1.0;
+                  border_width = 1.0;
+                  padding = 6.0;
+                  accordion = false;
+                  accordion_direction = "end";
+                }
+                {
+                  id = "g2";
+                  members = [
+                    "clock"
+                    "media"
+                  ];
+                  enabled = true;
+                  fill = "surface_container";
+                  opacity = 1.0;
+                  border_width = 1.0;
+                  padding = 6.0;
+                  widget_spacing = 10;
+                  accordion = true;
+                  accordion_direction = "end";
+                }
               ];
             };
 
@@ -133,12 +176,16 @@
               };
               workspaces = {
                 label_source = "name";
-                hide_when_empty = true;
                 max_label_chars = 6;
-                style = "minimal";
+                style = "regular";
               };
               taskbar = {
                 only_active_workspace = true;
+                group_by_workspace = true;
+                group_single_icon_per_app = true;
+                show_workspace_label = false;
+                workspace_group_capsule = false;
+                icon_scale = 0.8;
               };
               calendar-widget = {
                 type = "local/calendar-event:widget";
@@ -148,22 +195,30 @@
               };
               sysmon = {
                 type = "sysmon";
+                stat = "cpu_usage";
               };
               ram = {
                 type = "sysmon";
                 stat = "ram_pct";
               };
               clock = {
-                format = "{:%d.%m. %H:%M}";
+                format = "{:%a %d.%m. %H:%M}";
                 vertical_format = "{:%H\\n%M}";
               };
               network = {
                 show_label = false;
               };
+              battery = {
+                hide_when_full = true;
+                show_label = false;
+              };
+              bluetooth.hide_when_no_connected_device = true;
+              media.hide_when_idle = true;
             };
 
             wallpaper = {
               enabled = true;
+              fill_mode = "crop";
               default.path = ../../../assets/dark-bg.jpg;
             };
 
@@ -197,17 +252,36 @@
               address = "Munich, Germany";
             };
 
-            lockscreen.enabled = false;
-            idle = {
-              behavior = {
-                lock = {
-                  enabled = false;
-                };
-                screen-off = {
-                  enabled = false;
-                };
+            lockscreen = {
+              enabled = true;
+              lock_before_suspend = true;
+            };
+            idle.behavior = {
+              lock = {
+                enabled = true;
+                timeout = 300;
+                action = "lock";
+              };
+              screen-off = {
+                enabled = true;
+                timeout = 310;
+                action = "screen_off";
+              };
+              suspend = {
+                enabled = true;
+                timeout = 900;
+                action = "lock_and_suspend";
               };
             };
+
+            control_center.shortcuts = map (type: { inherit type; }) [
+              "wifi"
+              "bluetooth"
+              "audio"
+              "nightlight"
+              "caffeine"
+              "notification"
+            ];
 
             dock.enabled = false;
 
@@ -248,6 +322,13 @@
             exec = "noctalia msg notification-dnd-toggle";
             categories = [ "Utility" ];
             icon = "notification-disabled";
+          };
+
+          dms-calendar = {
+            name = "Calendar";
+            exec = "noctalia msg panel-toggle control-center calendar";
+            categories = [ "Office" ];
+            icon = "calendar";
           };
         };
       };

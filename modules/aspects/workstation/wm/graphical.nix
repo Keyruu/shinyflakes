@@ -33,7 +33,6 @@
         wayland-protocols
         playerctl
         swaybg
-        swayidle
         pamixer
         wlopm
         gcr_4
