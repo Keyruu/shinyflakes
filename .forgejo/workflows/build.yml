@@ -29,5 +29,4 @@ jobs:
         env:
           HOST: ${{ matrix.host }}
         run: |
-          nixos-rebuild build --flake ".?submodules=1#$HOST" --max-jobs 1
-
+          nix build ".?submodules=1#nixosConfigurations.$HOST.config.system.build.toplevel" --no-link --print-out-paths
