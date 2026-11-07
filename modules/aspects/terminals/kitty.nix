@@ -5,6 +5,7 @@
       {
         user,
         lib,
+        pkgs,
         self',
         ...
       }:
@@ -12,6 +13,46 @@
         xdg.configFile."xdg-terminals.list".text = ''
           kitty.desktop
         '';
+
+        xdg.configFile."kitty/quick-access-terminal.conf".text = ''
+          edge top
+          layer overlay
+          kitty_override allow_remote_control=socket-only
+        '';
+
+        home.packages = [
+          (pkgs.writeShellApplication {
+            name = "kitty-quick-access";
+            runtimeInputs = [
+              pkgs.kitty
+              pkgs.gnugrep
+            ];
+            text = ''
+              socket="unix:$XDG_RUNTIME_DIR/kitty-quick-access"
+              case "''${1:-}" in
+                show)
+                  kitten quick-access-terminal --listen-on "$socket"
+                  if kitten @ --to "$socket" ls >/dev/null 2>&1; then
+                    kitten @ --to "$socket" set-user-vars --match all quick_access_edge=top
+                  fi
+                  ;;
+                toggle-edge)
+                  if kitten @ --to "$socket" set-user-vars --match all | grep -qx 'quick_access_edge=center'; then
+                    edge=top
+                  else
+                    edge=center
+                  fi
+                  kitten @ --to "$socket" resize-os-window --match all --action=os-panel --incremental "edge=$edge"
+                  kitten @ --to "$socket" set-user-vars --match all "quick_access_edge=$edge"
+                  ;;
+                *)
+                  printf 'Usage: kitty-quick-access {show|toggle-edge}\n' >&2
+                  exit 2
+                  ;;
+              esac
+            '';
+          })
+        ];
 
         programs.kitty = {
           enable = true;

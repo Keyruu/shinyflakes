@@ -52,23 +52,14 @@
           max-jobs = "auto";
 
           substituters = [
-            "https://cache.keyruu.de"
-            "https://cache.nixos.org"
-            "https://nix-community.cachix.org"
             "https://cache.numtide.com"
-            "https://cache.lix.systems"
             "https://vicinae.cachix.org"
-            "https://noctalia.cachix.org"
-            "https://umbriel.cachix.org"
+            "https://niri-epireyn.cachix.org"
           ];
           trusted-public-keys = [
-            "cache.keyruu.de:BifJnHe/XQhZmmFwLSZttthsXT4u2/L4aeo0k9zV+Kc="
-            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
             "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-            "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
             "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-            "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-            "umbriel.cachix.org-1:JfNq/2yg2S6D6z4Z2dVSZrZlDPQTKtexB6GAVLD98nw="
+            "niri-epireyn.cachix.org-1:tlVyFN7CtsDT+ZcLPS+ekFWeT1X6X4OqvWqbBMyIzFA="
           ];
         };
         extraOptions = ''

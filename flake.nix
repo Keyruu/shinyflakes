@@ -3,20 +3,14 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://nix-community.cachix.org"
       "https://cache.numtide.com"
-      "https://cache.lix.systems"
       "https://vicinae.cachix.org"
-      "https://noctalia.cachix.org"
-      "https://umbriel.cachix.org"
+      "https://niri-epireyn.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-      "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-      "umbriel.cachix.org-1:JfNq/2yg2S6D6z4Z2dVSZrZlDPQTKtexB6GAVLD98nw="
+      "niri-epireyn.cachix.org-1:tlVyFN7CtsDT+ZcLPS+ekFWeT1X6X4OqvWqbBMyIzFA="
     ];
   };
 
@@ -123,7 +117,7 @@
 
     # The cachix branch tracks the latest successfully built Umbriel revision.
     # Keep its own nixpkgs lock so the Umbriel binary cache can substitute it.
-    umbriel.url = "github:noctalia-dev/umbriel/cachix";
+    # umbriel.url = "github:noctalia-dev/umbriel/cachix";
 
     nvf = {
       url = "github:NotAShelf/nvf";
@@ -142,8 +136,19 @@
 
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
-    dms = {
-      url = "github:AvengeMedia/DankMaterialShell";
+    mango = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    niri.url = "github:epireyn/niri-flake";
+
+    dux-shell = {
+      url = "github:duxlabs-dev/dux-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dux-files = {
+      url = "github:duxlabs-dev/dux-files";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

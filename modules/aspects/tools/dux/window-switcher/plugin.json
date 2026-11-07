@@ -1,0 +1,13 @@
+{
+  "id": "windowSwitcher",
+  "name": "Window Switcher",
+  "description": "Window switcher overlay for Umbriel",
+  "version": "1.0.0",
+  "author": "lucas",
+  "type": "daemon",
+  "capabilities": ["daemon"],
+  "component": "./WindowSwitcher.qml",
+  "icon": "view_carousel",
+  "requires_dms": ">=2.0.0",
+  "permissions": ["process"]
+}

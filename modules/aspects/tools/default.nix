@@ -15,7 +15,8 @@
       nh
       nix-index-database
       # noctalia
-      dms
+      dux.shell
+      dux.files
       repos
       satty
       screenshot

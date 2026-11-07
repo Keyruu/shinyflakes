@@ -2,7 +2,12 @@
 {
   den.aspects.tools.screenshot = {
     homeManager =
-      { pkgs, lib, inputs', ... }:
+      {
+        pkgs,
+        lib,
+        inputs',
+        ...
+      }:
       let
         screenshot = pkgs.writeShellApplication {
           name = "screenshot";
@@ -15,7 +20,7 @@
             satty
             coreutils
             llama-cpp
-            inputs'.umbriel.packages.default
+            inputs'.niri.packages.niri-unstable
           ];
           text = # bash
             ''
@@ -23,11 +28,18 @@
 
               case "$mode" in
                 region|screen)
-                  monitor=$(umbriel outputs --json | jq -er '.[] | select(.focused) | .name')
+                  monitor=$(niri msg --json focused-output | jq -er '.name')
                   capture=(-o "$monitor")
                   ;;
                 window)
-                  geom=$(umbriel focused-window --json | jq -er '. | "\(.x),\(.y) \(.w)x\(.h)"')
+                  output=$(niri msg --json focused-output)
+                  geom=$(niri msg --json focused-window | jq -er --argjson output "$output" '
+                    .layout as $layout |
+                    $layout.tile_pos_in_workspace_view as $pos |
+                    $layout.window_offset_in_tile as $offset |
+                    $output.logical as $output |
+                    "\((($output.x + $pos[0] + $offset[0]) | floor)),\((($output.y + $pos[1] + $offset[1]) | floor)) \($layout.window_size[0])x\($layout.window_size[1])"
+                  ')
                   capture=(-g "$geom")
                   ;;
                 ocr)

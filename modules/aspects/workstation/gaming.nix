@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ den, inputs, ... }:
 {
   den.aspects.workstation.gaming = {
     nixos = { user, pkgs, ... }: {
@@ -85,6 +85,11 @@
       ];
     };
 
+    includes = [
+      (den.batteries.unfree [
+        "wowup-cf"
+      ])
+    ];
     homeManager =
       { pkgs, ... }:
       {
@@ -96,6 +101,7 @@
           prismlauncher # Minecraft launcher
           # kdePackages.kdenlive # for editing obs clips
           mangohud
+          wowup-cf
         ];
 
         # makes steam download a lot faster

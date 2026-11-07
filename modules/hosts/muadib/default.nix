@@ -29,6 +29,15 @@
     nixos = { pkgs, host, ... }: {
       nixpkgs.hostPlatform = "x86_64-linux";
 
+      fileSystems."/mnt/nvme-2tb" = {
+        device = "/dev/disk/by-partuuid/082c5ca9-7153-4d1a-af2b-da0cbcc4e126";
+        fsType = "btrfs";
+        options = [
+          "noatime"
+          "compress=zstd"
+        ];
+      };
+
       networking.nftables.enable = true;
 
       services.libinput.enable = true;

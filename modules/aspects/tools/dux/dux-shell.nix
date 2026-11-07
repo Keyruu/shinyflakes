@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  den.aspects.tools.dms = {
+  den.aspects.tools.dux.shell = {
     homeManager =
       { config, user, ... }:
       let
@@ -155,7 +155,7 @@
       in
       {
         imports = [
-          inputs.dms.homeModules.dank-material-shell
+          inputs.dux-shell.homeModules.dank-material-shell
         ];
 
         programs.dank-material-shell = {
@@ -174,7 +174,7 @@
           plugins = {
             khalNextEvent = {
               enable = true;
-              src = ./dms-plugins/khal-next-event;
+              src = ./khal-next-event;
             };
           };
 
@@ -333,7 +333,7 @@
 
           # wallpaperPath lives in session.json (SessionSpec), not settings.json
           session = {
-            wallpaperPath = ../../../assets/dark-bg.jpg;
+            wallpaperPath = ../../../../assets/dark-bg.jpg;
             wallpaperFillMode = "Fill";
           };
         };
