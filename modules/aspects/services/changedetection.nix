@@ -46,7 +46,7 @@
 
               browser = {
                 containerConfig = {
-                  image = "docker.io/dgtlmoon/sockpuppetbrowser:0.0.3";
+                  image = "docker.io/dgtlmoon/sockpuppetbrowser:0.0.4";
                   environments = {
                     SCREEN_WIDTH = "1920";
                     SCREEN_HEIGHT = "1024";
