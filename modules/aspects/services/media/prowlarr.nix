@@ -20,7 +20,7 @@
             containers = {
               prowlarr = {
                 containerConfig = {
-                  image = "ghcr.io/hotio/prowlarr:release-2.7.0.5723";
+                  image = "ghcr.io/hotio/prowlarr:release-3.0.2.5780";
                   environments = {
                     PUID = "0";
                     PGID = "0";
