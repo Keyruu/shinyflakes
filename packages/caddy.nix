@@ -3,7 +3,7 @@ let
   # renovate: datasource=go depName=github.com/corazawaf/coraza-caddy/v2
   corazaCaddyVersion = "v2.6.2";
   # renovate: datasource=go depName=github.com/greenpau/caddy-security
-  caddySecurityVersion = "v1.6.2";
+  caddySecurityVersion = "v1.7.0";
   # renovate: datasource=go depName=github.com/porech/caddy-maxmind-geolocation
   caddyMaxmindVersion = "v1.0.3";
 in
@@ -13,5 +13,5 @@ pkgs.caddy.withPlugins {
     "github.com/greenpau/caddy-security@${caddySecurityVersion}"
     "github.com/porech/caddy-maxmind-geolocation@${caddyMaxmindVersion}"
   ];
-  hash = "sha256-T7URf8Wp8aR+FdHPuoljaV/qXbXVotRhZFzM175K1bI=";
+  hash = "sha256-JfT7+L9yBSs02M3cWWMahDpJX6Ecbkm56nzc3TGdCpw=";
 }
