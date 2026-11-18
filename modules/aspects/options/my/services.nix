@@ -422,7 +422,6 @@
                 lib.mkIf (serviceCfg.proxy.enable && !serviceCfg.proxy.cert.provided) {
                   ${serviceCfg.proxy.cert.host} = {
                     dnsProvider = "cloudflare";
-                    dnsPropagationCheck = true;
                     environmentFile = config.sops.secrets.cloudflare.path;
                   };
                 }
@@ -567,15 +566,21 @@
         # caddy. Same-host caddy services (liwan, koito, anything else on
         # prime) are handled by the inline caddy consumer below and must
         # NOT set `proxy.public = true`.
-        lib.mapAttrsToList (
-          name: svc:
-          svc.proxy
-          // {
-            inherit name;
-            inherit (svc) domain port;
-            hostIp = hostIp config;
-          }
-        ) (lib.filterAttrs (_: svc: svc.proxy.enable && svc.proxy.server == "nginx" && svc.proxy.public) config.services.my);
+        lib.mapAttrsToList
+          (
+            name: svc:
+            svc.proxy
+            // {
+              inherit name;
+              inherit (svc) domain port;
+              hostIp = hostIp config;
+            }
+          )
+          (
+            lib.filterAttrs (
+              _: svc: svc.proxy.enable && svc.proxy.server == "nginx" && svc.proxy.public
+            ) config.services.my
+          );
 
       oidc-config =
         {
