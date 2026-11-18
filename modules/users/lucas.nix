@@ -139,7 +139,6 @@
           vlc
           flatpak
           libreoffice-qt
-          brave
           blender
           inkscape
           bambu-studio
@@ -223,12 +222,10 @@
           feishin
           # FIXME: winboat fails to compile
           # winboat
-          kdePackages.kdeconnect-kde
           jira-cli-go
           kdePackages.kdenlive
           kdePackages.kwave
           tea
-          handy
           plezy
 
           # self'.packages.numr

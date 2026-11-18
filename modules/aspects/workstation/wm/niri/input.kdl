@@ -19,7 +19,7 @@ input {
         accel-speed -1.0
     }
 
-    focus-follows-mouse max-scroll-amount="100%"
+    focus-follows-mouse max-scroll-amount="50%"
 
     warp-mouse-to-focus
 }

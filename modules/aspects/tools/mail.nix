@@ -230,6 +230,7 @@
         home.packages = with pkgs; [
           aerc
           w3m
+          mailspring
         ];
       };
   };

@@ -30,17 +30,13 @@
     # den — dendritic module system (aspects, hosts, entities)
     import-tree.url = "github:denful/import-tree";
     den.url = "github:denful/den";
-    nix-effects = {
-      url = "github:denful/nix-effects/den";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     flake-parts.url = "github:hercules-ci/flake-parts";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
     crane.url = "github:ipetkov/crane/v0.24.0";
     # Fork branch with the submodule-aware flake roots (numtide/iets#303) and
     # the classic-mode global flags (numtide/iets#304).
     iets = {
-      url = "github:Keyruu/iets/feat/shinyflakes";
+      url = "github:numtide/iets/";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -109,7 +105,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    vicinae.url = "github:Keyruu/vicinae/fix/nix-macos";
+    vicinae.url = "github:vicinaehq/vicinae";
     vicinae-extensions = {
       url = "github:Keyruu/vicinae-extensions/integration";
       inputs.nixpkgs.follows = "nixpkgs";

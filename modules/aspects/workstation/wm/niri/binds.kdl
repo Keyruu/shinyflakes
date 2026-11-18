@@ -42,7 +42,7 @@ binds {
     Mod+Shift+Q hotkey-overlay-title="Lock Screen" { spawn "loginctl" "lock-session"; }
     Mod+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://launch/clipboard/history"; }
     Mod+X hotkey-overlay-title="Keyboard Pointer" { spawn-sh "wl-kbptr -c $HOME/.config/wl-kbptr/floating"; }
-    Mod+D hotkey-overlay-title="Dictate" { spawn-sh "handy --toggle-transcription"; }
+    Mod+D hotkey-overlay-title="Dictate" { spawn "vicinae" "vicinae://launch/dictation/dictate"; }
 
     Print hotkey-overlay-title="Screenshot Region" { spawn "screenshot" "region"; }
     Shift+Print hotkey-overlay-title="Screenshot Screen" { spawn "screenshot" "screen"; }

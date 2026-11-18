@@ -79,7 +79,6 @@ in
               autostart = [
                 "clipse -listen"
                 "1password --silent"
-                "handy"
               ];
               focus_on_activate = true;
               show_cheatsheet = false;
@@ -279,7 +278,7 @@ in
               "Mod+Shift+Q" = "spawn noctalia msg session lock";
               "Mod+Shift+V" = "spawn vicinae vicinae://launch/clipboard/history";
               "Mod+X" = "spawn umbriel-kbptr";
-              "Mod+D" = "spawn handy --toggle-transcription";
+              "Mod+D" = "spawn vicinae vicinae://launch/dictation/dictate";
               "Print" = "spawn screenshot region";
               "Shift+Print" = "spawn screenshot screen";
               "Ctrl+Print" = "spawn screenshot window";

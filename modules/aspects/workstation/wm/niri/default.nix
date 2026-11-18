@@ -139,7 +139,6 @@ in
               spawn-at-startup "${pkgs.dbus}/bin/dbus-update-activation-environment" "--systemd" "--all"
               spawn-at-startup "clipse" "-listen"
               spawn-at-startup "1password" "--ozone-platform-hint=wayland" "--silent"
-              spawn-at-startup "handy"
 
               cursor {
                   xcursor-size 20
@@ -158,7 +157,6 @@ in
 
               workspace "browse"
               workspace "work"
-              workspace "media"
               workspace "social"
 
               include "${./input.kdl}"
@@ -166,6 +164,11 @@ in
               include "${./window-rules.kdl}"
               include "${./binds.kdl}"
               include "${./alt-tab.kdl}"
+
+              include optional=true "dms/layout.kdl"
+              include optional=true "dms/colors.kdl"
+              include optional=true "dms/cursor.kdl"
+              include optional=true "dms/wpblur.kdl"
             '';
         };
       };

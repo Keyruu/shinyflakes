@@ -24,7 +24,17 @@
         home.activation.refreshVicinaeApps = lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
           export XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
           if ${pkgs.systemd}/bin/systemctl --user is-active --quiet vicinae.service; then
-            run ${lib.getExe inputs'.vicinae.packages.default} vicinae://launch/core/refresh-apps
+            # Type=simple reports active before Vicinae's socket is ready.
+            for attempt in 1 2 3 4 5; do
+              if run ${lib.getExe inputs'.vicinae.packages.default} vicinae://launch/core/refresh-apps; then
+                break
+              fi
+              if [ "$attempt" -eq 5 ]; then
+                echo "Warning: could not refresh Vicinae apps; continuing activation." >&2
+              else
+                run ${pkgs.coreutils}/bin/sleep 1
+              fi
+            done
           fi
         '';
 
@@ -48,6 +58,7 @@
 
         programs.vicinae = {
           enable = true;
+          localAI.enable = true;
           themes.shinyflakes =
             let
               t = user.theme;
@@ -153,7 +164,6 @@
             };
           };
 
-          package = inputs'.vicinae.packages.default;
           extensions =
             (with inputs'.vicinae-extensions.packages; [
               agenda
@@ -167,6 +177,7 @@
               port-killer
               firefox
               tab-reaper
+              kde-connect
             ])
             ++ (with self'.packages; [
               raycast-karakeep
@@ -193,6 +204,36 @@
               opacity = 0.90;
             };
             providers = {
+              ai = {
+                preferences = {
+                  providers = {
+                    claude-code = {
+                      type = "claude-code";
+                      fields = { };
+                    };
+                    codex = {
+                      type = "codex";
+                      fields = { };
+                    };
+                    minimax = {
+                      type = "openai-compatible";
+                      fields.url = "https://api.minimax.io/v1";
+                    };
+                  };
+                  defaultModel = "minimax:MiniMax-M3.1-Flash";
+                  instructions = "";
+                  enableTools = true;
+                };
+              };
+              dictation = {
+                preferences = {
+                  model = "local:parakeet-tdt-0.6b-v3-q8_0";
+                  language = "auto";
+                  sound = true;
+                  pauseMedia = true;
+                  dictationAction = "paste";
+                };
+              };
               clipboard = {
                 entrypoints = {
                   history = {

@@ -34,6 +34,7 @@
           borderEnabled = false;
           hoverPopouts = true;
           island = true;
+          islandReserveThickness = 36;
           islandHomeCompactTight = true;
           islandNotificationExpand = true;
           islandHomeLayout = [
@@ -184,6 +185,7 @@
             clockFormat = "24h";
             barElevationEnabled = false;
             blurEnabled = true;
+            blurBorderSeeded = false;
             controlCenterWidgets = [
               {
                 id = "volumeSlider";

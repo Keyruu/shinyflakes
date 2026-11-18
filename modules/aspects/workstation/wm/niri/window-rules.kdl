@@ -1,9 +1,4 @@
 window-rule {
-    geometry-corner-radius 7 7 7 7
-    clip-to-geometry true
-}
-
-window-rule {
     match app-id=r#"^vicinae-script$"#
     match app-id=r#"^vicinae-script-lg$"#
     background-effect {
@@ -153,24 +148,11 @@ window-rule {
 }
 
 layer-rule {
-    match namespace=r#"^dms:"#
-    background-effect {
-        blur true
-        xray false
-    }
-}
-
-layer-rule {
     match namespace=r#"^kitty-quick-access$"#
     background-effect {
         blur true
         xray false
     }
-}
-
-layer-rule {
-    match namespace=r#"^noctalia-overview*"#
-    place-within-backdrop true
 }
 
 layer-rule {
@@ -180,12 +162,7 @@ layer-rule {
         xray false
     }
 }
-layer-rule {
-    match namespace=r#"^wayle-bar.*"#
-    background-effect {
-        blur true
-    }
-}
+
 layer-rule {
     // This is for swaybg; change for other wallpaper tools.
     // Find the right namespace by running niri msg layers.

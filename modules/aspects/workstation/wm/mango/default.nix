@@ -200,7 +200,6 @@ in
 
                 exec_once=clipse -listen
                 exec_once=1password --silent
-                exec_once=handy
 
                 # let apps steal focus on activation instead of just going
                 # urgent (red border) â skips the xdg-activation token check
@@ -287,7 +286,7 @@ in
                 bind=SUPER+SHIFT,q,spawn,loginctl lock-session
                 bind=SUPER+SHIFT,v,spawn,vicinae vicinae://launch/clipboard/history
                 bind=SUPER,x,spawn_shell,wl-kbptr -c $HOME/.config/wl-kbptr/floating
-                bind=SUPER,d,spawn,handy --toggle-transcription
+                bind=SUPER,d,spawn,vicinae vicinae://launch/dictation/dictate
 
                 bind=NONE,Print,spawn,screenshot region
                 bind=SHIFT,Print,spawn,screenshot screen

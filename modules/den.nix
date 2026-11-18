@@ -55,6 +55,8 @@
     };
 
     includes = [
+      den.batteries.user-aspects
+
       den.aspects.options.my.services
       den.aspects.options.my.stack
       den.aspects.options.mesh

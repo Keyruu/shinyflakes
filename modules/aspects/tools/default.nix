@@ -17,6 +17,7 @@
       # noctalia
       dux.shell
       dux.files
+      kdeconnect
       repos
       satty
       screenshot
