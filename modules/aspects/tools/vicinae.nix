@@ -169,6 +169,7 @@
               agenda
               # bluetooth
               nix
+              niri
               # systemd
               wifi-commander
               case-converter
@@ -186,6 +187,7 @@
               raycast-gif-search
             ]);
           settings = {
+            encrypt_sensitive_data = true;
             favicon_service = "twenty";
             font.normal = {
               size = 11;
@@ -215,12 +217,12 @@
                       type = "codex";
                       fields = { };
                     };
-                    minimax = {
+                    mistral = {
                       type = "openai-compatible";
-                      fields.url = "https://api.minimax.io/v1";
+                      fields.url = "https://api.mistral.ai/v1";
                     };
                   };
-                  defaultModel = "minimax:MiniMax-M3.1-Flash";
+                  defaultModel = "mistral:deepseek-v4-1-flash-1017";
                   instructions = "";
                   enableTools = true;
                 };
@@ -311,16 +313,6 @@
                   # @vicinae.mode silent
                   # @vicinae.icon 🔒
                   exec ${lib.getExe self'.packages.mesh-tunnel} --dmenu
-                '';
-            "${scripts}/pi-herd.sh".source =
-              pkgs.writeScript "pi-herd-dmenu" # bash
-                ''
-                  #!${pkgs.runtimeShell}
-                  # @vicinae.schemaVersion 1
-                  # @vicinae.title Pi Herd
-                  # @vicinae.mode silent
-                  # @vicinae.icon 🐑
-                  exec ${lib.getExe self'.packages.pi-herd} --dmenu
                 '';
             "${scripts}/zs.sh".source =
               pkgs.writeScript "zs-dmenu" # bash

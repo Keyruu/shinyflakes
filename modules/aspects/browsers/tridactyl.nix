@@ -2,7 +2,45 @@
 {
   den.aspects.browsers.tridactyl = {
     homeManager =
-      { pkgs, ... }:
+      { pkgs, lib, ... }:
+      let
+        # gh-pr-review <pr-url>: Claude review in a new tab of the "scratchpad"
+        # zellij session. zellij only adds tabs to an attached session, so the
+        # scratchpad window is shown (or spawned) first, then we wait for a client.
+        ghPrReview = pkgs.writeShellApplication {
+          name = "gh-pr-review";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.gnugrep
+          ];
+          text = # bash
+            ''
+              url=$1
+              [[ $url =~ ^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$ ]] || {
+                echo "gh-pr-review: not a GitHub PR URL: $url" >&2
+                exit 2
+              }
+              # Every zellij action exits 0, even on a missing session; only an
+              # attached session prints the CLIENT_ID header.
+              attached() { zellij --session scratchpad action list-clients 2>/dev/null | grep -q '^CLIENT_ID'; }
+              # shortcut: scratch-niri is niri-only; other WMs get an unmanaged kitty window.
+              if command -v scratch-niri >/dev/null; then
+                scratch-niri scratchpad kitty --class scratchpad zellij attach --create scratchpad
+              elif ! attached; then
+                kitty --class scratchpad --detach zellij attach --create scratchpad
+              fi
+              for _ in $(seq 1 50); do
+                if attached; then
+                  exec zellij --session scratchpad action new-tab --name "review ''${url#https://github.com/}" -- \
+                    claude "Review the GitHub pull request $url. Fetch it with gh pr view and gh pr diff, then report findings ranked by severity."
+                fi
+                sleep 0.1
+              done
+              echo "gh-pr-review: no client attached to zellij session 'scratchpad'" >&2
+              exit 1
+            '';
+        };
+      in
       {
         # Sourced on every browser startup by the default TriStart autocmd
         # (source_quiet → ~/.config/tridactyl/tridactylrc). Values persist in
@@ -69,6 +107,10 @@
             bind zL scrollto 100 x
             bind <A-c> tabprev
             bind <A-s-c> tabnext
+
+            " GitHub PR → Claude review tab in the scratchpad zellij session.
+            " The regex keeps the URL shell-safe (exclaim runs via sh).
+            bindurl ^https://github\.com/[^/]+/[^/]+/pull/\d+ gR composite js location.href.match(/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/)[0] | exclaim_quiet ${lib.getExe ghPrReview}
 
             " settings
             set hintchars sadjklewcmpgh

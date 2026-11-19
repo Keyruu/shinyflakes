@@ -6,7 +6,7 @@ pkgs.writeShellApplication {
     pkgs.jq
     pkgs.fzf
     pkgs.coreutils
-    (pkgs.callPackage ./pi-task.nix { })
+    (pkgs.callPackage ./agent-task.nix { })
   ];
   text = builtins.readFile ./pi-task-linear.sh;
 }

@@ -36,8 +36,7 @@ binds {
     Mod+Slash hotkey-overlay-title="Toggle Tabbed" { toggle-column-tabbed-display; }
 
     Super+Space hotkey-overlay-title="App Launcher" { spawn "vicinae" "toggle"; }
-    Alt+Space hotkey-overlay-title="Quick Access Terminal" { spawn "kitty-quick-access" "show"; }
-    Alt+Shift+Space hotkey-overlay-title="Toggle Quick Access Size" { spawn "kitty-quick-access" "toggle-edge"; }
+    Alt+Space hotkey-overlay-title="Scratchpad" { spawn "scratch-niri" "scratchpad" "kitty" "--class" "scratchpad" "zellij" "attach" "--create" "scratchpad"; }
     Mod+Shift+Space hotkey-overlay-title="1Password" { spawn "1password" "--ozone-platform-hint=wayland" "--quick-access" "--enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,WaylandWindowDecorations"; }
     Mod+Shift+Q hotkey-overlay-title="Lock Screen" { spawn "loginctl" "lock-session"; }
     Mod+Shift+V hotkey-overlay-title="Clipboard History" { spawn "vicinae" "vicinae://launch/clipboard/history"; }

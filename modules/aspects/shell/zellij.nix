@@ -18,8 +18,7 @@
       {
         home.packages = [
           self'.packages.nvim-scrollback
-          self'.packages.pi-herd
-          self'.packages.pi-task
+          self'.packages.agent-task
           self'.packages.pi-task-linear
         ];
 
@@ -226,6 +225,8 @@
                   bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "Locked"; }
                   bind "c" { SwitchToMode "RenamePane"; PaneNameInput 0; }
                   bind "i" { TogglePanePinned; SwitchToMode "Locked"; }
+                  bind "a" { Run "pi" { stacked true; }; SwitchToMode "Locked"; }
+                  bind "A" { Run "claude" { stacked true; }; SwitchToMode "Locked"; }
                 }
 
                 move {
@@ -391,21 +392,10 @@
                   bind "Alt n" { NewPane; }
                   bind "Alt f" { ToggleFloatingPanes; }
                   bind "Alt t" {
-                    Run "${lib.getExe self'.packages.pi-task}" {
+                    Run "${lib.getExe self'.packages.agent-task}" {
                       scratchpad true
                       close_on_exit true
                       name "pi tasks"
-                      width "80%"
-                      height "80%"
-                      x "10%"
-                      y "10%"
-                    }
-                  }
-                  bind "Alt p" {
-                    Run "${lib.getExe self'.packages.pi-herd}" {
-                      scratchpad true
-                      close_on_exit true
-                      name "pi herd"
                       width "80%"
                       height "80%"
                       x "10%"
@@ -436,7 +426,7 @@
                   }
                   bind "Alt i" { MoveTab "Left"; }
                   bind "Alt o" { MoveTab "Right"; }
-                  bind "Alt =" "Super +" { Resize "Increase"; }
+                  bind "Alt =" { Resize "Increase"; }
                   bind "Alt -" { Resize "Decrease"; }
                   // re-apply swap layout — snaps the floating lazygit pane back
                   // to 80% after a monitor/terminal resize (floating pane sizes

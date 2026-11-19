@@ -15,7 +15,6 @@
         fonts.fontconfig.enable = true;
 
         xdg.dataFile."noctalia/plugins/calendar-event".source = ./noctalia-plugins/calendar-event;
-        xdg.dataFile."noctalia/plugins/pi-herd".source = ./noctalia-plugins/pi-herd;
 
         programs.noctalia = {
           enable = true;
@@ -125,7 +124,6 @@
               center = [ "group:g2" ];
               end = [
                 "tray"
-                "pi-herd"
                 "calendar-widget"
                 "group:g1"
                 "caffeine"
@@ -189,9 +187,6 @@
               };
               calendar-widget = {
                 type = "local/calendar-event:widget";
-              };
-              pi-herd = {
-                type = "local/pi-herd:widget";
               };
               sysmon = {
                 type = "sysmon";
@@ -289,7 +284,6 @@
               enabled = [
                 "noctalia/notes"
                 "local/calendar-event"
-                "local/pi-herd"
               ];
             };
           };

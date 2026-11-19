@@ -38,6 +38,8 @@
       den.aspects.services.matrix
       den.aspects.services.livekit
       den.aspects.services.turn
+
+      den.aspects.services.tranquil-pds
     ];
   };
 }

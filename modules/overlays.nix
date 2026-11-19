@@ -31,6 +31,9 @@ in
     _module.args.pkgs = import inputs.nixpkgs {
       inherit system;
       overlays = [ overlay ];
+      # packages/ builds with this pkgs instance, so its unfree gate applies here
+      # and not to the host's nixpkgs config (den.batteries.unfree).
+      config.allowUnfreePredicate = pkg: (pkg.pname or "") == "bambu-studio";
     };
   };
 }

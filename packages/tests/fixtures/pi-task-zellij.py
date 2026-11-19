@@ -24,8 +24,9 @@ def identity(pane, name):
         zellijPaneId=str(pane['id']), sessionId=session, sessionFile=path)
     (root / 'cache/pi-herd').mkdir(parents=True, exist_ok=True)
     (root / 'cache/pi-herd' / (os.environ['MOCK_PI_PID'] + '.json')).write_text(json.dumps(record))
-def create_layout(name, layout, initial=False):
-    assert sessions.get(name, 0) > 0, 'headless task creation'
+def create_layout(name, layout, initial=False, background=False):
+    # real Zellij only spawns headless panes for a background session's initial layout
+    assert background or sessions.get(name, 0) > 0, 'headless task creation'
     panes = [] if initial else json.loads((root / 'panes.json').read_text())
     tab = 0 if initial else max([p['tab_id'] for p in panes], default=0) + 1
     title = json.loads(re.search(r'tab name=("(?:[^"\\]|\\.)*")', layout).group(1))
@@ -53,13 +54,23 @@ def create_layout(name, layout, initial=False):
         sessions_file.write_text(json.dumps(sessions))
     (root / 'poll.count').write_text('0')
     return tab
-def initial_layout(name, path):
+def initial_layout(name, path, background=False):
     layout = Path(path).read_text()
     assert Path(path).stat().st_mode & 0o777 == 0o600
     metadata = json.loads(Path(path).with_suffix('.json').read_text())
-    assert metadata.get('piLaunch') == ('"pi"' in layout)
+    assert metadata.get('piLaunch') == ('"pi"' in layout or '"claude"' in layout)
     log('initial-layout ' + repr(layout))
-    create_layout(name, layout, initial=True)
+    create_layout(name, layout, initial=True, background=background)
+if args[:2] == ['attach', '--create-background']:
+    name = args[2]
+    log('background ' + repr(args))
+    for key in ['ZELLIJ', 'ZELLIJ_SESSION_NAME', 'ZELLIJ_PANE_ID', 'PI_TASK_ROOT', 'PI_TASK_REVIEW_STATE']:
+        assert key not in os.environ, key
+    assert args[3:5] == ['options', '--default-layout'] and name not in sessions, args
+    sessions[name] = 0
+    sessions_file.write_text(json.dumps(sessions))
+    initial_layout(name, args[5], background=True)
+    sys.exit()
 if args[:2] == ['list-sessions', '--no-formatting']:
     print('\n'.join(name if '--short' in args else
         name + ' [Created 1s ago] ' + ('(EXITED - attach to resurrect)' if count == -1 else '')

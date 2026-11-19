@@ -30,6 +30,10 @@
         };
 
         cname = {
+          "pds" = {
+            content = "sleipnir.keyruu.de";
+            proxied = false;
+          };
           "key1._domainkey" = {
             content = "key1.keyruu.de._domainkey.migadu.com";
             proxied = false;

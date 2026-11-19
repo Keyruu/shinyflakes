@@ -1,4 +1,5 @@
 window-rule {
+    match app-id=r#"^scratchpad$"#
     match app-id=r#"^vicinae-script$"#
     match app-id=r#"^vicinae-script-lg$"#
     background-effect {
@@ -145,14 +146,6 @@ window-rule {
     match app-id=r#"^vesktop$"#
     match app-id=r#"^fluffychat$"#
     block-out-from "screencast"
-}
-
-layer-rule {
-    match namespace=r#"^kitty-quick-access$"#
-    background-effect {
-        blur true
-        xray false
-    }
 }
 
 layer-rule {

@@ -27,6 +27,7 @@ import {
   choose,
   deleteSession,
   filterCommand,
+  jumpCommand,
   hidePicker,
   gitPreview,
   key,
@@ -45,15 +46,24 @@ import {
   taskRoot,
   toggleView,
 } from "./main.ts";
-import type {
-  Pane,
-  Row,
-} from "./main.ts";
+import type { Pane, Row } from "./main.ts";
 
 import { commands, run } from "./commands.ts";
-import type { CommandOptions, CommandResult, LaunchOptions, RunningCommand } from "./commands.ts";
+import type {
+  CommandOptions,
+  CommandResult,
+  LaunchOptions,
+  RunningCommand,
+} from "./commands.ts";
 import { githubRepository, loadGithub, pullRequestPreview } from "./github.ts";
-import { attention, attentionText, renderRow, rowLabel, rowPreview, rowStatus } from "./presentation.ts";
+import {
+  attention,
+  attentionText,
+  renderRow,
+  rowLabel,
+  rowPreview,
+  rowStatus,
+} from "./presentation.ts";
 
 const realCapture = commands.capture;
 function pane(
@@ -238,7 +248,7 @@ async function filterInput(
     "--noprofile",
     "--norc",
     "-c",
-    filterCommand(path).replace("{q}", '"$1"'),
+    `FZF_QUERY=$1; ${filterCommand(path)}`,
     "zs-filter",
     query,
   ]);
@@ -655,8 +665,14 @@ test("fallback has no seen claim", () => {
 
 test("compact status preserves literal provenance text supplied by an agent", () => {
   const activity = attention(pane(), { status: "waiting · Zellij" });
-  assert.equal(attentionText(activity, true), "○ idle | Pi waiting · Zellij · seen unknown");
-  assert.equal(attentionText(activity), "○ idle · Zellij | Pi waiting · Zellij · seen unknown");
+  assert.equal(
+    attentionText(activity, true),
+    "○ idle | Pi waiting · Zellij · seen unknown",
+  );
+  assert.equal(
+    attentionText(activity),
+    "○ idle · Zellij | Pi waiting · Zellij · seen unknown",
+  );
 });
 
 test("live marker pins checkout and conversation identity is revalidated", async () => {
@@ -1140,28 +1156,40 @@ test("a saved name shared by two branches refuses to resurrect either checkout",
 });
 
 for (const otherKind of ["repository", "directory"]) {
-  test(`saved names shared with another ${otherKind} are never inferred during navigation`, async () => {
-    const first = await repo("one/app");
-    const second =
-      otherKind === "repository"
-        ? await repo("two/app")
-        : join(root, "two/app");
-    mkdirSync(second, { recursive: true });
-    fake.dirs = [first, second];
-    fake.sessions.set("app", null);
-    fake.resurrectable.add("app");
-    const catalog = await new Catalog().discover();
-    const rows = catalog.rows.filter((r) => r.kind === "worktree");
-    for (const row of rows) {
-      assert.equal(row.savedSession, undefined);
-      await assert.rejects(navigation(row, null), /ambiguous/);
-      assert.equal(lastVisit(row), 0);
-    }
-    assert.ok(
-      catalog.rows.some((r) => r.kind === "session" && r.session === "app"),
-    );
-    assert.deepEqual(fake.mutations(), []);
-  });
+  for (const live of [false, true]) {
+    test(`${live ? "live" : "saved"} names shared with another ${otherKind} are never inferred during navigation`, async () => {
+      const first = await repo("one/app");
+      const second =
+        otherKind === "repository"
+          ? await repo("two/app")
+          : join(root, "two/app");
+      mkdirSync(second, { recursive: true });
+      fake.dirs = [first, second];
+      fake.sessions.set("app", live ? [pane(1, first)] : null);
+      if (!live) fake.resurrectable.add("app");
+      const catalog = await new Catalog().discover();
+      const rows = catalog.rows.filter(
+        (r) => r.kind === "worktree" || r.kind === "directory",
+      );
+      for (const row of rows.filter(
+        (r) => r.path === first || r.path === second,
+      )) {
+        assert.equal(row.savedSession, undefined);
+        assert.deepEqual(row.sessions, []);
+        assert.equal(row.open, false);
+        await assert.rejects(navigation(row, null), /ambiguous/);
+        await assert.rejects(
+          deleteSession(catalog, row),
+          /No existing session/,
+        );
+        assert.equal(lastVisit(row), 0);
+      }
+      assert.ok(
+        catalog.rows.some((r) => r.kind === "session" && r.session === "app"),
+      );
+      assert.deepEqual(fake.mutations(), []);
+    });
+  }
 }
 
 test("saved branch name with changed checkout or unverified session remains a collision", async () => {
@@ -1330,8 +1358,8 @@ test("cancel only hides own layer and never closes title matches", async () => {
 });
 
 test("main directory selection leaves pane focus alone and cleans up", async () => {
-  await source();
-  fake.sessions.get("source")!.push(pane(2, root));
+  await source(await newSessionName(root));
+  fake.sessions.get(process.env.ZELLIJ_SESSION_NAME!)!.push(pane(2, root));
   fake.picks = [["", root]];
   await main([]);
   assert.ok(fake.mutations().every((c) => c.includes("hide-floating-panes")));
@@ -1341,22 +1369,20 @@ test("main directory selection leaves pane focus alone and cleans up", async () 
 async function workspaceWithAgents() {
   const path = await repo();
   fake.dirs = [path];
-  await source();
-  fake.sessions
-    .get("source")!
-    .push(
-      pane(2, path, { title: "editor", is_focused: true }),
-      pane(3, path, {
-        title: "urgent agent",
-        program_status: [{ app: "pi" }],
-        attention: { status: "NeedsYou" },
-      }),
-      pane(4, path, {
-        title: "other agent",
-        program_status: [{ app: "pi" }],
-        attention: { status: "Working" },
-      }),
-    );
+  await source("repo-with-spaces");
+  fake.sessions.get("repo-with-spaces")!.push(
+    pane(2, path, { title: "editor", is_focused: true }),
+    pane(3, path, {
+      title: "urgent agent",
+      program_status: [{ app: "pi" }],
+      attention: { status: "NeedsYou" },
+    }),
+    pane(4, path, {
+      title: "other agent",
+      program_status: [{ app: "pi" }],
+      attention: { status: "Working" },
+    }),
+  );
   return path;
 }
 
@@ -1366,11 +1392,11 @@ test("Enter on a worktree ignores pane visit history and preserves native focus"
     id: "editor",
     label: "editor",
     path,
-    session: "source",
+    session: "repo-with-spaces",
     pane: 2,
   });
-  fake.sessions.get("source")![1].is_focused = false;
-  fake.sessions.get("source")![2].is_focused = true;
+  fake.sessions.get("repo-with-spaces")![1].is_focused = false;
+  fake.sessions.get("repo-with-spaces")![2].is_focused = true;
   const catalog = await new Catalog().discover();
   assert.ok(!catalog.targets.some((t) => t.pane === 2));
   fake.picks = [["", "⎇ main"]];
@@ -1427,12 +1453,16 @@ test("Tab switches the same picker to flat agents without recording a visit", as
         .input!.split("\n")
         .map((line) => line.split("\t")[1])
         .join("\n");
-      assert.equal([...visible.matchAll(/repo with spaces/g)].length, 1);
+      // Only the repo header is named after the repo; children carry it as their grey suffix.
+      assert.equal(
+        [...visible.matchAll(/^(\x1b\[[0-9;]*m)*repo with spaces/gm)].length,
+        1,
+      );
       const directory = dirname(
         args.find((arg) => arg.startsWith("--listen="))!.slice(9),
       );
       assert.equal(readlinkSync(join(directory, "rows")), "tree");
-      assert.match(toggleView(directory), /^change-prompt\(Agents > \)/);
+      assert.match(toggleView(directory), /^change-header\(Agents\)/);
       const flat = readFileSync(join(directory, "rows"), "utf8");
       assert.doesNotMatch(flat, /⎇ main|editor|└─/);
       assert.match(flat, /repo with spaces \/ main · Pane 4/);
@@ -1550,44 +1580,117 @@ test("view toggling rejects unexpected pointers without replacing them", () => {
   assert.equal(readlinkSync(path), "unexpected");
 });
 
-test("multiple sessions offer session names only, then open the explicitly chosen workspace", async () => {
-  const path = await repo();
-  fake.dirs = [path];
-  await source();
-  for (const session of ["session-a", "session-b"]) {
-    fake.sessions.set(session, [
-      pane(2, path, { is_focused: true }),
-      pane(3, path, { title: "agent one", program_status: [{ app: "pi" }] }),
-      pane(4, path, { title: "agent two", program_status: [{ app: "pi" }] }),
-    ]);
-    fake.clients.set(session, 0);
-  }
-  recordVisit({
-    id: "recent",
-    label: "recent",
-    path,
-    session: "session-b",
-    pane: 4,
-  });
-  let picks = 0;
-  mock.method(
-    commands,
-    "capture",
-    (args: string[], options?: CommandOptions) => {
-      if (args[0] === "fzf" && ++picks === 2) {
-        const rows = options!.input!.trimEnd().split("\n");
-        assert.equal(rows.length, 2);
-        assert.match(rows[0], /session-b/);
-        assert.match(rows[1], /session-a/);
-        assert.doesNotMatch(options!.input!, /agent one|agent two|Pane \d/);
+for (const kind of ["main", "linked", "directory"]) {
+  for (const empty of [false, true]) {
+    test(`${kind} opens its exact-name live session with ${empty ? "no panes" : "a different cwd"}`, async () => {
+      await source();
+      let path = join(root, "directory");
+      if (kind === "directory") mkdirSync(path);
+      else {
+        path = await repo("app");
+        if (kind === "linked") {
+          const linked = join(root, "linked");
+          await git(path, "worktree", "add", "-b", "feature/fix", linked);
+          path = linked;
+        }
       }
-      return fake.capture(args, options);
-    },
-  );
-  fake.picks = [
-    ["", "⎇ main"],
-    ["", "▤ session-a"],
-  ];
+      fake.dirs = [path];
+      const name = await newSessionName(path);
+      fake.sessions.set(name, empty ? [] : [pane(1, root)]);
+      fake.sessions.set("unrelated", [
+        pane(2, path, { program_status: [{ app: "pi" }] }),
+      ]);
+      const catalog = await new Catalog().discover();
+      const row = catalog.rows.find(
+        (r) =>
+          r.path === path && (r.kind === "worktree" || r.kind === "directory"),
+      )!;
+      assert.deepEqual(row.sessions, [name]);
+      assert.equal(row.open, true);
+      assert.equal(
+        row.session,
+        undefined,
+        "Enter must retain checkout validation",
+      );
+      assert.equal(
+        catalog.rows.find((r) => r.kind === "repo")?.open,
+        kind === "directory" ? undefined : true,
+      );
+      assert.ok(
+        catalog.rows.some(
+          (r) => r.kind === "session" && r.session === "unrelated",
+        ),
+      );
+      assert.equal(
+        catalog.agentRows().find((r) => r.session === "unrelated")!.path,
+        path,
+      );
+      fake.picks = [
+        [
+          "",
+          kind === "directory"
+            ? `▱ ${path}`
+            : kind === "linked"
+              ? "⎇ feature/fix"
+              : "⎇ main",
+        ],
+      ];
+      await main([]);
+      assert.deepEqual(fake.mutations().at(-1), [
+        "zellij",
+        "--session=source",
+        "action",
+        "switch-session",
+        "--",
+        name,
+      ]);
+      assert.ok(
+        lastVisit({ id: "session-visit", kind: "session", session: name }) > 0,
+      );
+      assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 1);
+    });
+  }
+}
+
+test("matching cwd never reuses a custom or legacy session when the project session is absent", async () => {
+  await source();
+  const path = await repo("app");
+  fake.dirs = [path];
+  for (const name of ["custom", "app-deadbeef0123"]) {
+    fake.sessions.set(name, [
+      pane(2, path, { program_status: [{ app: "pi" }] }),
+    ]);
+    recordVisit({ id: name, session: name, path });
+  }
+  const catalog = await new Catalog().discover();
+  const row = catalog.rows.find((r) => r.kind === "worktree")!;
+  assert.deepEqual(row.sessions, []);
+  assert.equal(row.open, false);
+  assert.equal(catalog.rows.find((r) => r.kind === "repo")!.open, false);
+  assert.equal(catalog.agentRows().length, 2);
+  await assert.rejects(deleteSession(catalog, row), /No existing session/);
+  fake.picks = [["", "⎇ main"]];
+  await main([]);
+  assert.deepEqual(fake.mutations().at(-1), [
+    "zellij",
+    "--session=source",
+    "action",
+    "switch-session",
+    "--cwd",
+    path,
+    "--layout",
+    "project",
+    "--",
+    "app",
+  ]);
+  assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 1);
+});
+
+test("custom sessions sharing a project cwd remain directly selectable", async () => {
+  await source();
+  const path = await repo("app");
+  fake.sessions.set("custom", [pane(2, path)]);
+  fake.picks = [["", "▤ custom"]];
   await main([]);
   assert.deepEqual(fake.mutations().at(-1), [
     "zellij",
@@ -1595,21 +1698,22 @@ test("multiple sessions offer session names only, then open the explicitly chose
     "action",
     "switch-session",
     "--",
-    "session-a",
+    "custom",
   ]);
-  assert.equal(picks, 2);
 });
 
 test("worktree Enter does not override native focus even on another checkout", async () => {
   const path = await workspaceWithAgents(),
     other = join(root, "other-checkout");
   await git(path, "worktree", "add", "-b", "other", other);
-  fake.sessions.get("source")!.push(pane(5, other, { is_focused: true }));
+  fake.sessions
+    .get("repo-with-spaces")!
+    .push(pane(5, other, { is_focused: true }));
   recordVisit({
     id: "other",
     label: "other",
     path: other,
-    session: "source",
+    session: "repo-with-spaces",
     pane: 5,
   });
   fake.picks = [["", "⎇ main"]];
@@ -1674,7 +1778,7 @@ test("an empty agent view can toggle back without navigating or recording visits
         );
         toggleView(directory);
         assert.equal(readFileSync(join(directory, "rows"), "utf8"), "");
-        assert.match(toggleView(directory), /^change-prompt\(Tree > \)/);
+        assert.match(toggleView(directory), /^change-header\(Tree\)/);
         assert.equal(
           readFileSync(join(directory, "rows"), "utf8"),
           options!.input,
@@ -1695,7 +1799,8 @@ test("worktree Enter does not depend on an arbitrary pane identity", async () =>
     "capture",
     (args: string[], options?: CommandOptions) => {
       if (args[0] === "fzf")
-        fake.sessions.get("source")![1].terminal_command = "replaced editor";
+        fake.sessions.get("repo-with-spaces")![1].terminal_command =
+          "replaced editor";
       return fake.capture(args, options);
     },
   );
@@ -1715,9 +1820,9 @@ test("dmenu worktree entry uses plain attach instead of reusing a window or focu
       path,
       "zellij",
       "attach",
-      "source",
+      "repo-with-spaces",
     ]);
-    fake.clients.set("source", 2);
+    fake.clients.set("repo-with-spaces", 2);
     return {
       poll: () => undefined,
       wait: async () => ({ code: 0 }),
@@ -1730,11 +1835,11 @@ test("dmenu worktree entry uses plain attach instead of reusing a window or focu
   assert.deepEqual(fake.mutations(), []);
 });
 
-test("cancelling a multi-session choice never falls back to an arbitrary session", async () => {
+test("cancelling the overview never falls back to a session sharing the project cwd", async () => {
   const path = await workspaceWithAgents();
   fake.sessions.set("other", [pane(2, path)]);
   fake.clients.set("other", 0);
-  fake.picks = [["", "⎇ main"], null, null];
+  fake.picks = [null];
   await main([]);
   assert.ok(fake.mutations().every((c) => c.includes("hide-floating-panes")));
   assert.equal(existsSync(join(root, "cache", "zs", "visits")), false);
@@ -2050,17 +2155,37 @@ test("worktree Ctrl-D twice refreshes into a fresh session without confirmation"
   assert.ok(existsSync(path));
 });
 
-test("multiple sessions still require choosing a target, not confirmation", async () => {
-  target("one");
-  target("two");
+test("repo deletion offers only exact-name project sessions, not agents sharing their cwd", async () => {
+  const path = await repo("app"),
+    linked = join(root, "linked");
+  await git(path, "worktree", "add", "-b", "feature", linked);
+  fake.dirs = [path];
+  fake.sessions.set("app", [pane(1, root)]);
+  fake.sessions.set("app--feature", [pane(2, root)]);
+  fake.sessions.set("unrelated", [
+    pane(3, linked, { program_status: [{ app: "pi" }] }),
+  ]);
   const catalog = await new Catalog().discover(),
-    row = catalog.rows.find((r) => r.kind === "directory")!;
+    row = catalog.rows.find((r) => r.kind === "repo")!;
   fake.picks = [null];
   await deleteSession(catalog, row);
   assert.deepEqual(fake.mutations(), []);
-  fake.picks = [["", "two — kill"]];
+  fake.picks = [["", "app--feature — kill"]];
   await deleteSession(catalog, row);
-  assert.deepEqual(fake.mutations(), [["zellij", "kill-session", "--", "two"]]);
+  assert.deepEqual(fake.mutations(), [
+    ["zellij", "kill-session", "--", "app--feature"],
+  ]);
+  const primary = catalog.rows.find(
+    (r) => r.kind === "worktree" && r.path === path,
+  )!;
+  await deleteSession(catalog, primary);
+  assert.deepEqual(fake.mutations().at(-1), [
+    "zellij",
+    "kill-session",
+    "--",
+    "app",
+  ]);
+  assert.ok(fake.sessions.get("unrelated"));
 });
 
 test("kill refuses sessions with multiple clients", async () => {
@@ -2204,7 +2329,7 @@ test("attention colors respect native seen/muted state and fallback uncertainty"
     if (marker) assert.match(renderRow(row), /Pi waiting · seen unknown/);
   }
 });
-test("compact rows retain attention without repeated repo names, paths or repo icons", async () => {
+test("compact rows retain attention and end in a grey repo name without paths or repo icons", async () => {
   const path = await repo("repo · with delimiters");
   fake.dirs = [path];
   fake.sessions.set("target", [
@@ -2221,7 +2346,10 @@ test("compact rows retain attention without repeated repo names, paths or repo i
       assert.match(renderRow(row), /\x1b\[1;31m! needs you\x1b\[0m/);
     assert.ok(!renderRow(row).includes(path));
     if (kind !== "repo")
-      assert.doesNotMatch(renderRow(row), /repo · with delimiters/);
+      assert.match(
+        renderRow(row),
+        /\x1b\[90m  repo · with delimiters\x1b\[0m$/,
+      );
     assert.ok(rowPreview(row).includes(path));
     assert.match(rowPreview(row), /Zellij/);
     assert.doesNotMatch(rowLabel(row), /\x1b/);
@@ -2235,7 +2363,7 @@ test("compact rows retain attention without repeated repo names, paths or repo i
   );
   assert.match(
     rowPreview(rows.find((r) => r.kind === "worktree")!),
-    /sessions: target/,
+    /sessions: none/,
   );
   assert.match(renderRow(rows.find((r) => r.kind === "worktree")!), /⎇ main/);
   assert.match(renderRow(rows.find((r) => r.kind === "agent")!), /◆ shell/);
@@ -2278,7 +2406,7 @@ test("idle, acknowledged and muted live checkouts stay white while closed checko
     { status: "Done", seen: true },
     { status: "NeedsYou", muted: "Pane" },
   ]) {
-    fake.sessions.set("live", [pane(1, path, { attention: native })]);
+    fake.sessions.set("app", [pane(1, path, { attention: native })]);
     const catalog = await new Catalog().discover();
     const open = catalog.rows.find(
       (r) => r.kind === "worktree" && r.path === path,
@@ -2604,64 +2732,65 @@ test("repo searches include children and branch searches include agents in both 
   const catalog = await new Catalog().discover();
   const rows = catalog.rows.filter((r) => r.kind !== "workspace");
   const agents = catalog.agentRows();
-  mock.method(
-    commands,
-    "capture",
-    async (args: string[]) => {
-      assert.equal(args[0], "fzf");
-      assert.ok(args.includes("--disabled") && args.includes("--with-nth={2}"));
-      assert.ok(args.includes("--with-shell=bash --noprofile --norc -c"));
-      const action = args.find((arg) => arg.startsWith("change:reload-sync:"))!;
-      assert.ok(action.includes("query={q}"));
-      assert.ok(args.includes(action.replace(/^change:/, "start:")));
-      const directory = dirname(
-        args.find((arg) => arg.startsWith("--listen="))!.slice(9),
+  mock.method(commands, "capture", async (args: string[]) => {
+    assert.equal(args[0], "fzf");
+    assert.ok(args.includes("--disabled") && args.includes("--with-nth={2}"));
+    assert.ok(args.includes("--with-shell=bash --noprofile --norc -c"));
+    const start = args
+      .find((arg) => arg.startsWith("start:"))!
+      .replace(/^start:unbind\([^)]*\)\+/, "start:");
+    assert.ok(start.includes("query=$FZF_QUERY"));
+    const change = args.find((arg) => arg.startsWith("change:transform:"))!;
+    assert.ok(
+      change.includes(
+        start.slice("start:reload-sync:".length).replaceAll("'", "'\\''"),
+      ),
+    );
+    const directory = dirname(
+      args.find((arg) => arg.startsWith("--listen="))!.slice(9),
+    );
+    for (const view of [rows, agents]) {
+      const input = readFileSync(join(directory, "rows"), "utf8");
+      const expected = view.filter(
+        (r) => r.repo === catalog.locations.get(path)!.repo,
       );
-      for (const view of [rows, agents]) {
-        const input = readFileSync(join(directory, "rows"), "utf8");
-        const expected = view.filter(
-          (r) => r.repo === catalog.locations.get(path)!.repo,
-        );
-        assert.ok(expected.length < view.length);
-        const result = await filterInput(input, "'repo with spaces");
-        assert.equal(result.code, 0, result.stderr);
-        assert.deepEqual(
-          result.stdout
-            .trim()
-            .split("\n")
-            .map((line) => line.split("\t")[0]),
-          expected.map((r) => r.id),
-        );
-        const branch = await filterInput(
-          input,
-          "'repo with spaces feature/search",
-        );
-        assert.equal(branch.code, 0, branch.stderr);
-        assert.deepEqual(
-          branch.stdout
-            .trim()
-            .split("\n")
-            .map((line) => line.split("\t")[0]),
-          view.filter((r) => r.path === linked).map((r) => r.id),
-        );
-        const none = await filterInput(
-          input,
-          "'repo with spaces !main !feature/search",
-        );
-        assert.equal(none.code, 0, none.stderr);
-        assert.equal(
-          none.stdout.trim().split("\n").filter(Boolean).length,
-          view === rows ? 1 : 0,
-        );
-        assert.ok(
-          toggleView(directory).includes(
-            filterCommand(join(directory, "rows")),
-          ),
-        );
-      }
-      return { code: 130, stdout: "", stderr: "" };
-    },
-  );
+      assert.ok(expected.length < view.length);
+      const result = await filterInput(input, "'repo with spaces");
+      assert.equal(result.code, 0, result.stderr);
+      assert.deepEqual(
+        result.stdout
+          .trim()
+          .split("\n")
+          .map((line) => line.split("\t")[0]),
+        expected.map((r) => r.id),
+      );
+      const branch = await filterInput(
+        input,
+        "'repo with spaces feature/search",
+      );
+      assert.equal(branch.code, 0, branch.stderr);
+      assert.deepEqual(
+        branch.stdout
+          .trim()
+          .split("\n")
+          .map((line) => line.split("\t")[0]),
+        view.filter((r) => r.path === linked).map((r) => r.id),
+      );
+      const none = await filterInput(
+        input,
+        "'repo with spaces !main !feature/search",
+      );
+      assert.equal(none.code, 0, none.stderr);
+      assert.equal(
+        none.stdout.trim().split("\n").filter(Boolean).length,
+        view === rows ? 1 : 0,
+      );
+      assert.ok(
+        toggleView(directory).includes(filterCommand(join(directory, "rows"))),
+      );
+    }
+    return { code: 130, stdout: "", stderr: "" };
+  });
   await choose(rows, false, undefined, new Promise<void>(() => {}), agents);
 });
 
@@ -2696,6 +2825,41 @@ test("filter ignores inherited UI options and treats queries as data", async () 
   assert.equal(result.code, 0, result.stderr);
   assert.equal(result.stdout, input);
   assert.ok(!existsSync(join(root, "injected")));
+});
+
+test("jump finds the best match, cycles n/N with wrap-around and stays inert outside jump mode", async () => {
+  const path = join(root, "jump rows");
+  writeFileSync(
+    path,
+    ["alpha", "beta", "alphabet", "gamma"]
+      .map((n, i) => `id${i}\t${n}\t${n}\n`)
+      .join(""),
+  );
+  const jump = async (
+    which: "first" | "next" | "prev",
+    query: string,
+    pos: number,
+    prompt = "/ ",
+  ) =>
+    (
+      await realCapture([
+        "env",
+        `FZF_PROMPT=${prompt}`,
+        `FZF_QUERY=${query}`,
+        `FZF_POS=${pos}`,
+        "bash",
+        "--noprofile",
+        "--norc",
+        "-c",
+        jumpCommand(path, which),
+      ])
+    ).stdout.trim();
+  assert.equal(await jump("first", "bet", 1), "pos(2)");
+  assert.equal(await jump("next", "alp", 1), "pos(3)");
+  assert.equal(await jump("next", "alp", 3), "pos(1)");
+  assert.equal(await jump("prev", "alp", 1), "pos(3)");
+  assert.equal(await jump("first", "zzz", 1), "");
+  assert.equal(await jump("first", "bet", 1, "? "), "");
 });
 
 test("filter reports missing row files rather than treating them as no matches", async () => {
@@ -2843,7 +3007,10 @@ test("PR lookup batches worktrees and fork parents, matching both repository and
   assert.equal(row.pullRequests![0].repository, "upstream/repo");
   assert.match(renderRow(row), / #42/);
   assert.match(renderRow(row, false), /^  ├─  #42 local-name/);
-  assert.match(rowPreview(row), /https:\/\/github.com\/upstream\/repo\/pull\/42/);
+  assert.match(
+    rowPreview(row),
+    /https:\/\/github.com\/upstream\/repo\/pull\/42/,
+  );
   assert.doesNotMatch(rowPreview(row), /[\x1b\x07]/);
   assert.deepEqual(
     catalog.rows.find((r) => r.kind === "worktree" && r.branch === "main")!
@@ -2932,9 +3099,16 @@ test("metadata refreshes replace preview data instead of appending stale text", 
   const { catalog } = await githubCatalog();
   const row = catalog.rows.find((r) => r.kind === "worktree")!;
   for (const number of [1, 2]) {
-    fake.githubResponses = [{ data: { repository: {
-      nameWithOwner: "owner/repo", b0: connection([pr(number)]),
-    } } }];
+    fake.githubResponses = [
+      {
+        data: {
+          repository: {
+            nameWithOwner: "owner/repo",
+            b0: connection([pr(number)]),
+          },
+        },
+      },
+    ];
     await loadGithub(catalog.repos, catalog.rows);
     assert.equal([...rowPreview(row).matchAll(/GitHub:/g)].length, 1);
     assert.match(rowPreview(row), new RegExp("PR #" + number));
@@ -3103,10 +3277,14 @@ test("fzf picker does not open a preview pane", async () => {
       },
     ],
   });
-  mock.method(commands, "capture", async (args: string[], options?: CommandOptions) => {
-    if (args[0] === "fzf") assert.ok(!args.includes("--preview"));
-    return fake.capture(args, options);
-  });
+  mock.method(
+    commands,
+    "capture",
+    async (args: string[], options?: CommandOptions) => {
+      if (args[0] === "fzf") assert.ok(!args.includes("--preview"));
+      return fake.capture(args, options);
+    },
+  );
   fake.picks = [["", row.id]];
   assert.equal((await choose([row]))[1], row);
   assert.ok(!fake.calls.some((c) => c[0] === "gh"));
@@ -3255,8 +3433,9 @@ for (const cancel of [false, true]) {
     { timeout: 5000 },
     async () => {
       const { path } = await githubCatalog();
-      await source();
-      fake.sessions.get("source")!.push(pane(2, path));
+      const name = await newSessionName(path);
+      await source(name);
+      fake.sessions.get(name)!.push(pane(2, path));
       let opened = false,
         cancelled = false,
         started!: () => void;
@@ -3317,23 +3496,35 @@ test("Ctrl-R cancels the old enrichment before starting another catalog", async 
   await source();
   const signals: AbortSignal[] = [];
   let started!: () => void;
-  let querying = new Promise<void>((resolve) => { started = resolve; });
-  mock.method(commands, "capture", async (args: string[], options?: CommandOptions) => {
-    if (args[0] === "gh") {
-      const signal = options!.signal!;
-      assert.ok(signals.every((previous) => previous.aborted));
-      signals.push(signal);
-      started();
-      return new Promise<CommandResult>((resolve) => {
-        signal.addEventListener("abort", () => resolve({ code: 1, stdout: "", stderr: "cancelled" }), { once: true });
-      });
-    }
-    if (args[0] === "fzf") {
-      await querying;
-      querying = new Promise<void>((resolve) => { started = resolve; });
-    }
-    return fake.capture(args, options);
+  let querying = new Promise<void>((resolve) => {
+    started = resolve;
   });
+  mock.method(
+    commands,
+    "capture",
+    async (args: string[], options?: CommandOptions) => {
+      if (args[0] === "gh") {
+        const signal = options!.signal!;
+        assert.ok(signals.every((previous) => previous.aborted));
+        signals.push(signal);
+        started();
+        return new Promise<CommandResult>((resolve) => {
+          signal.addEventListener(
+            "abort",
+            () => resolve({ code: 1, stdout: "", stderr: "cancelled" }),
+            { once: true },
+          );
+        });
+      }
+      if (args[0] === "fzf") {
+        await querying;
+        querying = new Promise<void>((resolve) => {
+          started = resolve;
+        });
+      }
+      return fake.capture(args, options);
+    },
+  );
   fake.picks = [["ctrl-r", "⎇ main"], null];
   await main([]);
   assert.equal(signals.length, 2);
@@ -3356,8 +3547,9 @@ test("plain list remains offline and GitHub failure does not prevent exact navig
   mock.method(console, "log", () => {});
   await main(["--list"]);
   assert.ok(!fake.calls.some((c) => c[0] === "gh"));
-  await source();
-  fake.sessions.get("source")!.push(pane(2, path));
+  const name = await newSessionName(path);
+  await source(name);
+  fake.sessions.get(name)!.push(pane(2, path));
   fake.githubResponses = [null];
   let failed!: () => void;
   const failure = new Promise<void>((resolve) => {

@@ -100,6 +100,49 @@ in
             exec wl-mirror --fullscreen-output "$focused" "$other"
           '';
         };
+        # scratch-niri <app_id> <cmd...>: toggle a nirius scratchpad, spawning it
+        # if missing. Restored from before the mango migration (6d950db8f).
+        scratch-niri = pkgs.writeShellApplication {
+          name = "scratch-niri";
+          runtimeInputs = [
+            pkgs.jq
+            pkgs.nirius
+            pkgs.coreutils
+            inputs'.niri.packages.niri-unstable
+          ];
+          text = # bash
+            ''
+              app_id=$1
+              shift
+              spawn_cmd=("$@")
+
+              find_window() { niri msg -j windows | jq -r --arg a "$app_id" 'first(.[] | select(.app_id == $a) | .id) // empty'; }
+              window_id=$(find_window)
+
+              if [ -z "$window_id" ]; then
+                # spawn via niri so the app gets niri's environment (fish), not ours
+                niri msg action spawn -- "''${spawn_cmd[@]}"
+                # poll: cold-start can exceed any fixed sleep,
+                # and nirius is a no-op when no window matches yet
+                for _ in $(seq 1 50); do
+                  window_id=$(find_window)
+                  [ -n "$window_id" ] && break
+                  sleep 0.1
+                done
+                # move window onto scratchpad workspace + mark it as scratchpad,
+                # so scratchpad-show below (and on next invocations) can toggle cleanly
+                nirius scratchpad-toggle -a "^$app_id$"
+              fi
+
+              # niriusd forgets scratchpads when it restarts: re-register, then show
+              nirius scratchpad-show -a "^$app_id$" || {
+                nirius scratchpad-toggle -a "^$app_id$"
+                nirius scratchpad-show -a "^$app_id$"
+              }
+              niri msg action set-window-height --id "$window_id" 88%
+              niri msg action set-window-width --id "$window_id" 88%
+            '';
+        };
       in
       {
         imports = [
@@ -117,7 +160,24 @@ in
         home.packages = with pkgs; [
           xwayland-satellite
           wl-mirror
+          nirius
+          scratch-niri
         ];
+
+        # Bound to niri.service (not graphical-session.target) so it never
+        # starts under mango, and restarts if it crashes.
+        systemd.user.services.niriusd = {
+          Unit = {
+            Description = "nirius daemon";
+            After = [ "niri.service" ];
+            PartOf = [ "niri.service" ];
+          };
+          Service = {
+            ExecStart = "${pkgs.nirius}/bin/niriusd";
+            Restart = "on-failure";
+          };
+          Install.WantedBy = [ "niri.service" ];
+        };
 
         xdg.desktopEntries.mirror = {
           name = "Mirror Screen";

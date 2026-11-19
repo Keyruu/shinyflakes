@@ -172,6 +172,27 @@ grep -q 'no exact coordinator transcript recorded' "$tmp/err"
 if run open "$first" >"$tmp/out" 2>"$tmp/err"; then echo 'open restored a closed conversation' >&2; exit 1; fi
 grep -q 'workspace closed; use resume' "$tmp/err"
 [ "$(grep -c '^initial-layout ' "$tmp/calls")" -eq 2 ]
+
+# Claude tasks share the workspace layout but have no herd marker or review coordinator.
+printf '[]\n' >"$tmp/panes.json"
+run new claudy --agent claude --request 'Claude once' --model opus >"$tmp/out"
+claudy_id=$(jq -r --arg root "$root.worktrees/claudy" 'select(.root == $root) | .id' "$state"/*.json)
+jq -e '.agent == "claude" and .piLaunch == false' "$state/$claudy_id.json" >/dev/null
+grep -q '"claude" "--session-id" "[0-9a-f-]*" "--model" "opus" "--" "Claude once"' "$tmp/calls"
+export ZELLIJ_SESSION_NAME=$(jq -r '.session' "$state/$claudy_id.json")
+focused=$(grep -c '^focus-pane-id ' "$tmp/calls")
+run resume claudy >"$tmp/out"
+# Zellij resurrection swaps the pane command for the hook-registered resume command.
+jq 'map(if (.terminal_command | test(" claude ")) then .terminal_command = "claude --resume abc" else . end)' "$tmp/panes.json" >"$tmp/panes.next"
+mv "$tmp/panes.next" "$tmp/panes.json"
+run resume claudy >"$tmp/out"
+[ "$(grep -c '^focus-pane-id ' "$tmp/calls")" -eq $((focused + 2)) ]
+jq 'map(select(.terminal_command != "claude --resume abc"))' "$tmp/panes.json" >"$tmp/panes.next"
+mv "$tmp/panes.next" "$tmp/panes.json"
+if run resume claudy >"$tmp/out" 2>"$tmp/err"; then echo 'missing Claude pane resumed' >&2; exit 1; fi
+grep -q 'Claude pane missing.*claude --resume' "$tmp/err"
+if run new bad --agent codex >"$tmp/out" 2>"$tmp/err"; then exit 1; fi
+grep -q 'agent must be pi or claude' "$tmp/err"
 printf 'pi-task resume fixture: OK\n'
 
 # Presentation tests stay inside the stub; exited sessions restore through native attach/switch.

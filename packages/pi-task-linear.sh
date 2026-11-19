@@ -110,4 +110,4 @@ request=$(jq -r --argjson index "$index" '.[$index]
 rm -rf -- "$tmp"
 trap - EXIT
 unset PI_LINEAR_PREVIEWS
-exec pi-task new "$name" --request "$request" --model qwen-token-plan/glm-5.3 "${args[@]}"
+exec agent-task new "$name" --request "$request" --model qwen-token-plan/glm-5.3 "${args[@]}"

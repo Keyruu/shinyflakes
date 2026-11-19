@@ -38,7 +38,8 @@
           scale = 1.0;
         };
         work = {
-          criteria = "LG Electronics LG ULTRAFINE 509NTFASR003";
+          # glob: hot desks have different UltraFine units (serials differ)
+          criteria = "LG Electronics LG ULTRAFINE *";
           mode = "3840x2160@59.997";
           scale = 1.4;
         };

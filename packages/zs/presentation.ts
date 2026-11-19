@@ -158,6 +158,7 @@ export function renderRow(row: Row, color = !process.env.NO_COLOR): string {
     paint(`${!badges && icon ? icon + " " : ""}${name}`, nameStyle) +
     state +
     activity +
-    context
+    context +
+    (row.display.repo ? paint(`  ${row.display.repo}`, "90") : "")
   );
 }

@@ -141,7 +141,8 @@
           libreoffice-qt
           blender
           inkscape
-          bambu-studio
+          # prebuilt AppImage; the nixpkgs build is unfree and so never substituted
+          self'.packages.bambu-studio
 
           # cli apps
           glow # render markdown on the cli

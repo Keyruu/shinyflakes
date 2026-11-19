@@ -3,7 +3,13 @@ import type { CommandOptions } from "./commands.ts";
 import { clean, object, json, compare } from "./text.ts";
 import { githubRepository, loadGithub, pullRequestPreview } from "./github.ts";
 import type { GithubMetadata, PullRequest } from "./github.ts";
-import { attention, dmenuLabel, renderRow, rowLabel, rowPreview } from "./presentation.ts";
+import {
+  attention,
+  dmenuLabel,
+  renderRow,
+  rowLabel,
+  rowPreview,
+} from "./presentation.ts";
 import type { Attention } from "./presentation.ts";
 import { createHash } from "node:crypto";
 import {
@@ -175,7 +181,13 @@ export interface Row {
   identity?: PaneIdentity;
   marker?: MarkerIdentity;
   title?: string;
-  display?: { prefix: string; name: string; detail: string; context?: string };
+  display?: {
+    prefix: string;
+    name: string;
+    detail: string;
+    context?: string;
+    repo?: string;
+  };
   pullRequests?: PullRequest[];
   worktree?: string[];
   search?: string;
@@ -488,7 +500,6 @@ export class Catalog {
   repos = new Map<string, Repo>();
   locations = new Map<string, Location>();
   targets: Target[] = [];
-  paneTargets: Target[] = [];
   rows: Row[] = [];
   gitCache = new Map<string, string | null>();
 
@@ -657,7 +668,6 @@ export class Catalog {
           };
           target.title = `Pi · ${pane.tab_name || pane.title || marker.pid}`;
         }
-        this.paneTargets.push(target);
         const group = key(root, session, pane.tab_id);
         grouped.set(group, [...(grouped.get(group) ?? []), target]);
       }
@@ -672,20 +682,6 @@ export class Catalog {
     }
     this.buildRows();
     return this;
-  }
-
-  workspacePanes(row: Row): Row[] {
-    // Include editor/shell-only sessions even when ordinary panes are hidden from the tree.
-    return this.paneTargets
-      .filter(
-        (t) =>
-          (!row.session || t.session === row.session) &&
-          (row.path ? t.path === row.path : Boolean(row.session)),
-      )
-      .map((t): Row => ({
-        ...t,
-        id: key(t.kind, t.path, t.session, t.pane),
-      }));
   }
 
   agentRows(): Row[] {
@@ -713,16 +709,20 @@ export class Catalog {
   }
 
   addRow(kind: Row["kind"], data: Omit<Row, "id" | "kind">): Row {
-    const row = { ...data, kind, id: key(kind, data.path, data.session, data.pane) };
+    const row = {
+      ...data,
+      kind,
+      id: key(kind, data.path, data.session, data.pane),
+    };
     this.rows.push(row);
     return row;
   }
-  savedSession(root: string): string | undefined {
+  projectSession(root: string): string | undefined {
     const name = sessionNameForLocation(this, root);
-    // A readable name is only an association when it identifies one known checkout.
-    return this.locations.get(root)?.repo &&
-      this.sessions.get(name) === null &&
-      this.resurrectable.has(name) &&
+    // Pane paths describe work, not session ownership; names must identify one known checkout.
+    return this.sessions.has(name) &&
+      (this.sessions.get(name) !== null ||
+        (this.locations.get(root)?.repo && this.resurrectable.has(name))) &&
       [...this.locations.keys()].filter(
         (path) => sessionNameForLocation(this, path) === name,
       ).length === 1
@@ -734,23 +734,35 @@ export class Catalog {
     this.rows = [];
     const summary = (targets: Target[]) => {
       const target = [...targets].sort((a, b) => b.rank - a.rank)[0];
-      return { activity: target?.activity, rank: target?.rank ?? 0, open: targets.length > 0 };
+      return {
+        activity: target?.activity,
+        rank: target?.rank ?? 0,
+      };
     };
     const locationRows = (root: string, prefix: string, context: string) => {
       const loc = this.locations.get(root)!;
       const targets = this.targets.filter((target) => target.path === root);
-      const savedSession = this.savedSession(root);
+      const session = this.projectSession(root);
+      const savedSession =
+        session && this.sessions.get(session) === null ? session : undefined;
       const search = loc.repo ? `${context} ${loc.branch}` : root;
       this.addRow(loc.repo ? "worktree" : "directory", {
         ...loc,
         ...summary(targets),
+        open: session !== undefined && this.sessions.get(session) !== null,
         savedSession,
         search,
-        sessions: [...new Set([...targets.map((target) => target.session), ...(savedSession ? [savedSession] : [])])],
-        display: { prefix, name: loc.repo ? loc.branch : root, detail: `${context} · ${root}` },
+        sessions: session ? [session] : [],
+        display: {
+          prefix,
+          name: loc.repo ? loc.branch : root,
+          detail: `${context} · ${root}`,
+          repo: loc.repo ? context : undefined,
+        },
       });
-      for (const target of targets.sort((a, b) =>
-        compare(a.session, b.session) || a.tab - b.tab || a.pane - b.pane,
+      for (const target of targets.sort(
+        (a, b) =>
+          compare(a.session, b.session) || a.tab - b.tab || a.pane - b.pane,
       )) {
         this.addRow(target.kind, {
           ...target,
@@ -762,6 +774,7 @@ export class Catalog {
             name: target.title,
             detail: `Pane ${target.pane}`,
             context: `${context} / ${loc.branch} · ${target.session} / p${target.pane}`,
+            repo: loc.repo ? context : undefined,
           },
         });
       }
@@ -772,27 +785,45 @@ export class Catalog {
       this.addRow("repo", {
         path: repo.path,
         repo: common,
-        ...summary(this.targets.filter((target) => target.path && repo.trees.includes(target.path))),
+        ...summary(
+          this.targets.filter(
+            (target) => target.path && repo.trees.includes(target.path),
+          ),
+        ),
+        open: repo.trees.some((root) => {
+          const session = this.projectSession(root);
+          return session !== undefined && this.sessions.get(session) !== null;
+        }),
         display: { prefix: "", name: repo.name, detail: repo.path },
       });
       for (const root of repo.trees) locationRows(root, "  ├─ ", repo.name);
     }
-    for (const [root, loc] of [...this.locations].sort((a, b) => compare(a[0], b[0]))) {
+    for (const [root, loc] of [...this.locations].sort((a, b) =>
+      compare(a[0], b[0]),
+    )) {
       if (loc.repo === null) locationRows(root, "▸ ", "Directories");
     }
-    const mapped = new Set(this.targets.filter((target) => target.path).map((target) => target.session));
-    for (const row of this.rows) if (row.savedSession) mapped.add(row.savedSession);
-    const unmapped = new Set(this.targets.filter((target) => !target.path).map((target) => target.session));
-    for (const [session, entries] of [...this.sessions].sort((a, b) => compare(a[0], b[0]))) {
+    const mapped = new Set(this.rows.flatMap((row) => row.sessions ?? []));
+    const unmapped = new Set(
+      this.targets
+        .filter((target) => !target.path)
+        .map((target) => target.session),
+    );
+    for (const [session, entries] of [...this.sessions].sort((a, b) =>
+      compare(a[0], b[0]),
+    )) {
       if (mapped.has(session) && !unmapped.has(session)) continue;
       const saved = entries === null && this.resurrectable.has(session);
       this.addRow("session", {
         session,
-        status: entries !== null ? "live" : saved ? "♻ resurrectable" : "unavailable",
+        status:
+          entries !== null ? "live" : saved ? "♻ resurrectable" : "unavailable",
         open: entries !== null ? true : saved ? false : undefined,
         display: { prefix: "▸ ", name: session, detail: "Other sessions" },
       });
-      for (const target of this.targets.filter((target) => target.session === session && !target.path)) {
+      for (const target of this.targets.filter(
+        (target) => target.session === session && !target.path,
+      )) {
         this.addRow(target.kind, {
           ...target,
           open: true,
@@ -871,7 +902,9 @@ export function filterCommand(input: string): string {
   // Open first so an input-file error cannot masquerade as fzf's no-matches exit code.
   // Re-rank only rows whose repository name matches; the empty query keeps attention order.
   return (
-    `unset FZF_DEFAULT_OPTS FZF_DEFAULT_OPTS_FILE; exec 3< ${quote(input)} || exit 2; query={q}; ` +
+    // Jump mode ("/ " prompt) keeps the whole tree; only jumpCommand reads its query.
+    `unset FZF_DEFAULT_OPTS FZF_DEFAULT_OPTS_FILE; exec 3< ${quote(input)} || exit 2; query=$FZF_QUERY; ` +
+    `if [ "$FZF_PROMPT" = '/ ' ]; then query=; fi; ` +
     `matches=$(fzf --tiebreak=index --delimiter='\\t' --nth=3 --filter="$query" <&3); result=$?; ` +
     `if [ "$result" -eq 1 ]; then exit 0; fi; [ "$result" -eq 0 ] || exit "$result"; ` +
     `if [ -z "$query" ]; then printf '%s\\n' "$matches"; exit 0; fi; ` +
@@ -880,6 +913,37 @@ export function filterCommand(input: string): string {
     `{ [ -z "$preferred" ] || printf '%s\\n' "$preferred"; printf '%s\\n' "$matches"; } | awk -F '\\t' '!seen[$1]++'`
   );
 }
+
+// Vim-style search: print pos() of the best match ("first") or the next/previous match after the cursor.
+// shortcut: ignores filterCommand's repository-name preference, add it if jumps land on the wrong repo.
+export function jumpCommand(
+  input: string,
+  which: "first" | "next" | "prev",
+): string {
+  const pick = {
+    first: "head -n1",
+    next: `sort -n | awk -v p="$FZF_POS" 'NR == 1 { f = $1 } !r && $1 > p { r = $1 } END { if (NR) print r ? r : f }'`,
+    prev: `sort -n | awk -v p="$FZF_POS" '$1 < p { r = $1 } { l = $1 } END { if (NR) print r ? r : l }'`,
+  }[which];
+  return (
+    `unset FZF_DEFAULT_OPTS FZF_DEFAULT_OPTS_FILE; [ "$FZF_PROMPT" = '/ ' ] && [ -n "$FZF_QUERY" ] || exit 0; ` +
+    `exec 3< ${quote(input)} || exit 2; ` +
+    `line=$(awk '{ print NR "\t" $0 }' <&3 | fzf --tiebreak=index --delimiter='\t' --nth=4 --filter="$FZF_QUERY" | cut -f1 | ${pick}); ` +
+    `[ -z "$line" ] || echo "pos($line)"`
+  );
+}
+
+const browseKeys = "j,k,g,G,n,N,/,?";
+const browse = `hide-input+rebind(${browseKeys})`;
+const search = (mode: "/" | "?") =>
+  `change-prompt(${mode} )+show-input+clear-query+unbind(${browseKeys})`;
+// Enter leaves jump mode like Vim's / and keeps the query for n/N; Esc clears it and only aborts from browse mode.
+const enterAction = `[ "$FZF_INPUT_STATE" != hidden ] && [ "$FZF_PROMPT" = '/ ' ] && echo '${browse}' || echo accept`;
+// fzf ignores clear-query emitted by transform, so it runs statically first;
+// it does not fire change either, so leaving a filter reloads the full list itself.
+const escAction = (input: string) =>
+  `clear-query+transform:if [ "$FZF_INPUT_STATE" = hidden ]; then echo abort; ` +
+  `elif [ "$FZF_PROMPT" = '? ' ]; then echo ${quote(`${browse}+reload-sync:FZF_QUERY=; ${filterCommand(input)}`)}; else echo '${browse}'; fi`;
 
 export function toggleView(directory: string): string {
   const input = join(directory, "rows"),
@@ -892,7 +956,7 @@ export function toggleView(directory: string): string {
   rmSync(pending, { force: true });
   symlinkSync(next, pending);
   renameSync(pending, input);
-  return `change-prompt(${next === "agents" ? "Agents" : "Tree"} > )+reload-sync:${filterCommand(input)}`;
+  return `change-header(${next === "agents" ? "Agents" : "Tree"})+reload-sync:${filterCommand(input)}`;
 }
 
 export async function choose<T extends Choice | Row>(
@@ -905,10 +969,7 @@ export async function choose<T extends Choice | Row>(
   if (!rows.length) return ["cancel", undefined];
   if (dmenu) {
     const labels = new Map(
-      rows.map((row, i) => [
-        `${i + 1}. ${dmenuLabel(row)}`,
-        row,
-      ]),
+      rows.map((row, i) => [`${i + 1}. ${dmenuLabel(row)}`, row]),
     );
     const selected = await run(
       [
@@ -1002,16 +1063,33 @@ export async function choose<T extends Choice | Row>(
         "--with-nth={2}",
         "--disabled",
         "--with-shell=bash --noprofile --norc -c",
-        `--prompt=${agents ? "Tree > " : prompt}`,
+        "--prompt=/ ",
         ...(refresh ? [`--listen=${socket}`] : []),
-        ...(refresh || agents ? ["--track", "--id-nth=1"] : []),
+        // Keeps the cursor on its row across filter clears and metadata reloads.
+        "--track",
+        "--id-nth=1",
         ...(agents ? ["--bind", `tab:transform:${toggle}`] : []),
         "--bind",
-        `start:reload-sync:${filterCommand(inputFile)}`,
+        "j:down,k:up,g:first,G:last",
         "--bind",
-        `change:reload-sync:${filterCommand(inputFile)}`,
+        `/:${search("/")},?:${search("?")}`,
+        "--bind",
+        `n:transform:${jumpCommand(inputFile, "next")}`,
+        "--bind",
+        `N:transform:${jumpCommand(inputFile, "prev")}`,
+        "--bind",
+        `enter:transform:${enterAction}`,
+        "--bind",
+        `esc:${escAction(inputFile)}`,
+        "--bind",
+        // Opens in jump mode: typing searches right away, Esc drops to browse keys.
+        `start:unbind(${browseKeys})+reload-sync:${filterCommand(inputFile)}`,
+        "--bind",
+        // No reload while jumping: --id-nth tracking would restore the old row after pos().
+        `change:transform:if [ "$FZF_PROMPT" = '/ ' ]; then ${jumpCommand(inputFile, "first")}; else echo ${quote(`reload-sync:${filterCommand(inputFile)}`)}; fi`,
         "--expect=ctrl-r,ctrl-d,ctrl-x",
-        `--header=Enter open${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh · Ctrl-D kill / delete saved session · Ctrl-X remove worktree · Esc back`,
+        `--header=${agents ? "Tree" : prompt.replace(/ > $/, "")}`,
+        `--footer=Enter open · j/k move · / jump · n/N next/prev · ? filter${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh · Ctrl-D kill / delete saved session · Ctrl-X remove worktree · Esc back`,
       ],
       { input: input(), cancel: true, timeout: 0 },
     );
@@ -1128,7 +1206,11 @@ export type Destination =
 
 export async function resolveDestination(row: Row): Promise<Destination> {
   if (row.session !== undefined) {
-    if (row.kind === "session" && row.pane === undefined && await panes(row.session) === null) {
+    if (
+      row.kind === "session" &&
+      row.pane === undefined &&
+      (await panes(row.session)) === null
+    ) {
       if (!(await resurrectableSessions()).has(row.session))
         throw new PickerError(
           "Session is unavailable and not confirmed as resurrectable; refresh the picker",
@@ -1158,16 +1240,22 @@ export async function resolveDestination(row: Row): Promise<Destination> {
     return { kind: "create", session, path: row.path };
 
   // Discovery and navigation must consider the same cross-repository collisions.
+  if (!root) {
+    const path = canonical(row.path);
+    fresh.locations.set(path, { path, repo: null, branch: "directory" });
+  }
   await fresh.discover();
-  if (
-    row.kind !== "worktree" ||
-    !row.repo ||
-    !row.worktree ||
-    !root ||
-    fresh.savedSession(root) !== session
-  )
+  if (fresh.projectSession(root ?? canonical(row.path)) !== session)
     throw new PickerError(
       "A session already uses this checkout name or its name is ambiguous; refresh instead of overwriting it",
+    );
+  if (fresh.sessions.get(session) !== null) {
+    await selectedPane({ session });
+    return { kind: "existing", session };
+  }
+  if (row.kind !== "worktree" || !row.repo || !row.worktree)
+    throw new PickerError(
+      "Cannot verify saved session ownership; refresh the picker",
     );
   return { kind: "resurrect", session };
 }
@@ -1204,14 +1292,15 @@ export async function navigation(
       if (row.pane !== undefined)
         await action(origin, ["focus-pane-id", `terminal_${row.pane}`]);
     } else {
-      const options = destination.kind === "create"
-        ? ["--cwd", destination.path, "--layout", "project"]
-        : [];
+      const options =
+        destination.kind === "create"
+          ? ["--cwd", destination.path, "--layout", "project"]
+          : [];
       if (row.pane !== undefined)
         options.push("--pane-id", `terminal_${row.pane}`);
       await action(origin, ["switch-session", ...options, "--", session]);
     }
-    recordVisit(row);
+    recordVisit({ ...row, session });
     return;
   }
   const env = { ...process.env };
@@ -1224,14 +1313,15 @@ export async function navigation(
     "PI_TASK_SHARED",
   ])
     delete env[name];
-  let command = destination.kind === "create"
-    ? [
-        "zellij",
-        `--session=${session}`,
-        "--new-session-with-layout",
-        "project",
-      ]
-    : ["zellij", "attach", session];
+  let command =
+    destination.kind === "create"
+      ? [
+          "zellij",
+          `--session=${session}`,
+          "--new-session-with-layout",
+          "project",
+        ]
+      : ["zellij", "attach", session];
   if (dmenu)
     command = ["kitty", "--directory", row.path || process.cwd(), ...command];
   const previousClients = new Set(
@@ -1258,12 +1348,9 @@ export async function navigation(
         if (attached) {
           if (row.pane !== undefined) {
             await selectedPane(row);
-            await action(session, [
-              "focus-pane-id",
-              `terminal_${row.pane}`,
-            ]);
+            await action(session, ["focus-pane-id", `terminal_${row.pane}`]);
           }
-          recordVisit(row);
+          recordVisit({ ...row, session });
           break;
         }
       }
@@ -1417,17 +1504,13 @@ export async function deleteSession(
 ): Promise<void> {
   const names = [
     ...new Set(
-      catalog.rows
-        .filter((r) =>
-          row.session
-            ? r.session === row.session
-            : row.kind === "repo"
-              ? r.repo === row.repo
-              : r.path === row.path,
-        )
-        .flatMap((r) =>
-          [r.session, r.savedSession].filter((name): name is string => !!name),
-        ),
+      row.session
+        ? [row.session]
+        : row.kind === "repo"
+          ? catalog.rows
+              .filter((r) => r.kind === "worktree" && r.repo === row.repo)
+              .flatMap((r) => r.sessions ?? [])
+          : (row.sessions ?? []),
     ),
   ].sort(compare);
   if (!names.length)
@@ -1549,10 +1632,14 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
       }
       githubController = new AbortController();
       const signal = githubController.signal;
-      github = loadGithub(catalog.repos, catalog.rows, signal).catch((error) => {
-        if (!signal.aborted && !interrupted)
-          console.error(`zs: PR metadata unavailable: ${clean(error.message)}`);
-      });
+      github = loadGithub(catalog.repos, catalog.rows, signal).catch(
+        (error) => {
+          if (!signal.aborted && !interrupted)
+            console.error(
+              `zs: PR metadata unavailable: ${clean(error.message)}`,
+            );
+        },
+      );
       if (values.dmenu) await github;
       checkInterrupt();
       const overview = values.dmenu
@@ -1598,42 +1685,6 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
             overview.filter((r) => r.repo === row!.repo && r.kind !== "repo"),
           );
           continue;
-        }
-        if (
-          row.kind === "worktree" ||
-          row.kind === "directory" ||
-          row.kind === "session"
-        ) {
-          const targets = catalog.workspacePanes(row);
-          const sessions = [...new Set(targets.map((t) => t.session!))];
-          if (sessions.length > 1) {
-            drill(
-              orderRows(
-                sessions.map((session): Row => {
-                  const summary = targets
-                    .filter((t) => t.session === session)
-                    .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))[0];
-                  return {
-                    id: key("session", row!.path, session),
-                    kind: "session",
-                    session,
-                    path: row!.path,
-                    repo: row!.repo,
-                    rank: summary.rank,
-                    activity: summary.activity,
-                    open: true,
-                    display: {
-                      prefix: "",
-                      name: session,
-                      detail: row!.path ?? "Other sessions",
-                    },
-                  };
-                }),
-              ),
-            );
-            continue;
-          }
-          if (sessions.length === 1) row = { ...row, session: sessions[0] };
         }
         await navigation(row, source, values.dmenu);
         return;

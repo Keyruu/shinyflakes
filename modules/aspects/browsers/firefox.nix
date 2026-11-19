@@ -40,6 +40,8 @@
           # UX noise
           "accessibility.typeaheadfind.enablesound" = false;
           "general.autoScroll" = true;
+          # Don't pop up the menu bar when Alt is tapped alone
+          "ui.key.menuAccessKeyFocuses" = false;
           # Privacy
           "privacy.donottrackheader.enabled" = true;
           "privacy.trackingprotection.enabled" = true;
