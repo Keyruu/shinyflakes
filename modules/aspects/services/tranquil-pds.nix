@@ -37,7 +37,9 @@
           };
         };
 
-        systemd.tmpfiles.rules = [ "d /var/lib/tranquil-pds/pg 0700 root root -" ];
+        # uid/gid 70 = postgres in alpine images; the entrypoint drops to it
+        # before creating $PGDATA, so a root-owned dir makes it fail.
+        systemd.tmpfiles.rules = [ "d /var/lib/tranquil-pds/pg 0700 70 70 -" ];
 
         services.my.tranquil-pds = {
           port = 2583;
@@ -115,10 +117,10 @@
           requires = [ "tranquil-pds-db.service" ];
         };
 
-        # No WAF in front: the OWASP CRS rules false-positive on xrpc JSON
-        # bodies and break federation. DNS-only (no CF proxy) for the same
-        # reason — the edge caps uploads and cuts firehose subscriptions.
+        # No WAF: the OWASP CRS rules false-positive on xrpc JSON bodies and
+        # break federation. cloudflare-only matches the proxied DNS record.
         services.caddy.virtualHosts."${my.domain}".extraConfig = ''
+          import cloudflare-only
           reverse_proxy 127.0.0.1:${toString my.port}
         '';
       };

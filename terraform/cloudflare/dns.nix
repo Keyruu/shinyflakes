@@ -32,7 +32,7 @@
         cname = {
           "pds" = {
             content = "sleipnir.keyruu.de";
-            proxied = false;
+            proxied = true;
           };
           "key1._domainkey" = {
             content = "key1.keyruu.de._domainkey.migadu.com";
@@ -95,7 +95,7 @@
           "resend._domainkey.lab".resend-domainkey.content =
             "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCbrRffh6/aF6JKZu50SLBE2fJap8FZUqVgl2ZFrd5H9qm1R36UAB4vnXKTP1FYjxg50uEWzOHeUSylzCHmPJElAl8kC0kdI8z2v7FT3NF8HuX3P3FoeXcibj7ryNWgYbC7MG2yZz4KSLS9cbXzAY8h4BqieW5IlkAYMKIcDgGpRwIDAQAB";
           "send.lab".spf.content = "v=spf1 include:amazonses.com ~all";
-          "_atproto".handle.content = "did=did:plc:gbyjujnzl5n6626nnmzbgly2";
+          "_atproto".handle.content = "did=did:plc:tslldt2xzl33vemmc7ikjtz7";
         };
       };
     };
