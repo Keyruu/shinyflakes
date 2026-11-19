@@ -12,19 +12,32 @@
           tranquilPdsJwtSecret = { };
           tranquilPdsDpopSecret = { };
           tranquilPdsMasterKey = { };
+          tranquilPdsDbPassword = { };
         };
 
-        sops.templates."tranquil-pds.env" = {
-          owner = "tranquil-pds";
-          restartUnits = [ "tranquil-pds.service" ];
-          content = ''
-            JWT_SECRET=${config.sops.placeholder.tranquilPdsJwtSecret}
-            DPOP_SECRET=${config.sops.placeholder.tranquilPdsDpopSecret}
-            MASTER_KEY=${config.sops.placeholder.tranquilPdsMasterKey}
-            MAIL_SMARTHOST_USERNAME=resend
-            MAIL_SMARTHOST_PASSWORD=${config.sops.placeholder.resendApiKey}
-          '';
+        sops.templates = {
+          "tranquil-pds.env" = {
+            owner = "tranquil-pds";
+            restartUnits = [ "tranquil-pds.service" ];
+            content = ''
+              JWT_SECRET=${config.sops.placeholder.tranquilPdsJwtSecret}
+              DPOP_SECRET=${config.sops.placeholder.tranquilPdsDpopSecret}
+              MASTER_KEY=${config.sops.placeholder.tranquilPdsMasterKey}
+              MAIL_SMARTHOST_USERNAME=resend
+              MAIL_SMARTHOST_PASSWORD=${config.sops.placeholder.resendApiKey}
+              DATABASE_URL=postgresql://tranquil-pds:${config.sops.placeholder.tranquilPdsDbPassword}@127.0.0.1:5432/tranquil-pds
+            '';
+          };
+
+          "tranquil-pds-db.env" = {
+            restartUnits = [ "tranquil-pds-db.service" ];
+            content = ''
+              POSTGRES_PASSWORD=${config.sops.placeholder.tranquilPdsDbPassword}
+            '';
+          };
         };
+
+        systemd.tmpfiles.rules = [ "d /var/lib/tranquil-pds/pg 0700 root root -" ];
 
         services.my.tranquil-pds = {
           port = 2583;
@@ -39,7 +52,10 @@
           backup = {
             enable = true;
             paths = [ "/var/lib/tranquil-pds" ];
-            systemd.unit = "tranquil-pds.service";
+            systemd.unit = [
+              "tranquil-pds.service"
+              "tranquil-pds-db.service"
+            ];
           };
         };
 
@@ -58,11 +74,9 @@
               max_blob_size = 1073741824;
             };
 
-            storage.repo_backend = "tranquil-store";
-
-            # 0.8.0 still demands the key even though the embedded backend
-            # never opens a postgres pool (see tranquil-startup/app_state.rs).
-            database.url = "postgresql:///unused";
+            # Password comes from DATABASE_URL in the env file; this value
+            # only satisfies build-time validation (`validate --ignore-secrets`).
+            database.url = "postgresql://tranquil-pds@127.0.0.1:5432/tranquil-pds";
 
             email = {
               from_address = "pds@lab.keyruu.de";
@@ -75,6 +89,30 @@
               };
             };
           };
+        };
+
+        virtualisation.quadlet.containers.tranquil-pds-db = {
+          containerConfig = {
+            image = "docker.io/library/postgres:18-alpine";
+            publishPorts = [ "127.0.0.1:5432:5432" ];
+            # postgres 18 keeps PGDATA under /var/lib/postgresql/<major>/docker
+            volumes = [ "/var/lib/tranquil-pds/pg:/var/lib/postgresql" ];
+            environments = {
+              POSTGRES_DB = "tranquil-pds";
+              POSTGRES_USER = "tranquil-pds";
+            };
+            environmentFiles = [ config.sops.templates."tranquil-pds-db.env".path ];
+            healthCmd = "pg_isready -U tranquil-pds -d tranquil-pds";
+            healthInterval = "10s";
+            healthStartPeriod = "10s";
+            healthRetries = 5;
+            memory = "512m";
+          };
+        };
+
+        systemd.services.tranquil-pds = {
+          after = [ "tranquil-pds-db.service" ];
+          requires = [ "tranquil-pds-db.service" ];
         };
 
         # No WAF in front: the OWASP CRS rules false-positive on xrpc JSON
