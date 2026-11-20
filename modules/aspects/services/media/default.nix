@@ -14,6 +14,7 @@
       den.aspects.services.media.recyclarr
       # Media servers
       den.aspects.services.media.jellyfin
+      den.aspects.services.media.silo
       den.aspects.services.media.navidrome
       # Request management
       den.aspects.services.media.seerr

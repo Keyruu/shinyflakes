@@ -27,6 +27,7 @@ import {
   choose,
   deleteSession,
   filterCommand,
+  postAction,
   jumpCommand,
   hidePicker,
   gitPreview,
@@ -95,6 +96,7 @@ class FakeCLI {
   githubResponses: unknown[] = [];
   calls: string[][] = [];
   picks: ([string, string] | null)[] = [];
+  headers: string[] = [];
   launchHandler?: (args: string[], options: LaunchOptions) => RunningCommand;
 
   async capture(
@@ -180,12 +182,27 @@ class FakeCLI {
       } else stdout = JSON.stringify(response);
     } else if (args[0] === "zoxide") stdout = this.dirs.join("\n");
     else if (["fzf", "vicinae"].includes(args[0])) {
-      const choice = this.picks.shift();
+      let choice = this.picks.shift();
+      // Like fzf's execute binding: the action runs inside the open picker, which then reloads its rows.
+      const listen = args.find((arg) => arg.startsWith("--listen="))?.slice(9);
+      const actions = listen && existsSync(join(dirname(listen), "zs.sock"));
+      const current = () =>
+        actions ? readFileSync(join(dirname(listen), "rows"), "utf8") : options.input!;
+      while (actions && choice && ["ctrl-d", "ctrl-x"].includes(choice[0])) {
+        const [key, substring] = choice;
+        const line = current().split("\n").find((l) => l.includes(substring));
+        assert.ok(line, `No row matching ${substring}: ${current()}`);
+        const socket = join(dirname(listen), "zs.sock");
+        await postAction(socket, `${key}\n${line.split("\t")[0]}`);
+        await postAction(socket, "wait");
+        this.headers.push(readFileSync(join(dirname(listen), "header"), "utf8"));
+        choice = this.picks.shift();
+      }
       if (!choice) code = 130;
       else {
         const [pressed, substring] = choice;
-        const selected = options
-          .input!.split("\n")
+        const selected = current()
+          .split("\n")
           .find((line) => line.includes(substring));
         assert.ok(selected, `No row matching ${substring}: ${options.input}`);
         stdout = (args[0] === "fzf" ? pressed + "\n" : "") + selected + "\n";
@@ -1447,7 +1464,7 @@ test("Tab switches the same picker to flat agents without recording a visit", as
         args[args.indexOf("--bind") + 1],
         /^tab:transform:.*--toggle-view/,
       );
-      assert.ok(args.includes("--expect=ctrl-r,ctrl-d,ctrl-x"));
+      assert.ok(args.includes("--expect=ctrl-r"));
       assert.ok(args.includes("--track") && args.includes("--id-nth=1"));
       const visible = options!
         .input!.split("\n")
@@ -1529,7 +1546,7 @@ test("flat agents are globally attention/recency sorted with checkout context on
   );
   assert.match(
     renderRow(agents.find((row) => row.pane === 8)!),
-    /Unknown checkout · Pane 8/,
+    /two-session · Pane 8/,
   );
   const original = catalog.rows.find((row) => row.id === linkedAgent.id)!;
   assert.equal(original.display!.detail, "Pane 3");
@@ -1616,10 +1633,12 @@ for (const kind of ["main", "linked", "directory"]) {
         catalog.rows.find((r) => r.kind === "repo")?.open,
         kind === "directory" ? undefined : true,
       );
-      assert.ok(
+      // A repo agent is listed under its checkout (no duplicate session row); a non-repo one under its session.
+      assert.equal(
         catalog.rows.some(
           (r) => r.kind === "session" && r.session === "unrelated",
         ),
+        kind === "directory",
       );
       assert.equal(
         catalog.agentRows().find((r) => r.session === "unrelated")!.path,
@@ -1966,7 +1985,7 @@ test("main checkout, locked worktrees and non-worktree rows cannot be removed", 
   assert.deepEqual(removals(), []);
 });
 
-for (const state of ["tracked", "staged", "untracked", "ignored"]) {
+for (const state of ["tracked", "staged", "untracked"]) {
   test(`${state} files prevent worktree removal without force`, async () => {
     const { tree, catalog, row } = await removableWorktree();
     writeFileSync(
@@ -1976,7 +1995,7 @@ for (const state of ["tracked", "staged", "untracked", "ignored"]) {
     if (state === "staged") await git(tree, "add", "tracked");
     await assert.rejects(
       removeWorktree(catalog, row),
-      /changes, untracked or ignored/,
+      /changed or untracked file; nothing removed/,
     );
     assert.equal(
       readFileSync(join(tree, state === "staged" ? "tracked" : state), "utf8"),
@@ -1985,6 +2004,15 @@ for (const state of ["tracked", "staged", "untracked", "ignored"]) {
     assert.deepEqual(removals(), []);
   });
 }
+
+test("ignored files are named in the confirmation and removed with the checkout", async () => {
+  const { tree, catalog, row } = await removableWorktree();
+  writeFileSync(join(tree, "ignored"), "build output\n");
+  // The fake picker only finds the row if the confirmation names what gets deleted.
+  fake.picks = [["", "also deletes ignored: ignored"]];
+  await removeWorktree(catalog, row);
+  assert.ok(!existsSync(tree));
+});
 
 test("caller cwd and immutable task root protect a worktree even outside Zellij", async () => {
   const { tree, catalog, row } = await removableWorktree();
@@ -2032,6 +2060,14 @@ test("uninspectable sessions and unknown live cwd fail closed for worktree remov
     removeWorktree(catalog, row),
     /Cannot verify session occupancy/,
   );
+  // A confirmed saved session has no live panes and must not block removal checks.
+  fake.resurrectable.add("unavailable");
+  fake.sessions.set("unknown", [pane(1, null)]);
+  await assert.rejects(
+    removeWorktree(catalog, row),
+    /Cannot verify a live pane's cwd/,
+  );
+  fake.resurrectable.clear();
   fake.sessions.clear();
   fake.sessions.set("unknown", [pane(1, null)]);
   await assert.rejects(
@@ -2077,7 +2113,7 @@ for (const change of ["dirty", "HEAD", "occupied", "locked", "directory"]) {
     fake.picks = [["", "REMOVE "]];
     await assert.rejects(
       removeWorktree(catalog, row),
-      /changes, untracked or ignored|HEAD changed|occupied|locked|directory changed/,
+      /changed or untracked|HEAD changed|occupied|locked|directory changed/,
     );
     assert.ok(existsSync(tree));
     assert.deepEqual(removals(), []);
@@ -2094,7 +2130,7 @@ test("Ctrl-X removes a worktree then refreshes without deleting its Zellij sessi
   assert.ok(
     fake.calls
       .find((c) => c[0] === "fzf")!
-      .includes("--expect=ctrl-r,ctrl-d,ctrl-x"),
+      .includes("--expect=ctrl-r"),
   );
   assert.ok(fake.sessions.has("source"));
   assert.ok(fake.mutations().every((c) => c.includes("hide-floating-panes")));
@@ -2151,8 +2187,24 @@ test("worktree Ctrl-D twice refreshes into a fresh session without confirmation"
     "--",
     "app",
   ]);
-  assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 3);
+  // Both deletions ran inside the same open picker, which reloaded in place.
+  assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 1);
+  assert.deepEqual(fake.headers, ["Tree", "Tree"]);
   assert.ok(existsSync(path));
+});
+
+test("a refused action shows its reason in the header and keeps the picker open", async () => {
+  await source();
+  const path = await repo("app");
+  fake.dirs = [path];
+  fake.picks = [["ctrl-x", "⎇ main"], ["ctrl-d", "⎇ main"], null];
+  await main([]);
+  assert.deepEqual(fake.headers, [
+    "Tree · Cannot remove the main checkout",
+    "Tree · No existing session belongs to this row",
+  ]);
+  assert.equal(fake.calls.filter((c) => c[0] === "fzf").length, 1);
+  assert.ok(!fake.mutations().some((c) => ["kill-session", "delete-session"].includes(c[1])));
 });
 
 test("repo deletion offers only exact-name project sessions, not agents sharing their cwd", async () => {
@@ -2888,7 +2940,8 @@ test("non-agent failure is not hidden by working agent", async () => {
     new Set([1, 2]),
   );
   assert.match(
-    rowStatus(catalog.rows.find((r) => r.kind === "directory")!),
+    // Non-repo panes group under their session, which surfaces the worst child status.
+    rowStatus(catalog.rows.find((r) => r.kind === "session" && r.session === "mixed")!),
     /failed/,
   );
 });

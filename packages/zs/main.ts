@@ -31,7 +31,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { homedir, tmpdir } from "node:os";
-import { request } from "node:http";
+import { createServer, request } from "node:http";
 import { basename, dirname, isAbsolute, join, resolve, sep } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -296,7 +296,8 @@ export function orderRows(rows: Row[]): Row[] {
       row.kind === "worktree"
         ? repos.get(row.repo)
         : row.kind === "agent" || row.kind === "workspace"
-          ? (locations.get(row.path) ?? sessions.get(row.session))
+          ? ((row.repo ? locations.get(row.path) : undefined) ??
+            sessions.get(row.session))
           : undefined;
     (parent ? parent.children : roots).push(group);
   }
@@ -635,15 +636,8 @@ export class Catalog {
         const path =
           marker?.taskRoot || taskRoot(pane) || marker?.cwd || pane.pane_cwd;
         let root = await this.locate(path);
-        if (root === null && isDirectory(path)) {
-          root = canonical(path);
-          if (!this.locations.has(root))
-            this.locations.set(root, {
-              path: root,
-              repo: null,
-              branch: "directory",
-            });
-        }
+        // A non-repo cwd is not a project: the pane lists under its session, without adding a directory row.
+        if (root === null && isDirectory(path)) root = canonical(path);
         const nativeAgent =
           Array.isArray(pane.program_status) &&
           pane.program_status.some((r) => object(r) && r.app);
@@ -695,7 +689,7 @@ export class Catalog {
             : undefined;
           const context = repo
             ? `${repo.name} / ${location!.branch}`
-            : (row.path ?? "Unknown checkout");
+            : (row.session ?? row.path ?? "Unknown checkout");
           return {
             ...row,
             display: {
@@ -741,7 +735,10 @@ export class Catalog {
     };
     const locationRows = (root: string, prefix: string, context: string) => {
       const loc = this.locations.get(root)!;
-      const targets = this.targets.filter((target) => target.path === root);
+      // Panes outside a repository belong to their session row, not to a path row.
+      const targets = loc.repo
+        ? this.targets.filter((target) => target.path === root)
+        : [];
       const session = this.projectSession(root);
       const savedSession =
         session && this.sessions.get(session) === null ? session : undefined;
@@ -801,29 +798,40 @@ export class Catalog {
     for (const [root, loc] of [...this.locations].sort((a, b) =>
       compare(a[0], b[0]),
     )) {
-      if (loc.repo === null) locationRows(root, "▸ ", "Directories");
+      if (loc.repo === null) locationRows(root, "", "Directories");
     }
     const mapped = new Set(this.rows.flatMap((row) => row.sessions ?? []));
+    const inRepo = (target: Target) =>
+      !!target.path && !!this.locations.get(target.path)?.repo;
     const unmapped = new Set(
       this.targets
-        .filter((target) => !target.path)
+        .filter((target) => !inRepo(target))
         .map((target) => target.session),
     );
     for (const [session, entries] of [...this.sessions].sort((a, b) =>
       compare(a[0], b[0]),
     )) {
-      if (mapped.has(session) && !unmapped.has(session)) continue;
+      // Skip sessions already reachable under a checkout: project sessions, or sessions with a visible agent row
+      // there (agent-task sessions). Shell-only custom sessions keep their row, since tree view hides shell panes.
+      const shown =
+        mapped.has(session) ||
+        this.targets.some(
+          (t) => t.session === session && inRepo(t) && t.kind === "agent",
+        );
+      if (shown && !unmapped.has(session)) continue;
       const saved = entries === null && this.resurrectable.has(session);
+      const children = this.targets.filter(
+        (target) => target.session === session && !inRepo(target),
+      );
       this.addRow("session", {
+        ...summary(children),
         session,
         status:
           entries !== null ? "live" : saved ? "♻ resurrectable" : "unavailable",
         open: entries !== null ? true : saved ? false : undefined,
-        display: { prefix: "▸ ", name: session, detail: "Other sessions" },
+        display: { prefix: "", name: session, detail: "Other sessions" },
       });
-      for (const target of this.targets.filter(
-        (target) => target.session === session && !target.path,
-      )) {
+      for (const target of children) {
         this.addRow(target.kind, {
           ...target,
           open: true,
@@ -897,6 +905,29 @@ async function refreshPicker(
   }
 }
 
+// Talks to the running picker; the body is "<key>\n<row id>" for an action or "wait" for a pending refresh.
+export async function postAction(socketPath: string, body: string): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const req = request(
+      { socketPath, path: "/", method: "POST", agent: false },
+      (res) => {
+        res.on("error", reject);
+        res.on("end", resolve);
+        res.resume();
+      },
+    );
+    req.on("error", reject);
+    req.end(body);
+  });
+}
+
+export interface PickerActions<T> {
+  // Runs Ctrl-D/Ctrl-X while fzf is suspended; may prompt, throws PickerError for messages.
+  run: (key: string, row: T) => Promise<void>;
+  // Rediscovers rows after a successful action while fzf keeps showing the old list.
+  reload: () => Promise<{ rows: T[]; agents?: T[] }>;
+}
+
 export function filterCommand(input: string): string {
   // Match plain search text only: --ansi in filter mode strips colors from the returned display field.
   // Open first so an input-file error cannot masquerade as fzf's no-matches exit code.
@@ -937,8 +968,8 @@ const browseKeys = "j,k,g,G,n,N,/,?";
 const browse = `hide-input+rebind(${browseKeys})`;
 const search = (mode: "/" | "?") =>
   `change-prompt(${mode} )+show-input+clear-query+unbind(${browseKeys})`;
-// Enter leaves jump mode like Vim's / and keeps the query for n/N; Esc clears it and only aborts from browse mode.
-const enterAction = `[ "$FZF_INPUT_STATE" != hidden ] && [ "$FZF_PROMPT" = '/ ' ] && echo '${browse}' || echo accept`;
+// Enter after a jump query leaves jump mode like Vim's / (keeping it for n/N), otherwise opens; Esc clears it and only aborts from browse mode.
+const enterAction = `[ "$FZF_INPUT_STATE" != hidden ] && [ "$FZF_PROMPT" = '/ ' ] && [ -n "$FZF_QUERY" ] && echo '${browse}' || echo accept`;
 // fzf ignores clear-query emitted by transform, so it runs statically first;
 // it does not fire change either, so leaving a filter reloads the full list itself.
 const escAction = (input: string) =>
@@ -965,6 +996,7 @@ export async function choose<T extends Choice | Row>(
   prompt = "Repo / worktree > ",
   refresh?: Promise<void>,
   agents?: T[],
+  actions?: PickerActions<T>,
 ): Promise<[string, T | undefined]> {
   if (!rows.length) return ["cancel", undefined];
   if (dmenu) {
@@ -984,14 +1016,17 @@ export async function choose<T extends Choice | Row>(
     );
     return ["enter", labels.get((selected ?? "").replace(/\n+$/, ""))];
   }
-  const choices = agents ? [...rows, ...agents] : rows;
+  let choices = agents ? [...rows, ...agents] : rows;
   const directory = mkdtempSync(join(tmpdir(), "zs-"));
   const controller = new AbortController();
   let selected: string | null;
+  let server: ReturnType<typeof createServer> | undefined;
   try {
     const snapshot = join(directory, "preview.json"),
       inputFile = join(directory, "rows"),
-      socket = join(directory, "fzf.sock");
+      socket = join(directory, "fzf.sock"),
+      actionSocket = join(directory, "zs.sock"),
+      header = join(directory, "header");
     const input = (values = rows) =>
       values
         .map((r: Row) => {
@@ -1029,6 +1064,49 @@ export async function choose<T extends Choice | Row>(
     };
     save();
     if (agents) symlinkSync("tree", inputFile);
+    const title = () =>
+      agents
+        ? readlinkSync(inputFile) === "agents"
+          ? "Agents"
+          : "Tree"
+        : prompt.replace(/ > $/, "");
+    if (actions) {
+      let pending = Promise.resolve();
+      server = createServer((req, res) => {
+        let body = "";
+        req.setEncoding("utf8");
+        req.on("data", (chunk) => (body += chunk));
+        req.on("end", async () => {
+          const [key, id] = body.split("\n");
+          if (key !== "wait") {
+            let message = "";
+            try {
+              const row = choices.find((r) => r.id === id);
+              if (!row) throw new PickerError("Row disappeared; nothing changed");
+              await actions.run(key, row);
+              pending = actions.reload().then(
+                (fresh) => {
+                  rows = fresh.rows;
+                  agents = fresh.agents;
+                  choices = agents ? [...rows, ...agents] : rows;
+                  save();
+                },
+                (error) =>
+                  writeFileSync(header, `${title()} · refresh failed: ${clean(error.message)}`),
+              );
+            } catch (error) {
+              message = clean(error instanceof Error ? error.message : error);
+            }
+            writeFileSync(header, message ? `${title()} · ${message}` : title());
+          } else await pending;
+          res.end();
+        });
+      });
+      await new Promise<void>((resolve, reject) => {
+        server!.once("error", reject);
+        server!.listen(actionSocket, resolve);
+      });
+    }
     void refresh
       ?.then(async () => {
         if (controller.signal.aborted) return;
@@ -1051,6 +1129,10 @@ export async function choose<T extends Choice | Row>(
       fileURLToPath(import.meta.url),
     ];
     const toggle = [...helper, "--toggle-view", directory].map(quote).join(" ");
+    const act = [...helper, "--act", directory].map(quote).join(" ");
+    // fzf stays open: the action runs with the terminal, then the list reloads once the picker has rediscovered.
+    const actionBind = (key: string) =>
+      `${key}:execute~${act} ${key} {1}~+transform-header~cat ${quote(header)}~+reload-sync:${act} wait; ${filterCommand(inputFile)}`;
     selected = await run(
       [
         "fzf",
@@ -1064,11 +1146,13 @@ export async function choose<T extends Choice | Row>(
         "--disabled",
         "--with-shell=bash --noprofile --norc -c",
         "--prompt=/ ",
-        ...(refresh ? [`--listen=${socket}`] : []),
+        ...(refresh || actions ? [`--listen=${socket}`] : []),
         // Keeps the cursor on its row across filter clears and metadata reloads.
         "--track",
         "--id-nth=1",
         ...(agents ? ["--bind", `tab:transform:${toggle}`] : []),
+        // Separate --bind args: the trailing reload-sync: form swallows anything after it.
+        ...(actions ? ["--bind", actionBind("ctrl-d"), "--bind", actionBind("ctrl-x")] : []),
         "--bind",
         "j:down,k:up,g:first,G:last",
         "--bind",
@@ -1087,14 +1171,16 @@ export async function choose<T extends Choice | Row>(
         "--bind",
         // No reload while jumping: --id-nth tracking would restore the old row after pos().
         `change:transform:if [ "$FZF_PROMPT" = '/ ' ]; then ${jumpCommand(inputFile, "first")}; else echo ${quote(`reload-sync:${filterCommand(inputFile)}`)}; fi`,
-        "--expect=ctrl-r,ctrl-d,ctrl-x",
-        `--header=${agents ? "Tree" : prompt.replace(/ > $/, "")}`,
-        `--footer=Enter open · j/k move · / jump · n/N next/prev · ? filter${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh · Ctrl-D kill / delete saved session · Ctrl-X remove worktree · Esc back`,
+        "--expect=ctrl-r",
+        `--header=${title()}`,
+        `--footer=Enter open · j/k move · / jump · n/N next/prev · ? filter${agents ? " · Tab tree/agents" : ""} · Ctrl-R refresh${actions ? " · Ctrl-D kill / delete saved session · Ctrl-X remove worktree" : ""} · Esc back`,
       ],
       { input: input(), cancel: true, timeout: 0 },
     );
   } finally {
     controller.abort();
+    server?.close();
+    server?.closeAllConnections();
     rmSync(directory, { recursive: true, force: true });
   }
   if (selected === null) return ["cancel", undefined];
@@ -1433,8 +1519,11 @@ export async function removeWorktree(
       );
     if ((await agentMarkers()).some((m) => inside(m.taskRoot) || inside(m.cwd)))
       throw new PickerError("Worktree is occupied by a live agent");
+    // Saved (EXITED) sessions have no live panes to occupy the checkout; any other silence fails closed.
+    const saved = await resurrectableSessions();
     for (const session of await sessionNames()) {
       const entries = await panes(session);
+      if (entries === null && saved.has(session)) continue;
       if (entries === null)
         throw new PickerError(
           "Cannot verify session occupancy; leaving the worktree untouched",
@@ -1450,8 +1539,8 @@ export async function removeWorktree(
         }
       }
     }
-    // Git's normal removal can discard ignored files; protect them alongside tracked/untracked changes.
-    const dirty = await run([
+    // Git's normal removal discards ignored files: changes block, ignored files are listed in the confirmation.
+    const status = await run([
       "git",
       "--no-optional-locks",
       "-C",
@@ -1462,25 +1551,44 @@ export async function removeWorktree(
       "--ignored",
       "--ignore-submodules=none",
     ]);
-    if (dirty)
+    const entries = lines(status ?? "").filter(Boolean);
+    const changed = entries.filter((line) => !line.startsWith("!! "));
+    if (changed.length)
       throw new PickerError(
-        "Worktree has changes, untracked or ignored files; nothing removed",
+        `Worktree has ${changed.length} changed or untracked file${changed.length === 1 ? "" : "s"}; nothing removed`,
       );
+    const ignored = entries.map((line) => line.slice(3));
     const stat = statSync(path);
-    return { gitDir, dev: stat.dev, ino: stat.ino };
+    return { gitDir, dev: stat.dev, ino: stat.ino, ignored };
   };
   const before = await validate();
+  const counts = new Map<string, number>();
+  for (const file of before.ignored) {
+    const top = file.split("/")[0];
+    counts.set(top, (counts.get(top) ?? 0) + 1);
+  }
+  const groups = [...counts].sort((a, b) => b[1] - a[1]);
+  const deletes = groups.length
+    ? ` · also deletes ignored: ${groups
+        .slice(0, 4)
+        .map(([top, n]) => (n > 1 ? `${top} (${n})` : top))
+        .join(", ")}${groups.length > 4 ? ` +${groups.length - 4} more` : ""}`
+    : "";
   const [pressed, confirmed] = await choose(
     [
       { id: "cancel", label: "Cancel" },
       {
         id: "remove",
         label: clean(
-          `REMOVE ${JSON.stringify(path)} — checkout only; keep branch and PR`,
+          `REMOVE ${JSON.stringify(path)} — checkout only; keep branch and PR${deletes}`,
         ),
         preview:
           clean(`Remove checkout: ${JSON.stringify(path)}`) +
-          "\nKeep branch, GitHub PR and Pi review history. No force removal.",
+          "\nKeep branch, GitHub PR and Pi review history. No force removal." +
+          (groups.length
+            ? "\n\nIgnored files that will be deleted:\n" +
+              groups.map(([top, n]) => clean(`  ${top}  ${n} file${n === 1 ? "" : "s"}`)).join("\n")
+            : ""),
       },
     ],
     dmenu,
@@ -1570,6 +1678,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
       list: { type: "boolean" },
       preview: { type: "string" },
       "toggle-view": { type: "string" },
+      act: { type: "string" },
       help: { type: "boolean", short: "h" },
     },
   });
@@ -1577,6 +1686,12 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     console.log(
       "zs [--dmenu] [--list]\nRepository/worktree navigation; Zellij owns attention state.\n--list: print sanitized rows without changing focus",
     );
+    return;
+  }
+  if (values.act) {
+    if (!positionals.length || positionals.length > 2)
+      throw new PickerError("--act requires the picker directory, a key and a row ID");
+    await postAction(join(values.act, "zs.sock"), positionals.join("\n"));
     return;
   }
   if (values["toggle-view"]) {
@@ -1624,7 +1739,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     while (true) {
       githubController?.abort();
       await github;
-      const catalog = await new Catalog().discover();
+      let catalog = await new Catalog().discover();
       checkInterrupt();
       if (values.list) {
         console.log(catalog.rows.map(rowLabel).join("\n"));
@@ -1642,12 +1757,34 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
       );
       if (values.dmenu) await github;
       checkInterrupt();
-      const overview = values.dmenu
-        ? catalog.rows
-        : catalog.rows.filter((r) => r.kind !== "workspace");
-      const agents = catalog.agentRows();
+      const overviewOf = (c: Catalog) =>
+        values.dmenu ? c.rows : c.rows.filter((r) => r.kind !== "workspace");
+      let overview = overviewOf(catalog);
+      let agents = catalog.agentRows();
       let rows = overview;
-      const history: Row[][] = [];
+      let history: Row[][] = [];
+      const actions: PickerActions<Row> = {
+        run: (key, row) =>
+          key === "ctrl-d"
+            ? deleteSession(catalog, row)
+            : removeWorktree(catalog, row),
+        reload: async () => {
+          const fresh = await new Catalog().discover();
+          // Keep loaded PR metadata instead of refetching GitHub after every action.
+          const previous = new Map(catalog.rows.map((r) => [r.id, r]));
+          for (const row of fresh.rows) {
+            const old = previous.get(row.id);
+            if (old) Object.assign(row, { github: old.github, pullRequests: old.pullRequests });
+          }
+          const drilled = history.length ? rows[0]?.repo : undefined;
+          catalog = fresh;
+          overview = overviewOf(fresh);
+          agents = fresh.agentRows();
+          const children = overview.filter((r) => r.repo === drilled && r.kind !== "repo");
+          [rows, history] = drilled && children.length ? [children, [overview]] : [overview, []];
+          return { rows, agents };
+        },
+      };
       const drill = (children: Row[]) => {
         if (children.length) {
           history.push(rows);
@@ -1661,6 +1798,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
           undefined,
           github,
           agents,
+          values.dmenu ? undefined : actions,
         );
         checkInterrupt();
         let row = selected;
@@ -1671,14 +1809,6 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
             continue;
           }
           return;
-        }
-        if (pressed === "ctrl-d") {
-          await deleteSession(catalog, row, values.dmenu);
-          break;
-        }
-        if (pressed === "ctrl-x") {
-          await removeWorktree(catalog, row, values.dmenu);
-          break;
         }
         if (row.kind === "repo") {
           drill(
