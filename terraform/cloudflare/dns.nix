@@ -15,6 +15,7 @@
               "files"
               "atuin"
               "git"
+              "knot"
               "fm"
               "scrobble"
               "oblivion"
