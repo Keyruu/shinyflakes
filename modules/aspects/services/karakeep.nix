@@ -1,13 +1,14 @@
 { ... }:
 {
   den.aspects.services.karakeep = {
-    nixos = { config, ... }:
+    nixos =
+      { config, ... }:
       let
         my = config.services.my.karakeep;
       in
       {
         sops.secrets = {
-          minimaxKey = { };
+          mistralKey = { };
           karakeepNextauthSecret = { };
           karakeepMeiliMasterKey = { };
           karakeepClientSecret = { };
@@ -24,11 +25,10 @@
               MEILI_MASTER_KEY=${config.sops.placeholder.karakeepMeiliMasterKey}
               NEXTAUTH_URL=https://karakeep.lab.keyruu.de
               DISABLE_SIGNUPS=true
-              OPENAI_API_KEY=${config.sops.placeholder.minimaxKey}
-              OPENAI_BASE_URL=https://api.minimax.io/v1
-              INFERENCE_TEXT_MODEL=MiniMax-M3.1-Flash
-              INFERENCE_IMAGE_MODEL=MiniMax-M3.1-Flash
-              OPENAI_REASONING_EFFORT=low
+              OPENAI_API_KEY=${config.sops.placeholder.mistralKey}
+              OPENAI_BASE_URL=https://api.mistral.ai/v1
+              INFERENCE_TEXT_MODEL=mistral-small-latest
+              INFERENCE_IMAGE_MODEL=mistral-small-2603
               INFERENCE_MAX_OUTPUT_TOKENS=8192
               INFERENCE_OUTPUT_SCHEMA=plain
               EMBEDDING_ENABLE_AUTO_INDEXING=false

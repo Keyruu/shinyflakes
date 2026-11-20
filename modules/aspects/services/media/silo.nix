@@ -124,8 +124,11 @@
                   TZ = "Europe/Berlin";
                   SILO_PUBLIC_URL = "https://${domain}";
                   SILO_PLUGINS_FILE = "/run/silo-provisioning/plugins.json";
-                  # mentat's nginx is the only ingress
-                  SILO_TRUSTED_PROXIES = "127.0.0.1/32";
+                  # mentat's nginx is the only ingress. Published ports reach the
+                  # container from the podman network gateway, not 127.0.0.1, so
+                  # without this silo ignores X-Forwarded-Proto and sees every
+                  # app sign-in as http:// instead of the https public URL.
+                  SILO_TRUSTED_PROXIES = "10.88.0.1/32";
                   SILO_HW_ACCEL = "vaapi";
                   # jellyfin keeps 8096; the compat listener stays off
                   SILO_JELLYFIN_ENABLED = "false";
