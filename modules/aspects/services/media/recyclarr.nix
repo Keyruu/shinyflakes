@@ -6,7 +6,8 @@
 { ... }:
 {
   den.aspects.services.media.recyclarr = {
-    nixos = { config, ... }:
+    nixos =
+      { config, ... }:
       let
         recyclarrPath = "/etc/stacks/recyclarr/config";
       in
@@ -56,13 +57,18 @@
                     # Guide leaves 2160p max unlimited, so Radarr always takes the
                     # fattest 4K release. Caps keep this profile at encode-tier
                     # bitrates and reject multi-film packs such as an 85 GiB one.
+                    # preferred must stay <= max: recyclarr refuses the guide's
+                    # inherited preferred (1999) against a capped max.
                     qualities:
                       - name: Bluray-2160p
                         max: 250
+                        preferred: 250
                       - name: WEBDL-2160p
                         max: 200
+                        preferred: 200
                       - name: WEBRip-2160p
                         max: 200
+                        preferred: 200
 
                   quality_profiles:
                     # Hybrid: 1080p minimum, auto-upgrade to 2160p; encode-tier (no
@@ -194,8 +200,12 @@
         };
 
         services.my.recyclarr = {
-        dashboard = { enable = false; };
-        monitor = { enable = false; };
+          dashboard = {
+            enable = false;
+          };
+          monitor = {
+            enable = false;
+          };
           enable = true;
           backup.enable = true;
           stack = {
