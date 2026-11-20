@@ -82,6 +82,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Tangled (knot/spindle/bobbin). Keeps its own nixpkgs + fenix pin: the
+    # rust toolchain and cargo hashes are fixed against it, so following our
+    # unstable would rebuild the knot from scratch on every bump.
+    tangled.url = "git+https://tangled.org/did:plc:j5hmlfdrwkvtxm7cjmu7j2is";
+
     copyparty.url = "github:9001/copyparty";
     # Pinned: unfloating this would pull v0.31.0, whose Cargo.lock has hyper
     # 1.12.0 (published 2026-10-06). The registry refuses crates younger than a

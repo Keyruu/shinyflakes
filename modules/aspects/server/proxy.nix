@@ -150,6 +150,16 @@ in
           '';
         };
 
+        # tangled knot: git pack uploads and LFS blobs trip the CRS body
+        # rules, and coraza cannot handle the websocket upgrade, so no waf.
+        # The knot ratelimits per visitor off caddy's forwarded client ip.
+        "knot.keyruu.de" = {
+          extraConfig = ''
+            import cloudflare-only
+            reverse_proxy http://${mentat}:5556
+          '';
+        };
+
         # geoblock instead of cloudflare-only: streams must not go through CF.
         # WAF only on API routes — streaming/image/download paths bypass it
         # (CRS false-positives on segment/range requests + CPU per stream),

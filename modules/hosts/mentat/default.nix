@@ -41,6 +41,7 @@
       den.aspects.services.paperless
       den.aspects.services.radicale
       den.aspects.services.speedtest-tracker
+      den.aspects.services.tangled-knot
       den.aspects.services.terraria
       den.aspects.services.immich
     ];
