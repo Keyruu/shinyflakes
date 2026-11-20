@@ -13,37 +13,28 @@
           name = "screenshot";
           runtimeInputs = with pkgs; [
             grim
-            slurp
             wl-clipboard
             libnotify
-            jq
-            satty
             coreutils
             llama-cpp
-            inputs'.niri.packages.niri-unstable
+            inputs'.dux-shell.packages.default
           ];
           text = # bash
             ''
               mode=''${1:-region}
 
               case "$mode" in
-                region|screen)
-                  monitor=$(niri msg --json focused-output | jq -er '.name')
-                  capture=(-o "$monitor")
+                region)
+                  exec dms screenshot draw
+                  ;;
+                screen)
+                  exec dms screenshot full
                   ;;
                 window)
-                  output=$(niri msg --json focused-output)
-                  geom=$(niri msg --json focused-window | jq -er --argjson output "$output" '
-                    .layout as $layout |
-                    $layout.tile_pos_in_workspace_view as $pos |
-                    $layout.window_offset_in_tile as $offset |
-                    $output.logical as $output |
-                    "\((($output.x + $pos[0] + $offset[0]) | floor)),\((($output.y + $pos[1] + $offset[1]) | floor)) \($layout.window_size[0])x\($layout.window_size[1])"
-                  ')
-                  capture=(-g "$geom")
+                  exec dms screenshot window
                   ;;
                 ocr)
-                  geom=$(slurp -d) || exit 0
+                  geom=$(dms screenshot region -g --no-file --no-clipboard --no-notify) || exit 0
                   img=$(mktemp --suffix=.png)
                   trap 'rm -f "$img"' EXIT
                   grim -g "$geom" "$img"
@@ -63,19 +54,6 @@
                   exit 2
                   ;;
               esac
-
-              dir="$HOME/Pictures/Screenshots"
-              mkdir -p "$dir"
-              img=$(mktemp --tmpdir="$dir" "Screenshot from $(date '+%Y-%m-%d %H-%M-%S').XXXXXX.png")
-              if ! grim "''${capture[@]}" "$img"; then
-                rm -f "$img"
-                exit 1
-              fi
-              if [ "$mode" = region ]; then
-                satty --filename "$img" --initial-tool crop --output-filename "$img" --save-after-copy
-              else
-                satty --filename "$img"
-              fi
             '';
         };
 

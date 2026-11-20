@@ -1633,12 +1633,10 @@ for (const kind of ["main", "linked", "directory"]) {
         catalog.rows.find((r) => r.kind === "repo")?.open,
         kind === "directory" ? undefined : true,
       );
-      // A repo agent is listed under its checkout (no duplicate session row); a non-repo one under its session.
-      assert.equal(
+      assert.ok(
         catalog.rows.some(
           (r) => r.kind === "session" && r.session === "unrelated",
         ),
-        kind === "directory",
       );
       assert.equal(
         catalog.agentRows().find((r) => r.session === "unrelated")!.path,

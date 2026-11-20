@@ -25,9 +25,11 @@
                 client_secret.fromFile = "/run/secrets/silo-client-secret";
                 request_groups_scope = true;
               };
+              # the plugin's manifest schema types these as strings (one group
+              # per line); an array is refused by provisioning validation
               access = {
-                allowed_groups = [ "silo_users" ];
-                admin_groups = [ "admin" ];
+                allowed_groups = "silo_users";
+                admin_groups = "admin";
               };
             };
             auth_binding = {

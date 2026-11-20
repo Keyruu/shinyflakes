@@ -811,14 +811,7 @@ export class Catalog {
     for (const [session, entries] of [...this.sessions].sort((a, b) =>
       compare(a[0], b[0]),
     )) {
-      // Skip sessions already reachable under a checkout: project sessions, or sessions with a visible agent row
-      // there (agent-task sessions). Shell-only custom sessions keep their row, since tree view hides shell panes.
-      const shown =
-        mapped.has(session) ||
-        this.targets.some(
-          (t) => t.session === session && inRepo(t) && t.kind === "agent",
-        );
-      if (shown && !unmapped.has(session)) continue;
+      if (mapped.has(session) && !unmapped.has(session)) continue;
       const saved = entries === null && this.resurrectable.has(session);
       const children = this.targets.filter(
         (target) => target.session === session && !inRepo(target),

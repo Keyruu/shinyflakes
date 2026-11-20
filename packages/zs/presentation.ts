@@ -103,9 +103,8 @@ export function renderRow(row: Row, color = !process.env.NO_COLOR): string {
     workspace: "▤",
     session: "▤",
   }[row.kind];
-  // Live panes keep a name bright even when they run in a differently named (agent-task) session.
   const nameStyle =
-    (row.kind === "repo" ? "1;" : "") + (row.open || row.activity ? "37" : "90");
+    (row.kind === "repo" ? "1;" : "") + (row.open ? "37" : "90");
   const statusStyle =
     rank >= 5
       ? "1;31"
