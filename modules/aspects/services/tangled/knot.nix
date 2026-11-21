@@ -39,6 +39,9 @@
               ssh_listen_addr = "[::]:2222";
             };
             atproto.plc_directory = "https://plc.directory";
+            # sha256 repos cannot receive a push from a sha1 host, and every
+            # repo here is mirrored or imported from github/forgejo
+            git.object_format = "sha1";
             lfs.store_path = "/var/lib/knot/lfs";
             contact.email = "me@keyruu.de";
             # the knot serves its own read-only browser at /: every git read
