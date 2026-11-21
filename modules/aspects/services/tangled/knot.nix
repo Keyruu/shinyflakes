@@ -41,6 +41,10 @@
             atproto.plc_directory = "https://plc.directory";
             lfs.store_path = "/var/lib/knot/lfs";
             contact.email = "me@keyruu.de";
+            # the knot serves its own read-only browser at /: every git read
+            # XRPC is unauthenticated and CORS-open, so the page needs no
+            # proxy hop or appview
+            homepage.path = "${./homepage.html}";
             xrpc = {
               # prime's caddy is the only hop in front of the knot
               trusted_proxy_header = "x-forwarded-for";

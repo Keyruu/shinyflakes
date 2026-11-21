@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>knot · repositories</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --muted: #7a7a7a;
+        --line: #88888844;
+        --accent: #4b8bbe;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 14px/1.45 system-ui, sans-serif; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      header {
+        display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap;
+        padding: .8rem 1.1rem; border-bottom: 1px solid var(--line);
+      }
+      header .brand { font-weight: 600; font-size: 1.05rem; color: inherit; }
+      main { max-width: 72rem; margin: 0 auto; padding: 1.1rem; }
+      .muted { color: var(--muted); }
+      code, pre, .mono { font-family: ui-monospace, SFMono-Regular, monospace; }
+      pre {
+        overflow: auto; padding: .8rem; margin: 0;
+        border: 1px solid var(--line); border-radius: 6px;
+        font-size: 12.5px; line-height: 1.5;
+      }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+      th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 500; }
+      .clone { display: flex; flex-direction: column; gap: .15rem; }
+      .clone code { user-select: all; font-size: 12.5px; }
+      .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+      .pill { border: 1px solid var(--line); border-radius: 999px; padding: .05rem .5rem; font-size: 12px; color: var(--muted); }
+      .crumbs { display: flex; gap: .25rem; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: 13px; }
+      .err { color: #d9534f; }
+      .body { white-space: pre-wrap; max-width: 60rem; }
+      h1, h2 { font-size: 1.05rem; margin: 0; }
+      h2 { margin: 1.6rem 0 .5rem; font-size: .95rem; color: var(--muted); font-weight: 600; }
+      section { margin-top: 1rem; }
+      select { font: inherit; padding: .1rem .2rem; }
+      ul.commits { list-style: none; margin: 0; padding: 0; }
+      ul.commits li { padding: .35rem 0; border-bottom: 1px solid var(--line); display: flex; gap: .6rem; align-items: baseline; }
+      ul.commits .subject { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      ul.commits .hash { font-size: 12px; }
+      button { font: inherit; padding: .25rem .7rem; }
+      button.copy { font-size: 11px; padding: 0 .4rem; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#/">knot.keyruu.de</a>
+      <span class="muted">read-only repository browser</span>
+    </header>
+    <main id="app"><p class="muted">loading…</p></main>
+    <script>
+      "use strict";
+      const app = document.getElementById("app");
+      const XRPC = "/xrpc/";
+
+      const esc = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+        );
+      const enc = (value) => encodeURIComponent(value);
+      const dec = (value) => {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      };
+      const when = (value) => String(value || "").replace("T", " ").slice(0, 16);
+      const bytes = (n) => {
+        if (n < 1024) return `${n} B`;
+        if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+        return `${(n / 1024 / 1024).toFixed(1)} MB`;
+      };
+
+      async function call(method, params) {
+        const query = new URLSearchParams({ ...params }).toString();
+        const res = await fetch(XRPC + method + (query ? `?${query}` : ""), {
+          headers: { accept: "application/json" }
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.message || body.error || `${res.status} ${res.statusText}`);
+        return body;
+      }
+
+      const blobUrl = (repo, ref, path) =>
+        XRPC + "org.tangled.git.getBlob?" + new URLSearchParams({ repo, ref, path }).toString();
+
+      // repo names live in the repo's own manifest record; the knot serves them
+      // for any hosted repo, so no appview lookup is needed
+      async function manifestOf(did) {
+        try {
+          const { records } = await call("com.atproto.repo.listRecords", {
+            repo: did,
+            collection: "org.tangled.repo.manifest",
+            limit: 1
+          });
+          const declaration = records[0]?.value?.declaration || {};
+          return { name: declaration.name, owner: declaration.owner };
+        } catch {
+          return {};
+        }
+      }
+
+      function cloneBlock(did) {
+        const urls = [
+          `https://${location.hostname}/${did}`,
+          `ssh://git@knot.lab.keyruu.de:2222/${did}`
+        ];
+        return `<div class="clone">${urls
+          .map(
+            (url) =>
+              `<div class="row"><code>${esc(url)}</code><button class="copy" data-copy="${esc(url)}">copy</button></div>`
+          )
+          .join("")}</div>`;
+      }
+
+      const repos = { items: [], cursor: null, started: false };
+
+      async function loadMore() {
+        const params = { limit: 100 };
+        if (repos.cursor) params.cursor = repos.cursor;
+        const page = await call("com.atproto.sync.listRepos", params);
+        const items = await Promise.all(
+          page.repos.map(async (repo) => ({ did: repo.did, ...(await manifestOf(repo.did)) }))
+        );
+        repos.items.push(...items);
+        repos.cursor = page.cursor || null;
+      }
+
+      async function viewRepos() {
+        if (!repos.started) {
+          repos.started = true;
+          await loadMore();
+        }
+        const rows = repos.items
+          .slice()
+          .sort((a, b) => (a.name || a.did).localeCompare(b.name || b.did))
+          .map(
+            (repo) => `<tr>
+              <td>
+                <a href="#/r/${enc(repo.did)}">${esc(repo.name || repo.did)}</a>
+                ${repo.owner ? `<div class="muted mono">${esc(repo.owner)}</div>` : ""}
+              </td>
+              <td>${cloneBlock(repo.did)}</td>
+            </tr>`
+          )
+          .join("");
+        const list = repos.items.length
+          ? `<table><thead><tr><th>repository</th><th>clone</th></tr></thead><tbody>${rows}</tbody></table>`
+          : `<p class="muted">No repositories on this knot yet.</p>`;
+        const more = repos.cursor ? `<p><button data-more>load more</button></p>` : "";
+        return `<h1>repositories</h1><section>${list}${more}</section>`;
+      }
+
+      const isDir = (mode) => mode.startsWith("004");
+      const isSubmodule = (mode) => mode.startsWith("016");
+
+      function refPicker(did, ref, refs, path) {
+        const group = (label, list) =>
+          list.length
+            ? `<optgroup label="${label}">${list
+                .map(
+                  (name) =>
+                    `<option value="${esc(name)}"${name === ref ? " selected" : ""}>${esc(name)}</option>`
+                )
+                .join("")}</optgroup>`
+            : "";
+        const options = group("branches", refs.branches) + group("tags", refs.tags);
+        const suffix = path ? "/" + path.split("/").map(enc).join("/") : "";
+        return `<select data-ref="${enc(did)}" data-suffix="${esc(suffix)}">${options}</select>`;
+      }
+
+      function crumbs(did, ref, path) {
+        const base = `#/r/${enc(did)}/${enc(ref)}`;
+        const parts = path ? path.split("/") : [];
+        const links = parts.map((part, index) => {
+          const target = base + "/" + parts.slice(0, index + 1).map(enc).join("/");
+          const label = index === parts.length - 1 ? part : `${part}/`;
+          return `<a href="${target}">${esc(label)}</a>`;
+        });
+        return `<div class="crumbs"><a href="${base}">${esc(ref)}</a>${links.length ? `/` : ""}${links.join("/")}</div>`;
+      }
+
+      function treeTable(did, ref, path, entries) {
+        const prefix = `#/r/${enc(did)}/${enc(ref)}${path ? "/" + path.split("/").map(enc).join("/") : ""}`;
+        const sorted = entries.slice().sort((a, b) => {
+          const dirs = Number(isDir(b.mode)) - Number(isDir(a.mode));
+          return dirs || a.name.localeCompare(b.name);
+        });
+        const rows = sorted
+          .map((entry) => {
+            const label = isSubmodule(entry.mode)
+              ? `${esc(entry.name)} <span class="pill">submodule</span>`
+              : `<a href="${prefix}/${enc(entry.name)}">${esc(entry.name)}</a>`;
+            return `<tr>
+              <td>${label}</td>
+              <td class="muted mono">${esc(entry.mode)}</td>
+              <td class="muted">${isDir(entry.mode) ? "" : bytes(entry.size)}</td>
+              <td class="muted">${esc((entry.lastCommit?.message || "").split("\n")[0])}</td>
+            </tr>`;
+          })
+          .join("");
+        return rows
+          ? `<table><thead><tr><th>name</th><th>mode</th><th>size</th><th>last commit</th></tr></thead><tbody>${rows}</tbody></table>`
+          : `<p class="muted">empty directory</p>`;
+      }
+
+      async function fileBody(repo, ref, path) {
+        const res = await fetch(blobUrl(repo, ref, path));
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message || `cannot read ${path}`);
+        }
+        const raw = await res.arrayBuffer();
+        const url = blobUrl(repo, ref, path);
+        const links = `<div class="row"><a href="${esc(url)}" target="_blank" rel="noreferrer">raw</a><a href="${esc(
+          url
+        )}" download="${esc(path.split("/").pop())}">download</a></div>`;
+        if (raw.byteLength > 512 * 1024) {
+          return `${links}<p class="muted">${bytes(raw.byteLength)} — too large to display inline</p>`;
+        }
+        try {
+          return `${links}<pre>${esc(new TextDecoder("utf-8", { fatal: true }).decode(raw))}</pre>`;
+        } catch {
+          return `${links}<p class="muted">binary file, ${bytes(raw.byteLength)}</p>`;
+        }
+      }
+
+      function commitList(commits) {
+        if (!commits.length) return `<p class="muted">no commits</p>`;
+        return `<ul class="commits">${commits
+          .map(
+            (commit) => `<li>
+              <span class="subject mono" title="${esc(commit.message)}">${esc(
+                commit.message.split("\n")[0]
+              )}</span>
+              <span class="muted">${esc(commit.author?.name || "")}</span>
+              <span class="muted mono">${esc(when(commit.committer?.when || commit.author?.when))}</span>
+              <span class="muted mono hash">${esc(commit.hash.slice(0, 8))}</span>
+            </li>`
+          )
+          .join("")}</ul>`;
+      }
+
+      async function viewRepo(segments) {
+        const repo = dec(segments[0]);
+        const path = segments.slice(2).map(dec).join("/");
+        const [branchesOut, tagsOut, manifest] = await Promise.all([
+          call("org.tangled.git.listBranches", { repo, limit: 100 }),
+          call("org.tangled.git.listTags", { repo, limit: 100 }).catch(() => ({ tags: [] })),
+          manifestOf(repo)
+        ]);
+        const ref = segments[1] ? dec(segments[1]) : branchesOut.defaultBranch || "HEAD";
+        const refs = {
+          branches: branchesOut.branches.map((branch) => branch.name),
+          tags: tagsOut.tags.map((tag) => tag.name)
+        };
+
+        let mode = "0040000";
+        if (path) mode = (await call("org.tangled.git.getEntry", { repo, ref, path })).mode;
+
+        const commitsParams = { repo, ref, limit: 20 };
+        if (path) commitsParams.path = path;
+        const [body, commitsOut] = await Promise.all([
+          isDir(mode)
+            ? call("org.tangled.git.getTree", { repo, ref, path }).then((tree) =>
+                treeTable(repo, ref, path, tree.entries)
+              )
+            : fileBody(repo, ref, path),
+          call("org.tangled.git.listCommits", commitsParams).catch(() => ({ commits: [] }))
+        ]);
+
+        const counts = `<span class="pill">${refs.branches.length} branches</span>` +
+          (refs.tags.length ? `<span class="pill">${refs.tags.length} tags</span>` : "") +
+          `<a href="#/p/${enc(repo)}">pulls</a>`;
+        return `<div class="row"><h1>${esc(manifest.name || repo)}</h1>${counts}</div>
+          <p class="muted mono">${esc(repo)}</p>
+          <section>${cloneBlock(repo)}</section>
+          <section class="row">${refPicker(repo, ref, refs, path)}${crumbs(repo, ref, path)}</section>
+          <section>${body}</section>
+          <h2>recent commits</h2>
+          <section>${commitList(commitsOut.commits)}</section>`;
+      }
+
+      const textOf = (value) => (typeof value === "string" ? value : value?.text || "");
+      const short = (oid) => String(oid || "").slice(0, 8);
+      const statePill = (state) => `<span class="pill">${esc(state || "unknown")}</span>`;
+
+      // tickets and patches are plain atproto records in the repo the knot
+      // hosts, so pulls are readable without the appview
+      async function allRecords(repo, collection) {
+        const records = [];
+        let cursor;
+        do {
+          const params = { repo, collection, limit: 100 };
+          if (cursor) params.cursor = cursor;
+          const page = await call("com.atproto.repo.listRecords", params);
+          records.push(...page.records);
+          cursor = page.cursor;
+        } while (cursor && records.length < 500);
+        return records;
+      }
+
+      const patchesByTicket = (patches) => {
+        const byTicket = new Map();
+        for (const { value } of patches) {
+          if (!byTicket.has(value.ticket)) byTicket.set(value.ticket, []);
+          byTicket.get(value.ticket).push(value);
+        }
+        for (const list of byTicket.values())
+          list.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+        return byTicket;
+      };
+
+      async function viewPulls(repo) {
+        const [tickets, patches, manifest] = await Promise.all([
+          allRecords(repo, "org.tangled.track.ticket"),
+          allRecords(repo, "org.tangled.review.patch"),
+          manifestOf(repo)
+        ]);
+        const byTicket = patchesByTicket(patches);
+        const pulls = tickets
+          .map((record) => {
+            const rkey = record.uri.split("/").pop();
+            return { rkey, ticket: record.value, patches: byTicket.get(rkey) || [] };
+          })
+          .filter((pull) => pull.patches.length)
+          .sort((a, b) => String(b.ticket.createdAt).localeCompare(String(a.ticket.createdAt)));
+        const rows = pulls
+          .map(({ rkey, ticket, patches }) => {
+            const head = patches[patches.length - 1].head?.oid;
+            const author = ticket["x-tngl-editor"];
+            return `<tr>
+              <td>${statePill(ticket.state)}</td>
+              <td><a href="#/p/${enc(repo)}/${enc(rkey)}">${esc(textOf(ticket.title) || `#${rkey}`)}</a>
+                <div class="muted mono">#${esc(rkey)}${author ? ` · ${esc(author)}` : ""}</div></td>
+              <td class="muted mono">${esc(ticket.targetBranch || "")}</td>
+              <td class="muted mono">${esc(short(head))}</td>
+              <td class="muted">${esc(when(ticket.createdAt))}</td>
+            </tr>`;
+          })
+          .join("");
+        const list = pulls.length
+          ? `<table><thead><tr><th>state</th><th>title</th><th>target</th><th>head</th><th>opened</th></tr></thead><tbody>${rows}</tbody></table>`
+          : `<p class="muted">no pull requests</p>`;
+        return `<div class="row"><h1>${esc(manifest.name || repo)}</h1><a href="#/r/${enc(repo)}">files</a></div>
+          <p class="muted mono">${esc(repo)}</p>
+          <section>${list}</section>`;
+      }
+
+      async function viewPull(repo, rkey) {
+        const [record, patches, manifest] = await Promise.all([
+          call("com.atproto.repo.getRecord", {
+            repo,
+            collection: "org.tangled.track.ticket",
+            rkey
+          }),
+          allRecords(repo, "org.tangled.review.patch"),
+          manifestOf(repo)
+        ]);
+        const ticket = record.value;
+        const mine = patchesByTicket(patches).get(rkey) || [];
+        const head = mine.length ? mine[mine.length - 1].head?.oid : "";
+        const patchRows = mine
+          .slice()
+          .reverse()
+          .map(
+            (patch) => `<tr>
+              <td class="muted">${esc(when(patch.createdAt))}</td>
+              <td class="muted mono">${esc(short(patch.base?.oid))}</td>
+              <td class="mono"><a href="#/r/${enc(repo)}/${enc(patch.head?.oid || "")}">${esc(short(patch.head?.oid))}</a></td>
+              <td class="muted mono">${esc(patch.source?.repo || "")}${patch.source?.branch ? ` @ ${esc(patch.source.branch)}` : ""}</td>
+            </tr>`
+          )
+          .join("");
+        const body = textOf(ticket.body);
+        return `<div class="row"><h1>${esc(textOf(ticket.title) || `#${rkey}`)}</h1>${statePill(ticket.state)}</div>
+          <p class="muted mono">#${esc(rkey)}${ticket["x-tngl-editor"] ? ` · ${esc(ticket["x-tngl-editor"])}` : ""} · ${esc(when(ticket.createdAt))} · → ${esc(ticket.targetBranch || "")} · head ${esc(short(head))}</p>
+          <section class="row"><a href="#/p/${enc(repo)}">all pulls</a><a href="#/r/${enc(repo)}">files</a><a href="#/r/${enc(repo)}/${enc(head)}">browse head</a></section>
+          ${body ? `<section><div class="body">${esc(body)}</div></section>` : ""}
+          <h2>patches (${mine.length})</h2>
+          <section><table><thead><tr><th>pushed</th><th>base</th><th>head</th><th>source</th></tr></thead><tbody>${patchRows}</tbody></table></section>`;
+      }
+
+      let generation = 0;
+
+      async function route() {
+        const mine = ++generation;
+        const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+        app.innerHTML = `<p class="muted">loading…</p>`;
+        try {
+          let html;
+          if (parts[0] === "p" && parts.length > 2) html = await viewPull(dec(parts[1]), dec(parts[2]));
+          else if (parts[0] === "p" && parts.length > 1) html = await viewPulls(dec(parts[1]));
+          else if (parts[0] === "r" && parts.length > 1) html = await viewRepo(parts.slice(1));
+          else html = await viewRepos();
+          if (mine !== generation) return;
+          app.innerHTML = html;
+          app.querySelector("button[data-more]")?.addEventListener("click", async (event) => {
+            event.target.disabled = true;
+            try {
+              await loadMore();
+            } finally {
+              route();
+            }
+          });
+          app.querySelector("select[data-ref]")?.addEventListener("change", (event) => {
+            location.hash = `#/r/${event.target.dataset.ref}/${enc(event.target.value)}${event.target.dataset.suffix}`;
+          });
+        } catch (error) {
+          if (mine !== generation) return;
+          app.innerHTML = `<p class="err">${esc(error.message)}</p>`;
+        }
+      }
+
+      // the api needs a secure context, which the plain-http LAN origin is not
+      const copy = async (text) => {
+        if (window.isSecureContext && navigator.clipboard) return navigator.clipboard.writeText(text);
+        const area = Object.assign(document.createElement("textarea"), { value: text });
+        document.body.append(area);
+        area.select();
+        const ok = document.execCommand("copy");
+        area.remove();
+        if (!ok) throw new Error("copy blocked");
+      };
+
+      app.addEventListener("click", async (event) => {
+        const button = event.target.closest("button.copy");
+        if (!button) return;
+        try {
+          await copy(button.dataset.copy);
+          button.textContent = "copied";
+        } catch {
+          button.textContent = "copy failed";
+        }
+        setTimeout(() => (button.textContent = "copy"), 1200);
+      });
+
+      window.addEventListener("hashchange", route);
+      route();
+    </script>
+  </body>
+</html>
