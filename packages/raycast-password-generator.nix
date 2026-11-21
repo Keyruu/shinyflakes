@@ -1,7 +1,7 @@
 { inputs, pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "7705eb923c4fc5e012ea5d3de55b3ea87bacd91c";
+  rev = "6630f77aee7136fd5ad46bf2288774536956e711";
 in
 inputs.vicinae.lib.${pkgs.stdenv.hostPlatform.system}.mkRayCastExtension {
   name = "password-generator";
