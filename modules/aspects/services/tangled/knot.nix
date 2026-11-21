@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  den.aspects.services.tangled-knot = {
+  den.aspects.services.tangled.knot = {
     nixos =
       { config, ... }:
       let

@@ -16,6 +16,7 @@
               "atuin"
               "git"
               "knot"
+              "spindle"
               "fm"
               "scrobble"
               "oblivion"

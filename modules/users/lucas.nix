@@ -51,6 +51,13 @@
         stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.hostPlatform) system; };
       in
       {
+        xdg.desktopEntries.bambu-studio = {
+          name = "Bambu Studio";
+          exec = "bambu-studio";
+          genericName = "3D Printing Software";
+          categories = [ "Graphics" ];
+        };
+
         xdg.mimeApps = {
           enable = true;
           defaultApplications = {

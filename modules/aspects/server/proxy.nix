@@ -160,6 +160,17 @@ in
           '';
         };
 
+        # tangled spindle: pipeline logs stream over websockets and a run can
+        # idle for a long time, so no waf and no response buffering
+        "spindle.keyruu.de" = {
+          extraConfig = ''
+            import cloudflare-only
+            reverse_proxy http://${mentat}:6555 {
+              flush_interval -1
+            }
+          '';
+        };
+
         # geoblock instead of cloudflare-only: streams must not go through CF.
         # WAF only on API routes — streaming/image/download paths bypass it
         # (CRS false-positives on segment/range requests + CPU per stream),
