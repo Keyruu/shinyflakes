@@ -132,7 +132,7 @@
 
             containers.blocky-ui = {
               containerConfig = {
-                image = "ghcr.io/gabeduartem/blocky-ui:2.2.0";
+                image = "ghcr.io/gabeduartem/blocky-ui:2.2.1";
                 publishPorts = [ "127.0.0.1:3053:3000" ];
                 volumes = [ "${queryLogDir}:/logs:ro" ];
                 # blocky listens on the host, not in a container network
