@@ -89,8 +89,8 @@
 
             # sofka's built-in `:debug` replaces the k9s netshoot plugin.
             debug = {
-              image = "nicolaka/netshoot:v0.16";
-              node_image = "nicolaka/netshoot:v0.16";
+              image = "nicolaka/netshoot:v0.17";
+              node_image = "nicolaka/netshoot:v0.17";
               command = [ "bash" ];
             };
 
