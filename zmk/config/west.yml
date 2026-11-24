@@ -1,0 +1,23 @@
+manifest:
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    - name: carrefinho
+      url-base: https://github.com/carrefinho
+    - name: caksoylar
+      url-base: https://github.com/caksoylar
+  projects:
+    # Pinned to main: the Forager shield uses the HWv2 board name xiao_ble//zmk,
+    # which does not exist in v0.3.
+    - name: zmk
+      remote: zmkfirmware
+      revision: 4de313367288aad5aeaa1243890e40dc813f7008
+      import: app/west.yml
+    - name: forager-zmk-module
+      remote: carrefinho
+      revision: 3cafe6b7b26d7b538949e138fc00a148def4b2ed
+    - name: zmk-rgbled-widget
+      remote: caksoylar
+      revision: e6b467792a1dabef8cfa5c9fd26bfefc9c16662b
+  self:
+    path: config
