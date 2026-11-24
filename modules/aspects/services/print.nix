@@ -36,6 +36,8 @@
           enable = true;
           nssmdns4 = true;
           openFirewall = true;
+          # container veths + 169.254 addrs leak into mentat.local and cause a name conflict (-> mentat-2.local), breaking clients' cups-browsed queues
+          allowInterfaces = [ "eth0" ];
           settings.publish = {
             disable-publishing = false;
             disable-user-service-publishing = false;

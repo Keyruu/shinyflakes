@@ -9,6 +9,7 @@
       kanata
       mesh-client
       networking
+      nix-ld
       onepassword
       plymouth
       printing
