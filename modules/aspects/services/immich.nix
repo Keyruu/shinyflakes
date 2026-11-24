@@ -83,7 +83,7 @@
             containers = {
               server = {
                 containerConfig = {
-                  image = "ghcr.io/immich-app/immich-server:v3.4.1";
+                  image = "ghcr.io/immich-app/immich-server:v3.4.2";
                   publishPorts = [ "127.0.0.1:${toString my.port}:2283" ];
                   volumes = [
                     "/etc/localtime:/etc/localtime:ro"
