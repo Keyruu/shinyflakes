@@ -1,4 +1,5 @@
 {
+  inputs,
   ...
 }:
 {
@@ -8,11 +9,10 @@
         pkgs,
         lib,
         config,
-        self',
         ...
       }:
       let
-        betterfox = self'.packages.betterfox;
+        inherit (inputs) betterfox;
 
         extraConfig = builtins.concatStringsSep "\n" [
           (builtins.readFile "${betterfox}/Securefox.js")

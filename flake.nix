@@ -6,11 +6,13 @@
       "https://cache.numtide.com"
       "https://vicinae.cachix.org"
       "https://niri-epireyn.cachix.org"
+      "https://nix-cache.duxlabs.dev"
     ];
     extra-trusted-public-keys = [
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
       "niri-epireyn.cachix.org-1:tlVyFN7CtsDT+ZcLPS+ekFWeT1X6X4OqvWqbBMyIzFA="
+      "dux-1:lrBykuzHKu9F6WsCbK83C9/uOrfqUY1kflRZtrUcMF0="
     ];
   };
 
@@ -110,6 +112,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # plain sources (flake = false): fetched at lock time, so reading files
+    # from them during eval is not import-from-derivation
+    betterfox = {
+      url = "github:yokoffing/Betterfox/154.0";
+      flake = false;
+    };
+    zellij = {
+      url = "github:Keyruu/zellij/1be5c7c088125866d72c8acf59fe270da7f797c2";
+      flake = false;
+    };
+
     vicinae.url = "github:vicinaehq/vicinae";
     vicinae-extensions = {
       url = "github:Keyruu/vicinae-extensions/integration";
@@ -144,10 +157,8 @@
 
     niri.url = "github:epireyn/niri-flake";
 
-    dux-shell = {
-      url = "github:duxlabs-dev/dux-shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # no nixpkgs follow: keeps dms paths identical to nix-cache.duxlabs.dev
+    dux-shell.url = "github:duxlabs-dev/dux-shell";
     dux-files = {
       url = "github:duxlabs-dev/dux-files";
       inputs.nixpkgs.follows = "nixpkgs";

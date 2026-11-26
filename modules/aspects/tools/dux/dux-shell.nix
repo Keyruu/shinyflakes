@@ -2,7 +2,12 @@
 {
   den.aspects.tools.dux.shell = {
     homeManager =
-      { config, user, ... }:
+      {
+        config,
+        user,
+        inputs',
+        ...
+      }:
       let
         t = user.theme;
 
@@ -161,6 +166,8 @@
 
         programs.dank-material-shell = {
           enable = true;
+          # module default rebuilds against our pkgs; the flake's own build hits nix-cache.duxlabs.dev
+          package = inputs'.dux-shell.packages.default;
 
           systemd = {
             enable = true;

@@ -55,11 +55,13 @@
             "https://cache.numtide.com"
             "https://vicinae.cachix.org"
             "https://niri-epireyn.cachix.org"
+            "https://nix-cache.duxlabs.dev"
           ];
           trusted-public-keys = [
             "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
             "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
             "niri-epireyn.cachix.org-1:tlVyFN7CtsDT+ZcLPS+ekFWeT1X6X4OqvWqbBMyIzFA="
+            "dux-1:lrBykuzHKu9F6WsCbK83C9/uOrfqUY1kflRZtrUcMF0="
           ];
         };
         extraOptions = ''

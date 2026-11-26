@@ -38,27 +38,38 @@ pkgs.writeShellApplication {
 
     fakeHash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 
-    for f in "''${siblings[@]}"; do
-      name=$(basename "$f" .nix)
-      echo "==> Processing: $name"
+    # fixHash <file> <attr> <build target>: fake the attr, build, write back the real hash
+    fixHash() {
+      local f="$1" attr="$2" target="$3"
+      local originalHash output correctHash
+      originalHash=$(grep -oP "\b$attr\s*=\s*\"\K[^\"]*" "$f" | head -1)
 
-      originalHash=$(grep -oP 'hash\s*=\s*"\K[^"]*' "$f" | head -1)
+      sed -i "s|\b$attr = \"[^\"]*\"|$attr = \"$fakeHash\"|" "$f"
 
-      sed -i "s|hash = \"[^\"]*\"|hash = \"$fakeHash\"|" "$f"
-
-      output=$(nix build ".#$name" 2>&1) || true
+      output=$(nix build --no-link ".#$target" 2>&1) || true
 
       correctHash=$(echo "$output" | grep 'got:' | grep -o 'sha256-[A-Za-z0-9+/=]*' || true)
 
       if [ -z "$correctHash" ]; then
-        echo "    Build failed for $name, restoring hash and continuing"
-        sed -i "s|hash = \"[^\"]*\"|hash = \"$originalHash\"|" "$f"
+        echo "    Build failed for $target, restoring $attr and continuing"
+        sed -i "s|\b$attr = \"[^\"]*\"|$attr = \"$originalHash\"|" "$f"
         echo "$output" | tail -5
-        continue
+        return
       fi
 
-      sed -i "s|hash = \"[^\"]*\"|hash = \"$correctHash\"|" "$f"
-      echo "    $name: $correctHash"
+      sed -i "s|\b$attr = \"[^\"]*\"|$attr = \"$correctHash\"|" "$f"
+      echo "    $target $attr: $correctHash"
+    }
+
+    for f in "''${siblings[@]}"; do
+      name=$(basename "$f" .nix)
+      echo "==> Processing: $name"
+
+      fixHash "$f" hash "$name"
+      # npm deps hash depends on the source, so it must be fixed after `hash`
+      if grep -q '\bnpmDepsHash\s*=' "$f"; then
+        fixHash "$f" npmDepsHash "$name.npmDeps"
+      fi
     done
 
     echo "Done."

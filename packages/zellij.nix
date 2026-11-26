@@ -1,12 +1,7 @@
 { inputs, pkgs }:
 let
   craneLib = inputs.crane.mkLib pkgs;
-  src = pkgs.fetchFromGitHub {
-    owner = "Keyruu";
-    repo = "zellij";
-    rev = "1be5c7c088125866d72c8acf59fe270da7f797c2";
-    hash = "sha256-TdRUZ3MXhWHDQHc5xIURF7/VjBdJzvmvtuovRtc6fvY=";
-  };
+  src = inputs.zellij;
 in
 craneLib.buildPackage {
   pname = "zellij";

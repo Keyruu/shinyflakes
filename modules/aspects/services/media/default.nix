@@ -19,6 +19,7 @@
       # Request management
       den.aspects.services.media.seerr
       # Misc
+      den.aspects.services.media.dispatcharr
       den.aspects.services.media.tidaloader
     ];
   };

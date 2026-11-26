@@ -45,7 +45,7 @@
                       </Roles>
                       <EnableFolderRoles>false</EnableFolderRoles>
                       <EnableLiveTvRoles>false</EnableLiveTvRoles>
-                      <EnableLiveTv>false</EnableLiveTv>
+                      <EnableLiveTv>true</EnableLiveTv>
                       <EnableLiveTvManagement>false</EnableLiveTvManagement>
                       <LiveTvRoles />
                       <LiveTvManagementRoles />
