@@ -119,7 +119,7 @@
       flake = false;
     };
     zellij = {
-      url = "github:Keyruu/zellij/1be5c7c088125866d72c8acf59fe270da7f797c2";
+      url = "github:Keyruu/zellij/1f3df933978e00c246553070310175c392fcfe4f";
       flake = false;
     };
 

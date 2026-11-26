@@ -2560,17 +2560,17 @@
     "zellij": {
       "flake": false,
       "locked": {
-        "lastModified": 1793199325,
-        "narHash": "sha256-TdRUZ3MXhWHDQHc5xIURF7/VjBdJzvmvtuovRtc6fvY=",
+        "lastModified": 1793117989,
+        "narHash": "sha256-qySHPTxmAB6IC25FM7aZJw1B6XIUCAwE+42sQNZeHaE=",
         "owner": "Keyruu",
         "repo": "zellij",
-        "rev": "1be5c7c088125866d72c8acf59fe270da7f797c2",
+        "rev": "1f3df933978e00c246553070310175c392fcfe4f",
         "type": "github"
       },
       "original": {
         "owner": "Keyruu",
         "repo": "zellij",
-        "rev": "1be5c7c088125866d72c8acf59fe270da7f797c2",
+        "rev": "1f3df933978e00c246553070310175c392fcfe4f",
         "type": "github"
       }
     }
