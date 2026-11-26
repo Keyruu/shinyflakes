@@ -5,6 +5,7 @@ import { githubRepository, loadGithub, pullRequestPreview } from "./github.ts";
 import type { GithubMetadata, PullRequest } from "./github.ts";
 import {
   attention,
+  attentionSummary,
   dmenuLabel,
   renderRow,
   rowLabel,
@@ -1019,7 +1020,9 @@ export async function choose<T extends Choice | Row>(
       inputFile = join(directory, "rows"),
       socket = join(directory, "fzf.sock"),
       actionSocket = join(directory, "zs.sock"),
-      header = join(directory, "header");
+      header = join(directory, "header"),
+      labelFile = join(directory, "label"),
+      name = prompt.replace(/ > $/, "");
     const input = (values = rows) =>
       values
         .map((r: Row) => {
@@ -1050,6 +1053,8 @@ export async function choose<T extends Choice | Row>(
         [agents ? join(directory, "tree") : inputFile, input()],
       ];
       if (agents) files.push([join(directory, "agents"), input(agents)]);
+      const summary = attentionSummary(choices as Row[]);
+      files.push([labelFile, ` ${name}${summary ? "  " + summary : ""} `]);
       for (const [path, data] of files) {
         writeFileSync(path + ".tmp", data);
         renameSync(path + ".tmp", path);
@@ -1133,7 +1138,12 @@ export async function choose<T extends Choice | Row>(
         "--no-sort",
         "--ansi",
         "--pointer=▶",
-        ...(process.env.NO_COLOR ? ["--color=bw"] : []),
+        "--style=full",
+        `--border-label= ${name} `,
+        "--border-label-pos=3",
+        ...(process.env.NO_COLOR
+          ? ["--color=bw"]
+          : ["--color=pointer:bright-magenta,label:bold,border:bright-black"]),
         "--delimiter=\t",
         "--with-nth={2}",
         "--disabled",
@@ -1161,6 +1171,9 @@ export async function choose<T extends Choice | Row>(
         "--bind",
         // Opens in jump mode: typing searches right away, Esc drops to browse keys.
         `start:unbind(${browseKeys})+reload-sync:${filterCommand(inputFile)}`,
+        "--bind",
+        // Every reload follows a save(), so the attention counts in the label stay current.
+        `load:transform-border-label:cat ${quote(labelFile)}`,
         "--bind",
         // No reload while jumping: --id-nth tracking would restore the old row after pos().
         `change:transform:if [ "$FZF_PROMPT" = '/ ' ]; then ${jumpCommand(inputFile, "first")}; else echo ${quote(`reload-sync:${filterCommand(inputFile)}`)}; fi`,

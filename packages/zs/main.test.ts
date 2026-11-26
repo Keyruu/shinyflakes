@@ -59,6 +59,7 @@ import type {
 import { githubRepository, loadGithub, pullRequestPreview } from "./github.ts";
 import {
   attention,
+  attentionSummary,
   attentionText,
   renderRow,
   rowLabel,
@@ -3761,3 +3762,17 @@ test(
     }
   },
 );
+
+test("attention summary counts each pane once and skips idle and non-pane rows", () => {
+  const rows = [
+    { id: "a", kind: "agent", rank: 6 },
+    { id: "a", kind: "agent", rank: 6 }, // same agent listed in the agents view
+    { id: "b", kind: "workspace", rank: 6 },
+    { id: "c", kind: "agent", rank: 4 },
+    { id: "d", kind: "agent", rank: 0 },
+    { id: "e", kind: "worktree", rank: 6 },
+  ] as Row[];
+  assert.equal(attentionSummary(rows, false), "● 2 needs you  ● 1 done");
+  assert.equal(attentionSummary(rows, true), "\x1b[1;31m● 2 needs you\x1b[0m  \x1b[1;32m● 1 done\x1b[0m");
+  assert.equal(attentionSummary([], false), "");
+});

@@ -83,6 +83,27 @@ export function rowPreview(row: Row): string {
   return sections.join("\n");
 }
 
+// Counts panes per attention level for the picker's border label; agents show in both views, so dedupe by id.
+export function attentionSummary(rows: Row[], color = !process.env.NO_COLOR): string {
+  const counts = new Map<number, number>(), seen = new Set<string>();
+  for (const row of rows) {
+    if ((row.kind !== "agent" && row.kind !== "workspace") || seen.has(row.id)) continue;
+    seen.add(row.id);
+    counts.set(row.rank ?? 0, (counts.get(row.rank ?? 0) ?? 0) + 1);
+  }
+  // Same colors as renderRow's status column.
+  const levels: [number, string, string][] = [
+    [6, "needs you", "1;31"], [5, "failed", "1;31"], [4, "done", "1;32"], [1, "working", "33"],
+  ];
+  return levels
+    .filter(([rank]) => counts.get(rank))
+    .map(([rank, text, code]) => {
+      const label = `● ${counts.get(rank)} ${text}`;
+      return color ? `\x1b[${code}m${label}\x1b[0m` : label;
+    })
+    .join("  ");
+}
+
 export function dmenuLabel(row: Row): string {
   return rowLabel(row) + (row.pullRequests ?? []).map((pr) => ` [${prBadge(pr)}]`).join("");
 }

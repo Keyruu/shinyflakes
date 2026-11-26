@@ -11,6 +11,7 @@
       den.aspects.services.media.lidarr
       den.aspects.services.media.prowlarr
       den.aspects.services.media.sabnzbd
+      den.aspects.services.media.qbittorrent
       den.aspects.services.media.recyclarr
       # Media servers
       den.aspects.services.media.jellyfin
