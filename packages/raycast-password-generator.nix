@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   # renovate: datasource=git-refs depName=https://github.com/raycast/extensions branch=main
-  rev = "7705eb923c4fc5e012ea5d3de55b3ea87bacd91c";
+  rev = "97f8181cf080bd18e9151ffbe423b7dfe21c3f10";
 in
 pkgs.callPackage ./_raycast-extension.nix { } {
   name = "password-generator";
